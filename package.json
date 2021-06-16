@@ -1,0 +1,44 @@
+{
+    "name": "froxel",
+    "version": "2.0.31",
+    "description": "Froxel Game Engine",
+    "type": "module",
+    "main": "src/main.js",
+    "scripts": {
+        "test": "echo Ok",
+        "requirements": "yarn global add --ignore-optional parcel",
+        "deploy": "yarn build && node ./scripts/deploy.js",
+        "commit": "yarn build && node ./scripts/commit.js",
+        "build": "parcel build --no-cache --target target_dist src/_export.js"
+    },
+    "target_dist": "dist/froxel.js",
+    "targets": {
+        "target_dist": {
+            "isLibrary": false,
+            "engines": {
+                "browsers": "since 2020-01"
+            }
+        }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rsthn/froxel.git"
+    },
+    "author": "RedStar Technologies",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/rsthn/froxel/issues"
+    },
+    "homepage": "https://github.com/rsthn/froxel#readme",
+    "dependencies": {
+        "@rsthn/rin": "^2.0.28",
+        "filereader": "^0.10.3",
+        "image-size": "^0.9.7"
+    },
+    "files": [
+        "src/",
+        "dist/",
+        "LICENSE",
+        "README.md"
+    ]
+}

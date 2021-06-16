@@ -1,0 +1,11 @@
+node_modules/
+samples/
+scripts/
+.cache
+.parcel-cache
+.svn
+.svnignore
+.svn-revision
+--*
+*.pptx
+todo.txt
