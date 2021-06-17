@@ -351,7 +351,6 @@ const QuadTreeNode = Class.extend
 				continue;
 
 			var rect = i.value.getBounds();
-			//var hitboxes = i.value.getHitboxes();
 			var j_next;
 
 			for (var j = i.next; j && m-- > 0; j = j_next)
@@ -366,10 +365,6 @@ const QuadTreeNode = Class.extend
 
 				if (!j.value.getBounds().intersects(rect))
 					continue;
-
-				//violet ADD THIS!!!
-				//if (!j.value.queryCollision(hitboxes))
-				//	continue;
 
 				// Following code is non-standard cherry. Required on JS because linkables might be recycled.
 				var iId = i.objectId;

@@ -28,11 +28,9 @@ export default
 	area: null,
 	viewport: null,
 
-	debugHitbox: false,
 	debugBounds: false,
-	debugImage: false
+	debugId: false
 };
-
 
 /*
 **	Converts the given pixel-value to actual screen pixels taking into account the current scale.
@@ -43,7 +41,6 @@ global.px = function(value)
 {
 	return value*C.SCALE;
 };
-
 
 /*
 **	Disposes an object, first by checking if it has a 'dispose' method, and if not, tried to check
@@ -65,7 +62,6 @@ global.dispose = function (obj, reason)
 	if ('__dtor' in obj) obj.__dtor();
 };
 
-
 /*
 **	Creates a global AudioContext if supported.
 */
@@ -73,7 +69,6 @@ if ('AudioContext' in global)
 	global.audioContext = new AudioContext();
 else
 	global.audioContext = null;
-
 
 /*
 **	Similar to fetch() but uses XMLHttpRequest, as in some mobile browsers normal mode does not work well for ArrayBuffers.
@@ -105,7 +100,6 @@ global.fetchd = function (url, options)
 	});
 };
 
-
 /*
 **	Loads an arraybuffer from the specified URL and converts it to a AudioBuffer using the global audioContext.
 **
@@ -128,7 +122,6 @@ global.fetchAudioBuffer = function (url)
 	});
 };
 
-
 /*
 **	Returns the value as an integer.
 **
@@ -138,7 +131,6 @@ global.int = function (value)
 {
 	return ~~value;
 };
-
 
 /*
 **	Returns the value as a boolean.
@@ -159,7 +151,6 @@ global.bool = function (value)
 	return !(!value);
 };
 
-
 /*
 **	Returns the value as a floating point number.
 **
@@ -169,7 +160,6 @@ global.float = function (value)
 {
 	return parseFloat(value);
 };
-
 
 /*
 **	Returns the value with 2 digits of precision.
@@ -181,7 +171,6 @@ global.float2 = function (value)
 	return (~~(value*100))/100;
 };
 
-
 /*
 **	Returns the value with 3 digits of precision.
 **
@@ -191,7 +180,6 @@ global.float3 = function (value)
 {
 	return (~~(value*1000))/1000;
 };
-
 
 /*
 **	Returns the value with 4 digits of precision.
@@ -203,7 +191,6 @@ global.float4 = function (value)
 	return (~~(value*10000))/10000;
 };
 
-
 /*
 **	Converts the given value to radians.
 **
@@ -214,6 +201,15 @@ global.rad = function (value)
 	return value*Math.PI / 180;
 };
 
+/*
+**	Converts the given value to degrees.
+**
+**	float deg (float value);
+*/
+global.deg = function (value)
+{
+	return (value/Math.PI)*180;
+};
 
 /*
 **	Returns a random integer value from 0 to 0xFFFF (inclusive).
@@ -225,7 +221,6 @@ global.rand = function ()
 	return int(Math.random()*0x10000);
 };
 
-
 /*
 **	Returns a random float from 0 to 1 (non-inclusive).
 **
@@ -235,7 +230,6 @@ global.randf = function ()
 {
 	return Math.random();
 };
-
 
 /*
 **	Returns a random float within the given (non-inclusive) range.
@@ -248,7 +242,6 @@ global.randrf = function (a, b)
 	return t*b + (1-t)*a;
 };
 
-
 /*
 **	Returns a random integer within the given range (inclusive).
 **
@@ -259,7 +252,6 @@ global.randr = function (a, b)
 	let t = Math.random();
 	return ~~(t*b + (1-t)*a);
 };
-
 
 /*
 **	Returns a table of random float numbers within the given range (non-inclusive).
@@ -276,7 +268,6 @@ global.randtf = function (a, b, n)
 	return list;
 };
 
-
 /*
 **	Returns the high-resolution 'now' counter in milliseconds.
 **
@@ -287,7 +278,6 @@ global.hrnow = function ()
 	return ~~performance.now();
 };
 
-
 /*
 **	Returns a function that produces a random integer value within the given (inclusive) range.
 **
@@ -297,7 +287,6 @@ global.randvar = function (a, b)
 {
 	return function() { return randr(a, b); };
 };
-
 
 /*
 **	Returns a function that returns an item from the specified array at some random index within the
@@ -314,7 +303,6 @@ global.randitem = function (arr, a, b)
 
 	return function() { return arr[randr(a, b)]; };
 };
-
 
 /*
 **	Returns the parameter 't' where two line segments intersect.
@@ -387,7 +375,6 @@ global.getLineSegmentIntersection = function (ls1_x1, ls1_y1, ls1_x2, ls1_y2, ls
 	return tA;
 };
 
-
 /*
 **	Returns boolean if the line segments intersect.
 **
@@ -413,7 +400,6 @@ global.rotatePoint = function (angle, x, y)
 		return { x: x*Math.cos(angle) + y*Math.sin(angle), y: y*Math.cos(angle) - x*Math.sin(angle) };
 };
 
-
 /*
 **	Returns a value snapped to a step within the given range.
 **
@@ -423,7 +409,6 @@ global.stepValue = function (value, minValue, maxValue, numSteps)
 {
 	return ((Math.round(numSteps * (value - minValue) / (maxValue - minValue))) / numSteps) * (maxValue - minValue) + minValue;
 };
-
 
 /*
 **	Returns a value that is a factor of the specified step.

@@ -64,6 +64,7 @@ import _KeyboardHandler from './flow/keyboard-handler'; export const KeyboardHan
 import _PointerHandler from './flow/pointer-handler'; export const PointerHandler = _PointerHandler;
 import _ScreenControls from './flow/screen-controls'; export const ScreenControls = _ScreenControls;
 import _Button from './flow/button'; export const Button = _Button;
+import _Stick from './flow/stick'; export const Stick = _Stick;
 
 
 /*

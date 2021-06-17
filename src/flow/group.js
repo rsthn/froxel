@@ -24,9 +24,6 @@ export default Element.extend
 ({
 	className: 'Group',
 
-	debugHitbox: false,
-	highlight: false,
-
 	/*
 	**	Array of children related to the group.
 	*/
@@ -51,14 +48,14 @@ export default Element.extend
 		if (this.undisposable)
 			return;
 
-		this._super.Element.__dtor();
-
 		if (this.children != null)
 		{
 			let tmp = this.children;
 			this.children = null;
 			tmp.forEach(i => dispose(i));
 		}
+
+		this._super.Element.__dtor();
 	},
 
 	/*

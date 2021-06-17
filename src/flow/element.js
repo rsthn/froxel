@@ -14,13 +14,11 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Class } from '@rsthn/rin';
-import G from '../system/globals.js'
-import Rect from '../math/rect.js'
-import Anim from '../anim/anim.js';
-import Matrix from '../math/matrix.js';
-import Log from '../system/log.js';
-import QuadTreeItem from '../spatial/quadtree-item.js';
+import G from '../system/globals'
+import Anim from '../anim/anim';
+import Matrix from '../math/matrix';
+import System from '../system/system';
+import QuadTreeItem from '../spatial/quadtree-item';
 
 /*
 **
@@ -83,10 +81,9 @@ export default QuadTreeItem.extend
 	transformDirty: false,
 
 	/*
-	**	Indicates if the bounds, or hitbox of the element should be drawn (for debugging purposes).
+	**	Indicates if the bounds of the element should be drawn (for debugging purposes).
 	*/
 	debugBounds: false,
-	debugHitbox: false,
 
 	/*
 	**	Constructor.
@@ -112,11 +109,11 @@ export default QuadTreeItem.extend
 	*/
 	__dtor: function()
 	{
-		this._super.QuadTreeItem.__dtor();
 		this.remove();
+		this._super.QuadTreeItem.__dtor();
 
-		this.anim = null;
-		this.transform = null;
+		dispose(this.anim);
+		dispose(this.transform);
 	},
 
 	/*
@@ -308,11 +305,11 @@ export default QuadTreeItem.extend
 	remove: function()
 	{
 		if (this.parent != null)
-			this.parent.removeChild (this);
+			this.parent.removeChild(this);
 
 		if (this.container)
 		{
-			this.container.remove (this);
+			this.container.remove(this);
 			this.container = null;
 			// VIOLET: make some method on container to set null when removed
 		}
@@ -378,37 +375,36 @@ export default QuadTreeItem.extend
 	*/
 	postDraw: function(g)
 	{
-		if (G.debugBounds || this.debugBounds)
-		{
-			g.lineWidth(1);
-			g.strokeStyle("yellow");
-			g.strokeRect(0.5, 0.5, this.width-1, this.height-1);
-		}
-
 		g.popAlpha();
 		g.popMatrix();
 
-		if (G.debugHitbox || this.debugHitbox)
+		if ((G.debugBounds && this.type) || this.debugBounds)
 		{
-			if (!this.type)
-				g.fillStyle("rgba(255,255,255,0.5)");
-			else
-				g.fillStyle("rgba(0,255,255,0.5)");
+			//g.lineWidth(1/System.canvasScaleFactor);
+			//g.strokeStyle("yellow");
+			//g.strokeRect(0.5, 0.5, this.width-1, this.height-1);
 
+			g.fillStyle("rgba(0,255,255,0.5)");
 			g.fillRect(this.insertionBounds.x1, this.insertionBounds.y1, this.insertionBounds.width(), this.insertionBounds.height());
+		}
 
+		/*
 			// violet: remove this? or figure a better way to have this.
-			/*if (this.highlight)
-			{
-				g.fillStyle("rgba(255,0,0,0.5)");
-				g.fillRect(this.highlight.x1, this.highlight.y1, this.highlight.width(), this.highlight.height());
-			}*/
-
-			//if (this.type) {
-			//	g.font('bold 3px monospace');
-			//	g.fillStyle('red');
-			//	g.fillText(this.selectedIndex, this.insertionBounds.x1, this.insertionBounds.y1);
+			//if (this.highlight)
+			//{
+			//	g.fillStyle("rgba(255,0,0,0.5)");
+			//	g.fillRect(this.highlight.x1, this.highlight.y1, this.highlight.width(), this.highlight.height());
 			//}
+		}*/
+
+		if (G.debugId && this.type)
+		{
+			g.font('bold 3px monospace');
+			g.textBaseline('top');
+			g.fillStyle('#000');
+			g.fillRect(this.insertionBounds.x1, this.insertionBounds.y1-1, g.measureText(this.id), 4);
+			g.fillStyle('#fff');
+			g.fillText(this.id, this.insertionBounds.x1, this.insertionBounds.y1);
 		}
 	},
 

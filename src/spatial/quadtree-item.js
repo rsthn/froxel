@@ -59,11 +59,6 @@ const QuadTreeItem = Class.extend
 	bounds: null, /* Rect */
 
 	/*
-	**	Hitbox of the element for collision detection.
-	*/
-	hitbox: null, /* Rect */
-
-	/*
 	**	Z-index (layer ordering) of the item.
 	*/
 	zindex: 0,
@@ -98,7 +93,6 @@ const QuadTreeItem = Class.extend
 		this.insertionBounds = Rect.alloc();
 		this.lastBounds = Rect.alloc();
 		this.bounds = Rect.alloc();
-		this.hitbox = Rect.alloc();
 
 		this.numRefNodes = 0;
 		this.zindex = 0;
@@ -115,7 +109,6 @@ const QuadTreeItem = Class.extend
 		this.insertionBounds.zero();
 		this.lastBounds.zero();
 		this.bounds.zero();
-		this.hitbox.zero();
 
 		this.numRefNodes = 0;
 		this.zindex = 0;
@@ -134,7 +127,6 @@ const QuadTreeItem = Class.extend
 		Rect.free(this.insertionBounds);
 		Rect.free(this.lastBounds);
 		Rect.free(this.bounds);
-		Rect.free(this.hitbox);
 	},
 
 	/*
@@ -247,15 +239,6 @@ const QuadTreeItem = Class.extend
 	getBounds: function () /* Rect */
 	{
 		return this.bounds;
-	},
-
-	/*
-	**	Returns the hitbox of the item (used for collision detection). The hitbox must always be a sub-set of the bounds
-	**	of the item or collision detection might not work.
-	*/
-	getHitbox: function () /* Rect */
-	{
-		return this.hitbox;
 	}
 });
 

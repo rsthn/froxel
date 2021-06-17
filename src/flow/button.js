@@ -18,23 +18,23 @@ import Group from './group.js';
 import Element from './element.js';
 import ScreenControls from './screen-controls.js';
 
-/**
+/*
 **	Button class provides an easy way to add push-button support to the world.
 */
 
 export default Group.extend
 ({
-	/**
+	/*
 	**	Indicates if once focus is obtained it is locked until the user releases it.
 	*/
 	focusLock: false,
 
-	/**
+	/*
 	**	Current and last status of the button (0 for unpressed, 1 for pressed).
 	*/
 	status: 0, lstatus: 0,
 
-	/**
+	/*
 	**	Images for the unpressed and pressed statuses.
 	*/
 	unpressedImg: null,
@@ -48,9 +48,9 @@ export default Group.extend
 	/*
 	**	Hitbox element.
 	*/
-	mask: 0,
+	hitbox: 0,
 
-	/**
+	/*
 	**	Creates the button with the specified parameters. Automatically adds it to the screen controls.
 	*/
 	__ctor: function (x, y, unpressedImg, pressedImg=null, relativeToCenter=true)
@@ -60,8 +60,8 @@ export default Group.extend
 		this.unpressedImg = unpressedImg;
 		this.pressedImg = pressedImg || unpressedImg;
 
-		this.mask = new Element(0, 0, this.width, this.height);
-		this.addChild(this.mask);
+		this.hitbox = new Element(0, 0, this.width, this.height);
+		this.addChild(this.hitbox);
 
 		ScreenControls.add(this);
 	},
@@ -80,7 +80,7 @@ export default Group.extend
 	*/
 	onAttached: function (container)
 	{
-		container.add(this.mask);
+		container.add(this.hitbox);
 	},
 
 	/*
@@ -89,8 +89,8 @@ export default Group.extend
 	onDetached: function (container)
 	{
 		// VIOLET: container should set the 'container' property to null
-		container.remove(this.mask);
-		this.mask.container = null;
+		container.remove(this.hitbox);
+		this.hitbox.container = null;
 	},
 
 	/*
@@ -100,9 +100,10 @@ export default Group.extend
 	{
 		this.unpressedImg = unpressedImg;
 		this.pressedImg = pressedImg || unpressedImg;
+		return this;
 	},
 
-	/**
+	/*
 	**	Resets the button to its initial state.
 	*/
 	reset: function ()
@@ -111,7 +112,7 @@ export default Group.extend
 		this.onChange (this.status, this.lstatus);
 	},
 
-	/**
+	/*
 	**	Draws the element on the given graphics surface.
 	*/
 	elementDraw: function (g)
@@ -122,14 +123,14 @@ export default Group.extend
 			this.unpressedImg.draw (g, 0, 0);
 	},
 
-	/**
+	/*
 	**	Button pointer update event. Not required for the button control.
 	*/
 	pointerUpdate: function (pointerX, pointerY)
 	{
 	},
 
-	/**
+	/*
 	**	Called when the EVT_POINTER_DOWN event starts within the bounding box of the button.
 	*/
 	pointerActivate: function (pointer)
@@ -140,7 +141,7 @@ export default Group.extend
 		this.onChange (this.status, this.lstatus);
 	},
 
-	/**
+	/*
 	**	Called when the EVT_POINTER_UP event is fired with the "_ref" attribute pointing to this object.
 	*/
 	pointerDeactivate: function (pointer)
@@ -151,7 +152,7 @@ export default Group.extend
 		this.onChange (this.status, this.lstatus);
 	},
 
-	/**
+	/*
 	**	Returns true if the button contains the specified point.
 	*/
 	containsPoint: function(x, y)
@@ -159,10 +160,10 @@ export default Group.extend
 		if (!this.active() || !this.visible())
 			return false;
 
-		return this.mask.bounds.containsPoint(x, y);
+		return this.hitbox.bounds.containsPoint(x, y);
 	},
 
-	/**
+	/*
 	**	Executed after any change in the status of the button. Be careful when overriding this, because when so, the onTap method will not work.
 	*/
 	onChange: function (status, lstatus) /* @override */
@@ -178,24 +179,38 @@ export default Group.extend
 		if (status == 0 && lstatus == 1) this.onTap();
 	},
 
-	/**
+	/*
 	**	Executed when the button is pressed. Works only if the onChange method was not overriden.
 	*/
 	onButtonDown: function () /* @override */
 	{
 	},
 
-	/**
+	/*
 	**	Executed when the button is released. Works only if the onChange method was not overriden.
 	*/
 	onButtonUp: function () /* @override */
 	{
 	},
 
-	/**
+	/*
 	**	Executed when the button is tapped (pressed and then released). Works only if the onChange method was not overriden.
 	*/
 	onTap: function () /* @override */
 	{
+	},
+
+	/*
+	**	Returns true if the button is pressed after being unpressed. When `clear is true, automatically clears the internal flag so that the next call will return false.
+	*/
+	wasPressed: function (clear=false)
+	{
+		let status = this.status && !this.lstatus;
+
+		if (clear) {
+			this.lstatus = this.status;
+		}
+
+		return status;
 	}
 });

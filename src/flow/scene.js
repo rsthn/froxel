@@ -45,7 +45,7 @@ const Scene = Element.extend
 	/*
 	**	Constructs an empty scene.
 	*/
-	__ctor: function (numLayers=null)
+	__ctor: function()
 	{
 		this._super.Element.__ctor();
 
@@ -219,6 +219,7 @@ Scene.LAYER_FRONT0 		= 4;
 Scene.LAYER_FRONT1 		= 5;
 Scene.LAYER_UI0 		= 6;
 Scene.LAYER_UI1 		= 7;
-Scene.LAYER_COLLISIONS	= 8;
+Scene.LAYER_COLLISIONS0	= 8;
+Scene.LAYER_COLLISIONS1	= 9;
 
 export default Scene;
