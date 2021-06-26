@@ -17,7 +17,7 @@
 import { Class } from '@rsthn/rin';
 import Recycler from './recycler.js';
 
-/**
+/*
 **	Generic class for linkable items such as required by linked lists. The responsibility of this class is
 **	to wrap a value into a linkable object.
 */
@@ -26,34 +26,25 @@ const Linkable = Class.extend
 ({
 	className: "Linkable",
 
-	/**
+	/*
 	**	Pointer to the previous item in the chain.
 	*/
 	prev: null, /* Linkable */
 
-	/**
+	/*
 	**	Pointer to the next item in the chain.
 	*/
 	next: null, /* Linkable */
 
-	/**
+	/*
 	**	Wrapped value.
 	*/
 	value: null,
 
-	/**
-	**	Constructs the linkable to wrap the specified value.
+	/*
+	**	Initializes the linkable item and wraps the given value. Makes sure the previous and next pointers are clear.
 	*/
-	__ctor: function (value)
-	{
-		this.value = value;
-		this.clear();
-	},
-
-	/**
-	**	Initializes the linkable item. Makes sure the previous and next pointers are clear.
-	*/
-	__reinit: function (value)
+	init: function (value)
 	{
 		this.value = value;
 		this.clear();
@@ -61,14 +52,15 @@ const Linkable = Class.extend
 		return this;
 	},
 
-	/**
-	**	Destructor.
+	/*
+	**	Unlinks the linkable item.
 	*/
 	__dtor: function ()
 	{
+		this.unlink();
 	},
 
-	/**
+	/*
 	**	Sets the previous/next connection pointers to null. Returns `this`.
 	*/
 	clear: function () /*Linkable*/
@@ -77,7 +69,7 @@ const Linkable = Class.extend
 		return this;
 	},
 
-	/**
+	/*
 	**	Links the item such that it will be located after the given reference.
 	*/
 	linkAfter: function (/*Linkable*/ref)
@@ -92,7 +84,7 @@ const Linkable = Class.extend
 		}
 	},
 
-	/**
+	/*
 	**	Links the item such that it will be located before the given reference.
 	*/
 	linkBefore: function (/*Linkable*/ref)
@@ -107,7 +99,7 @@ const Linkable = Class.extend
 		}
 	},
 
-	/**
+	/*
 	**	Unlinks the item by linking the `prev` and `next` together (when available) and returns `this`.
 	*/
 	unlink: function () /*Linkable*/
@@ -115,10 +107,9 @@ const Linkable = Class.extend
 		if (this.prev) this.prev.next = this.next;
 		if (this.next) this.next.prev = this.prev;
 
-		return this.clear ();
+		return this.clear();
 	}
 });
 
 Recycler.attachTo (Linkable);
-
 export default Linkable;

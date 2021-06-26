@@ -28,9 +28,15 @@ export default Boot.Module.create
 
 	__ctor: function ()
 	{
+		const self = this;
+
 		this._super.Module.__ctor();
 
 		this.handlers = new PriorityQueue();
+
+		this._callOnKeyboardEvent = function (handler) {
+			return self.callOnKeyboardEvent(handler);
+		};
 	},
 
 	register: function (handler)
@@ -59,22 +65,20 @@ export default Boot.Module.create
 		}
 	},
 
+	callOnKeyboardEvent: function (handler)
+	{
+		return handler.onKeyboardEvent(this._action, this._keyCode, this._keyState);
+	},
+
 	onStartup: function()
 	{
 		System.onKeyboardEvent = (action, keyCode, keyState) =>
 		{
-			const breakError = { };
+			this._action = action;
+			this._keyCode = keyCode;
+			this._keyState = keyState;
 
-			try {
-				this.handlers.forEach((h) =>
-				{
-					if (h.onKeyboardEvent(action, keyCode, keyState) === false)
-						throw breakError;
-				});
-			}
-			catch (e) {
-				if (e !== breakError) throw e;
-			}
+			this.handlers.forEach(this._callOnKeyboardEvent);
 		};
 	},
 

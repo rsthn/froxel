@@ -18,7 +18,6 @@ import { Class } from '@rsthn/rin';
 import List from '../utils/list.js';
 import QuadTreeNode from './quadtree-node.js';
 import QuadTreeItem from './quadtree-item.js';
-import Log from '../system/log.js';
 
 /*
 **	Implemention of a quad tree for optimized storage of spatial items.
@@ -42,7 +41,7 @@ const QuadTree = Class.extend
 	items: null, /*List<QuadTreeItem>*/
 
 	/*
-	**	List of items ordered by their position from back to front.
+	**	List of items ordered by their depending on the tree's comparator function.
 	*/
 	orderedItems: null, /*List<QuadTreeItem>*/
 
@@ -55,6 +54,21 @@ const QuadTree = Class.extend
 	**	Maximum number of items per each node.
 	*/
 	nodeCapacity: 0,
+
+	/*
+	**	Minimum node size (width or height).
+	*/
+	minNodeSize: 128,
+
+	/*
+	**	Current minimum leaf node size (the smallest leaf).
+	*/
+	leafSize: null,
+
+	/*
+	**	Current maximum leaf fill level (the leaf with the most number of children).
+	*/
+	leafLevel: 0,
 
 	/*
 	**	Node pointing to the next selected item.
@@ -82,6 +96,11 @@ const QuadTree = Class.extend
 	visible: true,
 
 	/*
+	**	Indicates if the tree is locked, when so, adding or removing items will be postponed.
+	*/
+	locked: 0,
+
+	/*
 	**	Direction of the X, Y and Z coordinates (true=inverted). Used to alter ordering of items in the quad tree.
 	*/
 	xd: false, yd: false, zd: false,
@@ -91,11 +110,11 @@ const QuadTree = Class.extend
 	*/
 	__ctor: function (x1, y1, x2, y2, nodeCapacity)
 	{
-		this.items = new List();
-		this.orderedItems = new List();
-		this.updateQueue = new List();
+		this.items = List.calloc();
+		this.orderedItems = List.calloc();
+		this.updateQueue = List.calloc();
 
-		this.root = new QuadTreeNode (this, x1, y1, x2, y2);
+		this.root = QuadTreeNode.alloc().init(this, x1, y1, x2, y2);
 		this.nodeCapacity = nodeCapacity;
 
 		this.isReverse = false;
@@ -110,11 +129,11 @@ const QuadTree = Class.extend
 	__dtor: function ()
 	{
 		this.root.clear();
-		dispose(this.root);
+		this.root.free();
 
-		dispose(this.items);
-		dispose(this.orderedItems);
-		dispose(this.updateQueue);
+		this.items.free();
+		this.orderedItems.free();
+		this.updateQueue.free();
 	},
 
 	/*
@@ -148,6 +167,24 @@ const QuadTree = Class.extend
 	getVisible: function ()
 	{
 		return this.visible;
+	},
+
+	/*
+	**	Locks the tree.
+	*/
+	lock: function ()
+	{
+		this.locked++;
+		return this;
+	},
+
+	/*
+	**	Unlocks the tree.
+	*/
+	unlock: function ()
+	{
+		this.locked--;
+		return this;
 	},
 
 	/*
@@ -262,7 +299,7 @@ const QuadTree = Class.extend
 	*/
 	addItemOrdered: function (/*QuadTreeItem*/item)
 	{
-		for (var i = this.orderedItems.top; i; i = i.next)
+		for (let i = this.orderedItems.top; i; i = i.next)
 		{
 			if (this.isBefore (item, i.value))
 			{
@@ -271,7 +308,7 @@ const QuadTree = Class.extend
 			}
 		}
 
-		this.orderedItems.push (item);
+		this.orderedItems.push(item);
 	},
 
 	/*
@@ -279,24 +316,40 @@ const QuadTree = Class.extend
 	*/
 	reorderItems: function ()
 	{
-		var tmp = this.orderedItems;
+		let tmp = this.orderedItems;
 
-		this.orderedItems = new List();
+		this.orderedItems = List.calloc();
 
-		for (var i = tmp.top; i; i = i.next)
+		for (let i = tmp.top; i; i = i.next)
 			this.addItemOrdered(i.value);
 
-		dispose(tmp);
+		tmp.free();
 	},
 
 	/*
 	**	Adds an item to the tree, returns false if the operation was unsuccessful.
 	*/
-	addItem: function (/*QuadTreeItem*/item) /*bool*/
+	addItem: function (/*QuadTreeItem*/item, immediate=false) /*bool*/
 	{
-		if (this.root.addItem (item, this.nodeCapacity))
+		if (this.locked != 0 && !immediate)
 		{
-			this.addItemOrdered (item);
+			if (!(item.flags & QuadTreeItem.FLAG_QUEUED))
+				this.updateQueue.push(item);
+
+			if (item.flags & QuadTreeItem.FLAG_QUEUED_UPDATE)
+				return true;
+
+			item.flags &= ~QuadTreeItem.FLAG_QUEUED_REMOVAL;
+			item.flags |= QuadTreeItem.FLAG_QUEUED_INSERTION;
+
+			return true;
+		}
+
+		item.updateInsertionBounds();
+
+		if (!this.root.addItem(item))
+		{
+			this.addItemOrdered(item);
 			return true;
 		}
 
@@ -306,8 +359,19 @@ const QuadTree = Class.extend
 	/*
 	**	Removes an item from the tree. Returns false if the operation was unsuccessful.
 	*/
-	removeItem: function (/*QuadTreeItem*/item) /*bool*/
+	removeItem: function (/*QuadTreeItem*/item, immediate=false) /*bool*/
 	{
+		if (this.locked != 0 && !immediate)
+		{
+			if (!(item.flags & QuadTreeItem.FLAG_QUEUED))
+				this.updateQueue.push(item);
+
+			item.flags &= ~(QuadTreeItem.FLAG_QUEUED_UPDATE | QuadTreeItem.FLAG_QUEUED_INSERTION);
+			item.flags |= QuadTreeItem.FLAG_QUEUED_REMOVAL;
+
+			return true;
+		}
+
 		if (!(item.flags & QuadTreeItem.FLAG_ATTACHED))
 			return true;
 
@@ -321,31 +385,55 @@ const QuadTree = Class.extend
 	/*
 	**	Adds an item to the update queue to be processed on the next update cycle.
 	*/
-	updateItem: function (/*QuadTreeItem*/item)
+	updateItem: function (/*QuadTreeItem*/item, immediate=false)
 	{
-		this.removeItem(item);
+		if (!immediate)
+		{
+			if (!(item.flags & QuadTreeItem.FLAG_QUEUED))
+				this.updateQueue.push(item);
 
-		if (!this.addItem(item))
-			throw new Error ('Unable to re-attach item to quadtree.');
+			if (item.flags & QuadTreeItem.FLAG_QUEUED_REMOVAL)
+				return;
 
-		if (item.flags & QuadTreeItem.FLAG_QUEUED)
+			item.flags &= ~QuadTreeItem.FLAG_QUEUED_INSERTION;
+			item.flags |= QuadTreeItem.FLAG_QUEUED_UPDATE;
+
 			return;
+		}
 
-		this.updateQueue.push (item);
-		item.flags |= QuadTreeItem.FLAG_QUEUED;
+		this.removeItem(item, true);
+
+		if (!this.addItem(item, true))
+			throw new Error ('Unable to re-attach item to quadtree.');
 	},
 
 	/*
-	**	Runs an update cycle on the tree. Any queued item will be updated.
+	**	Runs an update cycle on the tree. Any queued items will be processed.
 	*/
 	update: function()
 	{
-		var i;
+		if (this.locked != 0)
+			return;
 
-		while (i = this.updateQueue.pop())
+		let i;
+
+		while ((i = this.updateQueue.shift()) != null)
 		{
+			let flags = i.flags;
 			i.flags &= ~QuadTreeItem.FLAG_QUEUED;
-			i.notifyPosition();
+
+			if (flags & QuadTreeItem.FLAG_QUEUED_UPDATE)
+			{
+				this.updateItem(i, true);
+			}
+			else if (flags & QuadTreeItem.FLAG_QUEUED_REMOVAL)
+			{
+				this.removeItem(i, true);
+			}
+			else if (flags & QuadTreeItem.FLAG_QUEUED_INSERTION)
+			{
+				this.addItem(i, true);
+			}
 		}
 	},
 
@@ -370,7 +458,7 @@ const QuadTree = Class.extend
 	**	Selects all items that are within the specified region. Methods `getNextSelected` and `getCountSelected` can be used to determine the next
 	**	item and the number of remaining selected items. Returns the number of items selected.
 	*/
-	selectItems: function (/*Rect*/rect=null, filter=null, isReverse=null)
+	selectItems: function (/*Bounds2*/bounds=null, filter=null, isReverse=null)
 	{
 		if (isReverse === null)
 			isReverse = this.isReverse;
@@ -378,7 +466,7 @@ const QuadTree = Class.extend
 		this.selectedCount = 0;
 		this.selectedIndex = 0;
 
-		this.root.selectItems (rect, filter);
+		this.root.selectItems (bounds, filter);
 
 		this.nextItem = isReverse ? this.orderedItems.bottom : this.orderedItems.top;
 		return this.selectedCount;
@@ -405,7 +493,7 @@ const QuadTree = Class.extend
 			this.nextItem = isReverse ? this.nextItem.prev : this.nextItem.next;
 		}
 
-		var ret = this.nextItem;
+		let ret = this.nextItem;
 
 		if (this.nextItem)
 		{
@@ -437,9 +525,9 @@ const QuadTree = Class.extend
 	/*
 	**	Returns the number of items inside the specified region.
 	*/
-	countItems: function (/*Rect*/rect=null, filter=null)
+	countItems: function (/*Bounds2*/bounds=null, filter=null)
 	{
-		let count = this.selectItems(rect, filter);
+		let count = this.selectItems(bounds, filter);
 		this.releaseSelected();
 
 		return count;
@@ -457,13 +545,13 @@ const QuadTree = Class.extend
 	},
 
 	/*
-	**	Returns the items inside the specified region.
+	**	Returns the items inside the specified region as a List.
 	*/
-	selectItemsIntoArray: function (/*Rect*/rect, filter=null)
+	selectItemsAsList: function (/*Bounds2*/bounds, filter=null)
 	{
-		let list = [];
+		let list = List.calloc();
 
-		this.selectItems(rect, filter);
+		this.selectItems(bounds, filter);
 
 		while (this.getCountSelected())
 			list.push(this.getNextSelected());

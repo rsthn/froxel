@@ -17,7 +17,8 @@
 import Element from './element.js';
 import Container from './container.js';
 import Viewport from './viewport.js';
-import Rect from '../math/rect.js';
+import Bounds2 from '../math/bounds2.js';
+import Globals from '../system/globals.js';
 
 /*
 **	An scene is a set of containers and viewports in specific order.
@@ -52,7 +53,7 @@ const Scene = Element.extend
 		this.layers = [];
 
 		this.viewports = [];
-		this.viewportBounds = Rect.alloc();
+		this.viewportBounds = Bounds2.alloc();
 
 		this.container = false;
 	},
@@ -64,7 +65,7 @@ const Scene = Element.extend
 	{
 		this._super.Element.__dtor();
 
-		this.viewportBounds.dispose();
+		this.viewportBounds.free();
 	},
 
 	/*
@@ -134,8 +135,7 @@ const Scene = Element.extend
 
 			g.pushMatrix();
 
-			viewport.applyTransform(g);
-
+			(Globals.viewport = viewport).applyTransform(g);
 // VIOLET : REMOVE THIS {
 /*area = viewport.getFocusBounds();
 g.beginPath();
@@ -146,7 +146,7 @@ g.lineTo(area.x1, area.y2);
 g.closePath();
 g.stroke('red');*/
 // }
-			this.viewportBounds.set(viewport.getBounds()).resizeBy(1, 1);
+			this.viewportBounds.set(viewport.getBounds()).resizeBy(2, 2);
 			this._sceneDraw(g, this.viewportBounds);
 
 			g.popMatrix();
@@ -170,8 +170,9 @@ g.stroke('red');*/
 				this.layers[i].draw(g);
 			}
 		}
-		catch (e) {
-			if (e.message != "SYS::FRAME_END") {
+		catch (e)
+		{
+			if (e.message != 'SYS::FRAME_END') {
 				throw e;
 			}
 		}
@@ -200,8 +201,9 @@ g.stroke('red');*/
 				this.viewports[i].update(dt);
 			}
 		}
-		catch (e) {
-			if (e.message != "SYS::FRAME_END")
+		catch (e)
+		{
+			if (e.message != 'SYS::FRAME_END')
 				throw e;
 		}
 	}

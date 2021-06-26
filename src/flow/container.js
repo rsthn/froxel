@@ -31,7 +31,7 @@ export default Class.extend(Element,
 	tree: null,
 	viewportBounds: null,
 
-	__ctor: function (x1=-1e6, y1=-1e6, x2=1e6, y2=1e6, nodeCapacity=16)
+	__ctor: function (x1=-1e6, y1=-1e6, x2=1e6, y2=1e6, nodeCapacity=24)
 	{
 		this._super.Element.__ctor();
 
@@ -48,7 +48,7 @@ export default Class.extend(Element,
 	add: function(elem)
 	{
 		if (!this.tree.addItem(elem))
-			return elem;
+			return null;
 
 		elem.container = this;
 
@@ -97,8 +97,14 @@ export default Class.extend(Element,
 
 	elementUpdate: function(dt)
 	{
-		this.tree.getItems().forEach((v) => v.update(dt));
+		this.tree.lock();
+
+		for (let i = this.tree.getItems().top; i; i = i.next)
+			i.value.update(dt);
+
 		this.containerUpdate(dt);
+
+		this.tree.unlock();
 		this.tree.update();
 	},
 

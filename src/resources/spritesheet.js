@@ -89,7 +89,7 @@ export default Class.extend
 
 		if (r.type == "image")
 		{
-			this.numCols = ~~(r.data.width / this.r_frameWidth);
+			this.numCols = int(r.data.width / this.r_frameWidth);
 			this.numRows = Math.ceil(r.data.height / this.r_frameHeight);
 
 			this.numFrames = r.config.numFrames || (this.numCols * this.numRows);
@@ -116,7 +116,7 @@ export default Class.extend
 
 		if (this.numCols != 0)
 		{
-			var j = ~~(frame / this.numCols) * this.r_frameHeight;
+			var j = int(frame / this.numCols) * this.r_frameHeight;
 			var i =  (frame % this.numCols) * this.r_frameWidth;
 
 			g.drawImage (this.r.data, i, j, this.r_frameWidth, this.r_frameHeight, x, y, width, height);

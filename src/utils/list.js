@@ -14,46 +14,49 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Class } from '@rsthn/rin';
+import { Rin, Class } from '@rsthn/rin';
 import Linkable from './linkable.js';
+import Recycler from './recycler.js';
 
-/**
+/*
 **	Implementation of a linked list.
 */
 
-export default Class.extend
+const List = Class.extend
 ({
-	/**
+	/*
 	**	Name of the class (for inheritance purposes).
 	*/
 	className: "List",
 
-	/**
+	/*
 	**	Pointer to the first item in the list.
 	*/
 	top: null, /* Linkable */
 
-	/**
+	/*
 	**	Pointer to the last item in the list.
 	*/
 	bottom: null, /* Linkable */
 
-	/**
-	**	Count of items in the list.
+	/*
+	**	Number of items in the list.
 	*/
-	count: 0,
+	length: 0,
 
-	/**
-	**	Constructor of the list.
+	/*
+	**	Initializes the instance.
 	*/
-	__ctor: function ()
+	init: function ()
 	{
 		this.top = null;
 		this.bottom = null;
-		this.count = 0;
+		this.length = 0;
+
+		return this;
 	},
 
-	/**
+	/*
 	**	Traverses the list and destroys all nodes. The actual values are maintained. To destroy the
 	**	list contents call clear() instead.
 	*/
@@ -62,82 +65,109 @@ export default Class.extend
 		this.reset();
 	},
 
-	/**
+	/*
+	**	Clones all contents and returns a new list.
+	*/
+	clone: function()
+	{
+		let list = List.calloc();
+
+		for (let i = this.top; i; i = i.next)
+			list.push(Rin.clone(i.value));
+
+		return list;
+	},
+
+	/*
 	**	Traverses the list and destroys all nodes and values.
 	*/
 	clear: function () /*List*/
 	{
-		var item, nextItem;
+		let item, nextItem;
 
 		for (item = this.top; item != null; item = nextItem)
 		{
 			nextItem = item.next;
-
-			dispose(item.value);
-			dispose(item);
+			dispose(item.free().value);
 		}
 
 		this.top = this.bottom = null;
-		this.count = 0;
+		this.length = 0;
 
 		return this;
 	},
 
-	/**
+	/*
 	**	Traverses the list and destroys all nodes. Values are preserved.
 	*/
 	reset: function ()
 	{
-		var item, nextItem;
+		let item, nextItem;
 
 		for (item = this.top; item != null; item = nextItem)
 		{
 			nextItem = item.next;
-			dispose(item);
+			item.free();
 		}
 
 		this.top = this.bottom = null;
-		this.count = 0;
+		this.length = 0;
 
 		return this;
 	},
 
-	/**
+	/*
+	**	Returns the first item in the list.
+	*/
+	first: function ()
+	{
+		return this.top !== null ? this.top.value : null;
+
+	},
+	/*
+	**	Returns the last item in the list.
+	*/
+	last: function ()
+	{
+		return this.bottom !== null ? this.bottom.value : null;
+	},
+
+	/*
 	**	Returns an item given its index.
 	*/
 	getAt: function (index) /*(value)*/
 	{
-		var item = null;
+		let item = null;
 
 		for (item = this.top; item && index--; item = item.next);
 
 		return item != null ? item.value : null;
 	},
 
-	/**
+	/*
 	**	Returns the node at the given index.
 	*/
 	getNodeAt: function (index) /*Linkable*/
 	{
-		var item = null;
+		let item = null;
 
 		for (item = this.top; item && index--; item = item.next);
 
 		return item;
 	},
 
-	/**
+	/*
 	**	Returns the node of an item given another element to compare, uses identical comparison to match the item.
 	*/
 	sgetNode: function (value) /*Linkable*/
 	{
-		for (var item = this.top; item; item = item.next)
-			if (item.value == value) return item;
+		for (let item = this.top; item; item = item.next)
+			if (item.value === value) return item;
 
 		return null;
 	},
 
-	/**
+	/*
 	**	Removes the given item from the list and returns the item.
 	*/
 	remove: function (/*Linkable*/item) /*any*/
@@ -150,120 +180,111 @@ export default Class.extend
 		if (!item.prev) this.top = item.next;
 		if (!item.next) this.bottom = item.prev;
 
-		this.count--;
+		this.length--;
 
-		var value = item.unlink().value;
-		dispose(item);
-
-		return value;
+		return item.free().value;
 	},
 
-	/**
+	/*
 	**	Adds an item before the given reference.
 	*/
 	insertBefore: function (/*Linkable*/ref, /*any*/value) /*List*/
 	{
 		if (!ref) return this;
 
-		var item = Linkable.alloc(value);
+		let item = Linkable.alloc().init(value);
 
 		item.linkBefore (ref);
 
 		if (ref == this.top) this.top = item;
-		this.count++;
+		this.length++;
 
 		return value;
 	},
 
-	/**
+	/*
 	**	Adds an item after the given reference.
 	*/
 	insertAfter: function (/*Linkable*/ref, /*any*/value) /*List*/
 	{
 		if (!ref) return this;
 
-		var item = Linkable.alloc(value);
+		let item = Linkable.alloc().init(value);
 
 		item.linkAfter (ref);
 
 		if (ref == this.bottom) this.bottom = item;
-		this.count++;
+		this.length++;
 
 		return value;
 	},
 
-	/**
+	/*
 	**	Adds an item to the top of the list.
 	*/
 	unshift: function (value) /* List */
 	{
-		var item = Linkable.alloc(value);
+		let item = Linkable.alloc().init(value);
 
 		item.linkBefore (this.top);
 		if (!this.bottom) this.bottom = item;
 
 		this.top = item;
-		this.count++;
+		this.length++;
 
 		return value;
 	},
 
-	/**
+	/*
 	**	Removes an item from the top of the list.
 	*/
 	shift: function () /*any*/
 	{
-		var item = this.top;
+		let item = this.top;
 		if (!item) return null;
 
 		if (!(this.top = item.next)) this.bottom = null;
-		this.count--;
+		this.length--;
 
-		var value = item.unlink().value;
-		dispose(item);
-
-		return value;
+		return item.free().value;
 	},
 
-	/**
+	/*
 	**	Adds an item to the bottom of the list.
 	*/
 	push: function (value) /* List */
 	{
-		var item = Linkable.alloc(value);
+		let item = Linkable.alloc().init(value);
 
 		item.linkAfter (this.bottom);
 		if (!this.top) this.top = item;
 
 		this.bottom = item;
-		this.count++;
+		this.length++;
 
 		return value;
 	},
 
-	/**
+	/*
 	**	Removes an item from the bottom of the list.
 	*/
 	pop: function () /*any*/
 	{
-		var item = this.bottom;
+		let item = this.bottom;
 		if (!item) return null;
 
 		if (!(this.bottom = item.prev)) this.top = null;
-		this.count--;
+		this.length--;
 
-		var value = item.unlink().value;
-		dispose(item);
-
-		return value;
+		return item.free().value;
 	},
 
-	/**
+	/*
 	**	Appends all contents of a given list to the list.
 	*/
 	append: function (/*List*/list) /*List*/
 	{
-		for (var i = list.top; i; i = i.next)
+		for (let i = list.top; i; i = i.next)
 			this.push(i.value);
 
 		return this;
@@ -306,10 +327,10 @@ export default Class.extend
 	*/
 	find: function (filter)
 	{
-		let item = null;
+		for (let i = this.top; i; i = i.next)
+			if (filter(i.value)) return i;
 
-		this.forEach(function(elem) { if (filter(elem)) { item = elem; return false; } });
-		return item;
+		return null;
 	},
 
 	/*
@@ -317,9 +338,27 @@ export default Class.extend
 	*/
 	filter: function (filter)
 	{
-		let list = [];
+		let list = List.calloc();
 
-		this.forEach(function(elem) { if (filter(elem)) list.push(elem); } );
+		for (let i = this.top; i; i = i.next)
+			if (filter(i.value)) list.push(i.value);
+
 		return list;
+	},
+
+	/*
+	**	Returns an array with all the items in the list.
+	*/
+	toArray: function()
+	{
+		let array = [];
+
+		for (let i = this.top; i; i = i.next)
+			array.push(i.value);
+
+		return array;
 	}
 });
+
+Recycler.attachTo (List);
+export default List;

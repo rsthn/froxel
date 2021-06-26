@@ -14,288 +14,285 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
+import { Class } from '@rsthn/rin';
+import Recycler from '../utils/recycler.js';
+import Vec2 from './vec2.js';
+
+const temp = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+const temp2 = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+/*
 **	Represents a 3x3 matrix. Provides an interface to manipulate 3x3 matrices.
 */
+const Matrix = Class.extend
+({
+	className: 'Matrix',
 
-/**
-**	Constructs a Matrix object. The components are set to the identity matrix.
-*/
-
-const Matrix = function ()
-{
-	this.data = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-};
-
-export default Matrix;
-
-
-/**
-**	Returns a string representation of the matrix.
-**
-**	>> string toString()
-*/
-Matrix.prototype.toString = function ()
-{
-	return `[${this.data[0]}, ${this.data[3]}, ${this.data[6]}]\n[${this.data[1]}, ${this.data[4]}, ${this.data[7]}]\n[${this.data[2]}, ${this.data[5]}, ${this.data[8]}]\n`;
-};
-
-
-/**
-**	Fills the matrix with zeroes.
-*/
-Matrix.prototype.zero = function()
-{
-	this.data.fill(0);
-	return this;
-};
-
-/**
-**	Fills the matrix with the specified value.
-*/
-Matrix.prototype.fill = function (value)
-{
-	this.data.fill(value);
-	return this;
-};
-
-/**
-**	Sets all matrix elements to a given value.
-**
-**	>> Matrix set (float value);
-*/
-Matrix.prototype.set = function (value)
-{
-	if (value instanceof Matrix)
+	/*
+	**	Constructor.
+	*/
+	__ctor: function()
 	{
-		for (let i = 0; i < 9; i++)
-			this.data[i] = value.data[i];
-	}
-	else if (value instanceof Array)
+		this.data = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+	},
+
+	/*
+	**	Initializes the instance.
+	*/
+	init: function(value=null)
 	{
-		for (let i = 0; i < 9; i++)
-			this.data[i] = value[i];
-	}
-	else
+		if (value !== null)
+			this.set(value);
+		else
+			this.identity();
+
+		return this;
+	},
+
+	/*
+	**	Fills the matrix with zeroes.
+	*/
+	zero: function()
 	{
-		abort();
-	}
+		this.data.fill(0);
+		return this;
+	},
 
-	return this;
-};
-
-
-/**
-**	Sets the matrix to the identity matrix.
-**
-**	>> Matrix identity();
-*/
-Matrix.prototype.identity = function ()
-{
-	this.data.fill(0);
-	this.data[0] = this.data[4] = this.data[8] = 1;
-	return this;
-};
-
-
-/**
-**	Multiplies all elements in the matrix by a given scalar.
-**
-**	>> Matrix scalef (float f);
-*/
-Matrix.prototype.scalef = function (f)
-{
-	for (let i = 0; i < 9; i++) this.data[i] *= f;
-	return this;
-};
-
-
-/**
-**	Returns a new matrix with the same values as this one.
-**
-**	>> Matrix clone();
-*/
-Matrix.prototype.clone = function ()
-{
-	var matr = new Matrix ();
-
-	for (var i = 0; i < 9; i++) matr.data[i] = this.data[i];
-	return matr;
-};
-
-
-/**
-**	Appends two matrices (the current one and the given one) by using matrix multiplication.
-**
-**	Matrix append (Matrix matr);
-*/
-Matrix.prototype.append = function (matr)
-{
-	var i, j, k, m, temp = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-
-	if (matr instanceof Matrix)
-		matr = matr.data;
-
-	for (j = 0; j < 3; j++)
+	/*
+	**	Fills the matrix with the specified value.
+	*/
+	fill: function (value)
 	{
-		for (i = 0; i < 3; i++)
+		this.data.fill(value);
+		return this;
+	},
+
+	/*
+	**	Sets all matrix elements to a given value.
+	*/
+	set: function (value)
+	{
+		if (Matrix.isInstance(value))
 		{
-			m = 0;
-
-			for (k = 0; k < 3; k++) {
-				m += matr[j*3+k] * this.data[k*3+i];
-			}
-
-			temp[j*3+i] = m;
+			for (let i = 0; i < 9; i++)
+				this.data[i] = value.data[i];
 		}
+		else
+		{
+			for (let i = 0; i < 9; i++)
+				this.data[i] = value[i];
+		}
+
+		return this;
+	},
+
+	/*
+	**	Sets the components of the matrix to the identity matrix.
+	*/
+	identity: function (target=null)
+	{
+		if (target === null)
+			target = this.data;
+
+		target.fill(0);
+		target[0] = target[4] = target[8] = 1;
+
+		return this;
+	},
+
+	/*
+	**	Multiplies all elements in the matrix by a given scalar.
+	*/
+	scalef: function (f)
+	{
+		for (let i = 0; i < 9; i++) this.data[i] *= f;
+		return this;
+	},
+
+	/*
+	**	Returns a new matrix with the same values as this one.
+	*/
+	clone: function ()
+	{
+		return Matrix.alloc().init(this);
+	},
+
+	/*
+	**	Appends two matrices (the current one and the given one) by using matrix multiplication.
+	*/
+	append: function (matr)
+	{
+		let i, j, k, m;
+
+		this.identity(temp);
+
+		if (matr instanceof Matrix)
+			matr = matr.data;
+
+		for (j = 0; j < 3; j++)
+		{
+			for (i = 0; i < 3; i++)
+			{
+				m = 0;
+
+				for (k = 0; k < 3; k++) {
+					m += matr[j*3+k] * this.data[k*3+i];
+				}
+
+				temp[j*3+i] = m;
+			}
+		}
+
+		for (i = 0; i < 9; i++) this.data[i] = temp[i];
+		return this;
+	},
+
+	/*
+	**	Creates a translation matrix and appends it to the current matrix.
+	*/
+	translate: function (x, y)
+	{
+		if (x == 0 && y == 0)
+			return this;
+
+		this.identity(temp2);
+
+		temp2[6] = x;
+		temp2[7] = y;
+
+		return this.append(temp2);
+	},
+
+	/*
+	**	Creates a rotation matrix for the given angle (in radians) and appends it to the current matrix.
+	*/
+	rotate: function (angle)
+	{
+		if (angle == 0)
+			return this;
+
+		this.identity(temp2);
+
+		let cost = Math.cos(angle);
+		let sint = Math.sin(angle);
+
+		temp2[0] = cost;
+		temp2[1] = -sint;
+		temp2[3] = sint;
+		temp2[4] = cost;
+
+		return this.append(temp2);
+	},
+
+	/*
+	**	Creates a scale transformation matrix and appends it to the current matrix.
+	*/
+	scale: function (sx, sy)
+	{
+		if (sx == 1 && sy == 1)
+			return this;
+
+		this.identity(temp2);
+
+		temp2[0] = sx;
+		temp2[4] = sy;
+
+		return this.append(temp2);
+	},
+
+	/*
+	**	Applies the matrix to a vector to transform it and returns a new vector.
+	**
+	**	Vec2 applyTo (Vec2 v)
+	**	Vec2 applyTo (float x, float y)
+	*/
+	applyTo: function (x, y=null)
+	{
+		if (y === null)
+		{
+			const v = x;
+			x = v.x;
+			y = v.y;
+		}
+
+		let nx = this.data[0]*x + this.data[3]*y + this.data[6];
+		let ny = this.data[1]*x + this.data[4]*y + this.data[7];
+
+		return Vec2.alloc().init(nx, ny);
+	},
+
+	/*
+	**	Returns the transpose of the matrix.
+	*/
+	transpose: function ()
+	{
+		temp.fill(0);
+
+		for (let j = 0; j < 3; j++)
+		for (let i = 0; i < 3; i++)
+			temp[j*3+i] = this.data[i*3+j];
+
+		for (let i = 0; i < 9; i++)
+			this.data[i] = temp[i];
+
+		return this;
+	},
+
+	/*
+	**	Returns the determinant of the matrix.
+	*/
+	det: function ()
+	{
+		return	this.data[0] * (this.data[4]*this.data[8] - this.data[5]*this.data[7]) -
+				this.data[1] * (this.data[3]*this.data[8] - this.data[5]*this.data[6]) +
+				this.data[2] * (this.data[3]*this.data[7] - this.data[4]*this.data[6])
+				;
+	},
+
+	/*
+	**	Returns the adjoint of the matrix as a new matrix.
+	*/
+	adj: function () // violet:verify and fix
+	{
+		/*let t = this.transpose();
+		let d = Matrix.alloc();
+
+		d.data[0] = (t.data[4]*t.data[8] - t.data[5]*t.data[7]);
+		d.data[1] = -(t.data[3]*t.data[8] - t.data[5]*t.data[6]);
+		d.data[2] = (t.data[3]*t.data[7] - t.data[4]*t.data[6]);
+
+		d.data[3] = -(t.data[1]*t.data[8] - t.data[2]*t.data[7]);
+		d.data[4] = (t.data[0]*t.data[8] - t.data[2]*t.data[6]);
+		d.data[5] = -(t.data[0]*t.data[7] - t.data[1]*t.data[6]);
+
+		d.data[6] = (t.data[1]*t.data[5] - t.data[2]*t.data[4]);
+		d.data[7] = -(t.data[0]*t.data[5] - t.data[2]*t.data[3]);
+		d.data[8] = (t.data[0]*t.data[4] - t.data[1]*t.data[3]);
+
+		t.data = d;
+		return t;*/
+		throw new Error('NOT IMPLEMENTED');
+	},
+
+	/*
+	**	Returns the inverse of the matrix as a new matrix.
+	*/
+	inverse: function ()
+	{
+		let det = this.det();
+		if (!det) return null;
+
+		return this.adj().scalef(1/det);
+	},
+
+	/*
+	**	Returns a string representation of the matrix.
+	*/
+	toString: function ()
+	{
+		return `[${this.data[0]}, ${this.data[3]}, ${this.data[6]}]\n[${this.data[1]}, ${this.data[4]}, ${this.data[7]}]\n[${this.data[2]}, ${this.data[5]}, ${this.data[8]}]\n`;
 	}
+});
 
-	for (i = 0; i < 9; i++) this.data[i] = temp[i];
-	return this;
-};
-
-/**
-**	Creates a translation matrix and appends it to the current matrix.
-**
-**	>> Matrix translate (float x, float y);
-*/
-Matrix.prototype.translate = function (x, y)
-{
-	if (x == 0 && y == 0)
-		return this;
-
-	return this.append ([
-		1, 0, 0,
-		0, 1, 0,
-		x, y, 1
-	]);
-};
-
-/**
-**	Creates a rotation matrix for the given angle (in radians) and appends it to the current matrix.
-**
-**	>> Matrix rotate (float angle);
-*/
-Matrix.prototype.rotate = function (angle)
-{
-	if (angle == 0)
-		return this;
-
-	return this.append ([
-		Math.cos(angle), -Math.sin(angle), 0,
-		Math.sin(angle), Math.cos(angle), 0,
-		0, 0, 1
-	]);
-};
-
-
-/**
-**	Creates a scale transformation matrix and appends it to the current matrix.
-**
-**	>> Matrix scale (float sx, float sy);
-*/
-
-Matrix.prototype.scale = function (sx, sy)
-{
-	if (sx == 1 && sy == 1)
-		return this;
-
-	return this.append ([
-		sx, 0, 0,
-		0, sy, 0,
-		0, 0, 1
-	]);
-};
-
-
-/**
-**	Applies the matrix to a vector to transform it and returns a new vector.
-**
-**	>> Object{x,y} applyTo (float x, float y);
-*/
-
-Matrix.prototype.applyTo = function (x, y)
-{
-	var nx = this.data[0]*x + this.data[3]*y + this.data[6];
-	var ny = this.data[1]*x + this.data[4]*y + this.data[7];
-
-	return { x:nx, y:ny };
-};
-
-
-/**
-**	Returns the transpose of the matrix.
-**
-**	>> Matrix transpose();
-*/
-
-Matrix.prototype.transpose = function ()
-{
-	var temp = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-	for (var j = 0; j < 3; j++)
-	for (var i = 0; i < 3; i++)
-		temp[j*3+i] = this.data[i*3+j];
-
-	for (let i = 0; i < 9; i++)
-		this.data[i] = temp[i];
-
-	return this;
-};
-
-/**
-**	Returns the determinant of the matrix.
-**
-**	>> float det();
-*/
-
-Matrix.prototype.det = function ()
-{
-	return	this.data[0] * (this.data[4]*this.data[8] - this.data[5]*this.data[7]) -
-			this.data[1] * (this.data[3]*this.data[8] - this.data[5]*this.data[6]) +
-			this.data[2] * (this.data[3]*this.data[7] - this.data[4]*this.data[6])
-			;
-};
-
-
-/**
-**	Returns the adjoint of the matrix as a new matrix.
-**
-**	>> Matrix adj();
-*/
-
-Matrix.prototype.adj = function () // violet:verify
-{
-	var t = this.transpose();
-	var d = [];
-
-	d[0] = (t.data[4]*t.data[8] - t.data[5]*t.data[7]);
-	d[1] = -(t.data[3]*t.data[8] - t.data[5]*t.data[6]);
-	d[2] = (t.data[3]*t.data[7] - t.data[4]*t.data[6]);
-
-	d[3] = -(t.data[1]*t.data[8] - t.data[2]*t.data[7]);
-	d[4] = (t.data[0]*t.data[8] - t.data[2]*t.data[6]);
-	d[5] = -(t.data[0]*t.data[7] - t.data[1]*t.data[6]);
-
-	d[6] = (t.data[1]*t.data[5] - t.data[2]*t.data[4]);
-	d[7] = -(t.data[0]*t.data[5] - t.data[2]*t.data[3]);
-	d[8] = (t.data[0]*t.data[4] - t.data[1]*t.data[3]);
-
-	t.data = d;
-	return t;
-};
-
-
-/**
-**	Returns the inverse of the matrix as a new matrix.
-**
-**	Matrix inverse();
-*/
-
-Matrix.prototype.inverse = function ()
-{
-	var det = this.det();
-	if (!det) return null;
-
-	return this.adj().scalef(1/det);
-};
+Recycler.attachTo (Matrix);
+export default Matrix;

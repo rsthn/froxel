@@ -15,7 +15,7 @@
 */
 
 // system
-import _G from './system/globals.js'; export const G = _G;
+import _G from './system/globals.js'; export const G = _G; export const Globals = _G;
 import _C from './system/config.js'; export const C = _C;
 import _System from './system/system.js'; export const System = _System;
 import _Timer from './system/timer.js'; export const Timer = _Timer;
@@ -41,6 +41,8 @@ import _Matrix from './math/matrix.js'; export const Matrix = _Matrix;
 import _Rect from './math/rect.js'; export const Rect = _Rect;
 import _Vec2 from './math/vec2.js'; export const Vec2 = _Vec2;
 import _TFunction from './math/tfunction.js'; export const TFunction = _TFunction;
+import _Bounds2 from './math/bounds2.js'; export const Bounds2 = _Bounds2;
+import _Point2 from './math/point2.js'; export const Point2 = _Point2;
 
 // anim
 import _Easing from './anim/easing.js'; export const Easing = _Easing;
@@ -60,12 +62,11 @@ import _Scene from './flow/scene.js'; export const Scene = _Scene;
 import _Group from './flow/group.js'; export const Group = _Group;
 import _Viewport from './flow/viewport.js'; export const Viewport = _Viewport;
 
-import _KeyboardHandler from './flow/keyboard-handler'; export const KeyboardHandler = _KeyboardHandler;
-import _PointerHandler from './flow/pointer-handler'; export const PointerHandler = _PointerHandler;
-import _ScreenControls from './flow/screen-controls'; export const ScreenControls = _ScreenControls;
-import _Button from './flow/button'; export const Button = _Button;
-import _Stick from './flow/stick'; export const Stick = _Stick;
-
+import _KeyboardHandler from './flow/keyboard-handler.js'; export const KeyboardHandler = _KeyboardHandler;
+import _PointerHandler from './flow/pointer-handler.js'; export const PointerHandler = _PointerHandler;
+import _ScreenControls from './flow/screen-controls.js'; export const ScreenControls = _ScreenControls;
+import _Button from './flow/button.js'; export const Button = _Button;
+import _Stick from './flow/stick.js'; export const Stick = _Stick;
 
 /*
 import _DisplayElement from './display-element.js';

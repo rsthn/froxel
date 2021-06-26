@@ -19,95 +19,118 @@ const recyclingFacilities = { };
 const Recycler = { };
 export default Recycler;
 
-/**
-**	Attaches recycling methods (alloc, dispose) to the specified class. Class should have methods __reinit to reinitialize the
-**	object and __dtor to destroy it.
-**
-**	>> void attachTo (function classConstructor, int maxPoolSize=1024);
+/*
+**	Attaches recycling methods (alloc, calloc and free) to the specified class. Class should implement method `init` to initialize the
+**	instance (and returns itself) and __dtor to destroy it.
 */
 
-Recycler.attachTo = function (_class, _maxPoolSize)
+Recycler.attachTo = function (_class, maxPoolSize=1000)
 {
-	if (!_maxPoolSize) _maxPoolSize = 1024;
-
 	if (!_class.prototype.className)
 		throw new Error ('Unable to attach recycler functions to unnamed class.');
+
+	if (!('__dtor' in _class.prototype))
+		throw new Error ('Recycler: Class '+_class.prototype.className+' requires `__dtor` method.');
+
+	if (!('init' in _class.prototype))
+		throw new Error ('Recycler: Class '+_class.prototype.className+' requires `init` method.');
 
 	recyclingFacilities[_class.prototype.className] = _class;
 
 	_class.recyclerPool = [ ];
 
 	_class.prototype.objectId = 0;
-	_class.nextObjectId = 0;
 
-	_class.createdItems = 0;
-	_class.restoredItems = 0;
-	_class.recycledItems = 0;
+	_class.recyclerNextObjectId = 0;
+	_class.recyclerCreated = 0;
+	_class.recyclerRestored = 0;
+	_class.recyclerMissed = 0;
+	_class.recyclerLength = 0;
+
+	for (let i = 0; i < maxPoolSize; i++)
+	{
+		_class.recyclerPool.push(new _class ());
+		_class.recyclerCreated++;
+		_class.recyclerLength++;
+	}
+
+	const __ctor = _class.prototype.__ctor;
+	let constructorBlocked = true;
+
+	_class.prototype.__ctor = function()
+	{
+		if (constructorBlocked)
+			throw new Error ('Recycler: Constructor blocked for class '+_class.prototype.className+', use alloc() instead.');
+
+		__ctor.call(this);
+	};
 
 	_class.alloc = function()
 	{
-		var item;
+		let item;
 
-		if (!this.recyclerPool.length)
+		if (!this.recyclerLength)
 		{
+			constructorBlocked = false;
 			item = new _class ();
-			_class.createdItems++;
+			constructorBlocked = true;
+			_class.recyclerCreated++;
 		}
 		else
 		{
-			item = this.recyclerPool.pop();
-			_class.restoredItems++;
+			item = this.recyclerPool[--this.recyclerLength];
+			_class.recyclerRestored++;
 		}
 
-		if ("__reinit" in item)
-			item.__reinit.apply(item, arguments);
-
-		item.objectId = ++this.nextObjectId;
-		this.nextObjectId = this.nextObjectId & 0x3FFFFFFF;
+		item.objectId = ++this.recyclerNextObjectId;
+		this.recyclerNextObjectId &= 0x7FFFFFFF;
 
 		return item;
 	};
 
-	_class.free = function(item)
+	_class.calloc = function()
 	{
-		if (item) item.dispose();
+		return _class.alloc().init();
 	};
 
-	_class.prototype.dispose = function (reason)
+	_class.free = function(item)
+	{
+		return item ? item.free() : item;
+	};
+
+	_class.prototype.free = function()
 	{
 		if (this.objectId == 0)
 		{
-			console.error ('Already disposed (' + _class.prototype.className + '): ' + reason + ' / ' + this.disposeReason);
-			return;
+			console.error ('Already freed (' + _class.prototype.className + ')');
+			return this;
 		}
 
-		if ("__dtor" in this) this.__dtor();
-
-		_class.recycledItems++;
+		this.__dtor();
 
 		this.objectId = 0;
-		this.disposeReason = reason;
 
-		if (_class.recyclerPool.length < _maxPoolSize)
-			_class.recyclerPool.push (this);
+		if (_class.recyclerLength >= _class.recyclerPool.length)
+			_class.recyclerMissed++;
+		else
+			_class.recyclerPool[_class.recyclerLength++] = this;
+
+		return this;
 	};
 };
 
 
-/**
+/*
 **	Shows stats about all recycling facilities using console.debug.
-**
-**	void showStats();
 */
-
 Recycler.showStats = function ()
 {
 	console.group("Recycling Facilities");
 
-	for (var i in recyclingFacilities)
+	for (let i in recyclingFacilities)
 	{
-		var c = recyclingFacilities[i];
-		console.debug (i + ": created=" + c.createdItems + ", restored=" + c.restoredItems + ", recycled=" + c.recycledItems + ", available=" + c.recyclerPool.length);
+		let c = recyclingFacilities[i];
+		console.debug (i + ": created=" + c.recyclerCreated + ", restored=" + c.recyclerRestored + ", in-recycler=" + c.recyclerLength + ", missed=" + c.recyclerMissed + ", space=" + (c.recyclerPool.length - c.recyclerLength));
 	}
 
 	console.groupEnd();

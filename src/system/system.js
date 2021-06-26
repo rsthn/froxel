@@ -207,28 +207,10 @@ const System =
 		numFrames: 0,
 
 		/*
-		**	Total time accumulated in each update and draw operation.
+		**	Total time accumulated in each update and draw operation (microseconds).
 		*/
 		updateTime: 0,
-		drawTime: 0,
-
-		/*
-		**	Count of samples in current perf data.
-		*/
-		numSamples: 0,
-
-		/*
-		**	Number of samples to accumulate (report window size).
-		*/
-		windowSize: 500,
-
-		/*
-		**	Snapshot data updated when numSamples is windowSize.
-		*/
-		snapStartTime: 0,
-		snapNumFrames: 0,
-		snapUpdateTime: 0,
-		snapDrawTime: 0
+		drawTime: 0
 	},
 
 	/*
@@ -236,9 +218,10 @@ const System =
 	*/
 	init: function (opts)
 	{
-		// Load options from defaults and from the specified ones.
-		var o = { };
+		let o = { };
+		let self = this;
 
+		// Load options from defaults and from the specified ones.
 		Object.assign(o, this.defaultOptions);
 		if (opts) Object.assign(o, opts);
 
@@ -252,16 +235,16 @@ const System =
 
 		this.orientation = o.orientation;
 
-		this.updateQueue = new List();
-		this.drawQueue = new List();
+		this.updateQueue = List.calloc();
+		this.drawQueue = List.calloc();
 
 		// Attach frame event handlers.
 		this.frameInterval = int(1000 / o.fps);
 		this.maxFrameInterval = int(1000 / o.minFps);
 
-		global.onresize = this.onWindowResized.bind(this);
+		global.onresize = function() { self.onWindowResized(); };
 
-		this.frameTimer = new Timer (this.frameInterval, this.onFrame.bind(this), true);
+		this.frameTimer = new Timer (this.frameInterval, function(delta, timer) { return self.onFrame(delta, timer); });
 
 		// Setup canvas buffer.
 		this.displayBuffer = new Canvas ({ gl: o.gl, elem: o.canvas, absolute: true, hidden: false, antialias: o.antialias, background: o.background });
@@ -271,7 +254,7 @@ const System =
 
 		this.tempDisplayBuffer = new Canvas ({ hidden: true, antialias: o.antialias }).resize(320, 240);
 
-		var display0 = this.displayBuffer.elem;
+		let display0 = this.displayBuffer.elem;
 
 		// Obtain device display ratios.
 		this.devicePixelRatio = global.devicePixelRatio || 1;
@@ -284,47 +267,45 @@ const System =
 
 		this.canvasPixelRatio = this.devicePixelRatio / this.backingStoreRatio;
 
-		System.onWindowResized (true);
+		System.onWindowResized(true);
 
 		// Attach keyboard event handlers.
-		var _this = this;
-
 		global.onkeydown = function (evt)
 		{
 			if (evt.target !== global.document.body)
 				return;
 
-			if (_this.keyState[evt.keyCode])
+			if (self.keyState[evt.keyCode])
 				return false;
 
-			_this.keyState[evt.keyCode] = true;
+			self.keyState[evt.keyCode] = true;
 
-			_this.keyState.keyCode = evt.keyCode;
-			_this.keyState.startTime = System.now(true);
+			self.keyState.keyCode = evt.keyCode;
+			self.keyState.startTime = hrnow();
 
 			switch (evt.keyCode)
 			{
 				case 16: // SHIFT
-					_this.keyState.shift = true;
+					self.keyState.shift = true;
 					break;
 
 				case 17: // CTRL
-					_this.keyState.ctrl = true;
+					self.keyState.ctrl = true;
 					break;
 
 				case 18: // ALT
-					_this.keyState.alt = true;
+					self.keyState.alt = true;
 					break;
 			}
 
 			// CTRL+TAB should always be handled by the browser.
-			if (_this.keyState.ctrl && evt.keyCode == KeyCodes.TAB)
+			if (self.keyState.ctrl && evt.keyCode == KeyCodes.TAB)
 			{
-				_this.keyState[evt.keyCode] = false;
+				self.keyState[evt.keyCode] = false;
 				return true;
 			}
 
-			if (_this.onKeyboardEvent (_this.EVT_KEY_DOWN, evt.keyCode, _this.keyState) === false)
+			if (self.onKeyboardEvent (self.EVT_KEY_DOWN, evt.keyCode, self.keyState) === false)
 				return false;
 		};
 
@@ -333,29 +314,29 @@ const System =
 			if (evt.target !== global.document.body)
 				return;
 
-			if (!_this.keyState[evt.keyCode])
+			if (!self.keyState[evt.keyCode])
 				return false;
 
-			_this.keyState[evt.keyCode] = false;
-			_this.keyState.endTime = System.now(true);
-			_this.keyState.keyCode = evt.keyCode;
+			self.keyState[evt.keyCode] = false;
+			self.keyState.endTime = hrnow();
+			self.keyState.keyCode = evt.keyCode;
 
 			switch (evt.keyCode)
 			{
 				case 16: // SHIFT
-					_this.keyState.shift = false;
+					self.keyState.shift = false;
 					break;
 
 				case 17: // CTRL
-					_this.keyState.ctrl = false;
+					self.keyState.ctrl = false;
 					break;
 
 				case 18: // ALT
-					_this.keyState.alt = false;
+					self.keyState.alt = false;
 					break;
 			}
 
-			if (_this.onKeyboardEvent (_this.EVT_KEY_UP, evt.keyCode, _this.keyState) === false)
+			if (self.onKeyboardEvent (self.EVT_KEY_UP, evt.keyCode, self.keyState) === false)
 				return false;
 		};
 
@@ -363,12 +344,12 @@ const System =
 
 		const pointerConvX = function (x, y)
 		{
-			return System.reverseRender ? ~~(System.screenWidth-1 - (y-System.offsY)/System.canvasScaleFactor) : ~~((x-System.offsX)/System.canvasScaleFactor);
+			return System.reverseRender ? int(System.screenWidth-1 - (y-System.offsY)/System.canvasScaleFactor) : int((x-System.offsX)/System.canvasScaleFactor);
 		};
 
 		const pointerConvY = function (x, y)
 		{
-			return System.reverseRender ? ~~((x-System.offsX)/System.canvasScaleFactor) : ~~((y-System.offsY)/System.canvasScaleFactor);
+			return System.reverseRender ? int((x-System.offsX)/System.canvasScaleFactor) : int((y-System.offsY)/System.canvasScaleFactor);
 		};
 
 		// Attach pointer event handlers if pointer-events are available.
@@ -378,9 +359,9 @@ const System =
 			{
 				evt.preventDefault();
 
-				var touches = evt.changedTouches;
+				let touches = evt.changedTouches;
 
-				for (var i = 0; i < touches.length; i++)
+				for (let i = 0; i < touches.length; i++)
 				{
 					if (!System.pointerState[touches[i].identifier])
 					{
@@ -390,13 +371,13 @@ const System =
 							};
 					}
 
-					var p = System.pointerState[touches[i].identifier];
+					let p = System.pointerState[touches[i].identifier];
 
 					p.isActive = true;
 					p.isDragging = false;
 					p.button = 1;
 
-					p.startTime = System.now(true);
+					p.startTime = hrnow();
 
 					p.x = p.sx = pointerConvX(touches[i].clientX, touches[i].clientY);
 					p.y = p.sy = pointerConvY(touches[i].clientX, touches[i].clientY);
@@ -411,16 +392,16 @@ const System =
 			{
 				evt.preventDefault();
 
-				var touches = evt.changedTouches;
+				let touches = evt.changedTouches;
 
-				for (var i = 0; i < touches.length; i++)
+				for (let i = 0; i < touches.length; i++)
 				{
 					if (!System.pointerState[touches[i].identifier])
 						continue;
 
-					var p = System.pointerState[touches[i].identifier];
+					let p = System.pointerState[touches[i].identifier];
 
-					p.endTime = System.now(true);
+					p.endTime = hrnow();
 					p.deltaTime = p.endTime - p.startTime;
 
 					p.x = pointerConvX(touches[i].clientX, touches[i].clientY)
@@ -444,14 +425,14 @@ const System =
 			{
 				evt.preventDefault();
 
-				var touches = evt.changedTouches;
+				let touches = evt.changedTouches;
 
-				for (var i = 0; i < touches.length; i++)
+				for (let i = 0; i < touches.length; i++)
 				{
 					if (!System.pointerState[touches[i].identifier])
 						continue;
 
-					var p = System.pointerState[touches[i].identifier];
+					let p = System.pointerState[touches[i].identifier];
 
 					p.x = pointerConvX(touches[i].clientX, touches[i].clientY);
 					p.y = pointerConvY(touches[i].clientX, touches[i].clientY);
@@ -471,14 +452,14 @@ const System =
 			{
 				evt.preventDefault();
 
-				var touches = evt.changedTouches;
+				let touches = evt.changedTouches;
 
-				for (var i = 0; i < touches.length; i++)
+				for (let i = 0; i < touches.length; i++)
 				{
 					if (!System.pointerState[touches[i].identifier])
 						continue;
 
-					var p = System.pointerState[touches[i].identifier];
+					let p = System.pointerState[touches[i].identifier];
 
 					if (p.isActive && !p.isDragging)
 					{
@@ -513,7 +494,7 @@ const System =
 						};
 				}
 
-				var p = System.pointerState[0];
+				let p = System.pointerState[0];
 
 				p.isActive = true;
 				p.isDragging = false;
@@ -533,7 +514,7 @@ const System =
 				if (!System.pointerState[0])
 					return false;
 
-				var p = System.pointerState[0];
+				let p = System.pointerState[0];
 
 				p.x = pointerConvX(evt.clientX, evt.clientY);
 				p.y = pointerConvY(evt.clientX, evt.clientY);
@@ -556,7 +537,7 @@ const System =
 				if (!System.pointerState[0])
 					return false;
 
-				var p = System.pointerState[0];
+				let p = System.pointerState[0];
 
 				if (p.isActive && !p.isDragging)
 				{
@@ -574,15 +555,6 @@ const System =
 				return false;
 			};
 		}
-	},
-
-	/*
-	**	Returns the current time in milliseconds or seconds if asSeconds is set to true.
-	*/
-	now: function(asSeconds)
-	{
-		var value = hrnow();
-		return asSeconds ? (value / 1000) : value;
 	},
 
 	/*
@@ -635,13 +607,13 @@ const System =
 	*/
 	onFrame: function(delta, timer)
 	{
-		var now = this.now();
-		var tmp;
+		let now = hrnow()
+		let tmp;
 
 		if (delta > this.maxFrameInterval)
 			delta = this.maxFrameInterval;
 
-		if (this.fixedFrameInterval != 0)
+		if (this.fixedFrameInterval !== 0)
 			delta = this.fixedFrameInterval;
 
 		if (!this.flags.renderingEnabled || this.flags.renderingPaused)
@@ -649,7 +621,7 @@ const System =
 			this.frameDrawInProgress = true;
 			try {
 				this.displayBuffer.clear();
-				this.draw (this.displayBuffer, this.displayBuffer2);
+				this.draw (this.displayBuffer);
 			}
 			catch (e) {
 				console.error("DRAW ERROR: \n" + e + "\n" + e.stack);
@@ -658,7 +630,7 @@ const System =
 			return;
 		}
 
-		if (this.perf.numFrames == 0)
+		if (this.perf.numFrames === 0)
 		{
 			this.perf.startTime = now - this.frameInterval;
 			this.perf.lastTime = now;
@@ -668,13 +640,15 @@ const System =
 
 		this.frameDeltaMillis = delta;
 		this.frameDelta = delta / 1000.0;
+
 		this.frameTimeMillis += this.frameDeltaMillis;
 		this.frameTime += this.frameDelta;
+
 		this.frameNumber++;
 
 		/* ~ */
 		this.frameUpdateInProgress = true;
-		tmp = hrnow();
+		tmp = microtime();
 		try {
 			this.update (this.frameDelta, this.frameDeltaMillis);
 		}
@@ -682,47 +656,25 @@ const System =
 			System.stop();
 			throw e;
 		}
-		this.perf.updateTime += hrnow() - tmp;
+		this.perf.updateTime += microtime() - tmp;
 		this.frameUpdateInProgress = false;
 
 		/* ~ */
 		this.frameDrawInProgress = true;
-		tmp = hrnow();
+		tmp = microtime();
 		try {
 			this.displayBuffer.clear();
-			this.draw (this.displayBuffer, this.displayBuffer2);
+			this.draw (this.displayBuffer);
 		}
 		catch (e) {
 			System.stop();
 			throw e;
-		}	
-		this.perf.drawTime += hrnow() - tmp;
+		}
+		this.perf.drawTime += microtime() - tmp;
 		this.frameDrawInProgress = false;
 
 		this.perf.lastTime = now;
 		this.perf.numFrames++;
-
-		/*
-		this.perf.numSamples++;
-
-		if (this.perf.numSamples == this.perf.windowSize)
-		{
-			this.perf.snapStartTime = this.perf.lastTime;
-			this.perf.snapNumFrames = this.perf.numFrames;
-			this.perf.snapUpdateTime = this.perf.updateTime;
-			this.perf.snapDrawTime = this.perf.drawTime;
-		}
-
-		if (this.perf.numSamples == 2*this.perf.windowSize)
-		{
-			this.perf.startTime = this.perf.snapStartTime;
-			this.perf.numFrames -= this.perf.snapNumFrames;
-			this.perf.updateTime -= this.perf.snapUpdateTime;
-			this.perf.drawTime -= this.perf.snapDrawTime;
-
-			this.perf.numSamples = 0;
-		}
-		*/
 	},
 
 	/*
@@ -830,7 +782,7 @@ const System =
 		}
 
 		this.scaleFactor = this.canvasScaleFactor * this.canvasPixelRatio;
-		this.scaleFactor = ~~(0.7 + this.scaleFactor);
+		this.scaleFactor = int(0.7 + this.scaleFactor);
 
 		this.flags.renderingEnabled = false;
 
@@ -891,8 +843,11 @@ const System =
 		/* *** */
 		this.scaleFactor *= this.options.extraScaleFactor;
 
-		this.integerScaleFactor = ~~(this.scaleFactor + 0.9);
+		this.integerScaleFactor = int(this.scaleFactor + 0.9);
 		this.resetPerf();
+
+		if (this.initialMatrix)
+			this.initialMatrix.free();
 
 		this.initialMatrix = this.displayBuffer.getMatrix();
 
@@ -976,9 +931,9 @@ const System =
 	*/
 	update: function (dts, dtm)
 	{
-		var next;
+		let next;
 
-		for (var elem = this.updateQueue.top; elem; elem = next)
+		for (let elem = this.updateQueue.top; elem; elem = next)
 		{
 			next = elem.next;
 			elem.value.update(dts, dtm);
@@ -990,9 +945,9 @@ const System =
 	*/
 	draw: function (canvas, canvas2)
 	{
-		var next;
+		let next;
 
-		for (var elem = this.drawQueue.top; elem; elem = next)
+		for (let elem = this.drawQueue.top; elem; elem = next)
 		{
 			next = elem.next;
 			elem.value.draw(canvas, canvas2);
@@ -1005,6 +960,7 @@ const System =
 	*/
 	interpolate: function (src, dst, duration, easing, callback/* function(data, isFinished) */)
 	{
+		//violet: not optimized
 		let time = { };
 		let data = { };
 		let count = 0;

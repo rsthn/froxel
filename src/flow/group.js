@@ -14,6 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+import List from '../utils/list.js';
 import Element from './element.js';
 
 /*
@@ -29,9 +30,6 @@ export default Element.extend
 	*/
 	children: null,
 
-	// violet: remove??
-	undisposable: false,
-
 	/*
 	**	Constructs an empty group element.
 	*/
@@ -45,15 +43,8 @@ export default Element.extend
 	*/
 	__dtor: function()
 	{
-		if (this.undisposable)
-			return;
-
 		if (this.children != null)
-		{
-			let tmp = this.children;
-			this.children = null;
-			tmp.forEach(i => dispose(i));
-		}
+			this.children.clear().free();
 
 		this._super.Element.__dtor();
 	},
@@ -66,7 +57,10 @@ export default Element.extend
 		this._super.Element.resetAnim(anim);
 
 		if (this.children != null)
-			this.children.forEach(i => i.resetAnim());
+		{
+			for (let i = this.children.top; i; i = i.next)
+				i.value.resetAnim();
+		}
 	},
 
 	/*
@@ -77,7 +71,7 @@ export default Element.extend
 		if (!elem) return elem;
 
 		if (this.children == null)
-			this.children = [];
+			this.children = List.calloc();
 
 		this.children.push (elem);
 		elem.setParent(this);
@@ -93,10 +87,10 @@ export default Element.extend
 		if (elem == null || elem.parent !== this || this.children == null)
 			return elem;
 
-		let i = this.children.indexOf(elem);
-		if (i === -1) return elem;
+		let i = this.children.sgetNode(elem);
+		if (!i) return elem;
 
-		this.children.splice(i, 1);
+		this.children.remove(i);
 		elem.setParent(null);
 
 		return elem;
@@ -110,7 +104,10 @@ export default Element.extend
 		this._super.Element.updatePosition();
 
 		if (this.children != null)
-			this.children.forEach(elem => elem.updatePosition());
+		{
+			for (let i = this.children.top; i; i = i.next)
+				i.value.updatePosition();
+		}
 	},
 
 	/*
@@ -121,6 +118,9 @@ export default Element.extend
 		this._super.Element.updateTransform(immediate);
 
 		if (this.children != null)
-			this.children.forEach(elem => elem.updateTransform(immediate));
+		{
+			for (let i = this.children.top; i; i = i.next)
+				i.value.updateTransform(immediate);
+		}
 	}
 });

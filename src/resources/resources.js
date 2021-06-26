@@ -94,8 +94,8 @@ Object.assign(Resources,
 
 					if (r.scale)
 					{
-						r.width = ~~(r.data.width*r.scale);
-						r.height = ~~(r.data.height*r.scale);
+						r.width = int(r.data.width*r.scale);
+						r.height = int(r.data.height*r.scale);
 					}
 
 					if (!r.width && !r.height)
@@ -189,8 +189,8 @@ Object.assign(Resources,
 
 						if (tmp.scale)
 						{
-							tmp.width = ~~(tmp.data.width*tmp.scale);
-							tmp.height = ~~(tmp.data.height*tmp.scale);
+							tmp.width = int(tmp.data.width*tmp.scale);
+							tmp.height = int(tmp.data.height*tmp.scale);
 						}
 
 						if (!tmp.width && !tmp.height)
@@ -541,9 +541,9 @@ Object.assign(Resources,
 		}
 		else
 		{
-			if (~~(dw / sw) > 0)
+			if (int(dw / sw) > 0)
 			{
-				var ratio = ~~((dw / sw) + 0.9);
+				var ratio = int((dw / sw) + 0.9);
 
 				dw = ratio * sw;
 				dh = ratio * sh;

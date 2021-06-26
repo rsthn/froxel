@@ -39,7 +39,7 @@ export default Class.extend
 		this.charWidth = (r.font.charWidth * v_scale);
 		this.charHeight = (r.font.charHeight * v_scale);
 
-		var cols = ~~(r.font.sheetWidth / r.font.charWidth);
+		var cols = int(r.font.sheetWidth / r.font.charWidth);
 
 		this.r = r;
 		this.r.wrapper = this;

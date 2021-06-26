@@ -15,7 +15,7 @@
 */
 
 import { Class } from '@rsthn/rin';
-import Rect from '../math/rect.js';
+import Bounds2 from '../math/bounds2.js';
 
 /*
 **	Sequence counter. Used to assign unique IDs to quad tree items.
@@ -46,17 +46,17 @@ const QuadTreeItem = Class.extend
 	/*
 	**	Boundaries at which the item was inserted.
 	*/
-	insertionBounds: null, /* Rect */
+	insertionBounds: null,
 
 	/*
 	**	Boundaries of the last known position that was correct.
 	*/
-	lastBounds: null, /* Rect */
+	lastBounds: null,
 
 	/*
 	**	Bounds of the element.
 	*/
-	bounds: null, /* Rect */
+	bounds: null,
 
 	/*
 	**	Z-index (layer ordering) of the item.
@@ -90,33 +90,15 @@ const QuadTreeItem = Class.extend
 	{
 		this.id = ++quadTreeItemID;
 
-		this.insertionBounds = Rect.alloc();
-		this.lastBounds = Rect.alloc();
-		this.bounds = Rect.alloc();
+		this.insertionBounds = Bounds2.alloc();
+		this.lastBounds = Bounds2.alloc();
+		this.bounds = Bounds2.alloc();
 
 		this.numRefNodes = 0;
 		this.zindex = 0;
 
 		this.flags = QuadTreeItem.FLAG_INITIAL;
 		this._visible = true;
-	},
-
-	/*
-	**	Resets the object to its initial state.
-	*/
-	__reinit: function ()
-	{
-		this.insertionBounds.zero();
-		this.lastBounds.zero();
-		this.bounds.zero();
-
-		this.numRefNodes = 0;
-		this.zindex = 0;
-
-		this.flags = QuadTreeItem.FLAG_INITIAL;
-		this._visible = true;
-
-		this.tag = null;
 	},
 
 	/*
@@ -124,9 +106,9 @@ const QuadTreeItem = Class.extend
 	*/
 	__dtor: function ()
 	{
-		Rect.free(this.insertionBounds);
-		Rect.free(this.lastBounds);
-		Rect.free(this.bounds);
+		this.insertionBounds.free();
+		this.lastBounds.free();
+		this.bounds.free();
 	},
 
 	/*
@@ -192,12 +174,10 @@ const QuadTreeItem = Class.extend
 	notifyInserted: function (tree)
 	{
 		this.flags |= QuadTreeItem.FLAG_ATTACHED;
-		this.insertionBounds.set (this.getBounds());
 
 		if (this.flags & QuadTreeItem.FLAG_INITIAL)
 		{
 			this.flags &= ~QuadTreeItem.FLAG_INITIAL;
-			this.lastBounds.set (this.getBounds());
 		}
 	},
 
@@ -210,11 +190,12 @@ const QuadTreeItem = Class.extend
 	},
 
 	/*
-	**	Executed when the item's position has been acnowledged.
+	**	Updates the insertion bounds to reflect the item's bounds.
 	*/
-	notifyPosition: function ()
+	updateInsertionBounds: function ()
 	{
-		this.lastBounds.set (this.getBounds());
+		this.lastBounds.set (this.insertionBounds);
+		this.insertionBounds.set (this.bounds);
 	},
 
 	/*
@@ -245,13 +226,17 @@ const QuadTreeItem = Class.extend
 /*
 **	Executed when the item is removed from the tree.
 */
-QuadTreeItem.FLAG_QUEUED		=	0x01;
-QuadTreeItem.FLAG_ATTACHED		=	0x02;
-QuadTreeItem.FLAG_SELECTED		=	0x04;
-QuadTreeItem.FLAG_INITIAL		=	0x08;
-QuadTreeItem.FLAG_ALWAYS_SELECT	=	0x10;
-QuadTreeItem.FLAG_NEVER_SELECT	=	0x20;
-QuadTreeItem.FLAG_CHILD			=	0x40;
-QuadTreeItem.FLAG_USERDEF		=	0x80;
+QuadTreeItem.FLAG_QUEUED_INSERTION	=	0x001;
+QuadTreeItem.FLAG_QUEUED_REMOVAL	=	0x002;
+QuadTreeItem.FLAG_QUEUED_UPDATE		=	0x004;
+QuadTreeItem.FLAG_QUEUED			=	0x007;
+
+QuadTreeItem.FLAG_ATTACHED			=	0x008;
+QuadTreeItem.FLAG_SELECTED			=	0x010;
+QuadTreeItem.FLAG_INITIAL			=	0x020;
+QuadTreeItem.FLAG_ALWAYS_SELECT		=	0x040;
+QuadTreeItem.FLAG_NEVER_SELECT		=	0x080;
+QuadTreeItem.FLAG_CHILD				=	0x100;
+QuadTreeItem.FLAG_USERDEF			=	0x200;
 
 export default QuadTreeItem;

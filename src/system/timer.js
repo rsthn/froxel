@@ -14,21 +14,28 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
+/*
 **	Timer class.
-**
-**	Timer __constructor (float interval, function callback);
 */
 const Timer = function (interval, callback)
 {
 	this.callback = callback;
 	this.interval = interval;
+
+	this.isRunning = false;
+	this.startTime = 0;
+	this.rTime = 0;
+	this.sTime = 0;
+	this.lTime = 0;
+	this.tDelta = 0;
+
+	this._onTimeout = () => {
+		this.onTimeout();
+	};
 };
 
-/**
+/*
 **	Timeout handler.
-**
-**	void onTimeout();
 */
 Timer.prototype.onTimeout = function ()
 {
@@ -36,7 +43,7 @@ Timer.prototype.onTimeout = function ()
 
 	this.rTime = hrnow() - this.startTime;
 
-	var tError = this.rTime - (this.sTime + this.interval);
+	let tError = this.rTime - (this.sTime + this.interval);
 	if (tError < 0)
 	{
 		this.runAfter(-tError);
@@ -52,32 +59,24 @@ Timer.prototype.onTimeout = function ()
 	this.runAfter((this.sTime + this.interval) - (hrnow() - this.startTime));
 };
 
-
-/**
+/*
 **	Timer start handler (overridable).
-**
-**	void onStart();
 */
 Timer.prototype.onStart = function ()
 {
 };
 
-
-/**
+/*
 **	Starts the timer. When immediate is `true` the callback will be executed immediately. The scale parameter is used to control when to
 **	trigger the first timeout, set to timeInterval*scale.
-**
-**	void start (bool immediate=false, float scale=1.0);
 */
 Timer.prototype.start = function (immediate=false, scale=1.0)
 {
 	this.startTime = hrnow();
+	this.isRunning = true;
 
 	this.sTime = 0;
 	this.lTime = 0;
-
-	this.lastTime = hrnow();
-	this.isRunning = true;
 
 	this.onStart();
 
@@ -87,24 +86,19 @@ Timer.prototype.start = function (immediate=false, scale=1.0)
 	this.runAfter(this.interval*scale);
 };
 
-
-/**
+/*
 **	Executes the timer onTimeout() after the specified amount of milliseconds.
-**
-**	void runAfter (int timeout);
 */
 Timer.prototype.runAfter = function (timeout)
 {
 	if (process.browser)
-		requestAnimationFrame(() => this.onTimeout());
+		requestAnimationFrame(this._onTimeout);
 	else
-		setTimeout (() => this.onTimeout(), 0);
+		setTimeout(this._onTimeout, 0);
 };
 
-/**
+/*
 **	Stops the timer.
-**
-**	void stop();
 */
 Timer.prototype.stop = function ()
 {

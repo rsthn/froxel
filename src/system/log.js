@@ -29,8 +29,8 @@ const Log =
 	maxsize: 30,
 	debugEcho: false,
 
-	color: '#fff',
-	background: '#000',
+	color: '#000',
+	background: null,
 
 	vars: { },
 
@@ -75,22 +75,23 @@ const Log =
 
 		let _y = y;
 
-		System.drawQueueAdd ({ draw: function (tmp, g)
+		System.drawQueueAdd ({ draw: function ()
 		{
+			const g = System.displayBuffer2;
 			g.clear();
 
-			g.font("normal "+fontSize+"pt 'Bitstream Vera Sans Mono', monospace");
+			g.font('bold '+fontSize+'pt monospace');
 			g.textBaseline('top');
 
-			var _time = ((System.perf.lastTime - System.perf.startTime) / 1000);
-			var _frames = System.perf.numFrames;
-			var s = '';
+			let _time = ((System.perf.lastTime - System.perf.startTime) / 1000);
+			let _frames = System.perf.numFrames;
+			let s = '';
 
 			y = _y;
 
 			if (showFps !== false)
 			{
-				s = 'fps: '+(_frames/_time).toFixed(2) + ', dt: ' + (1000/(_frames/_time)).toFixed(2) + ' ms, update: ' + (System.perf.updateTime/_frames).toFixed(2) + ' ms, draw: ' + (System.perf.drawTime/_frames).toFixed(2) + ' ms';
+				s = 'fps: '+(_frames/_time).toFixed(2) + ', dt: ' + (1000/(_frames/_time)).toFixed(2) + ' ms, update: ' + int(System.perf.updateTime/_frames) + ' us, draw: ' + int(System.perf.drawTime/_frames) + ' us';
 
 				if (Log.background) {
 					g.fillStyle(Log.background);
@@ -103,10 +104,10 @@ const Log =
 
 			s = '';
 
-			for (let i in Log.vars)
-				s += i + '=' + Log.vars[i] + '  ';
+			//for (let i in Log.vars)
+			//	s += i + '=' + Log.vars[i] + '  ';
 
-			if (s)
+			if (s !== '')
 			{
 				y += 24;
 
@@ -119,7 +120,7 @@ const Log =
 				g.fillText(s, x+8, y+10);
 			}
 
-			for (var i = 0; i < Log.data.length; i++)
+			for (let i = 0; i < Log.data.length; i++)
 			{
 				s = (showIndex !== false ? "#" + (Log.count-Log.data.length+i+1) + ": " : "> ") + Log.data[i];
 

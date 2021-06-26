@@ -14,11 +14,11 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import G from '../system/globals'
-import Anim from '../anim/anim';
-import Matrix from '../math/matrix';
-import System from '../system/system';
-import QuadTreeItem from '../spatial/quadtree-item';
+import G from '../system/globals.js';
+import Anim from '../anim/anim.js';
+import Matrix from '../math/matrix.js';
+import QuadTreeItem from '../spatial/quadtree-item.js';
+import System from '../system/system.js';
 
 /*
 **
@@ -92,13 +92,13 @@ export default QuadTreeItem.extend
 	{
 		this._super.QuadTreeItem.__ctor();
 
-		this.anim = new Anim();
+		this.anim = Anim.calloc();
 		this.anim.output(this);
 
 		this.x = x;
 		this.y = y;
 
-		this.transform = new Matrix();
+		this.transform = Matrix.calloc();
 
 		this.resize(width, height);
 		this.updateTransform(true);
@@ -112,8 +112,8 @@ export default QuadTreeItem.extend
 		this.remove();
 		this._super.QuadTreeItem.__dtor();
 
-		dispose(this.anim);
-		dispose(this.transform);
+		this.transform.free();
+		this.anim.free();
 	},
 
 	/*
@@ -172,10 +172,13 @@ export default QuadTreeItem.extend
 		let p3 = this.transform.applyTo(this.bounds.x2, this.bounds.y2);
 
 		this.bounds.reset();
-		this.bounds.extendWithPoint(p0);
-		//this.bounds.extendWithPoint(p1);
-		//this.bounds.extendWithPoint(p2);
-		this.bounds.extendWithPoint(p3);
+		this.bounds.setAsUnion(p0);
+		//this.bounds.setAsUnion(p1);
+		//this.bounds.setAsUnion(p2);
+		this.bounds.setAsUnion(p3);
+
+		p0.free();
+		p3.free();
 	},
 
 	/*
@@ -205,7 +208,7 @@ export default QuadTreeItem.extend
 
 		if (this.angle != 0)
 		{
-			this.transform.translate(0.5*this.width, 0.5*this.height);
+			this.transform.translate(this.width >> 1, this.height >> 1);
 			this.transform.rotate(this.angle);
 		}
 
@@ -277,7 +280,7 @@ export default QuadTreeItem.extend
 	*/
 	setAnim: function (anim)
 	{
-		anim.clone(this.anim);
+		anim.copyTo(this.anim);
 		return this;
 	},
 
@@ -286,8 +289,10 @@ export default QuadTreeItem.extend
 	*/
 	resetAnim: function (anim=null)
 	{
-		if (anim != null) this.setAnim (anim);
-		this.anim.reset();
+		if (anim != null)
+			this.setAnim (anim);
+		else
+			this.anim.reset();
 	},
 
 	/*
@@ -378,6 +383,9 @@ export default QuadTreeItem.extend
 		g.popAlpha();
 		g.popMatrix();
 
+		if (g.gl !== null)
+			return;
+
 		if ((G.debugBounds && this.type) || this.debugBounds)
 		{
 			//g.lineWidth(1/System.canvasScaleFactor);
@@ -415,9 +423,9 @@ export default QuadTreeItem.extend
 	{
 		if (!this.visible()) return; // violet: optimize by returning immediately if elementDraw is the default one
 
-		this.preDraw(g);
-		this.elementDraw(g);
-		this.postDraw(g);
+		this.preDraw (g);
+		this.elementDraw (g);
+		this.postDraw (g);
 	},
 
 	/*
@@ -428,12 +436,7 @@ export default QuadTreeItem.extend
 		if (!this.active()) return;
 
 		if (!this.anim.update(dt) || this.transformDirty)
-		{
 			this.updateTransform(true);
-//Log.vars.Y++;//violet: remove, was used to count transform updates
-		}
-//		else
-//Log.vars.X++;//violet: remove, was used to count transform updates
 
 		this.elementUpdate(dt);
 	},

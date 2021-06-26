@@ -14,266 +14,293 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
-**	Representation of a vector in 2D space, that is a tuple with two components x and y.
+import { Class } from '@rsthn/rin';
+import Recycler from '../utils/recycler.js';
+
+/*
+**	Representation of a vector in 2D space, that is, a float tuple with components x and y.
 */
 
-const Vec2 = function ()
-{
-	switch (arguments.length)
+const Vec2 = Class.extend
+({
+	className: 'Vec2',
+
+	/*
+	**	Coordinates of the vector.
+	*/
+	x: 0, y: 0,
+
+	/*
+	**	Initializes the instance.
+	**
+	**	Vec2 init (Vec2 v)
+	**	Vec2 init (float x, float y)
+	*/
+	init: function (x=null, y=null)
 	{
-		case 0: return this.Vec2_0.apply(this, arguments);
-		case 1: return this.Vec2_1.apply(this, arguments);
-		case 2: return this.Vec2_2.apply(this, arguments);
-	}
-};
+		return this.set(x, y);
+	},
 
-export default Vec2;
+	/*
+	**	Clones the vector and returns a new object.
+	*/
+	clone: function () /* Vec2 */
+	{
+		return Vec2.alloc().init(this);
+	},
 
-/**
-**	Coordinate value of the X-axis. 	 
-*/
-Vec2.prototype.x = 0;
+	/*
+	**	Sets the components of the vector.
+	**
+	**	Vec2 set (Vec2 v)
+	**	Vec2 set (float x, float y)
+	*/
+	set: function (x, y=null) /* Vec2 */
+	{
+		if (x === null) {
+			x = 0;
+			y = 0;
+		}
+		else if (y === null) {
+			let v = x;
+			x = v.x;
+			y = v.y;
+		}
 
-/**
-**	Coordinate value of the Y-axis.
-*/
-Vec2.prototype.y = 0;
+		this.x = x;
+		this.y = y;
 
-/**
-**	Constructs a vector object. Components are set to zero.
-*/
-Vec2.prototype.Vec2_0 = function ()
-{
-	this.x = this.y = 0;
-};
+		return this;
+	},
 
-/**
-**	Constructs a vector object with the given components.
-*/
-Vec2.prototype.Vec2_2 = function (x, y)
-{
-	this.x = x; this.y = y;
-};
+	/*
+	**	Sets the components of the vector to zero.
+	*/
+	zero: function()
+	{
+		return this.set(0, 0);
+	},
 
-/**
-**	Constructs a vector object with the components from the specified vector.
-*/
-Vec2.prototype.Vec2_1 = function (b)
-{
-	this.x = b.x; this.y = b.y;
-};
+	/*
+	**	Returns true if the vector is zero.
+	*/
+	isZero: function()
+	{
+		return this.x == 0 && this.y == 0;
+	},
 
-/**
-**	Clones the vector and returns a new object.
-*/
-Vec2.prototype.clone = function () /* Vec2 */
-{
-	return new Vec2 (this.x, this.y);
-};
+	/*
+	**	Returns true if the coordinates have the same components as the vector.
+	*/
+	equals: function (x, y=null)
+	{
+		if (y === null)
+		{
+			let v = x;
+			x = v.x;
+			y = v.y;
+		}
 
-/**
-**	Sets the components of the vector. (vec2 or x,y)
-*/
-Vec2.prototype.set = function (x, y) /* Vec2 */
-{
-	if (arguments.length == 1)
-		this.x = x.x, this.y = x.y;
-	else
-		this.x = x, this.y = y;
-
-	return this;
-};
-
-/**
-**	Sets the components of the vector to zero.
-*/
-Vec2.prototype.zero = function ()
-{
-	return this.set (0, 0);
-};
-
-/**
-**	Returns true if the vector is zero.
-*/
-Vec2.prototype.isZero = function ()
-{
-	return this.x == 0 && this.y == 0;
-};
-
-/**
-**	Returns true if the coordinates have the same components as the vector. (vec2 or x,y)
-*/
-Vec2.prototype.equals = function (x, y)
-{
-	if (arguments.length == 1)
-		return this.x == x.x && this.y == x.y;
-	else
 		return this.x == x && this.y == y;
-};
+	},
 
-/**
-**	Negates the vector, that is changing the sign of each component in the vector.
-*/
-Vec2.prototype.neg = function ()
-{
-	this.x = -this.x; this.y = -this.y;
-	return this;
-};
+	/*
+	**	Negates the vector, that is changing the sign of each component in the vector.
+	*/
+	neg: function ()
+	{
+		this.x = -this.x; this.y = -this.y;
+		return this;
+	},
 
-/**
-**	Inverts the vector by changing each component to its reciprocal.
-*/
-Vec2.prototype.inv = function ()
-{
-	this.x = 1 / this.x; this.y = 1 / this.y;
-	return this;
-};
+	/*
+	**	Inverts the vector by changing each component to its reciprocal.
+	*/
+	inv: function ()
+	{
+		this.x = 1 / this.x; this.y = 1 / this.y;
+		return this;
+	},
 
-/**
-**	Changes the components of the vector to their absolute value.
-*/
-Vec2.prototype.abs = function ()
-{
-	this.x = this.x < 0 ? -this.x : this.x;
-	this.y = this.y < 0 ? -this.y : this.y;
-	return this;
-};
+	/*
+	**	Changes the components of the vector to their absolute value.
+	*/
+	abs: function ()
+	{
+		this.x = this.x < 0 ? -this.x : this.x;
+		this.y = this.y < 0 ? -this.y : this.y;
+		return this;
+	},
 
-/**
-**	Adds the given value to all components of the vector. (vec2 or x,y)
-*/
-Vec2.prototype.translate = function (dx, dy)
-{
-	if (arguments.length == 1)
-		this.x += dx.x, this.y += dx.y;
-	else
+	/*
+	**	Adds the given value to all components of the vector.
+	**
+	**	float translate (Vec2 v)
+	**	float translate (float dx, float dy)
+	*/
+	translate: function (dx, dy=null)
+	{
+		if (dy === null)
+		{
+			let v = dx;
+			dx = v.x;
+			dy = v.y;
+		}
+
 		this.x += dx, this.y += dy;
+		return this;
+	},
 
-	return this;
-};
+	/*
+	**	Adds given values to the components of the vector.
+	**
+	**	float add (Vec2 v)
+	**	float add (float dx, float dy)
+	*/
+	add: function (dx, dy=null)
+	{
+		if (dy === null)
+		{
+			let v = dx;
+			dx = v.x;
+			dy = v.y;
+		}
 
-/**
-**	Adds given values to the components of the vector. (vec2 or x,y)
-*/
-Vec2.prototype.add = function (dx, dy)
-{
-	if (arguments.length == 1)
-		this.x += dx.x, this.y += dx.y;
-	else
 		this.x += dx, this.y += dy;
+		return this;
+	},
 
-	return this;
-};
+	/*
+	**	Subtracts given values from the components of the vector.
+	**
+	**	float sub (Vec2 v)
+	**	float sub (float dx, float dy)
+	*/
+	sub: function (dx, dy)
+	{
+		if (dy === null)
+		{
+			let v = dx;
+			dx = v.x;
+			dy = v.y;
+		}
 
-/**
-**	Subtracts given values from the components of the vector. (vec2 or x,y)
-*/
-Vec2.prototype.sub = function (dx, dy)
-{
-	if (arguments.length == 1)
-		this.x -= dx.x, this.y -= dx.y;
-	else
 		this.x -= dx, this.y -= dy;
+		return this;
+	},
 
-	return this;
-};
+	/*
+	**	Scales both components of the vector by the given factor.
+	**
+	**	float scale (Vec2 v)
+	**	float scale (float fx, float fy)
+	*/
+	scale: function (fx, fy=null)
+	{
+		if (fy === null)
+		{
+			let v = fx;
+			fx = v.x;
+			fy = v.y;
+		}
 
-/**
-**	Scales both components of the vector by the given factor (fx or fx, fy).
-*/
-Vec2.prototype.scale = function (fx, fy)
-{
-	if (arguments.length == 1)
-		this.x *= fx, this.y *= fx;
-	else
 		this.x *= fx, this.y *= fy;
+		return this;
+	},
 
-	return this;
-};
+	/*
+	**	Sets the components to their integer parts.
+	*/
+	floor: function ()
+	{
+		this.x = int(this.x);
+		this.y = int(this.y);
 
-/**
-**	Sets the components to their integer parts.
-*/
-Vec2.prototype.floor = function ()
-{
-	this.x = ~~this.x;
-	this.y = ~~this.y;
+		return this;
+	},
 
-	return this;
-};
+	/*
+	**	Sets the components to their fractional parts.
+	*/
+	fract: function ()
+	{
+		this.x = this.x - int(this.x);
+		this.y = this.y - int(this.y);
 
-/**
-**	Sets the components to their fractional parts.
-*/
-Vec2.prototype.fract = function ()
-{
-	this.x = this.x - ~~this.x;
-	this.y = this.y - ~~this.y;
+		return this;
+	},
 
-	return this;
-};
+	/*
+	**	Returns the dot product of the vector and the provided values (x, y).
+	**
+	**	float dot (Vec2 v)
+	**	float dot (float x, float y)
+	*/
+	dot: function (x, y=null)
+	{
+		if (y === null)
+		{
+			let v = x;
+			x = v.x;
+			y = v.y;
+		}
 
-/**
-**	Returns the dot product of the vector and the provided values (x, y).
-*/
-Vec2.prototype.dot = function (x, y)
-{
-	if (arguments.length == 2)
 		return this.x*x + this.y*y;
-	else
-		return this.x*x.x + this.y*x.y;
-};
+	},
 
-/**
-**	Returns the magnitude of the vector.
-*/
-Vec2.prototype.magnitude = function ()
-{
-	return Math.sqrt(this.x*this.x + this.y*this.y);
-};
+	/*
+	**	Returns the magnitude of the vector.
+	*/
+	magnitude: function ()
+	{
+		return Math.sqrt(this.x*this.x + this.y*this.y);
+	},
 
-/**
-**	Normalizes the vector. That is achieved by dividing each component of the Vector by its
-**	magnitude in order to obtain a unit vector.
-*/
-Vec2.prototype.normalize = function ()
-{
-	return this.isZero() ? this : this.scale (1 / this.magnitude());
-};
+	/*
+	**	Normalizes the vector. That is achieved by dividing each component of the Vector by its
+	**	magnitude in order to obtain a unit vector.
+	*/
+	normalize: function ()
+	{
+		return this.isZero() ? this : this.scale (1 / this.magnitude());
+	},
 
-/**
-**	Sets the vector to its major-axis.
-*/
-Vec2.prototype.majorAxis = function ()
-{
-	if (Math.abs(this.x) > Math.abs(this.y)) this.y = 0; else this.x = 0;
-	return this;
-};
+	/*
+	**	Sets the vector to its major-axis.
+	*/
+	majorAxis: function ()
+	{
+		if (Math.abs(this.x) > Math.abs(this.y)) this.y = 0; else this.x = 0;
+		return this;
+	},
 
-/**
-**	Sets the vector to its minor-axis.
-*/
-Vec2.prototype.minorAxis = function ()
-{
-	if (Math.abs(this.x) < Math.abs(this.y)) this.y = 0; else this.x = 0;
-	return this;
-};
+	/*
+	**	Sets the vector to its minor-axis.
+	*/
+	minorAxis: function ()
+	{
+		if (Math.abs(this.x) < Math.abs(this.y)) this.y = 0; else this.x = 0;
+		return this;
+	},
 
-/**
-**	Sets the vector to its sign-vector representation.
-*/
-Vec2.prototype.sign = function ()
-{
-	this.x = !this.x ? 0 : (this.x < 0 ? -1 : 1);
-	this.y = !this.y ? 0 : (this.y < 0 ? -1 : 1);
-	return this;
-};
+	/*
+	**	Sets the vector to its sign-vector representation.
+	*/
+	sign: function ()
+	{
+		this.x = !this.x ? 0 : (this.x < 0 ? -1 : 1);
+		this.y = !this.y ? 0 : (this.y < 0 ? -1 : 1);
+		return this;
+	},
 
-/**
-**	Returns the string representation of the vector.
-*/
-Vec2.prototype.toString = function ()
-{
-	return `(${this.x}, ${this.y})`;
-};
+	/*
+	**	Returns the string representation of the vector.
+	*/
+	toString: function ()
+	{
+		return `(${this.x}, ${this.y})`;
+	}
+});
+
+Recycler.attachTo (Vec2);
+export default Vec2;

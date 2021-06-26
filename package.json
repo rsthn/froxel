@@ -1,6 +1,6 @@
 {
     "name": "froxel",
-    "version": "2.0.32",
+    "version": "2.0.33",
     "description": "Froxel Game Engine",
     "type": "module",
     "main": "src/main.js",
@@ -9,7 +9,7 @@
         "requirements": "yarn global add --ignore-optional parcel",
         "deploy": "yarn build && node ./scripts/deploy.js",
         "commit": "yarn build && node ./scripts/commit.js",
-        "build": "parcel build --no-cache --target target_dist src/_export.js"
+        "build": "parcel build --no-cache --no-source-maps --target target_dist src/_export.js"
     },
     "target_dist": "dist/froxel.js",
     "targets": {

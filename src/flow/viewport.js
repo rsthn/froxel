@@ -14,13 +14,12 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
+/*
 **	Viewport class controls the current visible rectangle of the world.
 */
 
-import Rect from '../math/rect.js';
-import Log from '../system/log.js';
 import { Class } from '@rsthn/rin';
+import Bounds2 from '../math/bounds2.js';
 
 export default Class.extend
 ({
@@ -104,7 +103,7 @@ export default Class.extend
 	*/
 	screenBounds: null,
 
-	/**
+	/*
 	**	Constructs the viewport with the specified viewport and world dimensions. A focus factor can
 	**	be specified as well, if none provided the default value is 0.4.
 	*/
@@ -132,9 +131,9 @@ export default Class.extend
 		this.worldX2 = +worldWidth;
 		this.worldY2 = +worldHeight;
 
-		this.bounds = Rect.alloc();
-		this.focusBounds = Rect.alloc();
-		this.screenBounds = Rect.alloc();
+		this.bounds = Bounds2.alloc();
+		this.focusBounds = Bounds2.alloc();
+		this.screenBounds = Bounds2.alloc();
 
 		this.x = 0;
 		this.y = 0;
@@ -143,6 +142,16 @@ export default Class.extend
 
 		this.updateScreenBounds();
 		this.updateBounds();
+	},
+
+	/*
+	**	Destructs the viewport.
+	*/
+	__dtor: function ()
+	{
+		this.bounds.free();
+		this.focusBounds.free();
+		this.screenBounds.free();
 	},
 
 	/*
@@ -360,16 +369,16 @@ export default Class.extend
 		let w = this.width >> 1;
 		let h = this.height >> 1;
 
-		let x1 = this.x - (kx*w + this.centerRatioX*w)/this.scale;
-		let x2 = this.x + (kx*w + this.centerRatioX*w)/this.scale;
-		let y1 = this.y - (ky*h + this.centerRatioY*h)/this.scale;
-		let y2 = this.y + (ky*h + this.centerRatioY*h)/this.scale;
+		let x1 = this.x - int((kx*w + this.centerRatioX*w)/this.scale);
+		let x2 = this.x + int((kx*w + this.centerRatioX*w)/this.scale);
+		let y1 = this.y - int((ky*h + this.centerRatioY*h)/this.scale);
+		let y2 = this.y + int((ky*h + this.centerRatioY*h)/this.scale);
 
 		if (x1 == x2)
-			i0 = i1 = (i0 + i1) / 2;
+			i0 = i1 = (i0 + i1) >> 1;
 
 		if (y1 == y2)
-			j0 = j1 = (j0 + j1) / 2;
+			j0 = j1 = (j0 + j1) >> 1;
 
 		let nx = this.x;
 		let ny = this.y;
@@ -403,7 +412,9 @@ export default Class.extend
 	update: function (dt)
 	{
 		if (this.focusRect != null)
+		{
 			this.focusOn (this.focusRect.x1, this.focusRect.y1, this.focusRect.x2, this.focusRect.y2);
+		}
 	},
 
 	/*
@@ -439,9 +450,6 @@ export default Class.extend
 		g.translate (this.screenBounds.cx, this.screenBounds.cy);
 		g.scale (this.scale, this.scale);
 		g.translate (-this.getX(), -this.getY());
-
-		g.matr.data[6] = ~~g.matr.data[6];
-		g.matr.data[7] = ~~g.matr.data[7];
 		g.updateTransform();
 	},
 
@@ -451,8 +459,8 @@ export default Class.extend
 	toWorldSpace: function (x, y, floor=false)
 	{
 		if (floor) {
-			x = ((x - ~~this.screenBounds.cx) / this.scale) + ~~this.getX();
-			y = ((y - ~~this.screenBounds.cy) / this.scale) + ~~this.getY();
+			x = ((x - int(this.screenBounds.cx)) / this.scale) + int(this.getX());
+			y = ((y - int(this.screenBounds.cy)) / this.scale) + int(this.getY());
 		}
 		else {
 			x = ((x - this.screenBounds.cx) / this.scale) + this.getX();
@@ -468,8 +476,8 @@ export default Class.extend
 	toScreenSpace: function (x, y, floor=false)
 	{
 		if (floor) {
-			x = (x - ~~this.getX()) * this.scale + ~~this.screenBounds.cx;
-			y = (y - ~~this.getY()) * this.scale + ~~this.screenBounds.cy;
+			x = (x - int(this.getX())) * this.scale + int(this.screenBounds.cx);
+			y = (y - int(this.getY())) * this.scale + int(this.screenBounds.cy);
 		}
 		else {
 			x = (x - this.getX()) * this.scale + this.screenBounds.cx;

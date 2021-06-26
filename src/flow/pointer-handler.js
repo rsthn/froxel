@@ -28,9 +28,15 @@ export default Boot.Module.create
 
 	__ctor: function ()
 	{
+		const self = this;
+
 		this._super.Module.__ctor();
 
 		this.handlers = new PriorityQueue();
+
+		this._callOnPointerEvent = function (handler) {
+			return self.callOnPointerEvent(handler);
+		};
 	},
 
 	register: function (handler)
@@ -59,22 +65,20 @@ export default Boot.Module.create
 		}
 	},
 
+	callOnPointerEvent: function (handler)
+	{
+		return handler.onPointerEvent(this._action, this._p, this._pointers);
+	},
+
 	onStartup: function()
 	{
 		System.onPointerEvent = (action, p, pointers) =>
 		{
-			const breakError = { };
+			this._action = action;
+			this._p = p;
+			this._pointers = pointers;
 
-			try {
-				this.handlers.forEach((h) =>
-				{
-					if (h.onPointerEvent(action, p, pointers) === false)
-						throw breakError;
-				});
-			}
-			catch (e) {
-				if (e !== breakError) throw e;
-			}
+			this.handlers.forEach(this._callOnPointerEvent);
 		};
 	},
 

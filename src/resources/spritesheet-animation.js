@@ -17,6 +17,8 @@
 import { Class } from '@rsthn/rin';
 import Spritesheet from './spritesheet.js';
 import System from '../system/system.js';
+import List from '../utils/list.js';
+import Recycler from '../utils/recycler.js';
 
 /*
 	anim: {
@@ -41,6 +43,8 @@ import System from '../system/system.js';
 
 export const Animation = Class.extend
 ({
+	className: 'Animation',
+
 	seq: null, seq_i: 0,
 	trans: null, trans_i: 0, trans_t: null,
 
@@ -61,29 +65,46 @@ export const Animation = Class.extend
 
 	frameCallback: null,
 
-	__ctor: function (anim, seq, fps)
+	init: function (anim, seq, fps)
 	{
 		this.anim = anim;
-		this.queue = [ ];
+		this.queue = List.calloc();
 
 		this.seq = seq;
+		this.seq_i = 0;
+
 		this.trans = null;
+		this.trans_i = 0;
+		this.trans_t = null;
 
 		this.width = anim.width;
 		this.height = anim.height;
 
-		this.fps = fps;
+		this.frameNumber = -1;
+		this.finished = false;
+		this.paused = false;
 
+		this.finishedCallback = null;
+		this.finishedCallbackChain = null;
+		this.frameCallback = null;
+
+		this.fps = fps;
 		this.setFps (this.seq.fps || this.fps);
+
+		return this;
 	},
 
 	__dtor: function ()
 	{
+		this.queue.free();
+
+		if (this.finishedCallbackChain)
+			this.finishedCallbackChain.free();
 	},
 
 	setFps: function (fps)
 	{
-		this.frameMillis = ~~(1000 / fps);
+		this.frameMillis = int(1000 / fps);
 		this.time = 0;
 
 		return this;
@@ -112,7 +133,7 @@ export const Animation = Class.extend
 		if (this.finishedCallback !== this.thenCallback)
 		{
 			this.finishedCallback = this.thenCallback;
-			this.finishedCallbackChain = [];
+			this.finishedCallbackChain = List.calloc();
 		}
 
 		this.finishedCallbackChain.push(callback);
@@ -124,8 +145,7 @@ export const Animation = Class.extend
 		if (!this.finishedCallbackChain.length)
 			return false;
 
-		let callback = this.finishedCallbackChain.shift();
-		callback.call(this);
+		this.finishedCallbackChain.shift().call(this);
 	},
 
 	onFrame: function (fn)
@@ -166,22 +186,22 @@ export const Animation = Class.extend
 
 		if (this.seq_i == this.seq.group.length)
 		{
-			var t = this.seq.group[this.seq_i-1];
+			let t = this.seq.group[this.seq_i-1];
 
 			if (g != null)
 			{
-				for (var i = 0; i < t.length; i++)
+				for (let i = 0; i < t.length; i++)
 					g.drawFrame (this.anim, x, y, t[i]);
 			}
 
 			return;
 		}
 
-		var t = this.seq.group[this.seq_i];
+		let t = this.seq.group[this.seq_i];
 
 		if (g != null)
 		{
-			for (var i = 0; i < t.length; i++)
+			for (let i = 0; i < t.length; i++)
 				g.drawFrame (this.anim, x, y, t[i]);
 		}
 
@@ -256,7 +276,7 @@ export const Animation = Class.extend
 
 	use: function (seqName, force=false)
 	{
-		var seq = this.trans == null ? this.seq : this.trans_t;
+		let seq = this.trans == null ? this.seq : this.trans_t;
 
 		if (seq.name == seqName && !this.finished && force !== true)
 			return this;
@@ -285,6 +305,12 @@ export const Animation = Class.extend
 
 	setQueue: function (list)
 	{
+		if (!List.isInstance(list))
+			throw new Error('setQueue: Parameter must be an instance of List');
+
+		if (this.queue != null)
+			this.queue.clear().free();
+
 		this.queue = list;
 		this.use(this.queue.shift(), true);
 	},
@@ -312,10 +338,12 @@ export const Animation = Class.extend
 	}
 });
 
+Recycler.attachTo(Animation);
 
+/* ********************************************************** */
 export default Spritesheet.extend
 ({
-	className: "SpritesheetAnimation",
+	className: 'SpritesheetAnimation',
 
 	__ctor: function (r)
 	{
@@ -326,20 +354,18 @@ export default Spritesheet.extend
 		this.r = r;
 		this.r.wrapper = this;
 
-		var t = this.a = this.r.anim;
+		let t = this.a = this.r.anim;
 
 		if (t.initialized) return;
 
-		if (!t.def) t.def = "def";
-
+		if (!t.def) t.def = 'def';
 		if (!t.seq) t.seq = { };
 
-		if (!t.seq[t.def] && (t.def == "def" || t.def == "defloop"))
+		if (!t.seq[t.def] && (t.def == 'def' || t.def == 'defloop'))
 		{
-			var p = { loop: (t.def == "def" ? false : true), group: [ ] };
+			let p = { loop: (t.def == 'def' ? false : true), group: [ ] };
 
-			for (var i = 0; i < this.numFrames; i++)
-			{
+			for (let i = 0; i < this.numFrames; i++) {
 				p.group.push([i]);
 			}
 
@@ -347,36 +373,36 @@ export default Spritesheet.extend
 		}
 
 		if (!t.seq[t.def])
-			throw new Error ("Undefined default sequence: " + t.def);
+			throw new Error ('Undefined default sequence: ' + t.def);
 
 		if (!t.fps) t.fps = 25;
 
 		t.def = t.seq[t.def];
 
-		var frameIndex = 0;
+		let frameIndex = 0;
 
-		for (var i in t.seq)
+		for (let i in t.seq)
 		{
 			t.seq[i].name = i;
 
 			if (!t.seq[i].loop)
 				t.seq[i].loop = false;
 
-			if (typeof(t.seq[i].group) == "string")
+			if (typeof(t.seq[i].group) == 'string')
 			{
-				var a, b, c;
+				let a, b, c;
 
-				if (t.seq[i].group.indexOf(" ") != -1)
+				if (t.seq[i].group.indexOf(' ') != -1)
 				{
-					a = t.seq[i].group.split(" ");
+					a = t.seq[i].group.split(' ');
 					t.seq[i].group = [ ];
 
-					for (var j in a)
+					for (let j in a)
 						t.seq[i].group.push([int(a[j])]);
 				}
-				else if (t.seq[i].group.indexOf(",") != -1)
+				else if (t.seq[i].group.indexOf(',') != -1)
 				{
-					c = t.seq[i].group.split(",");
+					c = t.seq[i].group.split(',');
 					
 					a = int(c[0]);
 					b = int(c[1]);
@@ -398,17 +424,17 @@ export default Spritesheet.extend
 
 		if (t.trans)
 		{
-			for (var i in t.trans)
+			for (let i in t.trans)
 			{
 				t.seq[i].trans = t.trans[i];
 
-				for (var j in t.trans[i])
+				for (let j in t.trans[i])
 				{
-					for (var k = 0; k < t.trans[i][j].length; k++)
+					for (let k = 0; k < t.trans[i][j].length; k++)
 					{
-						var n = t.trans[i][j][k];
+						let n = t.trans[i][j][k];
 
-						if (!t.seq[n]) throw new Error ("Undefined sequence: " + n);
+						if (!t.seq[n]) throw new Error ('Undefined sequence: ' + n);
 						t.trans[i][j][k] = t.seq[n];
 					}
 				}
@@ -420,7 +446,7 @@ export default Spritesheet.extend
 
 	getDrawable: function (initialseq=null, fps=null)
 	{
-		return new Animation (this, initialseq ? this.a.seq[initialseq] : this.a.def, fps || this.a.fps);
+		return Animation.alloc().init(this, initialseq ? this.a.seq[initialseq] : this.a.def, fps || this.a.fps);
 	},
 
 	getSequence: function (initialseq=null)

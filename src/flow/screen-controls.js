@@ -27,6 +27,7 @@ const ScreenControls =
 	priority: 5,
 
 	list: [ ],
+	dummy: { },
 
 	hoverEnabled: false,
 	zindexEnabled: false,
@@ -87,7 +88,7 @@ const ScreenControls =
 			this.lastFrame = System.frameNumber;
 		}
 
-		for (let i in this.list)
+		for (let i = 0; i < this.list.length; i++)
 		{
 			if (!this.list[i]) continue;
 
@@ -114,6 +115,11 @@ const ScreenControls =
 		}
 
 		return null;
+	},
+
+	filterHover: function (i)
+	{
+		return 'hover' in i;
 	},
 
 	onPointerEvent: function (action, p, pointers)
@@ -157,14 +163,14 @@ const ScreenControls =
 							tmp = p._refh; p._refh = null;
 							tmp.hover(false, p);
 		
-							tmp = this.findTarget(p.x, p.y, i => 'hover' in i);
+							tmp = this.findTarget(p.x, p.y, this.filterHover);
 							if (tmp != null)
 								(p._refh = tmp).hover(true, p);
 						}
 					}
 					else
 					{
-						tmp = this.findTarget(p.x, p.y, i => 'hover' in i);
+						tmp = this.findTarget(p.x, p.y, this.filterHover);
 						if (tmp != null)
 							(p._refh = tmp).hover(true, p);
 					}
@@ -215,14 +221,14 @@ const ScreenControls =
 							tmp = p._refh; p._refh = null;
 							tmp.hover(false, p);
 		
-							tmp = this.findTarget(p.x, p.y, i => 'hover' in i);
+							tmp = this.findTarget(p.x, p.y, this.filterHover);
 							if (tmp != null)
 								(p._refh = tmp).hover(true, p);
 						}
 					}
 					else
 					{
-						tmp = this.findTarget(p.x, p.y, i => 'hover' in i);
+						tmp = this.findTarget(p.x, p.y, this.filterHover);
 						if (tmp != null)
 							(p._refh = tmp).hover(true, p);
 					}
@@ -268,7 +274,7 @@ const ScreenControls =
 		{
 			case System.EVT_KEY_DOWN:
 
-				for (var i in this.list)
+				for (let i = 0; i < this.list.length; i++)
 				{
 					if (!this.list[i]) continue;
 
@@ -278,7 +284,7 @@ const ScreenControls =
 						{
 							if (this.list[i][j].keyCode == keyCode)
 							{
-								this.list[i][j].pointerActivate({ });
+								this.list[i][j].pointerActivate(this.dummy);
 								j = -1;
 								break;
 							}
@@ -290,7 +296,7 @@ const ScreenControls =
 					{
 						if (this.list[i].keyCode == keyCode)
 						{
-							this.list[i].pointerActivate({ });
+							this.list[i].pointerActivate(this.dummy);
 							break;
 						}
 					}
@@ -300,7 +306,7 @@ const ScreenControls =
 
 			case System.EVT_KEY_UP:
 
-				for (var i in this.list)
+				for (let i = 0; i < this.list.length; i++)
 				{
 					if (!this.list[i]) continue;
 
@@ -310,7 +316,7 @@ const ScreenControls =
 						{
 							if (this.list[i][j].keyCode == keyCode)
 							{
-								this.list[i][j].pointerDeactivate({ });
+								this.list[i][j].pointerDeactivate(this.dummy);
 								j = -1;
 								break;
 							}
@@ -322,7 +328,7 @@ const ScreenControls =
 					{
 						if (this.list[i].keyCode == keyCode)
 						{
-							this.list[i].pointerDeactivate({ });
+							this.list[i].pointerDeactivate(this.dummy);
 							break;
 						}
 					}

@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import C from './config';
+import C from './config.js';
 
 /*
 **	Global functions and definitions.
@@ -45,21 +45,25 @@ global.px = function(value)
 /*
 **	Disposes an object, first by checking if it has a 'dispose' method, and if not, tried to check
 **	with a '__dtor' method.
-**
-**	>> dispose (object obj, string reason);
-**	>> dispose (object obj);
 */
-global.dispose = function (obj, reason)
+global.dispose = function (obj)
 {
 	if (!obj) return;
 
-	if ('dispose' in obj)
+	if ('free' in obj)
 	{
-		obj.dispose(reason);
+		obj.free();
 		return;
 	}
 
-	if ('__dtor' in obj) obj.__dtor();
+	if ('dispose' in obj)
+	{
+		obj.dispose();
+		return;
+	}
+
+	if ('__dtor' in obj)
+		obj.__dtor();
 };
 
 /*
@@ -86,7 +90,7 @@ global.fetchd = function (url, options)
 		var request = new XMLHttpRequest();
 		request.open('GET', url, true);
 
-		for (var i in options) request[i] = options[i];
+		for (let i in options) request[i] = options[i];
 
 		request.onload = function() {
 			resolve (request.response);
@@ -129,7 +133,7 @@ global.fetchAudioBuffer = function (url)
 */
 global.int = function (value)
 {
-	return ~~value;
+	return value >> 0;
 };
 
 /*
@@ -168,7 +172,7 @@ global.float = function (value)
 */
 global.float2 = function (value)
 {
-	return (~~(value*100))/100;
+	return (int(value*100))/100;
 };
 
 /*
@@ -178,7 +182,7 @@ global.float2 = function (value)
 */
 global.float3 = function (value)
 {
-	return (~~(value*1000))/1000;
+	return (int(value*1000))/1000;
 };
 
 /*
@@ -188,7 +192,7 @@ global.float3 = function (value)
 */
 global.float4 = function (value)
 {
-	return (~~(value*10000))/10000;
+	return (int(value*10000))/10000;
 };
 
 /*
@@ -250,7 +254,7 @@ global.randrf = function (a, b)
 global.randr = function (a, b)
 {
 	let t = Math.random();
-	return ~~(t*b + (1-t)*a);
+	return int(t*b + (1-t)*a);
 };
 
 /*
@@ -275,7 +279,17 @@ global.randtf = function (a, b, n)
 */
 global.hrnow = function ()
 {
-	return ~~performance.now();
+	return int(performance.now());
+};
+
+/*
+**	Returns the high-resolution 'now' counter in microseconds.
+**
+**	int microtime();
+*/
+global.microtime = function ()
+{
+	return int(performance.now()*1000);
 };
 
 /*

@@ -21,11 +21,13 @@ export default Class.extend
 	className: 'PriorityQueue',
 
 	queue: null,
+	queueKeys: null,
 	order: null,
 
 	__ctor: function()
 	{
 		this.queue = { };
+		this.queueKeys = [];
 	},
 
 	add: function (object)
@@ -33,12 +35,14 @@ export default Class.extend
 		if (object == null)
 			return null;
 
-		if (!("priority" in object))
-			throw new Error ("PriorityQueue (add): Object has no `priority` property.");
+		if (!('priority' in object))
+			throw new Error ('PriorityQueue (add): Object has no `priority` property.');
 
 		if (!(object.priority in this.queue))
 		{
 			this.queue[object.priority] = { is_dirty: false, list: [ ] };
+			this.queueKeys.push(object.priority);
+
 			this.order = Object.keys(this.queue).sort((a,b) => a-b);
 		}
 
@@ -53,13 +57,13 @@ export default Class.extend
 		if (object == null)
 			return null;
 
-		if (!("priority" in object))
-			throw new Error ("PriorityQueue (remove): Object has no `priority` property.");
+		if (!('priority' in object))
+			throw new Error ('PriorityQueue (remove): Object has no `priority` property.');
 
 		if (!(object.priority in this.queue))
 			return object;
 
-		var i = this.queue[object.priority].list.indexOf(object);
+		let i = this.queue[object.priority].list.indexOf(object);
 		if (i === -1) return object;
 
 		this.queue[object.priority].is_dirty = true;
@@ -70,17 +74,18 @@ export default Class.extend
 
 	cleanup: function()
 	{
-		for (var i in this.queue)
+		for (let i = 0; i < this.queueKeys.length; i++)
 		{
-			var q = this.queue[i];
+			let q = this.queue[this.queueKeys[i]];
+			if (!q.is_dirty) continue;
 
-			if (q.is_dirty == false)
-				continue;
-
-			for (var j = 0; j < q.list.length; j++)
+			for (let j = 0; j < q.list.length; j++)
 			{
 				if (q.list[j] == null)
+				{
+					console.log('CLEANUP CALLED');
 					q.list[j--].splice(1, 0);
+				}
 			}
 
 			q.is_dirty = false;
@@ -89,14 +94,14 @@ export default Class.extend
 
 	forEach: function (callback)
 	{
-		var is_dirty = false;
-		var is_complete = false;
+		let is_dirty = false;
+		let is_complete = false;
 
-		for (var i = 0; !is_complete && i < this.order.length; i++)
+		for (let i = 0; !is_complete && i < this.order.length; i++)
 		{
-			var list = this.queue[this.order[i]].list;
+			let list = this.queue[this.order[i]].list;
 
-			for (var j = 0; !is_complete && j < list.length; j++)
+			for (let j = 0; !is_complete && j < list.length; j++)
 			{
 				if (list[j] != null)
 				{
@@ -114,14 +119,14 @@ export default Class.extend
 
 	forEachRev: function (callback)
 	{
-		var is_dirty = false;
-		var is_complete = false;
+		let is_dirty = false;
+		let is_complete = false;
 
-		for (var i = this.order.length-1; !is_complete && i >= 0; i--)
+		for (let i = this.order.length-1; !is_complete && i >= 0; i--)
 		{
-			var list = this.queue[this.order[i]].list;
+			let list = this.queue[this.order[i]].list;
 
-			for (var j = list.length-1; !is_complete && j >= 0; j--)
+			for (let j = list.length-1; !is_complete && j >= 0; j--)
 			{
 				if (list[j] != null)
 				{
@@ -139,17 +144,17 @@ export default Class.extend
 
 	forEachAsync: function (callback)
 	{
-		var _ = this;
+		let _ = this;
 
-		var is_dirty = false;
-		var is_complete = false;
+		let is_dirty = false;
+		let is_complete = false;
 
-		var i = -1;
-		var j = -1;
+		let i = -1;
+		let j = -1;
 
-		var list = null;
+		let list = null;
 
-		var next_j = function()
+		let next_j = function()
 		{
 			j++;
 
@@ -170,7 +175,7 @@ export default Class.extend
 				next_i();
 		};
 
-		var next_i = function()
+		let next_i = function()
 		{
 			i++;
 

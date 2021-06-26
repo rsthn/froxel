@@ -15,23 +15,528 @@
 */
 
 import { Rin, Class } from '@rsthn/rin';
+import List from '../utils/list.js';
+import Recycler from '../utils/recycler.js';
+
+/*
+**	Available commands.
+*/
+const PARALLEL =
+{
+	init: function(cmd, postinit=false)
+	{
+		if (!postinit)
+		{
+			cmd.block = List.calloc();
+			cmd.blocks = List.calloc();
+			return;
+		}
+
+		let i;
+
+		while ((i = cmd.block.shift()) != null)
+		{
+			let block = Block.alloc();
+			block.add(i);
+			cmd.blocks.push(block);
+		}
+
+		cmd.block.free();
+		cmd.block = null;
+	},
+
+	update: function(anim, block, cmd)
+	{
+		if (cmd.started === false)
+		{
+			for (let i = cmd.blocks.top; i !== null; i = i.next)
+			{
+				i.value.reset (block.time);
+			}
+
+			cmd.started = true;
+		}
+
+		let time = block.time;
+		let n = 0;
+
+		for (let i = cmd.blocks.top; i !== null; i = i.next)
+		{
+			if (i.value.update(anim) === true)
+				n++;
+
+			if (i.value.time > time)
+				time = i.value.time;
+		}
+
+		//VIOLET:CALLBACK
+		//if (cmd.fn) cmd.fn.call(this);
+
+		if (n != cmd.blocks.length)
+			return false;
+
+		cmd.started = false;
+		block.time = time;
+		return true;
+	}
+};
+
+const SERIAL =
+{
+	init: function(cmd, postinit=false)
+	{
+		if (!postinit)
+			cmd.block = List.calloc();
+	},
+
+	update: function(anim, block, cmd)
+	{
+		if (cmd.started === false)
+		{
+			cmd.block.reset (block.time);
+			cmd.started = true;
+		}
+
+		if (cmd.block.update(anim) !== true)
+			return false;
+
+		//violet:callback
+		//if (cmd.fn) cmd.fn.call(this);
+
+		cmd.started = false;
+		block.time = cmd.block.time;
+		return true;
+	}
+};
+
+const REPEAT =
+{
+	init: function(cmd, postinit=false)
+	{
+		if (!postinit)
+			cmd.block = List.calloc();
+	},
+
+	update: function(anim, block, cmd)
+	{
+		if (cmd.started === false)
+		{
+			cmd.block.reset (block.time);
+			cmd._count = cmd.count;
+
+			cmd.started = true;
+		}
+
+		if (cmd.block.update(anim) !== true)
+			return false;
+
+		// violet callback
+		//if (cmd.fn) cmd.fn.call(this);
+
+		if (cmd._count <= 1)
+		{
+			cmd.started = false;
+			block.time = cmd.block.time;
+			return true;
+		}
+
+		cmd.block.restart();
+		cmd._count--;
+		return false;
+	}
+};
+
+const SET =
+{
+	init: function(cmd, postinit=false)
+	{
+	},
+
+	update: function(anim, block, cmd)
+	{
+		anim.data[cmd.field] = anim.getValue(cmd.value, cmd.field);
+		return true;
+	}
+};
+
+const RESTART =
+{
+	init: function(cmd, postinit=false)
+	{
+	},
+
+	update: function(anim, block, cmd)
+	{
+		block.restart();
+		return true;
+	}
+};
+
+const WAIT =
+{
+	init: function(cmd, postinit=false)
+	{
+	},
+
+	update: function(anim, block, cmd)
+	{
+		if (cmd.started === false)
+		{
+			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? anim.data[cmd.duration] : cmd.duration;
+			cmd.started = true;
+		}
+
+		if (anim.time < block.time + cmd._duration)
+			return false;
+
+		cmd.started = false;
+		block.time += cmd._duration;
+		return true;
+	}
+};
+
+const RANGE =
+{
+	init: function(cmd, postinit=false)
+	{
+	},
+
+	update: function(anim, block, cmd)
+	{
+		if (cmd.started === false)
+		{
+			cmd._startValue = anim.getValue(cmd.startValue, cmd.field);
+			cmd._endValue = anim.getValue(cmd.endValue, cmd.field);
+			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? anim.data[cmd.duration] : cmd.duration;
+
+			cmd.started = true;
+		}
+
+		let t = 1.0;
+
+		if (anim.time < block.time + cmd._duration)
+			t = (anim.time - block.time) / cmd._duration;
+
+		if (cmd.easing && t != 1.0)
+			anim.data[cmd.field] = cmd.easing(t)*(cmd._endValue - cmd._startValue) + cmd._startValue;
+		else
+			anim.data[cmd.field] = t*(cmd._endValue - cmd._startValue) + cmd._startValue;
+
+		if (t != 1.0)
+			return false;
+
+		cmd.started = false;
+		block.time += cmd._duration;
+		return true;
+	}
+};
+
+const RAND =
+{
+	init: function(cmd, postinit=false)
+	{
+	},
+
+	update: function(anim, block, cmd)
+	{
+		if (cmd.started === false)
+		{
+			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? this.data[cmd.duration] : cmd.duration;
+			cmd._last = null;
+
+			cmd.started = true;
+		}
+
+		let t = 1.0;
+
+		if (anim.time < block.time + cmd._duration)
+			t = (anim.time - block.time) / cmd._duration;
+
+		if (cmd.easing && t != 1.0)
+			cmd._cur = int(cmd.easing(t)*cmd.count);
+		else
+			cmd._cur = int(t*cmd.count);
+
+		if (cmd._cur != cmd._last)
+		{
+			while (true) {
+				let i = int(Math.random()*(cmd.endValue - cmd.startValue + 1)) + cmd.startValue;
+				if (i != anim.data[cmd.field]) break;
+			}
+
+			anim.data[cmd.field] = i;
+			cmd._last = cmd._cur;
+		}
+
+		if (t != 1.0)
+			return false;
+
+		cmd.started = false;
+		block.time += cmd._duration;
+		return true;
+	}
+};
+
+const RANDT =
+{
+	init: function(cmd, postinit=false)
+	{
+		if (!postinit) return;
+
+		let table = [ ];
+
+		for (let i = 0; i < cmd.count; i++)
+			table.push ((i % (cmd.endValue - cmd.startValue + 1)) + cmd.startValue);
+
+		for (let i = cmd.count >> 2; i > 0; i--)
+		{
+			let a = int(Math.random() * cmd.count);
+			let b = int(Math.random() * cmd.count);
+
+			let c = table[b];
+			table[b] = table[a];
+			table[a] = c;
+		}
+
+		cmd.table = table;
+	},
+
+	update: function(anim, block, cmd)
+	{
+		if (cmd.started === false)
+		{
+			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? this.data[cmd.duration] : cmd.duration;
+			cmd.started = true;
+		}
+
+		let t = 1.0;
+		let i;
+
+		if (anim.time < block.time + cmd._duration)
+			t = (anim.time - block.time) / cmd._duration;
+
+		if (cmd.easing && t != 1.0)
+			i = cmd.easing(t)*(cmd.count-1);
+		else
+			i = t*(cmd.count-1);
+
+		anim.data[cmd.field] = cmd.table[int((i + cmd.count) % cmd.count)];
+
+		if (t != 1.0)
+			return false;
+
+		cmd.started = false;
+		block.time += cmd._duration;
+		return true;
+	}
+};
+
+const PLAY =
+{
+	init: function(cmd, postinit=false)
+	{
+	},
+
+	update: function(anim, block, cmd)
+	{
+		//if (cmd.snd instanceof Sound)
+		cmd.snd.play();
+		//else
+		//cmd.snd.wrapper.play();
+		return true;
+	}
+};
+
+const EXEC =
+{
+	init: function(cmd, postinit=false)
+	{
+	},
+
+	update: function(anim, block, cmd)
+	{
+		if (cmd.started === false)
+		{
+			cmd._last = anim.time;
+			cmd.started = true;
+		}
+
+		let t = anim.time - cmd._last;
+		cmd._last = anim.time;
+
+		if (cmd.fn.call(anim, t, anim.data, anim) === true)
+		{
+			cmd.started = false;
+			return true;
+		}
+
+		return false;
+	}
+};
+
+
+/*
+**	Describes an animation block.
+*/
+const Block = Class.extend
+({
+	className: 'Anim_Block',
+
+	commands: null,
+
+	first: true,
+	current: false,
+	time: 0,
+
+	init: function()
+	{
+		this.commands = List.calloc();
+		this.reset(0);
+		return this;
+	},
+
+	__dtor: function()
+	{
+		this.commands.clear().free();
+		this.current = null;
+	},
+
+	add: function(cmd)
+	{
+		this.commands.push(cmd);
+		return cmd;
+	},
+
+	clone: function()
+	{
+		throw new Error('NOT IMPLEMENTED CLONE ON ANIM');
+	},
+
+	reset: function(time)
+	{
+		this.first = true;
+		this.current = null;
+		this.time = time;
+
+		return this;
+	},
+
+	restart: function()
+	{
+		this.first = true;
+		return this;
+	},
+
+	isFinished: function()
+	{
+		if (this.first === true)
+		{
+			this.current = this.commands.top;
+			this.first = false;
+		}
+
+		return this.current === null;
+	},
+
+	update: function (anim)
+	{
+		while (!this.isFinished())
+		{
+			if (this.current.update(anim, this) !== true)
+				return false;
+
+			this.current = this.current.next;
+		}
+
+		return true;
+	}
+});
+
+Recycler.attachTo(Block);
+
+
+/*
+**	Describes an animation command.
+*/
+const Command = Class.extend
+({
+	className: 'Anim_Command',
+
+	op: null,
+	started: false,
+
+	field: null,
+	value: null,
+
+	duration: 0, _duration: 0,
+	count: 0, _count: 0,
+
+	startValue: 0, _startValue: 0,
+	endValue: 0, _endValue: 0,
+	easing: null,
+
+	_cur: null,
+	_last: null,
+
+	block: null, /* Block */
+	blocks: null, /* List<Block> */
+
+	table: null,
+	snd: null,
+	fn: null,
+
+	init: function(op)
+	{
+		this.op = op;
+		this.started = false;
+
+		this.block = null;
+		this.blocks = null;
+	
+		this.table = null;
+		this.snd = null;
+		this.fn = null;
+
+		op.init(this, false);
+		return this;
+	},
+
+	__dtor: function()
+	{
+		if (this.block !== null) this.block.clear().free();
+		if (this.blocks !== null) this.blocks.clear().free();
+	},
+
+	ready: function()
+	{
+		this.op.init(this, true);
+	},
+
+	update: function(anim, block)
+	{
+		return this.op.update(anim, block, this);
+	}
+});
+
+Recycler.attachTo(Command);
+
 
 /**
-**	Class to animate properties using rules.
+**	Class to animate properties using commands.
 */
-
 const Anim = Class.extend
 ({
-	list: null,
+	className: 'Anim',
 
 	initialData: null,
 	data: null,
 
-	stack: null,
-	block: null,
+	blockStack: null,
+	cmdStack: null,
 
-	timeScale: 1, time: 0, blockTime: 0,
-	index: 0,
+	timeScale: 1,
+	block: null,
+	time: 0,
 
 	paused: false,
 	finished: false,
@@ -39,26 +544,31 @@ const Anim = Class.extend
 	finishedCallback: null,
 	finishedCallbackChain: null,
 
-	__ctor: function ()
+	init: function ()
 	{
-		this.list = [ ];
-		this.stack = [ ];
-
 		this.initialData = { };
 		this.data = { };
 
-		this.reset();
+		this.block = Block.calloc();
+		this.blockStack = List.calloc();
+		this.cmdStack = List.calloc();
+
+		return this.reset();
 	},
 
 	__dtor: function ()
 	{
+		this.block.free();
+		this.blockStack.clear().free();
+		this.cmdStack.clear().free();
+
+		if (this.finishedCallbackChain !== null)
+			this.finishedCallbackChain.free();
 	},
 
-	clone: function (target=null)
+	copyTo: function (target)
 	{
-		if (!target) target = new Anim();
-
-		target.list = Rin.clone(this.list);
+		target.block = this.block.clone();
 		target.initialData = this.initialData;
 
 		return target.reset();
@@ -75,7 +585,11 @@ const Anim = Class.extend
 		if (this.finishedCallback !== this.thenCallback)
 		{
 			this.finishedCallback = this.thenCallback;
-			this.finishedCallbackChain = [];
+
+			if (this.finishedCallbackChain === null)
+				this.finishedCallbackChain = List.calloc();
+			else
+				this.finishedCallbackChain.reset();
 		}
 
 		this.finishedCallbackChain.push(callback);
@@ -87,69 +601,81 @@ const Anim = Class.extend
 		if (!this.finishedCallbackChain.length)
 			return false;
 
-		let callback = this.finishedCallbackChain.shift();
-		callback.call(this);
+		this.finishedCallbackChain.shift().call(this);
 	},
 
-	// Clears the animation rules and resets the object. Does not set data to initial state.
+	/*
+	**	Clears the object and removes all commands. The finished callback, initialData and data objects aren't changed.
+	*/
 	clear: function ()
 	{
-		this.list = [ ];
-
-		this.stack.length = 0;
-		this.blockTime = 0;
-
-		this.time = 0;
-		this.index = 0;
-
-		this.block = this.list;
+		this.blockStack.clear();
+		this.cmdStack.clear();
+		this.block.clear();
 
 		this.paused = false;
 		this.finished = false;
+		this.time = 0;
 
 		return this;
 	},
 
-	// Clears the animation object and resets the output data to its initial state.
+	/*
+	**	Resets the animation to its initial state (using initialData). The finished callback isn't changed.
+	*/
 	reset: function ()
 	{
-		this.clear();
+		this.blockStack.clear();
+		this.cmdStack.clear();
+		this.block.reset();
 
-		for (let i in this.initialData)
-			this.data[i] = this.initialData[i];
+		this.paused = false;
+		this.finished = false;
+		this.time = 0;
 
+		Object.assign (this.data, this.initialData);
 		return this;
 	},
 
-	// Sets the initial data.
+	/*
+	**	Sets the initial data.
+	*/
 	initial: function (data)
 	{
 		this.initialData = data;
 		return this.reset();
 	},
 
-	// Sets the time scale (animation speed).
+	/*
+	**	Sets the time scale (animation speed).
+	*/
 	speed: function (value)
 	{
 		this.timeScale = value > 0.0 ? value : 1.0;
 		return this;
 	},
 
-	// Sets the output data object.
+	/*
+	**	Sets the output data object.
+	*/
 	output: function (data)
 	{
 		this.data = data;
 		return this;
 	},
 
-	// Pauses the animation.
+	/*
+	**	Pauses the animation.
+	*/
 	pause: function ()
 	{
 		this.paused = true;
 		return this;
 	},
 
-	// Resumes the animation.
+	/*
+	**	Resumes the animation.
+	*/
 	resume: function ()
 	{
 		this.finished = false;
@@ -157,6 +683,9 @@ const Anim = Class.extend
 		return this;
 	},
 
+	/*
+	**	Returns the value of a field. Performs special transforms to the value if certain prefix is found.
+	*/
 	getValue: function (value, fieldName)
 	{
 		let curr = this.data[fieldName];
@@ -164,7 +693,7 @@ const Anim = Class.extend
 		if (value === null)
 			value = curr;
 
-		if (typeof(value) == 'string')
+		if (typeof(value) === 'string')
 		{
 			switch(value[0])
 			{
@@ -182,499 +711,264 @@ const Anim = Class.extend
 			}
 		}
 
-		if (typeof(value) == 'function')
+		if (typeof(value) === 'function')
 			value = value.call(this, this.data[fieldName], this.data, this);
 
 		return value;
 	},
 
-	// Updates the animation by the specified delta time, ensure the time is specified in the same units as the duration of the actions.
+	/*
+	**	Updates the animation by the specified delta time, ensure the time is specified in the same unit as the duration of the commands.
+	*/
 	update: function (dt)
 	{
-		if (this.paused) return false;
-
-		if (this.index >= this.block.length)
+		if (this.paused || this.block.isFinished())
 			return true;
-
-		let i = 0;
-		let _block;
-		let _index;
-		let _blockTime;
-		let _break = false;
 
 		this.time += dt*this.timeScale*Anim.timeScale;
 
-		while (this.index < this.block.length && !_break)
+		if (this.block.update(this) !== true)
+			return false;
+
+		let finished = this.finished;
+		let count = this.block.length;
+		let block = this.block;
+
+		this.finished = true;
+
+		if (!finished && this.finishedCallback !== null)
 		{
-			let cmd = this.block[this.index];
-			let duration;
+			if (this.finishedCallback(this.data, this) === false)
+				this.finishedCallback = null;
 
-			switch (cmd.op)
+			if (this.block !== block || this.block.length != count)
 			{
-				case "parallel":
-					if (cmd.started == false)
-					{
-						cmd.blocks.length = 0;
-						cmd.started = true;
-
-						for (i = 0; i < cmd.block.length; i++)
-						{
-							cmd.blocks.push([cmd.block[i]]);
-							cmd.indices[i] = 0;
-							cmd.blockTimes[i] = this.blockTime;
-						}
-					}
-
-					_block = this.block;
-					_index = this.index;
-					_blockTime = this.blockTime;
-
-					let n = 0;
-					let blockTime = _blockTime;
-
-					for (i = 0; i < cmd.blocks.length; i++)
-					{
-						this.block = cmd.blocks[i];
-						this.index = cmd.indices[i];
-						this.blockTime = cmd.blockTimes[i];
-
-						if (this.update(0) === true)
-							n++;
-
-						if (this.blockTime > blockTime)
-							blockTime = this.blockTime;
-
-						cmd.blockTimes[i] = this.blockTime;
-						cmd.blocks[i] = this.block;
-						cmd.indices[i] = this.index;
-					}
-
-					this.block = _block;
-					this.index = _index;
-					this.blockTime = _blockTime;
-
-					if (cmd.fn) cmd.fn.call(this);
-
-					if (n != cmd.blocks.length)
-						return false;
-
-					cmd.started = false;
-
-					this.blockTime = blockTime;
-					this.index++;
-					break;
-
-				case "serial":
-					if (cmd.started == false)
-					{
-						cmd._block = cmd.block;
-						cmd._index = 0;
-						cmd._blockTime = this.blockTime;
-
-						cmd.started = true;
-					}
-
-					_block = this.block;
-					_index = this.index;
-					_blockTime = this.blockTime;
-
-					this.block = cmd._block;
-					this.index = cmd._index;
-					this.blockTime = cmd._blockTime;
-
-					i = this.update(0);
-
-					cmd._block = this.block;
-					cmd._index = this.index;
-					cmd._blockTime = this.blockTime;
-
-					this.block = _block;
-					this.index = _index;
-					this.blockTime = _blockTime;
-
-					if (cmd.fn) cmd.fn.call(this);
-
-					if (i !== true) return false;
-
-					cmd.started = false;
-
-					this.blockTime = cmd._blockTime;
-					this.index++;
-					break;
-
-				case "repeat":
-					if (cmd.started == false)
-					{
-						cmd._block = cmd.block;
-						cmd._index = 0;
-						cmd._blockTime = this.blockTime;
-						cmd._count = cmd.count;
-
-						cmd.started = true;
-					}
-
-					_block = this.block;
-					_index = this.index;
-					_blockTime = this.blockTime;
-
-					this.block = cmd._block;
-					this.index = cmd._index;
-					this.blockTime = cmd._blockTime;
-
-					i = this.update(0);
-
-					cmd._block = this.block;
-					cmd._index = this.index;
-					cmd._blockTime = this.blockTime;
-
-					this.block = _block;
-					this.index = _index;
-					this.blockTime = _blockTime;
-
-					if (cmd.fn) cmd.fn.call(this);
-
-					if (i !== true) return false;
-
-					if (cmd._count <= 1)
-					{
-						cmd.started = false;
-
-						this.blockTime = cmd._blockTime;
-						this.index++;
-
-						return false;
-					}
-					else
-					{
-						cmd._index = 0;
-						cmd._count--;
-
-						return false;
-					}
-
-					break;
-
-				case "set":
-					this.data[cmd.field] = this.getValue(cmd.value, cmd.field);
-					this.index++;
-					break;
-
-				case "restart":
-					this.index = 0;
-					break;
-
-				case "wait":
-					duration = Rin.typeOf(cmd.duration) == "string" ? this.data[cmd.duration] : cmd.duration;
-
-					if (this.time < this.blockTime + duration)
-						return false;
-
-					this.blockTime += duration;
-					this.index++;
-					break;
-
-				case "range":
-					if (cmd.started == false)
-					{
-						cmd._startValue = this.getValue(cmd.startValue, cmd.field);
-						cmd._endValue = this.getValue(cmd.endValue, cmd.field);
-
-						cmd.started = true;
-					}
-
-					duration = Rin.typeOf(cmd.duration) == "string" ? this.data[cmd.duration] : cmd.duration;
-
-					if (this.time < this.blockTime + duration)
-						dt = (this.time - this.blockTime) / duration;
-					else
-						dt = 1;
-
-					if (cmd.easing && dt != 1.0)
-						this.data[cmd.field] = cmd.easing(dt)*(cmd._endValue - cmd._startValue) + cmd._startValue;
-					else
-						this.data[cmd.field] = dt*(cmd._endValue - cmd._startValue) + cmd._startValue;
-
-					if (dt != 1) return false;
-
-					cmd.started = false;
-
-					this.blockTime += duration;
-					this.index++;
-					break;
-
-				case "rand":
-					if (cmd.started == false)
-					{
-						cmd.started = true;
-						cmd.last = null;
-					}
-
-					duration = Rin.typeOf(cmd.duration) == "string" ? this.data[cmd.duration] : cmd.duration;
-
-					if (this.time < this.blockTime + duration)
-						dt = (this.time - this.blockTime) / duration;
-					else
-						dt = 1;
-
-					if (cmd.easing && dt != 1)
-						cmd.cur = ~~(cmd.easing(dt)*cmd.count);
-					else
-						cmd.cur = ~~(dt*cmd.count);
-
-					if (cmd.cur != cmd.last)
-					{
-						while (true) {
-							i = ~~(Math.random()*(cmd.endValue - cmd.startValue + 1)) + cmd.startValue;
-							if (i != this.data[cmd.field]) break;
-						}
-
-						this.data[cmd.field] = i;
-						cmd.last = cmd.cur;
-					}
-
-					if (dt != 1) return false;
-
-					cmd.started = false;
-
-					this.blockTime += duration;
-					this.index++;
-					break;
-
-				case "randt":
-					duration = Rin.typeOf(cmd.duration) == "string" ? this.data[cmd.duration] : cmd.duration;
-
-					if (this.time < this.blockTime + duration)
-						dt = (this.time - this.blockTime) / duration;
-					else
-						dt = 1;
-
-					if (cmd.easing && dt != 1)
-						i = cmd.easing(dt)*(cmd.count-1);
-					else
-						i = dt*(cmd.count-1);
-
-					this.data[cmd.field] = cmd.table[~~((i + cmd.count) % cmd.count)];
-
-					if (dt != 1) return false;
-
-					this.blockTime += duration;
-					this.index++;
-					break;
-
-				case "play":
-					//if (cmd.snd instanceof Sound)
-					cmd.snd.play();
-					//else
-					//cmd.snd.wrapper.play();
-
-					this.index++;
-					break;
-
-				case "exec":
-					if (cmd.started == false)
-					{
-						cmd.started = true;
-						cmd.lastTime = this.time;
-					}
-
-					dt = this.time - cmd.lastTime;
-					cmd.lastTime = this.time;
-
-					if (cmd.fn.call(this, dt, this.data, this) === true)
-					{
-						cmd.started = false;
-						this.index++;
-					}
-					else
-						return false;
-
-					break;
-			}
-		}
-
-		if (this.block == this.list)
-		{
-			let finished = this.finished;
-			let count = this.block.length;
-
-			let list = this.list;
-			this.finished = true;
-
-			if (!finished && this.finishedCallback != null)
-			{
-				if (this.finishedCallback(this.data, this) === false)
-					this.finishedCallback = null;
-
-				if (list !== this.list || this.block.length != count)
-				{
-					this.resume();
-					return false;
-				}
+				this.resume();
+				return false;
 			}
 		}
 
 		return true;
 	},
 
-	// Runs the subsequent commands in parallel. Should end the parallel block by calling end().
+	/*
+	**	Runs the subsequent commands in parallel. Should end the parallel block by calling end().
+	*/
 	parallel: function ()
 	{
-		let block = [ ];
+		let cmd = this.block.add(Command.alloc().init(PARALLEL));
 
-		this.block.push({ op: "parallel", started: false, block: block, blocks: [ ], indices: [ ], blockTimes: [ ] });
+		this.blockStack.push (this.block);
+		this.cmdStack.push (cmd);
 
-		this.stack.push (this.block);
-		this.block = block;
-
+		this.block = cmd.block;
 		return this;
 	},
 
-	// Runs the subsequent commands in series. Should end the serial block by calling end().
+	/*
+	**	Runs the subsequent commands in series. Should end the serial block by calling end().
+	*/
 	serial: function ()
 	{
-		let block = [ ];
+		let cmd = this.block.add(Command.alloc().init(SERIAL));
 
-		this.block.push({ op: "serial", started: false, block: block });
+		this.blockStack.push (this.block);
+		this.cmdStack.push (cmd);
 
-		this.stack.push (this.block);
-		this.block = block;
-
+		this.block = cmd.block;
 		return this;
 	},
 
-	// Repeats a block the specified number of times.
+	/*
+	**	Repeats a block the specified number of times.
+	*/
 	repeat: function (count)
 	{
-		let block = [ ];
+		let cmd = this.block.add(Command.alloc().init(REPEAT));
+		cmd.count = count;
 
-		this.block.push({ op: "repeat", started: false, block: block, count: count });
+		this.blockStack.push (this.block);
+		this.cmdStack.push (cmd);
 
-		this.stack.push (this.block);
-		this.block = block;
-
+		this.block = cmd.block;
 		return this;
 	},
 
-	// Sets the callback of the current block.
+	/*
+	**	Sets the callback of the current block.
+	*/
 	callback: function (fn)
 	{
-		let block = this.stack[this.stack.length-1];
-		block[block.length-1].fn = fn;
+		//violet fix
+		//let block = this.blockStack.last();
+		//block[block.length-1].fn = fn;
 
 		return this;
 	},
 
-	// Ends a parallel(), serial() or repeat() block.
+	/*
+	**	Ends a parallel(), serial() or repeat() block.
+	*/
 	end: function ()
 	{
-		this.block = this.stack.pop();
+		this.cmdStack.pop().ready();
+		this.block = this.blockStack.pop();
 		return this;
 	},
 
-	// Sets the value of a variable.
+	/*
+	**	Sets the value of a variable.
+	*/
 	set: function (field, value)
 	{
-		this.block.push({ op: "set", field: field, value: value });
+		let cmd = this.block.add(Command.alloc().init(SET));
+
+		cmd.field = field;
+		cmd.value = value;
+
 		return this;
 	},
 
-	// Restarts the current block.
-	restart: function (duration)
+	/*
+	**	Restarts the current block.
+	*/
+	restart: function ()
 	{
-		this.block.push({ op: "restart" });
+		this.block.add(Command.alloc().init(RESTART));
 		return this;
 	},
 
-	// Waits for the specified duration.
+	/*
+	**	Waits for the specified duration.
+	*/
 	wait: function (duration)
 	{
-		this.block.push({ op: "wait", duration: duration });
+		let cmd = this.block.add(Command.alloc().init(WAIT));
+
+		cmd.duration = duration;
+
 		return this;
 	},
 
-	// Sets the range of a variable.
-	range: function (field, duration, startValue, endValue, easing)
+	/*
+	**	Sets the range of a variable.
+	*/
+	range: function (field, duration, startValue, endValue, easing=null)
 	{
-		this.block.push({ op: "range", started: false, field: field, duration: duration, startValue: startValue, endValue: endValue, easing: easing ? easing : null });
+		let cmd = this.block.add(Command.alloc().init(RANGE));
+
+		cmd.field = field;
+		cmd.duration = duration;
+		cmd.startValue = startValue;
+		cmd.endValue = endValue;
+		cmd.easing = easing;
+
 		return this;
 	},
 
-	// Generates a certain amount of random numbers in the given range (inclusive).
-	rand: function (field, duration, count, startValue, endValue, easing)
+	/*
+	**	Generates a certain amount of random numbers in the given range (inclusive).
+	*/
+	rand: function (field, duration, count, startValue, endValue, easing=null)
 	{
-		this.block.push({ op: "rand", started: false, field: field, duration: duration, count: count, startValue: startValue, endValue: endValue, easing: easing ? easing : null });
+		let cmd = this.block.add(Command.alloc().init(RAND));
+
+		cmd.field = field;
+		cmd.duration = duration;
+		cmd.count = count;
+		cmd.startValue = startValue;
+		cmd.endValue = endValue;
+		cmd.easing = easing;
+
 		return this;
 	},
 
-	// Generates a certain amount of random numbers in the given range (inclusive). This uses a static random table to determine the next values.
+	/*
+	**	Generates a certain amount of random numbers in the given range (inclusive). This uses a static random table to determine the next values.
+	*/
 	randt: function (field, duration, count, startValue, endValue, easing)
 	{
-		let table = [ ];
+		let cmd = this.block.add(Command.alloc().init(RANDT));
 
-		for (let i = 0; i < count; i++)
-			table.push ((i % (endValue - startValue + 1)) + startValue);
+		cmd.field = field;
+		cmd.duration = duration;
+		cmd.count = count;
+		cmd.startValue = startValue;
+		cmd.endValue = endValue;
+		cmd.easing = easing;
 
-		for (let i = count >> 2; i > 0; i--)
-		{
-			let a = ~~(Math.random() * count);
-			let b = ~~(Math.random() * count);
+		cmd.ready();
 
-			let c = table[b];
-			table[b] = table[a];
-			table[a] = c;
-		}
-
-		this.block.push({ op: "randt", field: field, duration: duration, count: count, startValue: startValue, endValue: endValue, table: table, easing: easing ? easing : null });
 		return this;
 	},
 
-	// Plays a sound.
+	/*
+	**	Plays a sound.
+	*/
 	play: function (snd)
 	{
-		this.block.push({ op: "play", snd: snd });
+		let cmd = this.block.add(Command.alloc().init(PLAY));
+		cmd.snd = snd;
+
 		return this;
 	},
 
-	// Executes a function.
+	/*
+	**	Executes a function.
+	*/
 	exec: function (fn)
 	{
-		this.block.push({ op: "exec", fn: fn, started: false });
+		let cmd = this.block.add(Command.alloc().init(EXEC));
+		cmd.fn = fn;
+
 		return this;
 	},
 
 	/* ********************************************************** */
 
-	// Sets X coordinate.
+	/*
+	**	Sets X coordinate.
+	*/
 	setX: function (value)
 	{
 		return this.set('x', value);
 	},
 
-	// Sets Y coordinate.
+	/*
+	**	Sets Y coordinate.
+	*/
 	setY: function (value)
 	{
 		return this.set('y', value);
 	},
 
-	// Sets X and Y coordinates.
+	/*
+	**	Sets X and Y coordinates.
+	*/
 	position: function (x, y)
 	{
 		return this.set('x', x).set('y', y);
 	},
 
-	// Translates the X coordinate.
+	/*
+	**	Translates the X coordinate.
+	*/
 	translateX: function (duration, deltaValue, easing)
 	{
 		return this.range('x', duration, null, (deltaValue < 0 ? '-' : '+') + Math.abs(deltaValue), easing);
 	},
 
-	// Translates the Y coordinate.
+	/*
+	**	Translates the Y coordinate.
+	*/
 	translateY: function (duration, deltaValue, easing)
 	{
 		return this.range('y', duration, null, (deltaValue < 0 ? '-' : '+') + Math.abs(deltaValue), easing);
 	},
 
-	// Translates the X and Y coordinates.
+	/*
+	**	Translates the X and Y coordinates.
+	*/
 	translate: function (duration, deltaValueX, deltaValueY, easingX, easingY=null)
 	{
 		return this.parallel()
@@ -683,7 +977,9 @@ const Anim = Class.extend
 				.end();
 	},
 
-	// Sets the X and Y coordinates to the specified values.
+	/*
+	**	Sets the X and Y coordinates to the specified values.
+	*/
 	moveTo: function (duration, endValueX, endValueY, easingX, easingY=null)
 	{
 		return this.parallel()
@@ -692,19 +988,25 @@ const Anim = Class.extend
 				.end();
 	},
 
-	// Scales the X coordinate.
+	/*
+	**	Scales the X coordinate.
+	*/
 	scaleX: function (duration, endValue, easing)
 	{
 		return this.range('sx', duration, null, endValue, easing);
 	},
 
-	// Scales the Y coordinate.
+	/*
+	**	Scales the Y coordinate.
+	*/
 	scaleY: function (duration, endValue, easing)
 	{
 		return this.range('sy', duration, null, endValue, easing);
 	},
 
-	// Scales the X and Y coordinates.
+	/*
+	**	Scales the X and Y coordinates.
+	*/
 	scale: function (duration, endValueX, endValueY, easingX, easingY=null)
 	{
 		return this.parallel()
@@ -713,19 +1015,26 @@ const Anim = Class.extend
 				.end();
 	},
 
-	// Rotates a certain number of radians.
+	/*
+	**	Rotates a certain number of radians.
+	*/
 	rotate: function (duration, deltaValue, easing)
 	{
 		return this.range('angle', duration, null, (deltaValue < 0 ? '-' : '+') + Math.abs(deltaValue), easing);
-	},
+	}
 });
+
+Recycler.attachTo(Anim);
+
 
 /*
 **	Global time scale.
 */
 Anim.timeScale = 1.0;
 
-// Sets the global time scale (animation speed).
+/*
+**	Sets the global time scale (animation speed).
+*/
 Anim.speed = function (value)
 {
 	Anim.timeScale = value > 0.0 ? value : 1.0;

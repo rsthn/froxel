@@ -15,108 +15,121 @@
 */
 
 import { Class } from '@rsthn/rin';
-import Rect from '../math/rect.js';
-import Log from '../system/log.js';
+import Bounds2 from '../math/bounds2.js';
+import Recycler from '../utils/recycler.js';
 import QuadTreeItem from './quadtree-item.js';
 
-/**
+/*
 **	Describes a node of the quad tree.
 */
 
 const QuadTreeNode = Class.extend
 ({
-	/**
+	/*
 	**	Name of the class (for inheritance purposes).
 	*/
-	className: "QuadTreeNode",
+	className: 'QuadTreeNode',
 
-	/**
+	/*
 	**	Region covered by this node.
 	*/
 	extents: null, /* Rect */
 
-	/**
+	/*
 	**	Number of items stored in the node (and all of its sub-nodes).
 	*/
 	numItems: 0, /* int */
 
-	/**
+	/*
 	**	Link to the first item of this node.
 	*/
 	insertionPoint: null,
 
-	/**
+	/*
 	**	Sub-nodes of the node. If the node is a branch subNode will not be null.
 	*/
-	subNode: null, /* array[4] of QuadTreeNode */
+	subNode: null,
 
-	/**
+	/*
 	**	Indicates if the node or a sub-node is dirty.
 	*/
 	isDirty: false,
 
-	/**
+	/*
 	**	Tree containing this node.
 	*/
 	tree: null,
 
-	/**
-	**	Constructs the tree node with the specified extents.
+	/*
+	**	Constructs the node.
 	*/
-	__ctor: function (tree, x1, y1, x2, y2)
+	__ctor: function ()
+	{
+		this.subNode = new Array(4).fill(null);
+	},
+
+	/*
+	**	Initializes the instance.
+	*/
+	init: function (tree, x1, y1, x2, y2)
 	{
 		this.tree = tree;
 
 		this.numItems = 0;
 		this.isDirty = false;
 
-		this.insertionPoint = null;
-		this.subNode = null;
+		this.isLeaf = true;
+		this.subNode.fill(null);
 
-		this.extents = Rect.alloc(x1, y1, x2, y2);
+		this.insertionPoint = null;
+		this.extents = Bounds2.alloc().init(x1, y1, x2, y2);
+
+		return this;
 	},
 
-	/**
+	/*
 	**	Destroys the node and all child nodes. Items are not removed, use clear() to properly remove items.
 	*/
 	__dtor: function ()
 	{
-		if (this.subNode != null)
+		if (!this.isLeaf)
 		{
-			for (var i = 0; i < 4; i++)
-				dispose(this.subNode[i]);
-
-			this.subNode = null;
+			for (let i = 0; i < 4; i++)
+			{
+				this.subNode[i].free();
+				this.subNode[i] = null;
+			}
 		}
 
-		this.extents.dispose();
+		this.insertionPoint = null;
+		this.extents.free();
 	},
 
-	/**
+	/*
 	**	Removes all items and child nodes.
 	*/
 	clear: function ()
 	{
-		if (this.subNode != null)
+		if (!this.isLeaf)
 		{
-			for (var i = 0; i < 4; i++)
+			for (let i = 0; i < 4; i++)
 			{
-				this.subNode[i].clear(this.tree.items);
-				dispose(this.subNode[i]);
+				this.subNode[i].clear();
+				this.subNode[i].free();
+				this.subNode[i] = null;
 			}
 
-			this.subNode = null;
 			this.numItems = 0;
 		}
 		else
 		{
-			var j = null;
+			let j = null;
 
-			for (var i = this.insertionPoint; i && this.numItems--; i = j)
+			for (let i = this.insertionPoint; i !== null && this.numItems--; i = j)
 			{
 				j = i.next;
 
-				var k = this.tree.items.remove(i);
+				let k = this.tree.items.remove(i);
 				k.numRefNodes--;
 
 				if (k.numRefNodes == 0)
@@ -131,7 +144,7 @@ const QuadTreeNode = Class.extend
 		}
 	},
 
-	/**
+	/*
 	**	Returns the extents of the node (Rect).
 	*/
 	getExtents: function () /* Rect */
@@ -139,15 +152,7 @@ const QuadTreeNode = Class.extend
 		return this.extents;
 	},
 
-	/**
-	**	Returns boolean indicating if the node is a leaf.
-	*/
-	isLeaf: function ()
-	{
-		return this.subNode == null;
-	},
-
-	/**
+	/*
 	**	Returns the sub-nodes of the node.
 	*/
 	getSubNodes: function () /* Array[QuadTreeNode] or null if it is a leaf. */
@@ -155,23 +160,26 @@ const QuadTreeNode = Class.extend
 		return this.subNode;
 	},
 
-	/**
-	**	Adds an item to the node or any of its sub-nodes. If the node exceeds the given capacity the node will be split in four sub-nodes.
+	/*
+	**	Adds an item to the node or any of its sub-nodes. If the node exceeds the capacity the node will be split in four sub-nodes.
 	**	Returns false if the item could not added because (a) it is outside the extents of the tree or (b) the node cannot be split.
 	*/
-	addItem: function (/*QuadTreeItem*/item, /*int*/capacity) /* bool */
+	addItem: function (/*QuadTreeItem*/item) /* bool */
 	{
-		if (!item.getBounds().intersects(this.extents))
-			return false;
+		if (!item.insertionBounds.intersects(this.extents))
+			return 1;
 
-		if (this.subNode != null)
+		if (!this.isLeaf)
 		{
-			var result = false;
+			let result = 2;
 
-			for (var i = 0; i < 4; i++)
-				result |= this.subNode[i].addItem (item, capacity);
+			for (let i = 0; i < 4; i++)
+			{
+				let tmp = this.subNode[i].addItem(item);
+				if (!tmp) result = 0;
+			}
 
-			if (result)
+			if (!result)
 			{
 				this.isDirty = true;
 				this.numItems++;
@@ -180,71 +188,80 @@ const QuadTreeNode = Class.extend
 			return result;
 		}
 
-		if (this.numItems < capacity)
+		if (this.numItems < this.tree.nodeCapacity || (this.extents.width() <= this.tree.minNodeSize && this.extents.height() <= this.tree.minNodeSize))
 		{
-			if (this.insertionPoint == null)
+			if (this.insertionPoint === null)
 			{
-				this.tree.items.push (item);
+				this.tree.items.push(item);
 				this.insertionPoint = this.tree.items.bottom;
 			}
 			else
-				this.tree.items.insertAfter (this.insertionPoint, item);
+				this.tree.items.insertAfter(this.insertionPoint, item);
 
 			this.isDirty = true;
 			this.numItems++;
+
+			if (this.numItems > this.tree.leafLevel)
+				this.tree.leafLevel = this.numItems;
 
 			if (item.numRefNodes == 0)
 				item.notifyInserted(this.tree);
 
 			item.numRefNodes++;
-			return true;
+			return 0;
 		}
 
-		if (this.extents.width() < 1 && this.extents.height() < 1)
-			throw new Error ("Error: Unable to split node any further. Current size is "+this.extents.width()+" x "+this.extents.height());
+		this.isLeaf = false;
 
-		this.subNode = [
-			new QuadTreeNode (this.tree, this.extents.x1, this.extents.y1, this.extents.cx, this.extents.cy),
-			new QuadTreeNode (this.tree, this.extents.cx, this.extents.y1, this.extents.x2, this.extents.cy),
-			new QuadTreeNode (this.tree, this.extents.x1, this.extents.cy, this.extents.cx, this.extents.y2),
-			new QuadTreeNode (this.tree, this.extents.cx, this.extents.cy, this.extents.x2, this.extents.y2)
-		];
+		this.subNode[0] = QuadTreeNode.alloc().init(this.tree, this.extents.x1, this.extents.y1, this.extents.cx, this.extents.cy);
+		this.subNode[1] = QuadTreeNode.alloc().init(this.tree, this.extents.cx, this.extents.y1, this.extents.x2, this.extents.cy);
+		this.subNode[2] = QuadTreeNode.alloc().init(this.tree, this.extents.x1, this.extents.cy, this.extents.cx, this.extents.y2);
+		this.subNode[3] = QuadTreeNode.alloc().init(this.tree, this.extents.cx, this.extents.cy, this.extents.x2, this.extents.y2);
+
+		let k = this.extents.width() / 2;
+		if (this.tree.leafSize === null || k < this.tree.leafSize) this.tree.leafSize = k;
 
 		let n = this.numItems;
 		this.numItems = 0;
 
 		for (let i = 0; i < n; i++)
 		{
-			let tmp = this.insertionPoint.next;
-			let cur = this.insertionPoint.value;
+			let next = this.insertionPoint.next;
+			let tmp = this.insertionPoint.value;
 
-			cur.numRefNodes--;
+			tmp.numRefNodes--;
 
-			if (!this.addItem (cur, capacity))
-				throw new Error ("Error: Shouldn't have happened. Unable to insert item on a sub-node of a just-split node.");
+			let result = this.addItem(tmp);
+			if (result)
+			{
+				console.log( 'ITEM: ' + tmp.insertionBounds );
+				console.log( 'EXTENTS: ' + this.extents );
+				console.log( 'INTERSECTION: ' + Bounds2.alloc().set(tmp.insertionBounds).setAsIntersection(this.extents) );
+
+				throw new Error ("Error: Unable to insert item on a sub-node of a just-split node: " + result);
+			}
 
 			this.tree.items.remove (this.insertionPoint);
-			this.insertionPoint = tmp;
+			this.insertionPoint = next;
 		}
 
 		this.insertionPoint = null;
-
-		return this.addItem (item, capacity);
+		return this.addItem(item);
 	},
 
-	/**
+	/*
 	**	Removes an item from the node and/or its sub-nodes. Returns false if the node was not found.
 	*/
 	removeItem: function (/*QuadTreeItem*/item)
 	{
-		if (!item.getInsertionBounds().intersects(this.extents))
+		if (!item.insertionBounds.intersects(this.extents))
 			return false;
 
-		if (this.subNode != null)
+		if (!this.isLeaf)
 		{
-			var result = false;
+			let result = false;
 
-			for (var i = 0; i < 4; i++)
+			for (let i = 0; i < 4; i++)
 				result |= this.subNode[i].removeItem (item);
 
 			if (result)
@@ -256,15 +273,16 @@ const QuadTreeNode = Class.extend
 			return result;
 		}
 
-		var i = this.insertionPoint;
-		var n = this.numItems;
+		let i = this.insertionPoint;
+		let n = this.numItems;
 
-		for (; i && n--; i = i.next)
+		for (; i !== null && n--; i = i.next)
 		{
-			if (i.value == item) break;
+			if (i.value === item) break;
 		}
 
-		if (i == null) return false;
+		if (i === null)
+			return false;
 
 		this.isDirty = true;
 		this.numItems--;
@@ -282,27 +300,27 @@ const QuadTreeNode = Class.extend
 		return true;
 	},
 
-	/**
+	/*
 	**	Selects items inside the specified region from the node and all sub-nodes.
 	*/
-	selectItems: function (/*Rect*/rect=null, filter=null)
+	selectItems: function (/*Bounds2*/bounds=null, filter=null)
 	{
-		if (rect && !rect.intersects(this.extents))
+		if (bounds && !bounds.intersects(this.extents))
 			return;
 
-		if (this.subNode != null)
+		if (!this.isLeaf)
 		{
-			for (var i = 0; i < 4; i++)
-				this.subNode[i].selectItems (rect, filter);
+			for (let i = 0; i < 4; i++)
+				this.subNode[i].selectItems (bounds, filter);
 		}
 		else
 		{
-			var i = this.insertionPoint;
-			var n = this.numItems;
+			let i = this.insertionPoint;
+			let n = this.numItems;
 
-			for (; i && n--; i = i.next)
+			for (; i !== null && n--; i = i.next)
 			{
-				if (!(i.value.flags & QuadTreeItem.FLAG_NEVER_SELECT) && (rect == null || (i.value._visible == true && i.value.getInsertionBounds().intersects(rect)) || (i.value.flags & QuadTreeItem.FLAG_ALWAYS_SELECT)))
+				if (!(i.value.flags & QuadTreeItem.FLAG_NEVER_SELECT) && (bounds == null || (i.value._visible == true && i.value.insertionBounds.intersects(bounds)) || (i.value.flags & QuadTreeItem.FLAG_ALWAYS_SELECT)))
 				{
 					if (filter && !filter(i.value))
 						continue;
@@ -317,7 +335,7 @@ const QuadTreeNode = Class.extend
 		}
 	},
 
-	/**
+	/*
 	**	Finds all collisions and executes the specified handler. Before calling the handler the provided filter function will
 	**	be used to determine if the two objects colliding actually represent a semantically correct collision.
 	*/
@@ -328,34 +346,34 @@ const QuadTreeNode = Class.extend
 
 		this.isDirty = false;
 
-		if (this.subNode != null)
+		if (!this.isLeaf)
 		{
-			for (var i = 0; i < 4; i++)
+			for (let i = 0; i < 4; i++)
 				this.subNode[i].detectCollisions (handler, forced);
 
 			return;
 		}
 
-		var n = this.numItems;
-		var i_next;
+		let n = this.numItems;
+		let i_next;
 
-		for (var i = this.insertionPoint; i && n > 1; i = i_next)
+		for (let i = this.insertionPoint; i !== null && n > 1; i = i_next)
 		{
-			var i_next = i.next;
-			var m = --n;
+			i_next = i.next;
+			let m = --n;
 
-			if (i.value._visible == false || (i.value.flags & QuadTreeItem.FLAG_NEVER_SELECT))
+			if (i.value._visible === false || (i.value.flags & QuadTreeItem.FLAG_NEVER_SELECT))
 				continue;
 
 			if (!handler.onFilterRequest (i.value))
 				continue;
 
-			var rect = i.value.getBounds();
-			var j_next;
+			let rect = i.value.bounds;
+			let j_next;
 
-			for (var j = i.next; j && m-- > 0; j = j_next)
+			for (let j = i.next; j && m-- > 0; j = j_next)
 			{
-				var j_next = j.next;
+				j_next = j.next;
 
 				if (j.value._visible == false || (j.value.flags & QuadTreeItem.FLAG_NEVER_SELECT))
 					continue;
@@ -363,12 +381,12 @@ const QuadTreeNode = Class.extend
 				if (!handler.onFilterRequest (j.value))
 					continue;
 
-				if (!j.value.getBounds().intersects(rect))
+				if (!j.value.bounds.intersects(rect))
 					continue;
 
-				// Following code is non-standard cherry. Required on JS because linkables might be recycled.
-				var iId = i.objectId;
-				var jId = j.objectId;
+				// Following code is non-standard cherry. Required because recycler could reuse the object and update the objectId.
+				let iId = i.objectId;
+				let jId = j.objectId;
 
 				handler.onCollision (i.value, j.value);
 
@@ -394,4 +412,5 @@ const QuadTreeNode = Class.extend
 	}
 });
 
+Recycler.attachTo(QuadTreeNode);
 export default QuadTreeNode;
