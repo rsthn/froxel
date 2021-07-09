@@ -360,5 +360,5 @@ const List = Class.extend
 	}
 });
 
-Recycler.attachTo (List);
+Recycler.attachTo (List, 4096);
 export default List;

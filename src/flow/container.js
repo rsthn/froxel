@@ -17,6 +17,8 @@
 import { Class } from '@rsthn/rin';
 import Element from './element.js';
 import QuadTree from '../spatial/quadtree.js';
+import List from '../utils/list.js';
+import QuadTreeItem from '../spatial/quadtree-item.js';
 
 /*
 **	Element container class.
@@ -31,13 +33,29 @@ export default Class.extend(Element,
 	tree: null,
 	viewportBounds: null,
 
+	destructionQueue: null,
+	updateQueue: null,
+
 	__ctor: function (x1=-1e6, y1=-1e6, x2=1e6, y2=1e6, nodeCapacity=24)
 	{
 		this._super.Element.__ctor();
 
 		this.container = false;
 
+		this.destructionQueue = List.calloc();
+		this.updateQueue = List.calloc();
+
 		this.tree = new QuadTree (x1, y1, x2, y2, nodeCapacity);
+	},
+
+	__dtor: function()
+	{
+		this.destructionQueue.clear().free();
+		this.updateQueue.free();
+
+		dispose(this.tree);
+
+		this._super.Element.__dtor();
 	},
 
 	getTree: function()
@@ -62,14 +80,42 @@ export default Class.extend(Element,
 			return elem;
 
 		this.tree.removeItem(elem);
+		this.detachUpdate(elem);
 
 		elem.onDetached(this);
 		return elem;
 	},
 
-	syncPosition: function(elem)
+	destroy: function(elem)
 	{
-		if (!elem || elem.container !== this)
+		if (!elem || elem.container !== this || elem.getFlags(QuadTreeItem.FLAG_ZOMBIE))
+			return;
+
+		elem.setFlags(QuadTreeItem.FLAG_ZOMBIE | QuadTreeItem.FLAG_NEVER_SELECT);
+		this.destructionQueue.push(elem);
+	},
+
+	attachUpdate: function(elem)
+	{
+		if (!elem || elem.container !== this || elem.getFlags(QuadTreeItem.FLAG_ZOMBIE | QuadTreeItem.FLAG_UPDATEABLE))
+			return;
+
+		elem.setFlags(QuadTreeItem.FLAG_UPDATEABLE);
+		this.updateQueue.push(elem);
+	},
+
+	detachUpdate: function(elem)
+	{
+		if (!elem || elem.container !== this || !elem.getFlags(QuadTreeItem.FLAG_UPDATEABLE))
+			return;
+
+		elem.clearFlags(QuadTreeItem.FLAG_UPDATEABLE);
+		this.updateQueue.remove(elem);
+	},
+
+	updateElementPosition: function(elem)
+	{
+		if (!elem || elem.container !== this || elem.getFlags(QuadTreeItem.FLAG_ZOMBIE))
 			return;
 
 		this.tree.updateItem(elem);
@@ -97,14 +143,25 @@ export default Class.extend(Element,
 
 	elementUpdate: function(dt)
 	{
+		let i;
+
 		this.tree.lock();
 
-		for (let i = this.tree.getItems().top; i; i = i.next)
+		for (i = this.updateQueue.top; i; i = i.next)
+		{
+			if (i.value.getFlags(QuadTreeItem.FLAG_NEVER_SELECT | QuadTreeItem.FLAG_ZOMBIE))
+				continue;
+
 			i.value.update(dt);
+		}
 
 		this.containerUpdate(dt);
 
 		this.tree.unlock();
+
+		while ((i = this.destructionQueue.shift()) !== null)
+			dispose(i);
+
 		this.tree.update();
 	},
 
@@ -114,5 +171,5 @@ export default Class.extend(Element,
 
 	containerUpdate: function(dt) /* @override */
 	{
-	},
+	}
 });

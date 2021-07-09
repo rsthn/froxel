@@ -244,7 +244,7 @@ const System =
 
 		global.onresize = function() { self.onWindowResized(); };
 
-		this.frameTimer = new Timer (this.frameInterval, function(delta, timer) { return self.onFrame(delta, timer); });
+		this.frameTimer = new Timer (this.frameInterval, (delta, timer) => this.onFrame(delta, timer));
 
 		// Setup canvas buffer.
 		this.displayBuffer = new Canvas ({ gl: o.gl, elem: o.canvas, absolute: true, hidden: false, antialias: o.antialias, background: o.background });

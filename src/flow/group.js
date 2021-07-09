@@ -43,10 +43,30 @@ export default Element.extend
 	*/
 	__dtor: function()
 	{
-		if (this.children != null)
-			this.children.clear().free();
-
+		this.clear();
 		this._super.Element.__dtor();
+	},
+
+	/*
+	**	Removes and destroys all children elements.
+	*/
+	clear: function()
+	{
+		if (this.children === null)
+			return;
+
+		let elem;
+
+		while ((elem = this.children.shift()) != null)
+		{
+			elem.setParent(null);
+			dispose(elem);
+		}
+
+		this.children.free();
+		this.children = null;
+
+		return this;
 	},
 
 	/*
@@ -70,10 +90,10 @@ export default Element.extend
 	{
 		if (!elem) return elem;
 
-		if (this.children == null)
+		if (this.children === null)
 			this.children = List.calloc();
 
-		this.children.push (elem);
+		this.children.push(elem);
 		elem.setParent(this);
 
 		return elem;
@@ -111,16 +131,24 @@ export default Element.extend
 	},
 
 	/*
-	**	Updates the element's transformation matrix.
+	**	Moves the elements by the specified deltas.
 	*/
-	updateTransform: function(immediate=false)
+	translate: function (dx, dy, upscaled=false)
 	{
-		this._super.Element.updateTransform(immediate);
+		let _dx = this.bounds.x1;
+		let _dy = this.bounds.y1;
+
+		this._super.Element.translate(dx, dy, upscaled);
+
+		_dx = this.bounds.x1 - _dx;
+		_dy = this.bounds.y1 - _dy;
 
 		if (this.children != null)
 		{
 			for (let i = this.children.top; i; i = i.next)
-				i.value.updateTransform(immediate);
+				i.value.translate(_dx, _dy);
 		}
+
+		return this;
 	}
 });

@@ -423,5 +423,5 @@ const Rect = Class.extend
 	}
 });
 
-Recycler.attachTo (Rect);
+Recycler.attachTo (Rect, 1024);
 export default Rect;

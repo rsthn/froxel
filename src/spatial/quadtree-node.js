@@ -95,10 +95,9 @@ const QuadTreeNode = Class.extend
 		if (!this.isLeaf)
 		{
 			for (let i = 0; i < 4; i++)
-			{
 				this.subNode[i].free();
-				this.subNode[i] = null;
-			}
+
+			this.subNode.fill(null);
 		}
 
 		this.insertionPoint = null;
@@ -218,7 +217,7 @@ const QuadTreeNode = Class.extend
 		this.subNode[2] = QuadTreeNode.alloc().init(this.tree, this.extents.x1, this.extents.cy, this.extents.cx, this.extents.y2);
 		this.subNode[3] = QuadTreeNode.alloc().init(this.tree, this.extents.cx, this.extents.cy, this.extents.x2, this.extents.y2);
 
-		let k = this.extents.width() / 2;
+		let k = this.extents.width() >> 1;
 		if (this.tree.leafSize === null || k < this.tree.leafSize) this.tree.leafSize = k;
 
 		let n = this.numItems;
@@ -238,7 +237,7 @@ const QuadTreeNode = Class.extend
 				console.log( 'EXTENTS: ' + this.extents );
 				console.log( 'INTERSECTION: ' + Bounds2.alloc().set(tmp.insertionBounds).setAsIntersection(this.extents) );
 
-				throw new Error ("Error: Unable to insert item on a sub-node of a just-split node: " + result);
+				throw new Error ('Error: Unable to insert item on a sub-node of a just-split node: ' + result);
 			}
 
 			this.tree.items.remove (this.insertionPoint);

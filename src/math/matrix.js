@@ -294,5 +294,5 @@ const Matrix = Class.extend
 	}
 });
 
-Recycler.attachTo (Matrix);
+Recycler.attachTo (Matrix, 4096);
 export default Matrix;

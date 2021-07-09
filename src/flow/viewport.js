@@ -413,6 +413,7 @@ export default Class.extend
 	{
 		if (this.focusRect != null)
 		{
+//console.log(System.frameNumber + ' viewport: ' + this.focusRect.objectId + ' => ' + this.focusRect.x1 + ', ' + this.focusRect.y1);
 			this.focusOn (this.focusRect.x1, this.focusRect.y1, this.focusRect.x2, this.focusRect.y2);
 		}
 	},

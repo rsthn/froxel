@@ -302,5 +302,5 @@ const Vec2 = Class.extend
 	}
 });
 
-Recycler.attachTo (Vec2);
+Recycler.attachTo (Vec2, 1024);
 export default Vec2;

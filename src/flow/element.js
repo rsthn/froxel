@@ -18,10 +18,9 @@ import G from '../system/globals.js';
 import Anim from '../anim/anim.js';
 import Matrix from '../math/matrix.js';
 import QuadTreeItem from '../spatial/quadtree-item.js';
-import System from '../system/system.js';
 
 /*
-**
+**	Describes a display element.
 */
 
 export default QuadTreeItem.extend
@@ -42,6 +41,11 @@ export default QuadTreeItem.extend
 	**	Controls whether bounding box creating is relative to the center (false) or to the top-left corner (true).
 	*/
 	_topLeftRelative: true,
+
+	/*
+	**	Indicates if the position has changed.
+	*/
+	_dirty: false,
 
 	/*
 	**	Animation related to the element.
@@ -66,19 +70,9 @@ export default QuadTreeItem.extend
 	type: 0,
 
 	/*
-	**	Element initial status.
+	**	Element visual status.
 	*/
 	alpha: 1,
-	angle: 0,
-	x: 0, y: 0,
-	sx: 1, sy: 1,
-	width: 0, height: 0,
-
-	/*
-	**	Transformation matrix to place the object in world space.
-	*/
-	transform: null,
-	transformDirty: false,
 
 	/*
 	**	Indicates if the bounds of the element should be drawn (for debugging purposes).
@@ -92,16 +86,10 @@ export default QuadTreeItem.extend
 	{
 		this._super.QuadTreeItem.__ctor();
 
-		this.anim = Anim.calloc();
-		this.anim.output(this);
+		this.anim = null;
 
-		this.x = x;
-		this.y = y;
-
-		this.transform = Matrix.calloc();
-
+		this.translate(x, y);
 		this.resize(width, height);
-		this.updateTransform(true);
 	},
 
 	/*
@@ -112,8 +100,39 @@ export default QuadTreeItem.extend
 		this.remove();
 		this._super.QuadTreeItem.__dtor();
 
-		this.transform.free();
-		this.anim.free();
+		if (this.anim !== null)
+			this.anim.free();
+	},
+
+	/*
+	**	Destroys the element by adding it to the container's destruction queue. If the element has no container, then it
+	**	will be destroyed immediately.
+	*/
+	destroy: function()
+	{
+		if (this.container === null)
+		{
+			dispose(this);
+			return;
+		}
+
+		this.container.destroy(this);
+	},
+
+	/*
+	**	Indicates if the element is live. When live, the container will call the `update` method of the element.
+	*/
+	live: function(value)
+	{
+		if (this.container === null)
+			return this;
+
+		if (value)
+			this.container.attachUpdate(this);
+		else
+			this.container.detachUpdate(this);
+
+		return this;
 	},
 
 	/*
@@ -123,9 +142,6 @@ export default QuadTreeItem.extend
 	{
 		if (value === null)
 		{
-			//if (this.container === null)
-			//	return false;
-
 			return this._visible && (this.parent != null ? this.parent.visible() : true);
 		}
 
@@ -139,83 +155,26 @@ export default QuadTreeItem.extend
 	active: function (value=null)
 	{
 		if (value === null)
+		{
 			return this._active && (this.parent != null ? this.parent.active() : true);
+		}
 
 		this._active = value;
 		return this;
 	},
 
 	/*
-	**	Sets the width and height of the element.
+	**	Returns the anim object related to the element. Creates one if `create` is set to true.
 	*/
-	resize: function (width, height)
+	getAnim: function(create=true)
 	{
-		this.width = width;
-		this.height = height;
-
-		this._updateBounds();
-	},
-
-	/*
-	**	Updates the world-space bounding box.
-	*/
-	_updateBounds: function()
-	{
-		this.bounds.zero();
-		this.bounds.translate (0, 0);
-		this.bounds.resizeBy (this.width, this.height, this._topLeftRelative);
-
-		// violet: figure a way to optimize this
-		let p0 = this.transform.applyTo(this.bounds.x1, this.bounds.y1);
-		//let p1 = this.transform.applyTo(this.bounds.x1, this.bounds.y2);
-		//let p2 = this.transform.applyTo(this.bounds.x2, this.bounds.y1);
-		let p3 = this.transform.applyTo(this.bounds.x2, this.bounds.y2);
-
-		this.bounds.reset();
-		this.bounds.setAsUnion(p0);
-		//this.bounds.setAsUnion(p1);
-		//this.bounds.setAsUnion(p2);
-		this.bounds.setAsUnion(p3);
-
-		p0.free();
-		p3.free();
-	},
-
-	/*
-	**	Updates the element's transformation matrix.
-	*/
-	updateTransform: function(immediateTransformUpdate=false)
-	{
-		if (!immediateTransformUpdate)
+		if (this.anim === null && create === true)
 		{
-			this.transformDirty = true;
-			return;
+			this.anim = Anim.calloc();
+			this.anim.output(this);
 		}
 
-		/* ** */
-		if (this.parent != null)
-			this.transform.set(this.parent.transform);
-		else
-			this.transform.identity();
-
-		this.transform.translate(this.x, this.y);
-
-		if (this.sx != 0)
-			this.transform.scale(this.sx, 1.0);
-
-		if (this.sy != 0)
-			this.transform.scale(1.0, this.sy);
-
-		if (this.angle != 0)
-		{
-			this.transform.translate(this.width >> 1, this.height >> 1);
-			this.transform.rotate(this.angle);
-		}
-
-		this.transformDirty = false;
-
-		this._updateBounds();
-		this.updatePosition();
+		return this.anim;
 	},
 
 	/*
@@ -224,7 +183,6 @@ export default QuadTreeItem.extend
 	getRoot: function()
 	{
 		let item = this;
-
 		while (item.parent) item = item.parent;
 		return item;
 	},
@@ -239,40 +197,23 @@ export default QuadTreeItem.extend
 		}
 
 		this.parent = parent;
-		this.transformDirty = true;
+		this._dirty = true;
 	},
 
 	/*
-	**	Returns the X coordinate of the element, if `absolute` is true it will include any offset introduced by the parent.
+	**	Returns the X coordinate of the element.
 	*/
-	getX: function(absolute=false)
+	getX: function()
 	{
-		return (absolute && this.parent != null ? this.parent.getX(true) : 0) + this.x;
+		return this.bounds.x1;
 	},
 
 	/*
-	**	Returns the Y coordinate of the element, if `absolute` is true it will include any offset introduced by the parent.
+	**	Returns the Y coordinate of the element.
 	*/
-	getY: function(absolute=false)
+	getY: function()
 	{
-		return (absolute && this.parent != null ? this.parent.getY(true) : 0) + this.y;
-	},
-
-	/*
-	**	Applies the inverse transform of the element (including parent transform) to the specified point.
-	*/
-	inverseTransform: function (point)
-	{
-		if (this.parent != null)
-			this.parent.inverseTransform (point);
-//violet: check if this is ok
-		point.x -= this.x;
-		point.y -= this.y;
-
-		point.x /= this.sx;
-		point.y /= this.sy;
-
-		return point;
+		return this.bounds.y1;
 	},
 
 	/*
@@ -280,7 +221,7 @@ export default QuadTreeItem.extend
 	*/
 	setAnim: function (anim)
 	{
-		anim.copyTo(this.anim);
+		anim.copyTo(this.getAnim());
 		return this;
 	},
 
@@ -291,17 +232,8 @@ export default QuadTreeItem.extend
 	{
 		if (anim != null)
 			this.setAnim (anim);
-		else
+		else if (this.anim !== null)
 			this.anim.reset();
-	},
-
-	/*
-	**	Adds the element to the specified container. Returns itself.
-	*/
-	addTo: function (container)
-	{
-		container.add(this);
-		return this;
 	},
 
 	/*
@@ -323,45 +255,55 @@ export default QuadTreeItem.extend
 	},
 
 	/*
+	**	Marks the element as dirty so that the bounds are synchronized in the next update.
+	*/
+	setDirty: function()
+	{
+		this._dirty = true;
+		return this;
+	},
+
+	/*
 	**	Updates the position of the element in the container.
 	*/
 	updatePosition: function()
 	{
-		if (this.container)
-			this.container.syncPosition(this);
+		if (!this._dirty || !this.container) return this;
+
+		this.container.updateElementPosition(this);
+
+		this._dirty = false;
+		return this;
+	},
+
+	/*
+	**	Sets the width and height of the element.
+	*/
+	resize: function (width, height)
+	{
+		this.bounds.resize (width, height, this._topLeftRelative);
+
+		this._dirty = true;
+		return this;
 	},
 
 	/*
 	**	Moves the element by the specified deltas.
 	*/
-	translate: function (dx, dy, immediateTransformUpdate=false)
+	translate: function (dx, dy, upscaled=false)
 	{
-		this.x += dx;
-		this.y += dy;
+		this.bounds.translate (dx, dy, upscaled);
 
-		this.bounds.translate (dx, dy);
-
-		this.updateTransform(immediateTransformUpdate);
+		this._dirty = true;
 		return this;
 	},
 
 	/*
 	**	Sets the position of the element.
 	*/
-	setPosition: function (x, y, immediateTransformUpdate=false)
+	setPosition: function (x, y)
 	{
-		return this.translate (x - this.x, y - this.y, immediateTransformUpdate);
-	},
-
-	/*
-	**	Applies the element's transform to the specified canvas.
-	*/
-	applyTransform: function(g)
-	{
-		g.appendMatrix(this.transform);
-
-		if (this.alpha != 1.0)
-			g.alpha(this.alpha);
+		return this.translate (x-this.bounds.x1, y-this.bounds.y1);
 	},
 
 	/*
@@ -372,7 +314,10 @@ export default QuadTreeItem.extend
 		g.pushMatrix();
 		g.pushAlpha();
 
-		this.applyTransform(g);
+		g.translate(this.bounds.x1, this.bounds.y1);
+
+		if (this.alpha != 1.0)
+			g.alpha(this.alpha);
 	},
 
 	/*
@@ -435,10 +380,12 @@ export default QuadTreeItem.extend
 	{
 		if (!this.active()) return;
 
-		if (!this.anim.update(dt) || this.transformDirty)
-			this.updateTransform(true);
+		let animFinished = this.anim !== null ? this.anim.update(dt) : true;
 
 		this.elementUpdate(dt);
+
+		if (!animFinished || this._dirty)
+			this.updatePosition();
 	},
 
 	/*

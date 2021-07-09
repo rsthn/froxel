@@ -19,12 +19,14 @@ const recyclingFacilities = { };
 const Recycler = { };
 export default Recycler;
 
+let constructorAllowed = 0;
+
 /*
 **	Attaches recycling methods (alloc, calloc and free) to the specified class. Class should implement method `init` to initialize the
 **	instance (and returns itself) and __dtor to destroy it.
 */
 
-Recycler.attachTo = function (_class, maxPoolSize=1000)
+Recycler.attachTo = function (_class, maxPoolSize=2048)
 {
 	if (!_class.prototype.className)
 		throw new Error ('Unable to attach recycler functions to unnamed class.');
@@ -43,23 +45,23 @@ Recycler.attachTo = function (_class, maxPoolSize=1000)
 
 	_class.recyclerNextObjectId = 0;
 	_class.recyclerCreated = 0;
-	_class.recyclerRestored = 0;
+	_class.recyclerRecycled = 0;
 	_class.recyclerMissed = 0;
 	_class.recyclerLength = 0;
+	_class.recyclerActive = 0;
 
 	for (let i = 0; i < maxPoolSize; i++)
 	{
 		_class.recyclerPool.push(new _class ());
-		_class.recyclerCreated++;
+		//_class.recyclerCreated++;
 		_class.recyclerLength++;
 	}
 
 	const __ctor = _class.prototype.__ctor;
-	let constructorBlocked = true;
 
 	_class.prototype.__ctor = function()
 	{
-		if (constructorBlocked)
+		if (!constructorAllowed)
 			throw new Error ('Recycler: Constructor blocked for class '+_class.prototype.className+', use alloc() instead.');
 
 		__ctor.call(this);
@@ -71,16 +73,18 @@ Recycler.attachTo = function (_class, maxPoolSize=1000)
 
 		if (!this.recyclerLength)
 		{
-			constructorBlocked = false;
+			constructorAllowed++;
 			item = new _class ();
-			constructorBlocked = true;
+			constructorAllowed--;
 			_class.recyclerCreated++;
 		}
 		else
 		{
 			item = this.recyclerPool[--this.recyclerLength];
-			_class.recyclerRestored++;
+			_class.recyclerRecycled++;
 		}
+
+		_class.recyclerActive++;
 
 		item.objectId = ++this.recyclerNextObjectId;
 		this.recyclerNextObjectId &= 0x7FFFFFFF;
@@ -115,6 +119,7 @@ Recycler.attachTo = function (_class, maxPoolSize=1000)
 		else
 			_class.recyclerPool[_class.recyclerLength++] = this;
 
+		_class.recyclerActive--;
 		return this;
 	};
 };
@@ -125,12 +130,12 @@ Recycler.attachTo = function (_class, maxPoolSize=1000)
 */
 Recycler.showStats = function ()
 {
-	console.group("Recycling Facilities");
+	console.group('Recycling Facilities');
 
 	for (let i in recyclingFacilities)
 	{
 		let c = recyclingFacilities[i];
-		console.debug (i + ": created=" + c.recyclerCreated + ", restored=" + c.recyclerRestored + ", in-recycler=" + c.recyclerLength + ", missed=" + c.recyclerMissed + ", space=" + (c.recyclerPool.length - c.recyclerLength));
+		console.debug (i + ': '+(100*(c.recyclerCreated/c.recyclerPool.length)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', capacity=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPool.length - c.recyclerLength));
 	}
 
 	console.groupEnd();

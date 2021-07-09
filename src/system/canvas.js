@@ -63,7 +63,7 @@ const Canvas = function (options=null)
 
 	if (opts.gl === true)
 	{
-		this.gl = this.elem.getContext('webgl2', { desynchronized: true, antialias: false, powerPreference: 'high-performance' });
+		this.gl = this.elem.getContext('webgl2'/*, { desynchronized: true, antialias: false, powerPreference: 'high-performance' }*/);
 		this.context = null;
 
 		Log.write(this.gl.getParameter(this.gl.VERSION));
@@ -238,6 +238,13 @@ Canvas.prototype.initGl = function ()
 {
 	let gl = this.gl;
 
+	if (navigator && navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+	else
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+
 	this.gl_array_buffer = gl.createBuffer();
 	gl.bindBuffer (gl.ARRAY_BUFFER, this.gl_array_buffer);
 	gl.bufferData (gl.ARRAY_BUFFER, new Float32Array ([0, 0, 0, 1, 1, 0, 1, 1]), gl.STATIC_DRAW);
@@ -338,6 +345,9 @@ Canvas.prototype.initGl = function ()
 				this.location_matrix.identity();
 				this.location_matrix.scale(img.width, img.height);
 
+				this.texture_matrix.identity();
+				this.texture_matrix.scale(img.width, img.height);
+
 				this.gl.uniformMatrix3fv(this.gl_uniform_current_matrix, false, this.transform.data);
 				this.gl.uniformMatrix3fv(this.gl_uniform_matrix, false, this.location_matrix.data);
 				this.gl.uniformMatrix3fv(this.gl_uniform_texture_matrix, false, this.location_matrix.data);
@@ -395,7 +405,6 @@ Canvas.prototype.prepareImage = function (image)
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -991,7 +1000,7 @@ Canvas.prototype.stroke = function (value=null)
 */
 Canvas.prototype.clip = function (x, y, width, height)
 {
-	if (this.gl != null)
+	if (this.gl !== null)
 	{
 		x *= this._globalScale;
 		y *= this._globalScale;

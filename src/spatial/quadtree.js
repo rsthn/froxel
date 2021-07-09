@@ -28,7 +28,7 @@ const QuadTree = Class.extend
 	/*
 	**	Name of the class (for inheritance purposes).
 	*/
-	className: "QuadTree",
+	className: 'QuadTree',
 
 	/*
 	**	Root node of the tree.
@@ -58,7 +58,7 @@ const QuadTree = Class.extend
 	/*
 	**	Minimum node size (width or height).
 	*/
-	minNodeSize: 128,
+	minNodeSize: 64,
 
 	/*
 	**	Current minimum leaf node size (the smallest leaf).

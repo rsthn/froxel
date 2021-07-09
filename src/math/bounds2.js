@@ -19,8 +19,10 @@ import { Class } from '@rsthn/rin';
 import Point2 from './point2.js';
 import Rect from './rect.js';
 
-const UPSCALE = x => int(x * 64);
-const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> 6) * (1-(((x>>31)&1)<<1));
+const BITS = 5;
+const UPSCALE = x => int(x * (1<<BITS));
+const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
+//const DOWNSCALE = x => (x>>BITS);
 
 /*
 **	Representation of a bounding box in 2D space. The component values are upscaled by a fixed number of bits to allow
@@ -128,9 +130,9 @@ const Bounds2 = Class.extend
 	**
 	**	Bounds2 translate (Point2 p)
 	**	Bounds2 translate (Vec2 v)
-	**	Bounds2 translate (float dx, float dy)
+	**	Bounds2 translate (float dx, float dy, bool upscaled=false)
 	*/
-	translate: function (dx, dy=null)
+	translate: function (dx, dy=null, upscaled=false)
 	{
 		if (dy === null)
 		{
@@ -143,8 +145,10 @@ const Bounds2 = Class.extend
 			}
 		}
 		else {
-			dx = UPSCALE(dx);
-			dy = UPSCALE(dy);
+			if (!upscaled) {
+				dx = UPSCALE(dx);
+				dy = UPSCALE(dy);
+			}
 		}
 
 		this.ux1 += dx; this.uy1 += dy;
@@ -564,5 +568,5 @@ const Bounds2 = Class.extend
 	}
 });
 
-Recycler.attachTo (Bounds2);
+Recycler.attachTo (Bounds2, 8192);
 export default Bounds2;

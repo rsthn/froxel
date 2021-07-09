@@ -27,16 +27,16 @@ const PARALLEL =
 	{
 		if (!postinit)
 		{
-			cmd.block = List.calloc();
+			cmd.block = Block.calloc();
 			cmd.blocks = List.calloc();
 			return;
 		}
 
 		let i;
 
-		while ((i = cmd.block.shift()) != null)
+		while ((i = cmd.block.commands.shift()) != null)
 		{
-			let block = Block.alloc();
+			let block = Block.calloc();
 			block.add(i);
 			cmd.blocks.push(block);
 		}
@@ -58,21 +58,18 @@ const PARALLEL =
 		}
 
 		let time = block.time;
-		let n = 0;
+		let n = 0, m = 0;
 
 		for (let i = cmd.blocks.top; i !== null; i = i.next)
 		{
-			if (i.value.update(anim) === true)
-				n++;
+			let r = i.value.update(anim);
+			if (r === true) n++; else if (r === null) m++;
 
 			if (i.value.time > time)
 				time = i.value.time;
 		}
 
-		//VIOLET:CALLBACK
-		//if (cmd.fn) cmd.fn.call(this);
-
-		if (n != cmd.blocks.length)
+		if ((n+m) != cmd.blocks.length)
 			return false;
 
 		cmd.started = false;
@@ -86,7 +83,7 @@ const SERIAL =
 	init: function(cmd, postinit=false)
 	{
 		if (!postinit)
-			cmd.block = List.calloc();
+			cmd.block = Block.calloc();
 	},
 
 	update: function(anim, block, cmd)
@@ -97,11 +94,8 @@ const SERIAL =
 			cmd.started = true;
 		}
 
-		if (cmd.block.update(anim) !== true)
-			return false;
-
-		//violet:callback
-		//if (cmd.fn) cmd.fn.call(this);
+		let r = cmd.block.update(anim);
+		if (r !== true) return r;
 
 		cmd.started = false;
 		block.time = cmd.block.time;
@@ -114,7 +108,7 @@ const REPEAT =
 	init: function(cmd, postinit=false)
 	{
 		if (!postinit)
-			cmd.block = List.calloc();
+			cmd.block = Block.calloc();
 	},
 
 	update: function(anim, block, cmd)
@@ -127,11 +121,8 @@ const REPEAT =
 			cmd.started = true;
 		}
 
-		if (cmd.block.update(anim) !== true)
-			return false;
-
-		// violet callback
-		//if (cmd.fn) cmd.fn.call(this);
+		let r = cmd.block.update(anim);
+		if (r !== true) return r;
 
 		if (cmd._count <= 1)
 		{
@@ -154,7 +145,7 @@ const SET =
 
 	update: function(anim, block, cmd)
 	{
-		anim.data[cmd.field] = anim.getValue(cmd.value, cmd.field);
+		anim.setValue(cmd.field, anim.getValue(cmd.field, cmd.value));
 		return true;
 	}
 };
@@ -182,7 +173,7 @@ const WAIT =
 	{
 		if (cmd.started === false)
 		{
-			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? anim.data[cmd.duration] : cmd.duration;
+			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? anim.getValue(cmd.duration) : cmd.duration;
 			cmd.started = true;
 		}
 
@@ -205,12 +196,13 @@ const RANGE =
 	{
 		if (cmd.started === false)
 		{
-			cmd._startValue = anim.getValue(cmd.startValue, cmd.field);
-			cmd._endValue = anim.getValue(cmd.endValue, cmd.field);
-			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? anim.data[cmd.duration] : cmd.duration;
+			cmd._startValue = anim.getValue(cmd.field, cmd.startValue);
+			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? anim.getValue(cmd.duration) : cmd.duration;
 
 			cmd.started = true;
 		}
+
+		cmd._endValue = anim.getValue(cmd.field, cmd.endValue, cmd._startValue);
 
 		let t = 1.0;
 
@@ -218,9 +210,9 @@ const RANGE =
 			t = (anim.time - block.time) / cmd._duration;
 
 		if (cmd.easing && t != 1.0)
-			anim.data[cmd.field] = cmd.easing(t)*(cmd._endValue - cmd._startValue) + cmd._startValue;
+			anim.setValue(cmd.field, cmd.easing(t)*(cmd._endValue - cmd._startValue) + cmd._startValue);
 		else
-			anim.data[cmd.field] = t*(cmd._endValue - cmd._startValue) + cmd._startValue;
+			anim.setValue(cmd.field, t*(cmd._endValue - cmd._startValue) + cmd._startValue);
 
 		if (t != 1.0)
 			return false;
@@ -241,7 +233,7 @@ const RAND =
 	{
 		if (cmd.started === false)
 		{
-			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? this.data[cmd.duration] : cmd.duration;
+			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? anim.getValue(cmd.duration) : cmd.duration;
 			cmd._last = null;
 
 			cmd.started = true;
@@ -259,12 +251,14 @@ const RAND =
 
 		if (cmd._cur != cmd._last)
 		{
+			let val = anim.getValue(cmd.field);
+
 			while (true) {
 				let i = int(Math.random()*(cmd.endValue - cmd.startValue + 1)) + cmd.startValue;
-				if (i != anim.data[cmd.field]) break;
+				if (i != val) break;
 			}
 
-			anim.data[cmd.field] = i;
+			anim.setValue(cmd.field, i);
 			cmd._last = cmd._cur;
 		}
 
@@ -305,7 +299,7 @@ const RANDT =
 	{
 		if (cmd.started === false)
 		{
-			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? this.data[cmd.duration] : cmd.duration;
+			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? anim.getValue(cmd.duration) : cmd.duration;
 			cmd.started = true;
 		}
 
@@ -320,7 +314,7 @@ const RANDT =
 		else
 			i = t*(cmd.count-1);
 
-		anim.data[cmd.field] = cmd.table[int((i + cmd.count) % cmd.count)];
+		anim.setValue(cmd.field, cmd.table[int((i + cmd.count) % cmd.count)]);
 
 		if (t != 1.0)
 			return false;
@@ -361,16 +355,17 @@ const EXEC =
 			cmd.started = true;
 		}
 
-		let t = anim.time - cmd._last;
+		let dt = anim.time - cmd._last;
 		cmd._last = anim.time;
 
-		if (cmd.fn.call(anim, t, anim.data, anim) === true)
+		let r = cmd.fn.call(anim, dt, anim.data, anim);
+		if (r === true)
 		{
 			cmd.started = false;
 			return true;
 		}
 
-		return false;
+		return r;
 	}
 };
 
@@ -397,8 +392,8 @@ const Block = Class.extend
 
 	__dtor: function()
 	{
-		this.commands.clear().free();
-		this.current = null;
+		this.clear();
+		this.commands.free();
 	},
 
 	add: function(cmd)
@@ -410,6 +405,14 @@ const Block = Class.extend
 	clone: function()
 	{
 		throw new Error('NOT IMPLEMENTED CLONE ON ANIM');
+	},
+
+	clear: function()
+	{
+		this.commands.clear();
+		this.reset(0);
+
+		return this;
 	},
 
 	reset: function(time)
@@ -442,8 +445,8 @@ const Block = Class.extend
 	{
 		while (!this.isFinished())
 		{
-			if (this.current.update(anim, this) !== true)
-				return false;
+			let r = this.current.value.update(anim, this);
+			if (r !== true) return r;
 
 			this.current = this.current.next;
 		}
@@ -452,7 +455,7 @@ const Block = Class.extend
 	}
 });
 
-Recycler.attachTo(Block);
+Recycler.attachTo(Block, 8192);
 
 
 /*
@@ -627,7 +630,7 @@ const Anim = Class.extend
 	{
 		this.blockStack.clear();
 		this.cmdStack.clear();
-		this.block.reset();
+		this.block.reset(0);
 
 		this.paused = false;
 		this.finished = false;
@@ -684,25 +687,72 @@ const Anim = Class.extend
 	},
 
 	/*
+	**	Sets the value of a field.
+	*/
+	setValue: function (fieldName, value)
+	{
+		let curr = this.data;
+
+		if (typeof(fieldName) !== 'string')
+		{
+			if (typeof(fieldName) === 'function')
+			{
+				fieldName (this, value);
+			}
+			else
+			{
+				let i = 0;
+
+				while (curr !== null && i < fieldName.length-1)
+					curr = curr[fieldName[i++]];
+
+				curr[fieldName[i]] = value;
+			}
+		}
+		else
+			curr[fieldName] = value;
+	},
+
+	/*
 	**	Returns the value of a field. Performs special transforms to the value if certain prefix is found.
 	*/
-	getValue: function (value, fieldName)
+	getValue: function (fieldName, value=null, initialValue=null)
 	{
-		let curr = this.data[fieldName];
+		let curr = this.data;
+		
+		if (typeof(fieldName) !== 'string')
+		{
+			if (typeof(fieldName) === 'function')
+			{
+				curr = fieldName (this, null);
+			}
+			else
+			{
+				let i = 0;
+
+				while (curr !== null && i < fieldName.length)
+					curr = curr[fieldName[i++]];
+			}
+		}
+		else
+			curr = curr[fieldName];
 
 		if (value === null)
 			value = curr;
+
+		if (initialValue === null)
+			initialValue = curr;
 
 		if (typeof(value) === 'string')
 		{
 			switch(value[0])
 			{
 				case '+':
-					value = curr + Number(value.substr(1));
+					value = initialValue + Number(value.substr(1));
 					break;
 
 				case '-':
-					value = curr - Number(value.substr(1));
+					value = initialValue - Number(value.substr(1));
 					break;
 
 				default:
@@ -710,9 +760,8 @@ const Anim = Class.extend
 					break;
 			}
 		}
-
-		if (typeof(value) === 'function')
-			value = value.call(this, this.data[fieldName], this.data, this);
+		else if (typeof(value) === 'function')
+			value = value.call(this, curr, initialValue, this);
 
 		return value;
 	},
@@ -750,6 +799,19 @@ const Anim = Class.extend
 
 		return true;
 	},
+
+	/*
+	**	Ensures that the field name is correct for subsequent rules.
+	*/
+	prepareFieldName: function (value)
+	{
+		if (typeof(value) === 'function')
+			return value;
+
+		return value.indexOf('.') != -1 ? value.split('.') : value;
+	},
+
+	/* ****************************************************************************************** */
 
 	/*
 	**	Runs the subsequent commands in parallel. Should end the parallel block by calling end().
@@ -795,18 +857,6 @@ const Anim = Class.extend
 	},
 
 	/*
-	**	Sets the callback of the current block.
-	*/
-	callback: function (fn)
-	{
-		//violet fix
-		//let block = this.blockStack.last();
-		//block[block.length-1].fn = fn;
-
-		return this;
-	},
-
-	/*
 	**	Ends a parallel(), serial() or repeat() block.
 	*/
 	end: function ()
@@ -823,7 +873,7 @@ const Anim = Class.extend
 	{
 		let cmd = this.block.add(Command.alloc().init(SET));
 
-		cmd.field = field;
+		cmd.field = this.prepareFieldName(field);
 		cmd.value = value;
 
 		return this;
@@ -857,7 +907,7 @@ const Anim = Class.extend
 	{
 		let cmd = this.block.add(Command.alloc().init(RANGE));
 
-		cmd.field = field;
+		cmd.field = this.prepareFieldName(field);
 		cmd.duration = duration;
 		cmd.startValue = startValue;
 		cmd.endValue = endValue;
@@ -873,7 +923,7 @@ const Anim = Class.extend
 	{
 		let cmd = this.block.add(Command.alloc().init(RAND));
 
-		cmd.field = field;
+		cmd.field = this.prepareFieldName(field);
 		cmd.duration = duration;
 		cmd.count = count;
 		cmd.startValue = startValue;
@@ -890,7 +940,7 @@ const Anim = Class.extend
 	{
 		let cmd = this.block.add(Command.alloc().init(RANDT));
 
-		cmd.field = field;
+		cmd.field = this.prepareFieldName(field);
 		cmd.duration = duration;
 		cmd.count = count;
 		cmd.startValue = startValue;
@@ -926,12 +976,28 @@ const Anim = Class.extend
 
 	/* ********************************************************** */
 
+	_bounds_x1: function (anim, value)
+	{
+		if (value === null)
+			return anim.data.bounds.x1;
+
+		anim.data.translate(int(value) - anim.data.bounds.x1, 0);
+	},
+
+	_bounds_y1: function (anim, value)
+	{
+		if (value === null)
+			return anim.data.bounds.y1;
+
+		anim.data.translate(0, int(value) - anim.data.bounds.y1);
+	},
+
 	/*
 	**	Sets X coordinate.
 	*/
 	setX: function (value)
 	{
-		return this.set('x', value);
+		return this.set(this._bounds_x1, value);
 	},
 
 	/*
@@ -939,7 +1005,7 @@ const Anim = Class.extend
 	*/
 	setY: function (value)
 	{
-		return this.set('y', value);
+		return this.set(this._bounds_y1, value);
 	},
 
 	/*
@@ -947,7 +1013,7 @@ const Anim = Class.extend
 	*/
 	position: function (x, y)
 	{
-		return this.set('x', x).set('y', y);
+		return this.set(this._bounds_x1, x).set(this._bounds_y1, y);
 	},
 
 	/*
@@ -955,7 +1021,7 @@ const Anim = Class.extend
 	*/
 	translateX: function (duration, deltaValue, easing)
 	{
-		return this.range('x', duration, null, (deltaValue < 0 ? '-' : '+') + Math.abs(deltaValue), easing);
+		return this.range(this._bounds_x1, duration, null, (deltaValue < 0 ? '-' : '+') + Math.abs(deltaValue), easing);
 	},
 
 	/*
@@ -963,7 +1029,7 @@ const Anim = Class.extend
 	*/
 	translateY: function (duration, deltaValue, easing)
 	{
-		return this.range('y', duration, null, (deltaValue < 0 ? '-' : '+') + Math.abs(deltaValue), easing);
+		return this.range(this._bounds_y1, duration, null, (deltaValue < 0 ? '-' : '+') + Math.abs(deltaValue), easing);
 	},
 
 	/*
@@ -972,8 +1038,8 @@ const Anim = Class.extend
 	translate: function (duration, deltaValueX, deltaValueY, easingX, easingY=null)
 	{
 		return this.parallel()
-				.range('x', duration, null, (deltaValueX < 0 ? '-' : '+') + Math.abs(deltaValueX), easingX)
-				.range('y', duration, null, (deltaValueY < 0 ? '-' : '+') + Math.abs(deltaValueY), easingY ? easingY : easingX)
+					.range(this._bounds_x1, duration, null, (deltaValueX < 0 ? '-' : '+') + Math.abs(deltaValueX), easingX)
+					.range(this._bounds_y1, duration, null, (deltaValueY < 0 ? '-' : '+') + Math.abs(deltaValueY), easingY ? easingY : easingX)
 				.end();
 	},
 
@@ -983,9 +1049,25 @@ const Anim = Class.extend
 	moveTo: function (duration, endValueX, endValueY, easingX, easingY=null)
 	{
 		return this.parallel()
-				.range('x', duration, null, endValueX, easingX)
-				.range('y', duration, null, endValueY, easingY ? easingY : easingX)
+				.range(this._bounds_x1, duration, null, endValueX, easingX)
+				.range(this._bounds_y1, duration, null, endValueY, easingY ? easingY : easingX)
 				.end();
+	},
+
+	/*
+	**	Sets the X coordinate to the specified value.
+	*/
+	moveX: function (duration, endValue, easing=null)
+	{
+		return this.range(this._bounds_x1, duration, null, endValue, easing);
+	},
+
+	/*
+	**	Sets the Y coordinate to the specified value.
+	*/
+	moveY: function (duration, endValue, easing=null)
+	{
+		return this.range(this._bounds_y1, duration, null, endValue, easing);
 	},
 
 	/*
@@ -1024,9 +1106,6 @@ const Anim = Class.extend
 	}
 });
 
-Recycler.attachTo(Anim);
-
-
 /*
 **	Global time scale.
 */
@@ -1040,4 +1119,5 @@ Anim.speed = function (value)
 	Anim.timeScale = value > 0.0 ? value : 1.0;
 };
 
+Recycler.attachTo(Anim, 8192);
 export default Anim;

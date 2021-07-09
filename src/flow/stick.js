@@ -89,7 +89,7 @@ export default Group.extend
 		this.unpressedImgInner = unpressedImgInner;
 		this.pressedImgInner = pressedImgInner || unpressedImgInner;
 
-		this.hitbox = new Element(0, 0, this.width, this.height);
+		this.hitbox = new Element(x, y, this.bounds.width(), this.bounds.height());
 		this.addChild(this.hitbox);
 
 		this.maxRadius = maxRadius;

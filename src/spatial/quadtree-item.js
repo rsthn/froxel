@@ -18,25 +18,17 @@ import { Class } from '@rsthn/rin';
 import Bounds2 from '../math/bounds2.js';
 
 /*
-**	Sequence counter. Used to assign unique IDs to quad tree items.
-*/
-let quadTreeItemID = 0;
-
-/*
 **	Base class for items accepted by a QuadTree.
 */
+
+let objectIdSequence = 0;
 
 const QuadTreeItem = Class.extend
 ({
 	/*
 	**	Name of the class (for inheritance purposes).
 	*/
-	className: "QuadTreeItem",
-
-	/*
-	**	Unique ID of the quad-tree item.
-	*/
-	id: 0,
+	className: 'QuadTreeItem',
 
 	/*
 	**	Selection index of the item. Updated by QuadTree to indicate in which order the item was selected.
@@ -84,25 +76,31 @@ const QuadTreeItem = Class.extend
 	tag: null,
 
 	/*
-	**	Executed when the item is created.
+	**	ID of the object.
+	*/
+	objectId: null,
+
+	/*
+	**	Constructs the instance.
 	*/
 	__ctor: function ()
 	{
-		this.id = ++quadTreeItemID;
+		this.objectId = ++objectIdSequence;
 
-		this.insertionBounds = Bounds2.alloc();
-		this.lastBounds = Bounds2.alloc();
-		this.bounds = Bounds2.alloc();
+		this.insertionBounds = Bounds2.calloc();
+		this.lastBounds = Bounds2.calloc();
+		this.bounds = Bounds2.calloc();
 
 		this.numRefNodes = 0;
 		this.zindex = 0;
+		this.tag = null;
 
 		this.flags = QuadTreeItem.FLAG_INITIAL;
 		this._visible = true;
 	},
 
 	/*
-	**	Executed when the item is removed from the tree.
+	**	Destroys the instance.
 	*/
 	__dtor: function ()
 	{
@@ -196,30 +194,6 @@ const QuadTreeItem = Class.extend
 	{
 		this.lastBounds.set (this.insertionBounds);
 		this.insertionBounds.set (this.bounds);
-	},
-
-	/*
-	**	Returns the rect with the insertion bounds.
-	*/
-	getInsertionBounds: function () /* Rect */
-	{
-		return this.insertionBounds;
-	},
-
-	/*
-	**	Returns the rect with the last bounds.
-	*/
-	getLastBounds: function () /* Rect */
-	{
-		return this.lastBounds;
-	},
-
-	/*
-	**	Returns the physical bounds of the item.
-	*/
-	getBounds: function () /* Rect */
-	{
-		return this.bounds;
 	}
 });
 
@@ -236,7 +210,9 @@ QuadTreeItem.FLAG_SELECTED			=	0x010;
 QuadTreeItem.FLAG_INITIAL			=	0x020;
 QuadTreeItem.FLAG_ALWAYS_SELECT		=	0x040;
 QuadTreeItem.FLAG_NEVER_SELECT		=	0x080;
-QuadTreeItem.FLAG_CHILD				=	0x100;
-QuadTreeItem.FLAG_USERDEF			=	0x200;
+QuadTreeItem.FLAG_ZOMBIE			=	0x100;
+QuadTreeItem.FLAG_UPDATEABLE		=	0x200;
+
+QuadTreeItem.FLAG_USERDEF			=	0x400;
 
 export default QuadTreeItem;
