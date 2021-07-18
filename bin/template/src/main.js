@@ -1,0 +1,7 @@
+
+/*
+**
+*/
+global.main = function()
+{
+};

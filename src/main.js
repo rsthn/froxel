@@ -14,6 +14,10 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// cherry
+import * as _Rin from '@rsthn/rin';
+export const Class = _Rin.Class;
+
 // system
 import _G from './system/globals.js'; export const G = _G; export const Globals = _G;
 import _C from './system/config.js'; export const C = _C;
@@ -67,10 +71,3 @@ import _PointerHandler from './flow/pointer-handler.js'; export const PointerHan
 import _ScreenControls from './flow/screen-controls.js'; export const ScreenControls = _ScreenControls;
 import _Button from './flow/button.js'; export const Button = _Button;
 import _Stick from './flow/stick.js'; export const Stick = _Stick;
-
-/*
-import _DisplayElement from './display-element.js';
-import _Viewport from './viewport.js';
-import _World from './world.js';
-import _Controls from './controls.js';
-*/

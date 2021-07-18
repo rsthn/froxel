@@ -293,14 +293,14 @@ const List = Class.extend
 	/*
 	**	Traverses the list calling the specified function for each item.
 	*/
-	forEach: function(fn)
+	forEach: function(fn, context=null)
 	{
 		let ni;
 	
 		for (let i = this.top; i; i = ni)
 		{
 			ni = i.next;
-			if (fn (i.value, i, this) === false) return false;
+			if (fn (i.value, i, this, context) === false) return false;
 		}
 
 		return true;
@@ -309,14 +309,14 @@ const List = Class.extend
 	/*
 	**	Traverses the list in reverse order, calling the specified function for each item.
 	*/
-	forEachRev: function(fn)
+	forEachRev: function(fn, context=null)
 	{
 		let ni;
 	
 		for (let i = this.bottom; i; i = ni)
 		{
 			ni = i.prev;
-			if (fn (i.value, i, this) === false) return false;
+			if (fn (i.value, i, this, context) === false) return false;
 		}
 
 		return true;
@@ -325,10 +325,10 @@ const List = Class.extend
 	/*
 	**	Returns the first item where the filter function returns true.
 	*/
-	find: function (filter)
+	find: function (filter, context=null)
 	{
 		for (let i = this.top; i; i = i.next)
-			if (filter(i.value)) return i;
+			if (filter(i.value, context)) return i.value;
 
 		return null;
 	},
@@ -336,12 +336,12 @@ const List = Class.extend
 	/*
 	**	Returns an array with all items where the filter function returns true.
 	*/
-	filter: function (filter)
+	filter: function (filter, context=null)
 	{
 		let list = List.calloc();
 
 		for (let i = this.top; i; i = i.next)
-			if (filter(i.value)) list.push(i.value);
+			if (filter(i.value, context)) list.push(i.value);
 
 		return list;
 	},

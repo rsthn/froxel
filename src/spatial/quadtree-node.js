@@ -302,7 +302,7 @@ const QuadTreeNode = Class.extend
 	/*
 	**	Selects items inside the specified region from the node and all sub-nodes.
 	*/
-	selectItems: function (/*Bounds2*/bounds=null, filter=null)
+	selectItems: function (/*Bounds2*/bounds=null, filter=null, context=null)
 	{
 		if (bounds && !bounds.intersects(this.extents))
 			return;
@@ -310,7 +310,7 @@ const QuadTreeNode = Class.extend
 		if (!this.isLeaf)
 		{
 			for (let i = 0; i < 4; i++)
-				this.subNode[i].selectItems (bounds, filter);
+				this.subNode[i].selectItems (bounds, filter, context);
 		}
 		else
 		{
@@ -321,7 +321,7 @@ const QuadTreeNode = Class.extend
 			{
 				if (!(i.value.flags & QuadTreeItem.FLAG_NEVER_SELECT) && (bounds == null || (i.value._visible == true && i.value.insertionBounds.intersects(bounds)) || (i.value.flags & QuadTreeItem.FLAG_ALWAYS_SELECT)))
 				{
-					if (filter && !filter(i.value))
+					if (filter && !filter(i.value, context))
 						continue;
 
 					if (!(i.value.flags & QuadTreeItem.FLAG_SELECTED))
@@ -338,7 +338,7 @@ const QuadTreeNode = Class.extend
 	**	Finds all collisions and executes the specified handler. Before calling the handler the provided filter function will
 	**	be used to determine if the two objects colliding actually represent a semantically correct collision.
 	*/
-	detectCollisions: function (/*IQuadTreeHandler*/handler, forced=false)
+	detectCollisions: function (/*IQuadTreeHandler*/handler, context=null, forced=false)
 	{
 		if (!this.isDirty && !forced)
 			return;
@@ -348,7 +348,7 @@ const QuadTreeNode = Class.extend
 		if (!this.isLeaf)
 		{
 			for (let i = 0; i < 4; i++)
-				this.subNode[i].detectCollisions (handler, forced);
+				this.subNode[i].detectCollisions (handler, context, forced);
 
 			return;
 		}
@@ -364,7 +364,7 @@ const QuadTreeNode = Class.extend
 			if (i.value._visible === false || (i.value.flags & QuadTreeItem.FLAG_NEVER_SELECT))
 				continue;
 
-			if (!handler.onFilterRequest (i.value))
+			if (!handler.onFilterRequest (i.value, context))
 				continue;
 
 			let rect = i.value.bounds;
@@ -377,7 +377,7 @@ const QuadTreeNode = Class.extend
 				if (j.value._visible == false || (j.value.flags & QuadTreeItem.FLAG_NEVER_SELECT))
 					continue;
 
-				if (!handler.onFilterRequest (j.value))
+				if (!handler.onFilterRequest (j.value, context))
 					continue;
 
 				if (!j.value.bounds.intersects(rect))
@@ -387,7 +387,7 @@ const QuadTreeNode = Class.extend
 				let iId = i.objectId;
 				let jId = j.objectId;
 
-				handler.onCollision (i.value, j.value);
+				handler.onCollision (i.value, j.value, context);
 
 				// NOTE: Restarting the collision detector on this loop will cause an infinite loop if the collision
 				// is not properly resolved by the handler. It is recommended to gather all collisions instead and

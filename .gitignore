@@ -9,3 +9,4 @@ scripts/
 --*
 *.pptx
 todo.txt
+yarn.lock

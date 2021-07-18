@@ -358,7 +358,7 @@ const EXEC =
 		let dt = anim.time - cmd._last;
 		cmd._last = anim.time;
 
-		let r = cmd.fn.call(anim, dt, anim.data, anim);
+		let r = cmd.fn(dt, anim.data, anim);
 		if (r === true)
 		{
 			cmd.started = false;
@@ -545,7 +545,8 @@ const Anim = Class.extend
 	finished: false,
 
 	finishedCallback: null,
-	finishedCallbackChain: null,
+	finishedCallbackHandler: null,
+	finishedCallbackContext: null,
 
 	init: function ()
 	{
@@ -565,8 +566,11 @@ const Anim = Class.extend
 		this.blockStack.clear().free();
 		this.cmdStack.clear().free();
 
-		if (this.finishedCallbackChain !== null)
-			this.finishedCallbackChain.free();
+		if (this.finishedCallbackHandler !== null)
+			this.finishedCallbackHandler.free();
+
+		if (this.finishedCallbackContext !== null)
+			this.finishedCallbackContext.free();
 	},
 
 	copyTo: function (target)
@@ -583,28 +587,36 @@ const Anim = Class.extend
 		return this;
 	},
 
-	then: function (callback)
+	then: function (callback, context=null)
 	{
 		if (this.finishedCallback !== this.thenCallback)
 		{
 			this.finishedCallback = this.thenCallback;
 
-			if (this.finishedCallbackChain === null)
-				this.finishedCallbackChain = List.calloc();
+			if (this.finishedCallbackHandler === null)
+			{
+				this.finishedCallbackHandler = List.calloc();
+				this.finishedCallbackContext = List.calloc();
+			}
 			else
-				this.finishedCallbackChain.reset();
+			{
+				this.finishedCallbackHandler.reset();
+				this.finishedCallbackContext.reset();
+			}
 		}
 
-		this.finishedCallbackChain.push(callback);
+		this.finishedCallbackHandler.push(callback);
+		this.finishedCallbackContext.push(context);
 		return this;
 	},
 
 	thenCallback: function ()
 	{
-		if (!this.finishedCallbackChain.length)
+		if (!this.finishedCallbackHandler.length)
 			return false;
 
-		this.finishedCallbackChain.shift().call(this);
+		let context = this.finishedCallbackContext.shift();
+		this.finishedCallbackHandler.shift()(this, context);
 	},
 
 	/*
@@ -761,7 +773,7 @@ const Anim = Class.extend
 			}
 		}
 		else if (typeof(value) === 'function')
-			value = value.call(this, curr, initialValue, this);
+			value = value (curr, initialValue, this);
 
 		return value;
 	},

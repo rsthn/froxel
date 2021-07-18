@@ -61,7 +61,8 @@ export const Animation = Class.extend
 	height: null,
 
 	finishedCallback: null,
-	finishedCallbackChain: null,
+	finishedCallbackHandler: null,
+	finishedCallbackContext: null,
 
 	frameCallback: null,
 
@@ -85,7 +86,8 @@ export const Animation = Class.extend
 		this.paused = false;
 
 		this.finishedCallback = null;
-		this.finishedCallbackChain = null;
+		this.finishedCallbackHandler = null;
+		this.finishedCallbackContext = null;
 		this.frameCallback = null;
 
 		this.fps = fps;
@@ -98,8 +100,11 @@ export const Animation = Class.extend
 	{
 		this.queue.free();
 
-		if (this.finishedCallbackChain)
-			this.finishedCallbackChain.free();
+		if (this.finishedCallbackHandler)
+			this.finishedCallbackHandler.free();
+
+		if (this.finishedCallbackContext)
+			this.finishedCallbackContext.free();
 	},
 
 	setFps: function (fps)
@@ -128,24 +133,27 @@ export const Animation = Class.extend
 		return this;
 	},
 
-	then: function (callback)
+	then: function (callback, context=null)
 	{
 		if (this.finishedCallback !== this.thenCallback)
 		{
 			this.finishedCallback = this.thenCallback;
-			this.finishedCallbackChain = List.calloc();
+			this.finishedCallbackHandler = List.calloc();
+			this.finishedCallbackContext = List.calloc();
 		}
 
-		this.finishedCallbackChain.push(callback);
+		this.finishedCallbackHandler.push(callback);
+		this.finishedCallbackContext.push(context);
 		return this;
 	},
 
 	thenCallback: function ()
 	{
-		if (!this.finishedCallbackChain.length)
+		if (!this.finishedCallbackHandler.length)
 			return false;
 
-		this.finishedCallbackChain.shift().call(this);
+		let context = this.finishedCallbackContext.shift();
+		this.finishedCallbackHandler.shift()(this, context);
 	},
 
 	onFrame: function (fn)
