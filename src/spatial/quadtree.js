@@ -458,7 +458,7 @@ const QuadTree = Class.extend
 	**	Selects all items that are within the specified region. Methods `getNextSelected` and `getCountSelected` can be used to determine the next
 	**	item and the number of remaining selected items. Returns the number of items selected.
 	*/
-	selectItems: function (/*Bounds2*/bounds=null, filter=null, isReverse=null)
+	selectItems: function (/*Bounds2*/bounds=null, filter=null, context=null, isReverse=null)
 	{
 		if (isReverse === null)
 			isReverse = this.isReverse;
@@ -466,7 +466,7 @@ const QuadTree = Class.extend
 		this.selectedCount = 0;
 		this.selectedIndex = 0;
 
-		this.root.selectItems (bounds, filter);
+		this.root.selectItems (bounds, filter, context);
 
 		this.nextItem = isReverse ? this.orderedItems.bottom : this.orderedItems.top;
 		return this.selectedCount;
@@ -525,33 +525,33 @@ const QuadTree = Class.extend
 	/*
 	**	Returns the number of items inside the specified region.
 	*/
-	countItems: function (/*Bounds2*/bounds=null, filter=null)
+	countItems: function (/*Bounds2*/bounds=null, filter=null, context=null)
 	{
-		let count = this.selectItems(bounds, filter);
+		let count = this.selectItems(bounds, filter, context);
 		this.releaseSelected();
 
 		return count;
 	},
 
 	/*
-	**	Detects collisions between items and executes the methods of the specified handler. The handler object should implement:
+	**	Detects collisions between items and executes the methods of the specified handler object. The handler object should implement:
 	**
-	**	bool onFilterRequest (item)
-	**	bool onCollision (a, b)
+	**	bool onFilterRequest (item, context)
+	**	bool onCollision (a, b, context)
 	*/
-	detectCollisions: function (/*IQuadTreeHandler*/handler, forced=false)
+	detectCollisions: function (/*IQuadTreeHandler*/handler, context=null, forced=false)
 	{
-		this.root.detectCollisions (handler, forced);
+		this.root.detectCollisions (handler, context, forced);
 	},
 
 	/*
 	**	Returns the items inside the specified region as a List.
 	*/
-	selectItemsAsList: function (/*Bounds2*/bounds, filter=null)
+	selectItemsAsList: function (/*Bounds2*/bounds, filter=null, context=null)
 	{
 		let list = List.calloc();
 
-		this.selectItems(bounds, filter);
+		this.selectItems(bounds, filter, context);
 
 		while (this.getCountSelected())
 			list.push(this.getNextSelected());

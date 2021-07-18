@@ -1497,7 +1497,7 @@ Canvas.prototype.enablePointerEvents = function()
 
 		for (var i = 0; i < this.pointerHandlers.length; i++)
 		{
-			if (this.pointerHandlers[i][1].call(this.pointerHandlers[i][2], _evt) === false)
+			if (this.pointerHandlers[i][1] (_evt, this.pointerHandlers[i][2]) === false)
 				break;
 		}
 	};

@@ -1,0 +1,26 @@
+{
+	"name": "froxel-project",
+	"version": "1.0.0",
+	"main": "src/main.js",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"requirements": "yarn global add --ignore-optional parcel shx",
+		"clean": "shx rm main.js",
+		"build": "yarn clean && parcel build --no-cache --target target_main src/main.js",
+		"watch": "yarn clean && parcel watch --no-cache --target target_main --no-hmr src/main.js"
+	},
+	"target_main": "main.js",
+	"targets": {
+		"target_main": {
+			"isLibrary": false,
+			"engines": {
+				"browsers": "last 1 Chrome version"
+			}
+		}
+	},
+	"author": "RedStar Technologies",
+	"dependencies": {
+		"froxel": "^2.0.31"
+	}
+}

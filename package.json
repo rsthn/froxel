@@ -1,9 +1,12 @@
 {
     "name": "froxel",
-    "version": "2.0.34",
+    "version": "2.0.35",
     "description": "Froxel Game Engine",
     "type": "module",
     "main": "src/main.js",
+    "bin": {
+        "froxel": "bin/froxel.js"
+    },
     "scripts": {
         "test": "echo Ok",
         "requirements": "yarn global add --ignore-optional parcel",
@@ -33,11 +36,13 @@
     "dependencies": {
         "@rsthn/rin": "^2.0.28",
         "filereader": "^0.10.3",
+        "fs-extra": "^10.0.0",
         "image-size": "^0.9.7"
     },
     "files": [
         "src/",
         "dist/",
+        "bin/",
         "LICENSE",
         "README.md"
     ]

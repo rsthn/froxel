@@ -91,6 +91,9 @@ const Vec2 = Class.extend
 
 	/*
 	**	Returns true if the coordinates have the same components as the vector.
+	**
+	**	bool equals (Vec2 v)
+	**	bool equals (float x, float y)
 	*/
 	equals: function (x, y=null)
 	{
@@ -193,15 +196,20 @@ const Vec2 = Class.extend
 	**	Scales both components of the vector by the given factor.
 	**
 	**	float scale (Vec2 v)
+	**	float scale (float k)
 	**	float scale (float fx, float fy)
 	*/
 	scale: function (fx, fy=null)
 	{
 		if (fy === null)
 		{
-			let v = fx;
-			fx = v.x;
-			fy = v.y;
+			if (Vec2.isInstance(fx)) {
+				let v = fx;
+				fx = v.x;
+				fy = v.y;
+			} else {
+				fy = fx;
+			}
 		}
 
 		this.x *= fx, this.y *= fy;
