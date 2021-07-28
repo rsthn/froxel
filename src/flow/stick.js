@@ -52,14 +52,14 @@ export default Group.extend
 	angleSteps: 0, radiusSteps: 0,
 
 	/*
-	**	Direction (X and Y) and magnitude of the stick vector. The dirX and dirY are normalized.
+	**	Direction (X and Y) and magnitude of the stick vector. The dirx and diry are normalized.
 	*/
-	rdirX: 0, rdirY: 0, dirX: 0, dirY: 0, magnitude: 0,
+	rdirx: 0, rdiry: 0, dirx: 0, diry: 0, magnitude: 0,
 
 	/*
 	**	Indicates the displacement in X and Y directions of the inner stick. This is calculated when the update() method is called.
 	*/
-	dispX: 0, dispY: 0,
+	dispx: 0, dispy: 0,
 
 	/*
 	**	Current angle and radius of the stick.
@@ -79,20 +79,23 @@ export default Group.extend
 	/*
 	**	Creates the stick with the specified parameters. Automatically adds it to the screen controls.
 	*/
-	__ctor: function (x, y, maxRadius, unpressedImg, unpressedImgInner, pressedImg=null, pressedImgInner=null)
+	__ctor: function (container, x, y, maxRadius, unpressedImg, unpressedImgInner, pressedImg=null, pressedImgInner=null)
 	{
-		this._super.Group.__ctor(x, y, unpressedImg.width, unpressedImg.height);
+		this._super.Group.__ctor();
 
 		this.unpressedImg = unpressedImg;
 		this.pressedImg = pressedImg || unpressedImg;
 
 		this.unpressedImgInner = unpressedImgInner;
 		this.pressedImgInner = pressedImgInner || unpressedImgInner;
+		
+		this.maxRadius = maxRadius;
 
-		this.hitbox = new Element(x, y, this.bounds.width(), this.bounds.height());
+		this.hitbox = new Element(x, y, unpressedImg.width, unpressedImg.height);
 		this.addChild(this.hitbox);
 
-		this.maxRadius = maxRadius;
+		container.add(this.hitbox);
+		container.add(this);
 
 		ScreenControls.add(this);
 	},
@@ -104,24 +107,6 @@ export default Group.extend
 	{
 		this._super.Group.__dtor();
 		ScreenControls.remove(this);
-	},
-
-	/*
-	**	Executed when the item is added to a container.
-	*/
-	onAttached: function (container)
-	{
-		container.add(this.hitbox);
-	},
-
-	/*
-	**	Executed when the item is removed from a container.
-	*/
-	onDetached: function (container)
-	{
-		// VIOLET: container should set the 'container' property to null
-		container.remove(this.hitbox);
-		this.hitbox.container = null;
 	},
 
 	/*
@@ -167,33 +152,33 @@ export default Group.extend
 	*/
 	reset: function ()
 	{
-		this.dispX = 0;
-		this.dispY = 0;
+		this.dispx = 0;
+		this.dispy = 0;
 
-		this.rdirX = 0;
-		this.rdirY = 0;
+		this.rdirx = 0;
+		this.rdiry = 0;
 
-		this.dirX = 0;
-		this.dirY = 0;
+		this.dirx = 0;
+		this.diry = 0;
 		this.magnitude = 0;
 
-		this.onChange(this.dirX, this.dirY, this.magnitude, this.angle);
+		this.onChange(this.dirx, this.diry, this.magnitude, this.angle);
 	},
 
 	/*
 	**	Draws the element on the given graphics surface.
 	*/
-	elementDraw: function (g)
+	draw: function (g)
 	{
 		if (this.status)
 		{
-			this.pressedImg.draw (g, 0, 0);
-			this.pressedImgInner.draw (g, this.dispX, this.dispY);
+			this.pressedImg.draw (g, this.bounds.x1, this.bounds.y1);
+			this.pressedImgInner.draw (g, this.bounds.x1 + this.dispx, this.bounds.y1 + this.dispy);
 		}
 		else
 		{
-			this.unpressedImg.draw (g, 0, 0);
-			this.unpressedImgInner.draw (g, 0, 0);
+			this.unpressedImg.draw (g, this.bounds.x1, this.bounds.y1);
+			this.unpressedImgInner.draw (g, this.bounds.x1, this.bounds.y1);
 		}
 	},
 
@@ -223,28 +208,28 @@ export default Group.extend
 			this.radius = int((this.radius + fs/2) / fs) * fs;
 		}
 
-		this.rdirX = Math.min(1, Math.max(dx / this.maxRadius, -1));
-		this.rdirY = Math.min(1, Math.max(dy / this.maxRadius, -1));
+		this.rdirx = Math.min(1, Math.max(dx / this.maxRadius, -1));
+		this.rdiry = Math.min(1, Math.max(dy / this.maxRadius, -1));
 
-		this.dispX = this.radius * Math.cos(this.angle);
-		this.dispY = this.radius * -Math.sin(this.angle);
+		this.dispx = this.radius * Math.cos(this.angle);
+		this.dispy = this.radius * -Math.sin(this.angle);
 
 		if (this.radius > 0)
 		{
-			this.dirX = this.dispX / this.radius;
-			this.dirY = this.dispY / this.radius;
+			this.dirx = this.dispx / this.radius;
+			this.diry = this.dispy / this.radius;
 
 			this.magnitude = this.radius / this.maxRadius;
 		}
 		else
 		{
-			this.dirX = 0;
-			this.dirY = 0;
+			this.dirx = 0;
+			this.diry = 0;
 
 			this.magnitude = 0;
 		}
 
-		this.onChange(this.dirX, this.dirY, this.magnitude, this.angle);
+		this.onChange(this.dirx, this.diry, this.magnitude, this.angle);
 	},
 
 	/*
@@ -274,7 +259,7 @@ export default Group.extend
 	*/
 	containsPoint: function(x, y)
 	{
-		if (!this.active() || !this.visible())
+		if (!this.visible())
 			return false;
 
 		return this.hitbox.bounds.containsPoint(x, y);
@@ -283,7 +268,7 @@ export default Group.extend
 	/**
 	**	Executed after any change in the direction of the stick.
 	*/
-	onChange: function (dirX, dirY, magnitude, angle) /* @override */
+	onChange: function (dirx, diry, magnitude, angle) /* @override */
 	{
 	}
 });

@@ -53,15 +53,18 @@ export default Group.extend
 	/*
 	**	Creates the button with the specified parameters. Automatically adds it to the screen controls.
 	*/
-	__ctor: function (x, y, unpressedImg, pressedImg=null, relativeToCenter=true)
+	__ctor: function (container, x, y, unpressedImg, pressedImg=null)
 	{
-		this._super.Group.__ctor(x, y, unpressedImg.width, unpressedImg.height);
+		this._super.Group.__ctor();
 
 		this.unpressedImg = unpressedImg;
 		this.pressedImg = pressedImg || unpressedImg;
 
-		this.hitbox = new Element(x, y, this.bounds.width(), this.bounds.height());
+		this.hitbox = new Element (x, y, unpressedImg.width, unpressedImg.height);
 		this.addChild(this.hitbox);
+
+		container.add(this.hitbox);
+		container.add(this);
 
 		ScreenControls.add(this);
 	},
@@ -73,24 +76,6 @@ export default Group.extend
 	{
 		this._super.Group.__dtor();
 		ScreenControls.remove(this);
-	},
-
-	/*
-	**	Executed when the item is added to a container.
-	*/
-	onAttached: function (container)
-	{
-		container.add(this.hitbox);
-	},
-
-	/*
-	**	Executed when the item is removed from a container.
-	*/
-	onDetached: function (container)
-	{
-		// VIOLET: container should set the 'container' property to null
-		container.remove(this.hitbox);
-		this.hitbox.container = null;
 	},
 
 	/*
@@ -115,12 +100,12 @@ export default Group.extend
 	/*
 	**	Draws the element on the given graphics surface.
 	*/
-	elementDraw: function (g)
+	draw: function (g)
 	{
 		if (this.status)
-			this.pressedImg.draw (g, 0, 0);
+			this.pressedImg.draw (g, this.bounds.x1, this.bounds.y1);
 		else
-			this.unpressedImg.draw (g, 0, 0);
+			this.unpressedImg.draw (g, this.bounds.x1, this.bounds.y1);
 	},
 
 	/*
@@ -157,7 +142,7 @@ export default Group.extend
 	*/
 	containsPoint: function(x, y)
 	{
-		if (!this.active() || !this.visible())
+		if (!this.visible())
 			return false;
 
 		return this.hitbox.bounds.containsPoint(x, y);

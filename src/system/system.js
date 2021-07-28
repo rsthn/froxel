@@ -51,10 +51,10 @@ const System =
 	/*
 	**	Display orientations.
 	*/
-	DEFAULT:	0,
-	LANDSCAPE:	1,
-	PORTRAIT:	2,
-	AUTOMATIC:	3,
+	DEFAULT:	'default',
+	LANDSCAPE:	'landscape',
+	PORTRAIT:	'portrait',
+	AUTOMATIC:	'automatic',
 
 	/*
 	**	Default options of the rendering system.
@@ -66,9 +66,11 @@ const System =
 
 		canvas: null,
 		canvas2: null,
+		canvas3: null,
 
 		fps: 144,
 		minFps: 15,
+		vsync: true,
 
 		context: null,
 		antialias: true,
@@ -113,9 +115,14 @@ const System =
 	displayBuffer: null,
 
 	/*
-	**	Secondry display buffer (always 2d).
+	**	Secondary display buffer (always 2d) and has the same initial transformation matrix as the primary display buffer.
 	*/
 	displayBuffer2: null,
+
+	/*
+	**	Third display buffer (always 2d), always 1:1 with the screen size.
+	*/
+	displayBuffer3: null,
 
 	/*
 	**	Small (320x240) temporal display buffer.
@@ -164,16 +171,14 @@ const System =
 	maxFrameInterval: 0,
 
 	/*
-	**	Last frame delta in seconds and milliseconds (float, int).
+	**	Last frame delta in seconds (float).
 	*/
 	frameDelta: 0,
-	frameDeltaMillis: 0,
 
 	/*
 	**	Logical system time (updated on each cycle by the calculated frameDelta).
 	*/
 	frameTime: 0,
-	frameTimeMillis: 0,
 
 	/*
 	**	Current frame number.
@@ -181,36 +186,41 @@ const System =
 	frameNumber: 0,
 
 	/*
-	**	Indicates if the drawing or update process is taking place.
-	*/
-	frameUpdateInProgress: false,
-	frameDrawInProgress: false,
-
-	/*
-	**	Rendering time data.
+	**	Rendering performance data.
 	*/
 	perf:
 	{
 		/*
-		**	Time of the first frame drawn.
+		**	Current time range.
 		*/
 		startTime: 0,
-
-		/*
-		**	Time of the last frame drawn.
-		*/
 		lastTime: 0,
 
 		/*
-		**	Number of frames drawn in total since startTime.
+		**	Number of frames drawn in the current time range.
 		*/
 		numFrames: 0,
 
 		/*
-		**	Total time accumulated in each update and draw operation (microseconds).
+		**	Number of update and draw samples averaged in total.
 		*/
-		updateTime: 0,
-		drawTime: 0
+		numSamples: 0,
+
+		/*
+		**	Total time spent in update, draw and extra respectively in the current time range.
+		*/
+		updateTimeTotal: 0,
+		drawTimeTotal: 0,
+		extraTimeTotal: 0,
+
+		/*
+		**	Calculated values for the last time range. The updateTime and drawTime are in microseconds.
+		*/
+		fps: 0,
+		averageFps: 0,
+		averageUpdateTime: 0,
+		averageDrawTime: 0,
+		averageExtraTime: 0
 	},
 
 	/*
@@ -239,18 +249,21 @@ const System =
 		this.drawQueue = List.calloc();
 
 		// Attach frame event handlers.
-		this.frameInterval = int(1000 / o.fps);
-		this.maxFrameInterval = int(1000 / o.minFps);
+		this.frameInterval = 1000 / o.fps;
+		this.maxFrameInterval = 1000 / o.minFps;
 
 		global.onresize = function() { self.onWindowResized(); };
 
-		this.frameTimer = new Timer (this.frameInterval, (delta, timer) => this.onFrame(delta, timer));
+		this.frameTimer = new Timer (o.vsync, this.frameInterval, (delta) => this.onFrame(delta));
 
 		// Setup canvas buffer.
 		this.displayBuffer = new Canvas ({ gl: o.gl, elem: o.canvas, absolute: true, hidden: false, antialias: o.antialias, background: o.background });
-		this.displayBuffer2 = new Canvas ({ gl: false, elem: o.canvas2, absolute: true, hidden: false, antialias: o.antialias, background: 'none' });
 
+		this.displayBuffer2 = new Canvas ({ gl: false, elem: o.canvas2, absolute: true, hidden: false, antialias: o.antialias, background: 'none' });
 		this.displayBuffer2.elem.style.pointerEvents = 'none';
+
+		this.displayBuffer3 = new Canvas ({ gl: false, elem: o.canvas3, absolute: true, hidden: false, antialias: o.antialias, background: 'none' });
+		this.displayBuffer3.elem.style.pointerEvents = 'none';
 
 		this.tempDisplayBuffer = new Canvas ({ hidden: true, antialias: o.antialias }).resize(320, 240);
 
@@ -605,7 +618,7 @@ const System =
 	/*
 	**	Executed when a frame needs to be rendered to the display buffer.
 	*/
-	onFrame: function(delta, timer)
+	onFrame: function(delta)
 	{
 		let now = hrnow()
 		let tmp;
@@ -618,63 +631,51 @@ const System =
 
 		if (!this.flags.renderingEnabled || this.flags.renderingPaused)
 		{
-			this.frameDrawInProgress = true;
-			try {
-				this.displayBuffer.clear();
-				this.draw (this.displayBuffer);
-			}
-			catch (e) {
-				console.error("DRAW ERROR: \n" + e + "\n" + e.stack);
-			}	
-			this.frameDrawInProgress = false;
+			this.draw (this.displayBuffer);
 			return;
-		}
-
-		if (this.perf.numFrames === 0)
-		{
-			this.perf.startTime = now - this.frameInterval;
-			this.perf.lastTime = now;
 		}
 
 		delta *= this.timeScale;
 
-		this.frameDeltaMillis = delta;
 		this.frameDelta = delta / 1000.0;
-
-		this.frameTimeMillis += this.frameDeltaMillis;
 		this.frameTime += this.frameDelta;
 
 		this.frameNumber++;
 
 		/* ~ */
-		this.frameUpdateInProgress = true;
-		tmp = microtime();
-		try {
-			this.update (this.frameDelta, this.frameDeltaMillis);
-		}
-		catch (e) {
-			System.stop();
-			throw e;
-		}
-		this.perf.updateTime += microtime() - tmp;
-		this.frameUpdateInProgress = false;
+		tmp = hrnow();
+		this.draw (this.displayBuffer);
+		this.perf.drawTimeTotal += hrnow() - tmp;
 
 		/* ~ */
-		this.frameDrawInProgress = true;
-		tmp = microtime();
-		try {
-			this.displayBuffer.clear();
-			this.draw (this.displayBuffer);
-		}
-		catch (e) {
-			System.stop();
-			throw e;
-		}
-		this.perf.drawTime += microtime() - tmp;
-		this.frameDrawInProgress = false;
+		tmp = hrnow();
+		this.update (this.frameDelta);
+		this.perf.updateTimeTotal += hrnow() - tmp;
 
+		/* ~ */
 		this.perf.lastTime = now;
 		this.perf.numFrames++;
+
+		delta = this.perf.lastTime - this.perf.startTime;
+		if (delta > 1000)
+		{
+			this.perf.fps = int(this.perf.numFrames*1000 / delta);
+
+			//this.perf.extraTimeTotal = delta - this.perf.updateTimeTotal - this.perf.drawTimeTotal;
+
+			this.perf.averageFps = int(((this.perf.averageFps*this.perf.numSamples) + this.perf.fps) / (this.perf.numSamples + 1));
+			this.perf.averageUpdateTime = int(((this.perf.averageUpdateTime*this.perf.numSamples) + (this.perf.updateTimeTotal*1000 / this.perf.numFrames)) / (this.perf.numSamples + 1));
+			this.perf.averageDrawTime = int(((this.perf.averageDrawTime*this.perf.numSamples) + (this.perf.drawTimeTotal*1000 / this.perf.numFrames)) / (this.perf.numSamples + 1));
+			this.perf.averageExtraTime = int(((this.perf.averageExtraTime*this.perf.numSamples) + (this.perf.extraTimeTotal*1000 / this.perf.numFrames)) / (this.perf.numSamples + 1));
+			this.perf.numSamples++;
+
+			this.perf.startTime = now;
+			this.perf.lastTime = now;
+			this.perf.numFrames = 0;
+			this.perf.updateTimeTotal = 0;
+			this.perf.drawTimeTotal = 0;
+			this.perf.extraTimeTotal = 0;
+		}
 	},
 
 	/*
@@ -798,6 +799,10 @@ const System =
 			this.displayBuffer2.resize (this.screenWidth*this.scaleFactor, this.screenHeight*this.scaleFactor);
 			this.displayBuffer2.elem.style.width = (this.screenWidth*this.canvasScaleFactor) + "px";
 			this.displayBuffer2.elem.style.height = (this.screenHeight*this.canvasScaleFactor) + "px";
+
+			this.displayBuffer3.resize (_screenWidth, _screenHeight);
+			this.displayBuffer3.elem.style.width = _screenWidth + "px";
+			this.displayBuffer3.elem.style.height = _screenHeight + "px";
 		}
 		else
 		{
@@ -808,6 +813,10 @@ const System =
 			this.displayBuffer2.resize (this.screenHeight*this.scaleFactor, this.screenWidth*this.scaleFactor);
 			this.displayBuffer2.elem.style.width = (this.screenHeight*this.canvasScaleFactor) + "px";
 			this.displayBuffer2.elem.style.height = (this.screenWidth*this.canvasScaleFactor) + "px";
+
+			this.displayBuffer3.resize (_screenHeight, _screenWidth);
+			this.displayBuffer3.elem.style.width = _screenHeight + "px";
+			this.displayBuffer3.elem.style.height = _screenWidth + "px";
 		}
 
 		this.displayBuffer.elem.style.marginLeft = this.offsX + "px";
@@ -818,6 +827,7 @@ const System =
 
 		this.displayBuffer.loadIdentity();
 		this.displayBuffer2.loadIdentity();
+		this.displayBuffer3.loadIdentity();
 
 		if (this.scaleFactor != 1) {
 			this.displayBuffer.globalScale(this.scaleFactor);
@@ -833,11 +843,16 @@ const System =
 			this.displayBuffer2.rotate(Math.PI/2);
 			this.displayBuffer2.translate(-this.screenWidth, 0);
 			this.displayBuffer2.flipped(true);
+
+			this.displayBuffer3.rotate(Math.PI/2);
+			this.displayBuffer3.translate(-_screenWidth, 0);
+			this.displayBuffer3.flipped(true);
 		}
 		else
 		{
 			this.displayBuffer.flipped(false);
 			this.displayBuffer2.flipped(false);
+			this.displayBuffer3.flipped(false);
 		}
 
 		/* *** */
@@ -870,7 +885,20 @@ const System =
 	*/
 	resetPerf: function()
 	{
+		this.perf.startTime = hrnow();
+		this.perf.lastTime = hrnow();
+
 		this.perf.numFrames = 0;
+		this.perf.updateTimeTotal = 0;
+		this.perf.drawTimeTotal = 0;
+		this.perf.extraTimeTotal = 0;
+
+		this.perf.numSamples = 0;
+		this.perf.fps = 0;
+		this.perf.averageFps = 0;
+		this.perf.averageUpdateTime = 0;
+		this.perf.averageDrawTime = 0;
+		this.perf.averageExtraTime = 0;
 	},
 
 	/*
@@ -929,29 +957,47 @@ const System =
 	/*
 	**	Runs an update cycle, all objects in the updateQueue will be updated.
 	*/
-	update: function (dts, dtm)
+	update: function (dt)
 	{
-		let next;
-
-		for (let elem = this.updateQueue.top; elem; elem = next)
+		try
 		{
-			next = elem.next;
-			elem.value.update(dts, dtm);
+			let next;
+
+			for (let elem = this.updateQueue.top; elem; elem = next)
+			{
+				next = elem.next;
+				elem.value.update(dt);
+			}
 		}
+		catch (e)
+		{
+			System.stop();
+			throw e;
+		}	
 	},
 
 	/*
 	**	Runs a rendering cycle, all objects in the drawQueue will be drawn.
 	*/
-	draw: function (canvas, canvas2)
+	draw: function (canvas)
 	{
-		let next;
+		canvas.clear();
 
-		for (let elem = this.drawQueue.top; elem; elem = next)
+		try
 		{
-			next = elem.next;
-			elem.value.draw(canvas, canvas2);
+			let next;
+
+			for (let elem = this.drawQueue.top; elem; elem = next)
+			{
+				next = elem.next;
+				elem.value.draw(canvas);
+			}
 		}
+		catch (e)
+		{
+			System.stop();
+			throw e;
+		}	
 	},
 
 	/*

@@ -7,6 +7,7 @@ scripts/
 .svnignore
 .svn-revision
 --*
+@*
 *.pptx
 todo.txt
 yarn.lock

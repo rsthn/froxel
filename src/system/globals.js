@@ -25,10 +25,19 @@ import C from './config.js';
 */
 export default
 {
-	area: null,
+	/*
+	**	Active viewport (if any). Set by the `draw` method of the Scene class.
+	*/
 	viewport: null,
 
+	/*
+	**	Indicates if the element bounds should be drawn. Used by the Element class.
+	*/
 	debugBounds: false,
+
+	/*
+	**	violet
+	*/
 	debugId: false
 };
 
@@ -51,16 +60,10 @@ global.dispose = function (obj)
 	if (!obj) return;
 
 	if ('free' in obj)
-	{
-		obj.free();
-		return;
-	}
+		return obj.free();
 
 	if ('dispose' in obj)
-	{
-		obj.dispose();
-		return;
-	}
+		return obj.dispose();
 
 	if ('__dtor' in obj)
 		obj.__dtor();
@@ -273,24 +276,15 @@ global.randtf = function (a, b, n)
 };
 
 /*
-**	Returns the high-resolution 'now' counter in milliseconds.
+**	Returns the high-resolution 'now' counter in milliseconds (includes possibly microseconds in fractional part).
 **
-**	int hrnow();
+**	float hrnow();
 */
 global.hrnow = function ()
 {
-	return int(performance.now());
+	return performance.now();
 };
 
-/*
-**	Returns the high-resolution 'now' counter in microseconds.
-**
-**	int microtime();
-*/
-global.microtime = function ()
-{
-	return int(performance.now()*1000);
-};
 
 /*
 **	Returns a function that produces a random integer value within the given (inclusive) range.

@@ -16,7 +16,6 @@
 
 import { Rin } from '@rsthn/rin';
 import Matrix from '../math/matrix.js';
-import Log from './log.js';
 import System from './system.js';
 
 /*
@@ -63,17 +62,15 @@ const Canvas = function (options=null)
 
 	if (opts.gl === true)
 	{
-		this.gl = this.elem.getContext('webgl2'/*, { desynchronized: true, antialias: false, powerPreference: 'high-performance' }*/);
+		this.gl = this.elem.getContext('webgl2', { desynchronized: false });
 		this.context = null;
 
-		Log.write(this.gl.getParameter(this.gl.VERSION));
-		Log.write(this.gl.getParameter(this.gl.SHADING_LANGUAGE_VERSION));
-
-		this.initGl();
+		console.log(this.gl.getParameter(this.gl.VERSION));
+		console.log(this.gl.getParameter(this.gl.SHADING_LANGUAGE_VERSION));
 	}
 	else
 	{
-		this.context = this.elem.getContext('2d', { desynchronized: true });
+		this.context = this.elem.getContext('2d', { desynchronized: false });
 		this.gl = null;
 	}
 
@@ -97,6 +94,9 @@ const Canvas = function (options=null)
 	this.fillStyle("#fff");
 
 	this.resize(opts.width, opts.height);
+
+	if (opts.gl === true)
+		this.initGl();
 };
 
 Canvas.passThruCanvas = 
@@ -238,10 +238,11 @@ Canvas.prototype.initGl = function ()
 {
 	let gl = this.gl;
 
-	if (navigator && navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-	else
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	// This code is required if "desynchronized" is set to true (for some reason).
+	//if (navigator && navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
+	//	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+	//else
+	//	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 
@@ -286,6 +287,8 @@ Canvas.prototype.initGl = function ()
 		}
 	`);
 
+	gl.bindAttribLocation(this.gl_program, 0, 'location');
+
 	gl.linkProgram (this.gl_program);
 
 	if (!gl.getProgramParameter(this.gl_program, gl.LINK_STATUS))
@@ -316,8 +319,12 @@ Canvas.prototype.initGl = function ()
 	gl.vertexAttribPointer (this.gl_attrib_location, 2, gl.FLOAT, gl.FALSE, 2*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
 
 	/* *** */
-	this.location_matrix = Matrix.calloc();
-	this.texture_matrix = Matrix.calloc();
+	this.location_matrix = new Float32Array(9).fill(0);
+	this.texture_matrix = new Float32Array(9).fill(0);
+	this.texture_size = new Float32Array(2).fill(0);
+
+	this.transform.identity(this.location_matrix);
+	this.transform.identity(this.texture_matrix);
 
 	// drawImage (Image img, float x, float y);
 	// drawImage (Image img, float x, float y, float w, float h);
@@ -332,7 +339,10 @@ Canvas.prototype.initGl = function ()
 			this.gl.activeTexture(gl.TEXTURE0);
 			this.gl.bindTexture(gl.TEXTURE_2D, img.gl_texture);
 			this.gl.uniform1i(this.gl_uniform_texture, 0);
-			this.gl.uniform2fv(this.gl_uniform_texture_size, [img.width, img.height]);
+
+			this.texture_size[0] = img.width;
+			this.texture_size[1] = img.height;
+			this.gl.uniform2fv(this.gl_uniform_texture_size, this.texture_size);
 
 			this.gl_active_texture = img.gl_texture;
 		}
@@ -340,32 +350,19 @@ Canvas.prototype.initGl = function ()
 		// [3] image, x, y
 		if (sw === null)
 		{
-			if (sx == 0 && sy == 0)
-			{
-				this.location_matrix.identity();
-				this.location_matrix.scale(img.width, img.height);
+			this.location_matrix[0] = img.width;
+			this.location_matrix[4] = img.height;
+			this.location_matrix[6] = sx;
+			this.location_matrix[7] = sy;
 
-				this.texture_matrix.identity();
-				this.texture_matrix.scale(img.width, img.height);
-
-				this.gl.uniformMatrix3fv(this.gl_uniform_current_matrix, false, this.transform.data);
-				this.gl.uniformMatrix3fv(this.gl_uniform_matrix, false, this.location_matrix.data);
-				this.gl.uniformMatrix3fv(this.gl_uniform_texture_matrix, false, this.location_matrix.data);
-				this.gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
-
-				return;
-			}
-
-			this.location_matrix.identity();
-			this.location_matrix.translate(sx, sy);
-			this.location_matrix.scale(img.width, img.height);
-
-			this.texture_matrix.identity();
-			this.texture_matrix.scale(img.width, img.height);
-
+			this.texture_matrix[0] = img.width;
+			this.texture_matrix[4] = img.height;
+			this.texture_matrix[6] = 0;
+			this.texture_matrix[7] = 0;
+	
 			this.gl.uniformMatrix3fv(this.gl_uniform_current_matrix, false, this.transform.data);
-			this.gl.uniformMatrix3fv(this.gl_uniform_matrix, false, this.location_matrix.data);
-			this.gl.uniformMatrix3fv(this.gl_uniform_texture_matrix, false, this.texture_matrix.data);
+			this.gl.uniformMatrix3fv(this.gl_uniform_matrix, false, this.location_matrix);
+			this.gl.uniformMatrix3fv(this.gl_uniform_texture_matrix, false, this.texture_matrix);
 			this.gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 
 			return;
@@ -378,17 +375,19 @@ Canvas.prototype.initGl = function ()
 		}
 
 		// [9] image, sx, sy, sw, sh, dx, dy, dw, dh
-		this.location_matrix.identity();
-		this.location_matrix.translate(dx, dy);
-		this.location_matrix.scale(dw, dh);
+		this.location_matrix[0] = dw;
+		this.location_matrix[4] = dh;
+		this.location_matrix[6] = dx;
+		this.location_matrix[7] = dy;
 
-		this.texture_matrix.identity();
-		this.texture_matrix.translate(sx, sy);
-		this.texture_matrix.scale(sw, sh);
+		this.texture_matrix[0] = sw;
+		this.texture_matrix[4] = sh;
+		this.texture_matrix[6] = sx;
+		this.texture_matrix[7] = sy;
 
 		this.gl.uniformMatrix3fv(this.gl_uniform_current_matrix, false, this.transform.data);
-		this.gl.uniformMatrix3fv(this.gl_uniform_matrix, false, this.location_matrix.data);
-		this.gl.uniformMatrix3fv(this.gl_uniform_texture_matrix, false, this.texture_matrix.data);
+		this.gl.uniformMatrix3fv(this.gl_uniform_matrix, false, this.location_matrix);
+		this.gl.uniformMatrix3fv(this.gl_uniform_texture_matrix, false, this.texture_matrix);
 		this.gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 	};
 };
@@ -404,7 +403,9 @@ Canvas.prototype.prepareImage = function (image)
 	let texture = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, image.width, image.height);
+	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	//gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);

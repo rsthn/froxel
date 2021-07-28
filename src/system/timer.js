@@ -17,10 +17,11 @@
 /*
 **	Timer class.
 */
-const Timer = function (interval, callback)
+const Timer = function (vsync, interval, callback)
 {
 	this.callback = callback;
 	this.interval = interval;
+	this.vsync = vsync;
 
 	this.isRunning = false;
 	this.startTime = 0;
@@ -31,6 +32,10 @@ const Timer = function (interval, callback)
 
 	this._onTimeout = () => {
 		this.onTimeout();
+	};
+
+	this._onTimeout_b = () => {
+		this.runNow();
 	};
 };
 
@@ -55,8 +60,8 @@ Timer.prototype.onTimeout = function ()
 	this.tDelta = tError < 0 ? this.interval : (this.rTime - this.lTime);
 	this.lTime = this.rTime;
 
-	this.callback (this.tDelta, this);
 	this.runAfter((this.sTime + this.interval) - (hrnow() - this.startTime));
+	this.callback(this.tDelta, this);
 };
 
 /*
@@ -91,10 +96,18 @@ Timer.prototype.start = function (immediate=false, scale=1.0)
 */
 Timer.prototype.runAfter = function (timeout)
 {
-	if (process.browser)
-		requestAnimationFrame(this._onTimeout);
+	if (process.browser && this.vsync)
+		requestAnimationFrame(this._onTimeout_b);
 	else
 		setTimeout(this._onTimeout, 0);
+};
+
+/*
+**	Executes the onTimeout callback as soon as possible.
+*/
+Timer.prototype.runNow = function ()
+{
+	setTimeout(this._onTimeout, 0);
 };
 
 /*

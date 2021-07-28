@@ -21,7 +21,7 @@
 import { Class } from '@rsthn/rin';
 import Bounds2 from '../math/bounds2.js';
 
-export default Class.extend
+const Viewport = Class.extend
 ({
 	className: 'Viewport',
 
@@ -78,9 +78,9 @@ export default Class.extend
 	focusOffsY: 0,
 
 	/*
-	**	Indicates if the viewport is enabled.
+	**	Flags of the viewport.
 	*/
-	enabled: false,
+	flags: 0,
 
 	/*
 	**	Viewport scale.
@@ -138,7 +138,7 @@ export default Class.extend
 		this.x = 0;
 		this.y = 0;
 
-		this.enabled = true;
+		this.flags = Viewport.ENABLED;
 
 		this.updateScreenBounds();
 		this.updateBounds();
@@ -155,19 +155,16 @@ export default Class.extend
 	},
 
 	/*
-	**	Returns the enabled flag of the viewport.
+	**	Sets or gets the enabled flag.
 	*/
-	isEnabled: function ()
+	enabled: function(value=null)
 	{
-		return this.enabled;
-	},
+		if (value === null)
+			return !!(this.flags & Viewport.ENABLED);
 
-	/*
-	**	Sets the enabled flag of the viewport.
-	*/
-	setEnabled: function (enabled)
-	{
-		this.enabled = enabled;
+		this.flags &= ~Viewport.ENABLED;
+		if (value) this.flags |= Viewport.ENABLED;
+
 		return this;
 	},
 
@@ -202,6 +199,20 @@ export default Class.extend
 	{
 		this.width = width;
 		this.height = height;
+
+		this.updateScreenBounds();
+		this.updateBounds();
+
+		return this;
+	},
+
+	/*
+	**	Resizes the viewport by the specified deltas.
+	*/
+	resizeBy: function (dWidth, dHeight)
+	{
+		this.width += dWidth;
+		this.height += dHeight;
 
 		this.updateScreenBounds();
 		this.updateBounds();
@@ -280,6 +291,7 @@ export default Class.extend
 		this.sy = sy;
 
 		this.updateScreenBounds();
+		return this;
 	},
 
 	/*
@@ -444,6 +456,14 @@ export default Class.extend
 	},
 
 	/*
+	**	Applies the viewport clipping area to the specified display buffer.
+	*/
+	applyClip: function (g)
+	{
+		g.clip(this.screenBounds.x1, this.screenBounds.y1, this.screenBounds.width()+1, this.screenBounds.height()+1);
+	},
+
+	/*
 	**	Applies the viewport transform to the specified display buffer.
 	*/
 	applyTransform: function (g)
@@ -488,3 +508,11 @@ export default Class.extend
 		return { x: x, y: y };
 	},
 });
+
+
+/*
+**	Constants.
+*/
+Viewport.ENABLED = 0x001;
+
+export default Viewport;

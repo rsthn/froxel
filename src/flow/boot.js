@@ -49,14 +49,14 @@ const Boot =
 		this.modules.cleanup();
 	},
 
-	startup: function ()
+	startup: function (finishedCallback=null)
 	{
-		this.modules.forEachAsync( (m,r) => { if (m.onStartup(r) !== false) r(); } );
+		this.modules.forEachAsync((m,r) => { if (m.onStartup(r) !== false) r(); }, finishedCallback);
 	},
 
-	shutdown: function ()
+	shutdown: function (finishedCallback=null)
 	{
-		this.modules.forEachAsyncRev( (m,r) => { if (m.onShutdown(r) !== false) r(); } );
+		this.modules.forEachAsyncRev( (m,r) => { if (m.onShutdown(r) !== false) r(); }, finishedCallback);
 	}
 };
 

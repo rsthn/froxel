@@ -142,7 +142,7 @@ export default Class.extend
 		if (is_dirty) this.cleanup();
 	},
 
-	forEachAsync: function (callback)
+	forEachAsync: function (callback, finishedCallback=null)
 	{
 		let _ = this;
 
@@ -188,6 +188,7 @@ export default Class.extend
 			else
 			{
 				if (is_dirty) _.cleanup();
+				if (finishedCallback) finishedCallback();
 			}
 		};
 
@@ -196,5 +197,6 @@ export default Class.extend
 
 	forEachRevAsync: function (callback)
 	{
+		alert('NOT IMPLEMENTED: forEachRevAsync');
 	}
 });

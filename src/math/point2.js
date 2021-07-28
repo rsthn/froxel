@@ -17,10 +17,10 @@
 import { Class } from '@rsthn/rin';
 import Recycler from '../utils/recycler.js';
 
-const BITS = 5;
+const BITS = 4;
 const UPSCALE = x => int(x * (1 << BITS));
-const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
-//const DOWNSCALE = x => (x>>BITS);
+//const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
+const DOWNSCALE = x => (x>>BITS);
 
 /*
 **	Representation of a point in 2D space. The component values are upscaled by a fixed number of bits to allow

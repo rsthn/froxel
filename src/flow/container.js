@@ -15,161 +15,154 @@
 */
 
 import { Class } from '@rsthn/rin';
-import Element from './element.js';
-import QuadTree from '../spatial/quadtree.js';
-import List from '../utils/list.js';
-import QuadTreeItem from '../spatial/quadtree-item.js';
 
 /*
-**	Element container class.
+**	A container is responsible to store drawable elements (Element class) for their subsequent rendering. The actual storage
+**	mechanism used can vary and must be implemented by derived classes (see GridContainer and SimpleContainer).
 */
 
-export default Class.extend(Element,
-{
+const Container = Class.extend
+({
 	className: 'Container',
 
-	reverseDraw: false,
-
-	tree: null,
+	/*
+	**	Viewport bounds currently active. Set by the Scene class before calling `draw`.
+	*/
 	viewportBounds: null,
 
-	destructionQueue: null,
-	updateQueue: null,
+	/*
+	**	Dimensions of the container.
+	*/
+	width: 0, height: 0,
 
-	__ctor: function (x1=-1e6, y1=-1e6, x2=1e6, y2=1e6, nodeCapacity=24)
+	/*
+	**	Scene object to which this container belongs.
+	*/
+	scene: null,
+
+	/*
+	**	Flags of the object (see constants at the bottom of this file).
+	*/
+	flags: 0,
+
+	/*
+	**	Currently active display buffer for rendering operations (used by drawElement).
+	*/
+	g: null,
+
+	/*
+	**	Total number of elements in the container.
+	*/
+	elementCount: 0,
+
+	/*
+	**	Total number of elements drawn on the last draw operation.
+	*/
+	drawCount: 0,
+
+	/*
+	**	Constructs the container with the specified size.
+	*/
+	__ctor: function (width=32768, height=32768)
 	{
-		this._super.Element.__ctor();
+		this.width = width;
+		this.height = height;
 
-		this.container = false;
-
-		this.destructionQueue = List.calloc();
-		this.updateQueue = List.calloc();
-
-		this.tree = new QuadTree (x1, y1, x2, y2, nodeCapacity);
+		this.flags = Container.VISIBLE;
 	},
 
+	/*
+	**	Destroys the container.
+	*/
 	__dtor: function()
 	{
-		this.destructionQueue.clear().free();
-		this.updateQueue.free();
-
-		dispose(this.tree);
-
-		this._super.Element.__dtor();
 	},
 
-	getTree: function()
+	/*
+	**	Sets or gets the visible flag.
+	*/
+	visible: function (value=null)
 	{
-		return this.tree;
+		if (value === null)
+			return !!(this.flags & Container.VISIBLE);
+
+		this.flags &= ~Container.VISIBLE;
+		if (value) this.flags |= Container.VISIBLE;
+
+		return this;
 	},
 
-	add: function(elem)
-	{
-		if (!this.tree.addItem(elem))
-			return null;
-
-		elem.container = this;
-
-		elem.onAttached(this);
-		return elem;
-	},
-
-	remove: function(elem)
-	{
-		if (elem.container !== this)
-			return elem;
-
-		this.tree.removeItem(elem);
-		this.detachUpdate(elem);
-
-		elem.onDetached(this);
-		return elem;
-	},
-
-	destroy: function(elem)
-	{
-		if (!elem || elem.container !== this || elem.getFlags(QuadTreeItem.FLAG_ZOMBIE))
-			return;
-
-		elem.setFlags(QuadTreeItem.FLAG_ZOMBIE | QuadTreeItem.FLAG_NEVER_SELECT);
-		this.destructionQueue.push(elem);
-	},
-
-	attachUpdate: function(elem)
-	{
-		if (!elem || elem.container !== this || elem.getFlags(QuadTreeItem.FLAG_ZOMBIE | QuadTreeItem.FLAG_UPDATEABLE))
-			return;
-
-		elem.setFlags(QuadTreeItem.FLAG_UPDATEABLE);
-		this.updateQueue.push(elem);
-	},
-
-	detachUpdate: function(elem)
-	{
-		if (!elem || elem.container !== this || !elem.getFlags(QuadTreeItem.FLAG_UPDATEABLE))
-			return;
-
-		elem.clearFlags(QuadTreeItem.FLAG_UPDATEABLE);
-		this.updateQueue.remove(elem);
-	},
-
-	updateElementPosition: function(elem)
-	{
-		if (!elem || elem.container !== this || elem.getFlags(QuadTreeItem.FLAG_ZOMBIE))
-			return;
-
-		this.tree.updateItem(elem);
-	},
-
-	setViewportBounds: function(rect)
+	/*
+	**	Sets the active viewport bounds.
+	*/
+	setViewportBounds: function (rect)
 	{
 		this.viewportBounds = rect;
+		return this;
 	},
 
-	elementDraw: function(g)
+	/*
+	**	Draws the specified element.
+	*/
+	drawElement: function (elem, self)
 	{
-		this.tree.selectItems(this.viewportBounds, this.reverseDraw);
-
-		while (true)
-		{
-			let elem = this.tree.getNextSelected();
-			if (!elem) break;
-
-			elem.draw(g);
-		}
-
-		this.containerDraw(g);
+		self.drawCount++;
+		return elem.draw(self.g);
 	},
 
-	elementUpdate: function(dt)
+	/*
+	**	Syncs the actual location of the specified element with its storage location. Returns true if successful.
+	*/
+	sync: function (elem)
 	{
-		let i;
-
-		this.tree.lock();
-
-		for (i = this.updateQueue.top; i; i = i.next)
-		{
-			if (i.value.getFlags(QuadTreeItem.FLAG_NEVER_SELECT | QuadTreeItem.FLAG_ZOMBIE))
-				continue;
-
-			i.value.update(dt);
-		}
-
-		this.containerUpdate(dt);
-
-		this.tree.unlock();
-
-		while ((i = this.destructionQueue.shift()) !== null)
-			dispose(i);
-
-		this.tree.update();
+		throw new Error ('Container::sync not implemented');
 	},
 
-	containerDraw: function(g) /* @override */
+	/*
+	**	Clears the container to empty. All contained elements will be destroyed.
+	*/
+	clear: function() /* @override */
 	{
+		throw new Error ('Container::clear not implemented');
 	},
 
-	containerUpdate: function(dt) /* @override */
+	/*
+	**	Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
+	*/
+	reset: function() /* @override */
 	{
+		throw new Error ('Container::reset not implemented');
+	},
+
+	/*
+	**	Adds an element to the container. Returns boolean indicating if successful.
+	*/
+	add: function (elem) /* @override */
+	{
+		throw new Error ('Container::add not implemented');
+	},
+
+	/*
+	**	Removes an element from the container and returns it.
+	*/
+	remove: function (elem) /* @override */
+	{
+		throw new Error ('Container::remove not implemented');
+	},
+
+	/*
+	**	Draws the contained elements.
+	*/
+	draw: function(g)
+	{
+		throw new Error ('Container::draw not implemented');
 	}
 });
+
+
+/*
+**	Constants.
+*/
+Container.VISIBLE = 0x001;
+
+export default Container;

@@ -14,24 +14,37 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import Element from './element.js';
+import { Class } from '@rsthn/rin';
 import Container from './container.js';
 import Viewport from './viewport.js';
+import Group from './group.js';
 import Bounds2 from '../math/bounds2.js';
 import Globals from '../system/globals.js';
+import List from '../utils/list.js';
+import Category from './category.js';
 
 /*
-**	An scene is a set of containers and viewports in specific order.
+**	A scene is a set of containers, viewports and groups. Rendering is done in their specific index-based order.
 */
 
-const Scene = Element.extend
+const Scene = Class.extend
 ({
 	className: 'Scene',
 
 	/*
+	**	Minimum dimensions of the scene (smallest container size).
+	*/
+	minWidth: null, minHeight: null,
+
+	/*
+	**	Maximum dimensions of the scene (largest container size).
+	*/
+	maxWidth: null, maxHeight: null,
+
+	/*
 	**	List of containers.
 	*/
-	layers: null,
+	containers: null,
 
 	/*
 	**	List of viewports.
@@ -39,55 +52,150 @@ const Scene = Element.extend
 	viewports: null,
 
 	/*
-	**	Viewport bounds to select items.
+	**	Active viewport bounds, used to select items in a visible region.
 	*/
 	viewportBounds: null,
+
+	/*
+	**	List of groups.
+	*/
+	groupList: null,
+
+	/*
+	**	List of categories.
+	*/
+	categories: null,
+
+	/*
+	**	Named groups.
+	*/
+	groups: null,
+
+	/*
+	**	Disposal queue.
+	*/
+	disposalQueue: null,
+
+	/*
+	**	Flags of the object (see constants at the bottom of this file).
+	*/
+	flags: 0,
+
+	/*
+	**	Total number of elements drawn on the last draw operation.
+	*/
+	drawCount: 0,
 
 	/*
 	**	Constructs an empty scene.
 	*/
 	__ctor: function()
 	{
-		this._super.Element.__ctor();
-
-		this.layers = [];
+		this.containers = [];
 
 		this.viewports = [];
 		this.viewportBounds = Bounds2.alloc();
 
-		this.container = false;
+		this.groupList = List.calloc();
+		this.groups = { };
+
+		this.categories = List.calloc();
+
+		this.disposalQueue = List.calloc();
+
+		this.flags = Scene.VISIBLE;
 	},
 
 	/*
-	**	Destructs the instance.
+	**	Destroys the instance along with all containers, viewports and groups.
 	*/
 	__dtor: function()
 	{
-		this._super.Element.__dtor();
+		this.disposeQueued();
+		this.disposalQueue.free();
+
+		let i;
+
+		while ((i = this.groupList.shift()) !== null)
+		{
+			i.h_remove.remove(this._remove, this);
+			i.container = null;
+			dispose(i);
+		}
+
+		while ((i = this.categories.shift()) !== null) {
+			dispose(i);
+		}
+
+		for (i = 0; i < this.containers.length; i++)
+		{
+			if (!this.containers[i]) continue;
+
+			this.containers[i].scene = null;
+			dispose(this.containers[i]);
+
+			this.containers[i] = null;
+		}
+
+		for (i = 0; i < this.viewports.length; i++)
+		{
+			if (!this.viewports[i]) continue;
+
+			dispose(this.viewports[i]);
+			this.viewports[i] = null;
+		}
 
 		this.viewportBounds.free();
+		this.groupList.free();
 	},
 
 	/*
-	**	Sets a layer at the specified index.
+	**	Sets or gets the visible flag.
 	*/
-	set: function (index, layer)
+	visible: function (value=null)
 	{
-		if (index < 0) return;
+		if (value === null)
+			return !!(this.flags & Scene.VISIBLE);
 
-		if (!layer.isInstanceOf(Container))
-			throw new Error('Scene: Unable to set layer at index ' + index + ': argument is not a Container.');
+		this.flags &= ~Scene.VISIBLE;
+		if (value) this.flags |= Scene.VISIBLE;
 
-		this.layers[index] = layer;
-		return layer;
+		return this;
 	},
 
 	/*
-	**	Returns the layer at the specified index.
+	**	Sets a container at the specified index.
 	*/
-	get: function (index)
+	setContainer: function (index, container)
 	{
-		return index < 0 || index >= this.layers.length ? null : this.layers[index];
+		if (index < 0) return this;
+
+		if (container === null)
+		{
+			this.containers[index].scene = null;
+			this.containers[index] = null;
+			return this;
+		}
+
+		if (!Container.isInstance(container))
+			throw new Error('Scene: Unable to set container at index ' + index + ': argument is not a Container');
+
+		if (this.minWidth === null || container.width < this.minWidth) this.minWidth = container.width;
+		if (this.minHeight === null || container.height < this.minHeight) this.minHeight = container.height;
+		if (this.maxWidth === null || container.width > this.maxWidth) this.maxWidth = container.width;
+		if (this.maxHeight === null || container.height > this.maxHeight) this.maxHeight = container.height;
+
+		container.scene = this;
+		this.containers[index] = container;
+		return this;
+	},
+
+	/*
+	**	Returns the container at the specified index.
+	*/
+	getContainer: function (index)
+	{
+		return index < 0 || index >= this.containers.length ? null : this.containers[index];
 	},
 
 	/*
@@ -95,13 +203,13 @@ const Scene = Element.extend
 	*/
 	setViewport: function (index, viewport)
 	{
-		if (index < 0) return;
+		if (index < 0) return this;
 
-		if (!viewport.isInstanceOf(Viewport))
+		if (viewport !== null && !Viewport.isInstance(viewport))
 			throw new Error('Scene: Unable to set viewport at index ' + index + ': argument is not a Viewport.');
 
 		this.viewports[index] = viewport;
-		return viewport;
+		return this;
 	},
 
 	/*
@@ -113,41 +221,140 @@ const Scene = Element.extend
 	},
 
 	/*
-	**	Draws the layers in order.
+	**	Adds the given element to the disposal queue. To be destroyed on the next call to `disposeQueued`.
 	*/
-	elementDraw: function (g)
+	disposeLater: function (elem)
 	{
+		if (!elem.alive()) return;
+
+		this.disposalQueue.push(elem);
+		elem.alive(false);
+	},
+
+	/*
+	**	Disposes all elements in the disposal queue.
+	*/
+	disposeQueued: function ()
+	{
+		let elem;
+
+		while ((elem = this.disposalQueue.shift()) !== null)
+			dispose(elem);
+	},
+
+	/*
+	**	Adds a group to the scene.
+	*/
+	addGroup: function (group)
+	{
+		if (!Group.isInstance(group))
+			throw new Error ('argument must be a Group');
+
+		this.groupList.push(group);
+
+		if (group.id !== null)
+			this.groups[group.id] = group;
+
+		group.container = this;
+		group.h_remove.add(this._removeGroup, this, this.groupList.bottom);
+
+		return true;
+	},
+
+	/*
+	**	Callback to remove a group from the scene (called by Handler).
+	*/
+	_removeGroup: function (group, self, node)
+	{
+		group.container = null;
+		self.groupList.remove(node);
+
+		if (group.id !== null)
+			delete self.groups[group.id];
+
+		return false;
+	},
+
+	/*
+	**	Removes a group from the scene.
+	*/
+	removeGroup: function (group)
+	{
+		group.h_remove.execf(this._remove, this);
+		return group;
+	},
+
+	/*
+	**	Adds a category to the scene.
+	*/
+	addCategory: function (catg)
+	{
+		if (!Category.isInstance(catg))
+			throw new Error ('argument must be a Category');
+
+		this.categories.push(catg);
+
+		catg.scene = this;
+		catg.node = this.categories.bottom;
+
+		return true;
+	},
+
+	/*
+	**	Removes a category from the scene.
+	*/
+	removeCategory: function (catg)
+	{
+		if (catg.scene !== this)
+			return catg;
+
+		this.categories.remove(catg.node);
+
+		catg.scene = null;
+		catg.node = null;
+
+		return catg;
+	},
+
+	/*
+	**	Syncs the actual location of the specified element with its storage location. Returns true if successful.
+	*/
+	sync: function (group)
+	{
+		return true;
+	},
+
+	/*
+	**	Draws the scene, by executing the `draw` method on each container. The entire scene will be drawn once for each viewport
+	**	added, and the visible region rules of each viewport will be applied.
+	*/
+	draw: function (g)
+	{
+		if (!this.visible()) return;
+
+		this.drawCount = 0;
+
 		if (!this.viewports.length)
 		{
-			this._sceneDraw(g, null);
+			this.drawContainers(g, null);
 			return;
 		}
 
 		for (let viewportIndex = 0; viewportIndex < this.viewports.length; viewportIndex++)
 		{
 			let viewport = this.viewports[viewportIndex];
-			if (!viewport || !viewport.isEnabled()) continue;
+			if (!viewport || !viewport.enabled()) continue;
+
+			Globals.viewport = viewport;
 
 			g.pushClip();
-
-			let area = viewport.getScreenBounds();
-			g.clip(area.x1, area.y1, area.width()+1, area.height()+1);
-
 			g.pushMatrix();
 
-			(Globals.viewport = viewport).applyTransform(g);
-// VIOLET : REMOVE THIS {
-/*area = viewport.getFocusBounds();
-g.beginPath();
-g.moveTo(area.x1, area.y1);
-g.lineTo(area.x2, area.y1);
-g.lineTo(area.x2, area.y2);
-g.lineTo(area.x1, area.y2);
-g.closePath();
-g.stroke('red');*/
-// }
+			viewport.applyClip(g);
+			viewport.applyTransform(g);
+
 			this.viewportBounds.set(viewport.getBounds()).resizeBy(2, 2);
-			this._sceneDraw(g, this.viewportBounds);
+			this.drawContainers(g, this.viewportBounds);
 
 			g.popMatrix();
 			g.popClip();
@@ -155,73 +362,79 @@ g.stroke('red');*/
 	},
 
 	/*
-	**	Actually draws the layers in the specified canvas.
+	**	Draws the scene containers and passes the specified viewport bounds to the container.
 	*/
-	_sceneDraw: function (g, viewportBounds)
+	drawContainers: function (g, viewportBounds)
 	{
 		try
 		{
-			for (let i = 0; i < this.layers.length; i++)
+			for (let i = 0; i < this.containers.length; i++)
 			{
-				if (!this.layers[i])
+				if (!this.containers[i])
 					continue;
 
-				this.layers[i].setViewportBounds(viewportBounds);
-				this.layers[i].draw(g);
+				this.containers[i].setViewportBounds(viewportBounds);
+				this.containers[i].draw(g);
+
+				this.drawCount += this.containers[i].drawCount;
 			}
 		}
 		catch (e)
 		{
-			if (e.message != 'SYS::FRAME_END') {
+			if (e.message !== 'FRAME_END') {
 				throw e;
 			}
 		}
 	},
 
 	/*
-	**	Updates the viewports and layers.
+	**	Updates the scene viewports.
 	*/
-	elementUpdate: function (dt)
+	updateViewports: function (dt)
 	{
-		try
+		for (let i = 0; i < this.viewports.length; i++)
 		{
-			for (let i = 0; i < this.layers.length; i++)
-			{
-				if (!this.layers[i])
-					continue;
+			if (!this.viewports[i])
+				continue;
 
-				this.layers[i].update(dt);
-			}
-
-			for (let i = 0; i < this.viewports.length; i++)
-			{
-				if (!this.viewports[i])
-					continue;
-
-				this.viewports[i].update(dt);
-			}
+			this.viewports[i].update(dt);
 		}
-		catch (e)
-		{
-			if (e.message != 'SYS::FRAME_END')
-				throw e;
-		}
+	},
+
+	/*
+	**	Updates the scene categories.
+	*/
+	updateCategories: function (dt)
+	{
+		for (let i = this.categories.top; i; i = i.next)
+			i.value.update (dt);
+	},
+
+	/*
+	**	Runs a sync on all categories.
+	*/
+	syncCategories: function ()
+	{
+		for (let i = this.categories.top; i; i = i.next)
+			i.value.sync();
+	},
+
+	/*
+	**	Runs a scene update cycle.
+	*/
+	update: function (dt)
+	{
+		this.updateCategories(dt);
+		this.disposeQueued();
+		this.syncCategories();
+		this.updateViewports(dt);
 	}
 });
 
-/*
-**	Some layer index constants for consistency.
-*/
 
-Scene.LAYER_BACK0 		= 0;
-Scene.LAYER_BACK1 		= 1;
-Scene.LAYER_MAIN0 		= 2;
-Scene.LAYER_MAIN1 		= 3;
-Scene.LAYER_FRONT0 		= 4;
-Scene.LAYER_FRONT1 		= 5;
-Scene.LAYER_UI0 		= 6;
-Scene.LAYER_UI1 		= 7;
-Scene.LAYER_COLLISIONS0	= 8;
-Scene.LAYER_COLLISIONS1	= 9;
+/*
+**	Constants.
+*/
+Scene.VISIBLE = 0x001;
 
 export default Scene;

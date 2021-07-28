@@ -32,6 +32,15 @@ const Perf = function (accumSize, expectedValue)
 	this.stdCount = 0;
 };
 
+Perf.SAMPLES = 0x01;
+Perf.MIN = 0x02;
+Perf.MAX = 0x04;
+Perf.AVG = 0x08;
+Perf.EXPECTED = 0x10;
+Perf.STDDEV = 0x20;
+Perf.AVG_STDDEV = 0x40;
+Perf.ALL = 0xFF;
+
 export default Perf;
 
 /**
@@ -76,22 +85,18 @@ Perf.prototype.feed = function (value)
 	this.data = [ ];
 };
 
-
-/**
-**	Shows a report using console.log, if the returnString parameter is set to true, the report string will be returned
-**	instead of printed. After a call to this method instance variables 'min', 'max', 'avg' and 'std' will be populated.
-**
-**	>> void report (bool returnString=false);
+/*
+**	Updates the min, max, avg std, stdSum and stdCount fields of the object.
 */
 
-Perf.prototype.report = function (returnString)
+Perf.prototype.update = function ()
 {
-	var min = null;
-	var max = null;
-	var avg = 0;
-	var std = 0;
+	let min = null;
+	let max = null;
+	let avg = 0;
+	let std = 0;
 
-	for (var i = 0; i < this.data.length; i++)
+	for (let i = 0; i < this.data.length; i++)
 	{
 		min = min === null ? this.data[i] : Math.min(min, this.data[i]);
 		max = max === null ? this.data[i] : Math.max(max, this.data[i]);
@@ -100,24 +105,39 @@ Perf.prototype.report = function (returnString)
 
 	avg /= this.data.length;
 
-	var e = this.expectedValue !== undefined ? this.expectedValue : avg;
+	let e = this.expectedValue !== undefined ? this.expectedValue : avg;
 
-	for (var i = 0; i < this.data.length; i++) std += Math.pow(this.data[i] - e, 2);
+	for (let i = 0; i < this.data.length; i++) std += Math.pow(this.data[i] - e, 2);
 
 	std = Math.sqrt(std / this.data.length);
 
 	this.stdSum += std;
 	this.stdCount++;
 
-	var out = "N: " + this.stdCount + ", MIN: " + min + ", MAX: " + max + ", AVG: " + avg.toFixed(2) + (this.expectedValue !== undefined ? ", E: " + this.expectedValue : "") + ", STDDEV: " + std.toFixed(2) + ", AVG_STDDEV: " + (this.stdSum / this.stdCount).toFixed(2);
-
 	this.min = min;
 	this.max = max;
 	this.avg = avg;
 	this.std = std;
 
-	if (returnString === true)
-		return out;
+	return this;
+};
 
-	console.log(out);
+
+/**
+**	Returns a report string. After a call to this method instance variables 'min', 'max', 'avg' and 'std' will be populated.
+*/
+
+Perf.prototype.report = function (flags=255)
+{
+	let out = '';
+
+	if (flags & Perf.SAMPLES) out += 'n: ' + this.stdCount;
+	if (flags & Perf.MIN) out += (out != '' ? ', ' : '') + 'min: ' + this.min;
+	if (flags & Perf.MAX) out += (out != '' ? ', ' : '') + 'max: ' + this.max;
+	if (flags & Perf.AVG) out += (out != '' ? ', ' : '') + 'avg: ' + this.avg.toFixed(2);
+	if (flags & Perf.EXPECTED) out += (out != '' ? ', ' : '') + (this.expectedValue !== undefined ? 'e: ' + this.expectedValue : '');
+	if (flags & Perf.STDDEV) out += (out != '' ? ', ' : '') + 'stddev: ' + this.std.toFixed(2);
+	if (flags & Perf.AVG_STDDEV) out += (out != '' ? ', ' : '') + 'avg_stddev: ' + (this.stdSum / this.stdCount).toFixed(2)
+
+	return out;
 };

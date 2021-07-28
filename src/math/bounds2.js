@@ -19,10 +19,10 @@ import { Class } from '@rsthn/rin';
 import Point2 from './point2.js';
 import Rect from './rect.js';
 
-const BITS = 5;
-const UPSCALE = x => int(x * (1<<BITS));
-const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
-//const DOWNSCALE = x => (x>>BITS);
+const BITS = 4;
+const UPSCALE = x => (x * (1<<BITS))>>0;
+//const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
+const DOWNSCALE = x => (x>>BITS);
 
 /*
 **	Representation of a bounding box in 2D space. The component values are upscaled by a fixed number of bits to allow
@@ -114,7 +114,7 @@ const Bounds2 = Class.extend
 	/*
 	**	Resets the component values to `null` for subsequent use with `setAsUnion`.
 	**
-	**	Bounds2 beset ()
+	**	Bounds2 reset ()
 	*/
 	reset: function ()
 	{
@@ -122,7 +122,11 @@ const Bounds2 = Class.extend
 		this.ux2 = null; this.uy2 = null;
 		this.ucx = null; this.ucy = null;
 
-		return this.downscale();
+		this.x1 = null; this.y1 = null;
+		this.x2 = null; this.y2 = null;
+		this.cx = null; this.cy = null;
+
+		return this;
 	},
 
 	/*

@@ -50,7 +50,7 @@ export const Animation = Class.extend
 
 	queue: null,
 
-	fps: 0, frameMillis: 0, time: 0,
+	fps: 0, frameSeconds: 0, time: 0,
 
 	frameNumber: -1,
 
@@ -109,7 +109,7 @@ export const Animation = Class.extend
 
 	setFps: function (fps)
 	{
-		this.frameMillis = int(1000 / fps);
+		this.frameSeconds = 1.0 / fps;
 		this.time = 0;
 
 		return this;
@@ -123,7 +123,7 @@ export const Animation = Class.extend
 
 	setInitialDelay: function (dt)
 	{
-		this.time = -dt*1000.0;
+		this.time = -dt;
 		return this;
 	},
 
@@ -184,7 +184,7 @@ export const Animation = Class.extend
 		{
 			if (!this.paused)
 			{
-				this.time += this.frameNumber == System.frameNumber ? 0 : System.frameDeltaMillis;
+				this.time += this.frameNumber == System.frameNumber ? 0 : System.frameDelta;
 				this.frameNumber = System.frameNumber;
 			}
 
@@ -215,15 +215,15 @@ export const Animation = Class.extend
 
 		if (!this.paused)
 		{
-			this.time += this.frameNumber == System.frameNumber ? 0 : System.frameDeltaMillis;
+			this.time += this.frameNumber == System.frameNumber ? 0 : System.frameDelta;
 			this.frameNumber = System.frameNumber;
 		}
 
-		if (this.time >= this.frameMillis)
+		if (this.time >= this.frameSeconds)
 		{
 			const frameIndex = this.seq_i;
 
-			this.time -= this.frameMillis;
+			this.time -= this.frameSeconds;
 			this.seq_i++;
 
 			if (this.seq_i == this.seq.group.length)

@@ -18,8 +18,8 @@ import { Class } from '@rsthn/rin';
 import Recycler from '../utils/recycler.js';
 import Vec2 from './vec2.js';
 
-const temp = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-const temp2 = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+const temp = new Float32Array(9).fill(0);
+const temp2 = new Float32Array(9).fill(0);
 
 /*
 **	Represents a 3x3 matrix. Provides an interface to manipulate 3x3 matrices.
@@ -33,7 +33,7 @@ const Matrix = Class.extend
 	*/
 	__ctor: function()
 	{
-		this.data = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+		this.data = new Float32Array(9);
 	},
 
 	/*
@@ -74,13 +74,11 @@ const Matrix = Class.extend
 	{
 		if (Matrix.isInstance(value))
 		{
-			for (let i = 0; i < 9; i++)
-				this.data[i] = value.data[i];
+			for (let i = 0; i < 9; i++) this.data[i] = value.data[i];
 		}
 		else
 		{
-			for (let i = 0; i < 9; i++)
-				this.data[i] = value[i];
+			for (let i = 0; i < 9; i++) this.data[i] = value[i];
 		}
 
 		return this;
@@ -122,28 +120,21 @@ const Matrix = Class.extend
 	*/
 	append: function (matr)
 	{
-		let i, j, k, m;
-
-		this.identity(temp);
-
 		if (matr instanceof Matrix)
 			matr = matr.data;
 
-		for (j = 0; j < 3; j++)
-		{
-			for (i = 0; i < 3; i++)
-			{
-				m = 0;
+		for (let i = 0; i < 9; i++) temp[i] = this.data[i];
 
-				for (k = 0; k < 3; k++) {
-					m += matr[j*3+k] * this.data[k*3+i];
-				}
+		this.data[0] = matr[0]*temp[0] + matr[1]*temp[3] + matr[2]*temp[6];
+		this.data[1] = matr[0]*temp[1] + matr[1]*temp[4] + matr[2]*temp[7];
+		this.data[2] = matr[0]*temp[2] + matr[1]*temp[5] + matr[2]*temp[8];
+		this.data[3] = matr[3]*temp[0] + matr[4]*temp[3] + matr[5]*temp[6];
+		this.data[4] = matr[3]*temp[1] + matr[4]*temp[4] + matr[5]*temp[7];
+		this.data[5] = matr[3]*temp[2] + matr[4]*temp[5] + matr[5]*temp[8];
+		this.data[6] = matr[6]*temp[0] + matr[7]*temp[3] + matr[8]*temp[6];
+		this.data[7] = matr[6]*temp[1] + matr[7]*temp[4] + matr[8]*temp[7];
+		this.data[8] = matr[6]*temp[2] + matr[7]*temp[5] + matr[8]*temp[8];
 
-				temp[j*3+i] = m;
-			}
-		}
-
-		for (i = 0; i < 9; i++) this.data[i] = temp[i];
 		return this;
 	},
 
@@ -155,12 +146,13 @@ const Matrix = Class.extend
 		if (x == 0 && y == 0)
 			return this;
 
-		this.identity(temp2);
+		for (let i = 0; i < 9; i++) temp[i] = this.data[i];
 
-		temp2[6] = x;
-		temp2[7] = y;
+		this.data[6] = x*temp[0] + y*temp[3] + temp[6];
+		this.data[7] = x*temp[1] + y*temp[4] + temp[7];
+		this.data[8] = x*temp[2] + y*temp[5] + temp[8];
 
-		return this.append(temp2);
+		return this;
 	},
 
 	/*
@@ -232,8 +224,7 @@ const Matrix = Class.extend
 		for (let i = 0; i < 3; i++)
 			temp[j*3+i] = this.data[i*3+j];
 
-		for (let i = 0; i < 9; i++)
-			this.data[i] = temp[i];
+		for (let i = 0; i < 9; i++) this.data[i] = temp[i];
 
 		return this;
 	},

@@ -15,6 +15,7 @@
 */
 
 import System from './system.js';
+import List from '../utils/list.js';
 
 /**
 **	Logging module to show logs on the system display buffer.
@@ -22,15 +23,16 @@ import System from './system.js';
 
 const Log =
 {
-	enabled: false,
+	activated: false,
+	paused: false,
 
-	data: [ ],
+	data: List.calloc(),
 	count: 0,
 	maxsize: 30,
 	debugEcho: false,
 
-	color: '#000',
-	background: null,
+	color: '#fff',
+	background: '#cf266a',
 
 	vars: { },
 
@@ -54,7 +56,7 @@ const Log =
 	*/
 	clear: function ()
 	{
-		this.data = [];
+		this.data.reset();
 		this.count = 0;
 	},
 
@@ -63,49 +65,49 @@ const Log =
 	*/
 	enable: function (x, y, fontSize, showFps, showIndex)
 	{
-		if (this.enabled) return;
-		this.enabled = true;
+		if (this.activated) return;
+		this.activated = true;
 
 		if (!x) x = 0;
 		if (!y) y = 0;
-
-		if (!fontSize) fontSize = 8.5;
+		if (!fontSize) fontSize = 9.5;
 
 		if (showFps === false) y -= 16;
-
 		let _y = y;
 
 		System.drawQueueAdd ({ draw: function ()
 		{
-			const g = System.displayBuffer2;
+			if (Log.paused) return;
+
+			let tmp = hrnow();
+
+			const g = System.displayBuffer3;
 			g.clear();
 
-			g.font('bold '+fontSize+'pt monospace');
+			g.font('bold '+fontSize+'pt Monospace');
 			g.textBaseline('top');
 
-			let _time = ((System.perf.lastTime - System.perf.startTime) / 1000);
-			let _frames = System.perf.numFrames;
 			let s = '';
 
 			y = _y;
 
-			if (showFps !== false)
+			if (showFps !== false && System.perf.fps != 0)
 			{
-				s = 'fps: '+(_frames/_time).toFixed(2) + ', dt: ' + (1000/(_frames/_time)).toFixed(2) + ' ms, update: ' + int(System.perf.updateTime/_frames) + ' us, draw: ' + int(System.perf.drawTime/_frames) + ' us';
+				s = 'fps: ' + System.perf.fps + '/' + System.perf.averageFps + ', update: ' + System.perf.averageUpdateTime + ', draw: ' + System.perf.averageDrawTime + ', extra: ' + System.perf.averageExtraTime;
 
 				if (Log.background) {
 					g.fillStyle(Log.background);
-					g.fillRect (x+8 - 3, y+10-1, g.measureText(s) + 6, fontSize+4);
+					g.fillRect (x-3, y-1, g.measureText(s)+6, fontSize+5);
 				}
 
 				g.fillStyle(Log.color);
-				g.fillText(s, x+8, y+10);
+				g.fillText(s, x, y);
 			}
 
 			s = '';
 
-			//for (let i in Log.vars)
-			//	s += i + '=' + Log.vars[i] + '  ';
+			for (let i in Log.vars)
+				s += i + ': ' + Log.vars[i] + '  ';
 
 			if (s !== '')
 			{
@@ -113,26 +115,49 @@ const Log =
 
 				if (Log.background) {
 					g.fillStyle(Log.background);
-					g.fillRect (x+8 - 3, y+10-1, g.measureText(s) + 6, fontSize+4);
+					g.fillRect (x-3, y-1, g.measureText(s)+6, fontSize+5);
 				}
 
 				g.fillStyle(Log.color);
-				g.fillText(s, x+8, y+10);
+				g.fillText(s, x, y);
 			}
 
-			for (let i = 0; i < Log.data.length; i++)
+			let i = 0;
+			for (let ii = Log.data.top; ii; ii = ii.next, i++)
 			{
-				s = (showIndex !== false ? "#" + (Log.count-Log.data.length+i+1) + ": " : "> ") + Log.data[i];
+				s = (showIndex !== false ? "#" + (Log.count-Log.data.length+i+1) + ": " : "> ") + ii.value;
 
 				if (Log.background) {
 					g.fillStyle(Log.background);
-					g.fillRect (x+8 - 3, y+16 + (fontSize+4)*(i+1) - 1, g.measureText(s) + 6, fontSize+4);
+					g.fillRect (x-3, y-1+7 + (fontSize+5)*(i+1) - 1, g.measureText(s)+6, fontSize+5);
 				}
 
 				g.fillStyle(Log.color);
-				g.fillText(s, x+8, y+16 + (fontSize+4)*(i+1));
+				g.fillText(s, x, y-1+7 + (fontSize+5)*(i+1));
 			}
+
+			tmp = (hrnow() - tmp);
+			System.perf.drawTimeTotal -= tmp;
+			System.perf.extraTimeTotal += tmp;
 		}});
+	},
+
+	/*
+	**	Pauses log on-screen rendering.
+	*/
+	pause: function ()
+	{
+		this.paused = true;
+		return;
+	},
+
+	/*
+	**	Resumes log on-screen rendering (requires log to be enabled first).
+	*/
+	resume: function ()
+	{
+		this.paused = false;
+		return;
 	}
 };
 

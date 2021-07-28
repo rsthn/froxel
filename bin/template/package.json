@@ -6,7 +6,7 @@
 	"private": true,
 	"scripts": {
 		"requirements": "yarn global add --ignore-optional parcel shx",
-		"clean": "shx rm main.js",
+		"clean": "shx rm -f main.js",
 		"build": "yarn clean && parcel build --no-cache --target target_main src/main.js",
 		"watch": "yarn clean && parcel watch --no-cache --target target_main --no-hmr src/main.js"
 	},

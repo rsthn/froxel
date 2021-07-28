@@ -14,8 +14,8 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import List from '../utils/list.js';
 import Element from './element.js';
+import List from '../utils/list.js';
 
 /*
 **	Groups one or more elements into a single one.
@@ -26,61 +26,89 @@ export default Element.extend
 	className: 'Group',
 
 	/*
-	**	Array of children related to the group.
+	**	List of elements in to the group.
 	*/
 	children: null,
 
 	/*
+	**	Identifier (string) of the group.
+	*/
+	id: null,
+
+	/*
 	**	Constructs an empty group element.
 	*/
-	__ctor: function (x, y, width=1, height=1)
+	__ctor: function (id=null)
 	{
-		this._super.Element.__ctor(x, y, width, height);
+		this._super.Element.__ctor(0, 0, 0, 0);
+
+		this.children = List.calloc();
+		this.bounds.reset();
+
+		this.id = id;
 	},
 
 	/*
-	**	Destroys the group, all children and related elements.
+	**	Destroys the group and all children.
 	*/
 	__dtor: function()
 	{
 		this.clear();
+		this.children.free();
+
 		this._super.Element.__dtor();
 	},
 
 	/*
-	**	Removes and destroys all children elements.
+	**	Adds all children to the scene's destruction queue. If any element has no container, it will be destroyed immediately.
+	*/
+	destroyLater: function()
+	{
+		if (!this.alive()) return;
+
+		let i;
+
+		while ((i = this.children.shift()) != null)
+		{
+			i.h_remove.remove(this._remove, this);
+			i.group = null;
+			i.destroyLater();
+		}
+
+		this._super.Element.destroy();
+	},
+
+	/*
+	**	Removes and destroys all child elements.
 	*/
 	clear: function()
 	{
-		if (this.children === null)
-			return;
+		let i;
 
-		let elem;
-
-		while ((elem = this.children.shift()) != null)
+		while ((i = this.children.shift()) != null)
 		{
-			elem.setParent(null);
-			dispose(elem);
+			i.h_remove.remove(this._remove, this);
+			i.group = null;
+			dispose(i);
 		}
-
-		this.children.free();
-		this.children = null;
 
 		return this;
 	},
 
 	/*
-	**	Resets the animation object of the element.
+	**	Removes all child elements.
 	*/
-	resetAnim: function (anim=null)
+	reset: function()
 	{
-		this._super.Element.resetAnim(anim);
+		let i;
 
-		if (this.children != null)
+		while ((i = this.children.shift()) != null)
 		{
-			for (let i = this.children.top; i; i = i.next)
-				i.value.resetAnim();
+			i.h_remove.remove(this._remove, this);
+			i.group = null;
 		}
+
+		return this;
 	},
 
 	/*
@@ -90,48 +118,65 @@ export default Element.extend
 	{
 		if (!elem) return elem;
 
-		if (this.children === null)
-			this.children = List.calloc();
+		let initial = this.bounds.x1 === null;
+
+		if (initial || elem.bounds.x1 < this.bounds.x1) this.ltranslate(elem.bounds.x1 - this.bounds.x1, 0);
+		if (initial || elem.bounds.y1 < this.bounds.y1) this.ltranslate(0, elem.bounds.y1 - this.bounds.y1);
+		if (initial || elem.bounds.x2 > this.bounds.x2) this.resizeBy(elem.bounds.x2 - this.bounds.x2, 0);
+		if (initial || elem.bounds.y2 > this.bounds.y2) this.resizeBy(0, elem.bounds.y2 - this.bounds.y2);
 
 		this.children.push(elem);
-		elem.setParent(this);
+
+		elem.group = this;
+		elem.h_remove.add(this._remove, this, this.children.bottom);
 
 		return elem;
 	},
 
 	/*
-	**	Removes a child element from the group.
+	**	Callback to remove an element from the container (called by Handler).
+	*/
+	_remove: function (elem, self, node)
+	{
+		self.children.remove(node);
+		elem.group = null;
+
+		return false;
+	},
+
+	/*
+	**	Removes an element from the container and returns it.
 	*/
 	removeChild: function (elem)
 	{
-		if (elem == null || elem.parent !== this || this.children == null)
+		if (!elem || elem.group !== this)
 			return elem;
 
-		let i = this.children.sgetNode(elem);
-		if (!i) return elem;
-
-		this.children.remove(i);
-		elem.setParent(null);
-
+		elem.h_remove.execf(this._remove, this);
 		return elem;
 	},
 
 	/*
-	**	Updates the position of the element in the container.
+	**	Syncs the actual location of the specified element with its storage location. Returns true if successful.
 	*/
-	updatePosition: function()
+	sync: function()
 	{
-		this._super.Element.updatePosition();
+		for (let i = this.children.top; i; i = i.next)
+			i.value.sync();
 
-		if (this.children != null)
-		{
-			for (let i = this.children.top; i; i = i.next)
-				i.value.updatePosition();
-		}
+		return this._super.Element.sync();
 	},
 
 	/*
-	**	Moves the elements by the specified deltas.
+	**	Local translation, moves only the group by the specified deltas.
+	*/
+	ltranslate: function (dx, dy, upscaled=false)
+	{
+		return this._super.Element.translate(dx, dy, upscaled);
+	},
+
+	/*
+	**	Moves the group and all children by the specified deltas.
 	*/
 	translate: function (dx, dy, upscaled=false)
 	{
@@ -143,12 +188,18 @@ export default Element.extend
 		_dx = this.bounds.x1 - _dx;
 		_dy = this.bounds.y1 - _dy;
 
-		if (this.children != null)
+		for (let i = this.children.top; i; i = i.next)
 		{
-			for (let i = this.children.top; i; i = i.next)
-				i.value.translate(_dx, _dy);
+			i.value.translate(_dx, _dy);
 		}
 
 		return this;
+	},
+
+	/*
+	**	Override of the `draw` method to do nothing.
+	*/
+	draw: function(g)
+	{
 	}
 });

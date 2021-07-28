@@ -26,7 +26,7 @@ let constructorAllowed = 0;
 **	instance (and returns itself) and __dtor to destroy it.
 */
 
-Recycler.attachTo = function (_class, maxPoolSize=2048)
+Recycler.attachTo = function (_class, maxPoolSize=2048, minPoolSize=1024)
 {
 	if (!_class.prototype.className)
 		throw new Error ('Unable to attach recycler functions to unnamed class.');
@@ -50,10 +50,9 @@ Recycler.attachTo = function (_class, maxPoolSize=2048)
 	_class.recyclerLength = 0;
 	_class.recyclerActive = 0;
 
-	for (let i = 0; i < maxPoolSize; i++)
+	for (let i = 0; i < minPoolSize; i++)
 	{
 		_class.recyclerPool.push(new _class ());
-		//_class.recyclerCreated++;
 		_class.recyclerLength++;
 	}
 

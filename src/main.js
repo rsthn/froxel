@@ -39,6 +39,7 @@ import _Recycler from './utils/recycler.js'; export const Recycler = _Recycler;
 import _Linkable from './utils/linkable.js'; export const Linkable = _Linkable;
 import _List from './utils/list.js'; export const List = _List;
 import _PriorityQueue from './utils/priority-queue.js'; export const PriorityQueue = _PriorityQueue;
+import _Handler from './utils/handler.js'; export const Handler = _Handler;
 
 // math
 import _Matrix from './math/matrix.js'; export const Matrix = _Matrix;
@@ -52,19 +53,21 @@ import _Point2 from './math/point2.js'; export const Point2 = _Point2;
 import _Easing from './anim/easing.js'; export const Easing = _Easing;
 import _Anim from './anim/anim.js'; export const Anim = _Anim;
 
-// spatial
-import _QuadTreeItem from './spatial/quadtree-item.js'; export const QuadTreeItem = _QuadTreeItem;
-import _QuadTreeNode from './spatial/quadtree-node.js'; export const QuadTreeNode = _QuadTreeNode;
-import _QuadTree from './spatial/quadtree.js'; export const QuadTree = _QuadTree;
-
 // flow
 import _Boot from './flow/boot.js'; export const Boot = _Boot;
 
-import _Element from './flow/element.js'; export const Element = _Element;
-import _Container from './flow/container.js'; export const Container = _Container;
-import _Scene from './flow/scene.js'; export const Scene = _Scene;
-import _Group from './flow/group.js'; export const Group = _Group;
+import _GridElement from './flow/grid-element.js'; export const GridElement = _GridElement;
+import _Grid from './flow/grid.js'; export const Grid = _Grid;
+
 import _Viewport from './flow/viewport.js'; export const Viewport = _Viewport;
+import _Element from './flow/element.js'; export const Element = _Element;
+import _Label from './flow/label.js'; export const Label = _Label;
+import _Container from './flow/container.js'; export const Container = _Container;
+import _SimpleContainer from './flow/simple-container.js'; export const SimpleContainer = _SimpleContainer;
+import _GridContainer from './flow/grid-container.js'; export const GridContainer = _GridContainer;
+import _Group from './flow/group.js'; export const Group = _Group;
+import _Category from './flow/category'; export const Category = _Category;
+import _Scene from './flow/scene.js'; export const Scene = _Scene;
 
 import _KeyboardHandler from './flow/keyboard-handler.js'; export const KeyboardHandler = _KeyboardHandler;
 import _PointerHandler from './flow/pointer-handler.js'; export const PointerHandler = _PointerHandler;

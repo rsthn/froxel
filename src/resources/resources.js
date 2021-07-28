@@ -66,9 +66,18 @@ Object.assign(Resources,
 		if (!keyList)
 		{
 			keyList = Object.keys(list);
-			list.__original = Rin.clone(list);
+
+			for (let i in keyList)
+			{
+				if (!('__loaded' in list[keyList[i]]))
+					list[keyList[i]].__clone = Rin.clone(list[keyList[i]]);
+			}
+
 			index = 0;
 		}
+
+		while (index < keyList.length && ('__loaded' in list[keyList[index]]))
+			index++;
 
 		if (callback) callback (index, keyList.length, index / keyList.length);
 
@@ -78,7 +87,7 @@ Object.assign(Resources,
 			return;
 		}
 
-		var r = list[keyList[index]];
+		let r = list[keyList[index]];
 
 		r.resName = keyList[index];
 
@@ -431,6 +440,8 @@ Object.assign(Resources,
 	*/
 	unload: function (list)
 	{
+		throw new Error('IMPLEMENTED UNLOAD!');
+
 		var __original;
 
 		for (var i in list)
@@ -487,6 +498,7 @@ Object.assign(Resources,
 		if (!r.wrapper || !(r.wrapper in Wrappers)) return;
 
 		list[index] = new Wrappers[r.wrapper] (r);
+		list[index].__loaded = true;
 	},
 
 	/**
