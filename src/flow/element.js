@@ -31,7 +31,7 @@ export default GridElement.extend
 	group: null,
 
 	/*
-	**	Image of the element (can be any object implementing IDrawable).
+	**	Drawable object, should have methods draw(g,x,y), getDrawable(), and properties width, and height.
 	*/
 	img: null,
 
@@ -59,7 +59,7 @@ export default GridElement.extend
 		}
 
 		this._super.GridElement.__ctor(x, y, width, height);
-		this.img = img;
+		this.img = img !== null ? img.getDrawable() : img;
 	},
 
 	/*

@@ -468,10 +468,10 @@ Canvas.prototype.dispose = function ()
 **	>> void setBackground (string color);
 */
 
-Canvas.prototype.setBackground = function (color, canvasColor)
+Canvas.prototype.setBackground = function (color)
 {
 	this.elem.style.background = color;
-	this.backgroundColor = canvasColor ? canvasColor : color;
+	this.backgroundColor = color;
 };
 
 

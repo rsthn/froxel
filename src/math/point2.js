@@ -18,9 +18,9 @@ import { Class } from '@rsthn/rin';
 import Recycler from '../utils/recycler.js';
 
 const BITS = 4;
-const UPSCALE = x => int(x * (1 << BITS));
-//const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
-const DOWNSCALE = x => (x>>BITS);
+const UPSCALE = x => (x * (1 << BITS))>>0;
+const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
+//const DOWNSCALE = x => (x>>BITS);
 
 /*
 **	Representation of a point in 2D space. The component values are upscaled by a fixed number of bits to allow
@@ -102,6 +102,28 @@ const Point2 = Class.extend
 		this.ux = x;
 		this.uy = y;
 
+		return this.downscale(this);
+	},
+
+	/*
+	**	Sets the X-component of the point.
+	**
+	**	Point2 setX (float x)
+	*/
+	setX: function (x)
+	{
+		this.ux = UPSCALE(x);
+		return this.downscale(this);
+	},
+
+	/*
+	**	Sets the Y-component of the point.
+	**
+	**	Point2 setY (float y)
+	*/
+	setY: function (y)
+	{
+		this.uy = UPSCALE(y);
 		return this.downscale(this);
 	},
 

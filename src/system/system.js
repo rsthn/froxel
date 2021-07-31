@@ -64,6 +64,8 @@ const System =
 		background: "#000",
 		gl: false,
 
+		overdraw: false,
+
 		canvas: null,
 		canvas2: null,
 		canvas3: null,
@@ -787,9 +789,17 @@ const System =
 
 		this.flags.renderingEnabled = false;
 
+		/*
+		**	If the scale is not exact, the final canvas size might not fit the entire screen perfectly (will always be a little smaller in
+		**	such a case), when that happens the body's background color will be quite noticeable, to mitigate that we set the body background
+		**	to the same color as the primary canvas.
+		*/
 		if ('document' in global)
 			global.document.body.style.backgroundColor = this.displayBuffer.backgroundColor;
 
+		/*
+		**	Resize all display buffers.
+		*/
 		if (!this.reverseRender)
 		{
 			this.displayBuffer.resize (this.screenWidth*this.scaleFactor, this.screenHeight*this.scaleFactor);
@@ -981,7 +991,8 @@ const System =
 	*/
 	draw: function (canvas)
 	{
-		canvas.clear();
+		if (!this.options.overdraw)
+			canvas.clear();
 
 		try
 		{

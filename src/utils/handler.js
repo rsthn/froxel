@@ -93,6 +93,9 @@ const Handler = Class.extend
 		if (this.bottom === node)
 			this.bottom = node.prev;
 
+		node.prev = null;
+		node.next = null;
+
 		dispose(node);
 	},
 
@@ -150,7 +153,7 @@ const Handler = Class.extend
 		while (node !== null)
 		{
 			let next = node.next;
-			
+
 			if (node.exec(this.host) === false)
 				this.unlink(node);
 

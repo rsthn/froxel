@@ -45,6 +45,9 @@ export const Animation = Class.extend
 ({
 	className: 'Animation',
 
+	width: null,
+	height: null,
+
 	seq: null, seq_i: 0,
 	trans: null, trans_i: 0, trans_t: null,
 
@@ -56,9 +59,6 @@ export const Animation = Class.extend
 
 	finished: false,
 	paused: false,
-
-	width: null,
-	height: null,
 
 	finishedCallback: null,
 	finishedCallbackHandler: null,
@@ -271,6 +271,11 @@ export const Animation = Class.extend
 		}
 	},
 
+	getDrawable: function()
+	{
+		return this;
+	},
+
 	advance: function ()
 	{
 		this.setPaused (false);
@@ -352,6 +357,8 @@ Recycler.attachTo(Animation);
 export default Spritesheet.extend
 ({
 	className: 'SpritesheetAnimation',
+
+	defaultDrawable: null,
 
 	__ctor: function (r)
 	{
@@ -452,13 +459,16 @@ export default Spritesheet.extend
 		t.initialized = true;
 	},
 
-	getDrawable: function (initialseq=null, fps=null)
+	getAnimation: function (initialseq=null, fps=null)
 	{
 		return Animation.alloc().init(this, initialseq ? this.a.seq[initialseq] : this.a.def, fps || this.a.fps);
 	},
 
-	getSequence: function (initialseq=null)
+	getDrawable: function()
 	{
-		return initialseq ? this.a.seq[initialseq] : this.a.def;
+		if (this.defaultDrawable === null)
+			this.defaultDrawable = this.getAnimation();
+
+		return this.defaultDrawable;
 	}
 });

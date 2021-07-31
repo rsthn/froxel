@@ -19,16 +19,14 @@ import * as _Rin from '@rsthn/rin';
 export const Class = _Rin.Class;
 
 // system
-import _G from './system/globals.js'; export const G = _G; export const Globals = _G;
-import _C from './system/config.js'; export const C = _C;
+import _globals from './system/globals.js'; export const globals = _globals;
 import _System from './system/system.js'; export const System = _System;
 import _Timer from './system/timer.js'; export const Timer = _Timer;
+import _Random from './system/random.js'; export const Random = _Random;
 import _KeyCodes from './system/keycodes.js'; export const KeyCodes = _KeyCodes;
 import _Canvas from './system/canvas.js'; export const Canvas = _Canvas;
 import _Perf from './system/perf.js'; export const Perf = _Perf;
 import _Log from './system/log.js'; export const Log = _Log;
-import _IDrawable from './system/idrawable.js'; export const IDrawable = _IDrawable;
-import _IUpdateable from './system/iupdateable.js'; export const IUpdateable = _IUpdateable;
 
 // resources
 import * as _Wrappers from './resources/wrappers.js'; export const Wrappers = _Wrappers;
@@ -66,7 +64,7 @@ import _Container from './flow/container.js'; export const Container = _Containe
 import _SimpleContainer from './flow/simple-container.js'; export const SimpleContainer = _SimpleContainer;
 import _GridContainer from './flow/grid-container.js'; export const GridContainer = _GridContainer;
 import _Group from './flow/group.js'; export const Group = _Group;
-import _Category from './flow/category'; export const Category = _Category;
+import _Updater from './flow/updater.js'; export const Updater = _Updater;
 import _Scene from './flow/scene.js'; export const Scene = _Scene;
 
 import _KeyboardHandler from './flow/keyboard-handler.js'; export const KeyboardHandler = _KeyboardHandler;

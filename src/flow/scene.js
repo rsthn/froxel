@@ -19,9 +19,9 @@ import Container from './container.js';
 import Viewport from './viewport.js';
 import Group from './group.js';
 import Bounds2 from '../math/bounds2.js';
-import Globals from '../system/globals.js';
 import List from '../utils/list.js';
-import Category from './category.js';
+import Handler from '../utils/handler.js';
+import globals from '../system/globals.js';
 
 /*
 **	A scene is a set of containers, viewports and groups. Rendering is done in their specific index-based order.
@@ -62,11 +62,6 @@ const Scene = Class.extend
 	groupList: null,
 
 	/*
-	**	List of categories.
-	*/
-	categories: null,
-
-	/*
 	**	Named groups.
 	*/
 	groups: null,
@@ -75,6 +70,36 @@ const Scene = Class.extend
 	**	Disposal queue.
 	*/
 	disposalQueue: null,
+
+	/*
+	**	First updater. Runs before any other update calls.
+	*/
+	fupdater: null,
+
+	/*
+	**	General updater. Runs after the first updater and before synchronizer.
+	*/
+	updater: null,
+
+	/*
+	**	Synchronizer. Run after general updater, and before viewport synchronization.
+	*/
+	synchronizer: null,
+
+	/*
+	**	Last updater. Runs after all other update calls.
+	*/
+	lupdater: null,
+
+	/*
+	**	Destroyer runs when the scene is destroyed.
+	*/
+	destroyer: null,
+
+	/*
+	**	Current delta time. Set upon entering the `update` method. Reflects the same value as System.frameDelta.
+	*/
+	dt: 0,
 
 	/*
 	**	Flags of the object (see constants at the bottom of this file).
@@ -99,9 +124,13 @@ const Scene = Class.extend
 		this.groupList = List.calloc();
 		this.groups = { };
 
-		this.categories = List.calloc();
-
 		this.disposalQueue = List.calloc();
+
+		this.fupdater = Handler.alloc().init(this);
+		this.updater = Handler.alloc().init(this);
+		this.synchronizer = Handler.alloc().init(this);
+		this.lupdater = Handler.alloc().init(this);
+		this.destroyer = Handler.alloc().init(this);
 
 		this.flags = Scene.VISIBLE;
 	},
@@ -114,16 +143,20 @@ const Scene = Class.extend
 		this.disposeQueued();
 		this.disposalQueue.free();
 
+		this.destroyer.exec();
+		this.destroyer.free();
+
+		this.fupdater.free();
+		this.updater.free();
+		this.synchronizer.free();
+		this.lupdater.free();
+
 		let i;
 
 		while ((i = this.groupList.shift()) !== null)
 		{
-			i.h_remove.remove(this._remove, this);
+			i.remover.remove(this._remove, this);
 			i.container = null;
-			dispose(i);
-		}
-
-		while ((i = this.categories.shift()) !== null) {
 			dispose(i);
 		}
 
@@ -256,7 +289,7 @@ const Scene = Class.extend
 			this.groups[group.id] = group;
 
 		group.container = this;
-		group.h_remove.add(this._removeGroup, this, this.groupList.bottom);
+		group.remover.add(this._removeGroup, this, this.groupList.bottom);
 
 		return true;
 	},
@@ -270,7 +303,7 @@ const Scene = Class.extend
 		self.groupList.remove(node);
 
 		if (group.id !== null)
-			delete self.groups[group.id];
+			self.groups[group.id] = null;
 
 		return false;
 	},
@@ -280,40 +313,8 @@ const Scene = Class.extend
 	*/
 	removeGroup: function (group)
 	{
-		group.h_remove.execf(this._remove, this);
+		group.remover.execf(this._remove, this);
 		return group;
-	},
-
-	/*
-	**	Adds a category to the scene.
-	*/
-	addCategory: function (catg)
-	{
-		if (!Category.isInstance(catg))
-			throw new Error ('argument must be a Category');
-
-		this.categories.push(catg);
-
-		catg.scene = this;
-		catg.node = this.categories.bottom;
-
-		return true;
-	},
-
-	/*
-	**	Removes a category from the scene.
-	*/
-	removeCategory: function (catg)
-	{
-		if (catg.scene !== this)
-			return catg;
-
-		this.categories.remove(catg.node);
-
-		catg.scene = null;
-		catg.node = null;
-
-		return catg;
 	},
 
 	/*
@@ -345,7 +346,7 @@ const Scene = Class.extend
 			let viewport = this.viewports[viewportIndex];
 			if (!viewport || !viewport.enabled()) continue;
 
-			Globals.viewport = viewport;
+			globals.viewport = viewport;
 
 			g.pushClip();
 			g.pushMatrix();
@@ -353,7 +354,7 @@ const Scene = Class.extend
 			viewport.applyClip(g);
 			viewport.applyTransform(g);
 
-			this.viewportBounds.set(viewport.getBounds()).resizeBy(2, 2);
+			this.viewportBounds.set(viewport.getBounds());//.resizeBy(2, 2);
 			this.drawContainers(g, this.viewportBounds);
 
 			g.popMatrix();
@@ -390,33 +391,15 @@ const Scene = Class.extend
 	/*
 	**	Updates the scene viewports.
 	*/
-	updateViewports: function (dt)
+	updateViewports: function ()
 	{
 		for (let i = 0; i < this.viewports.length; i++)
 		{
 			if (!this.viewports[i])
 				continue;
 
-			this.viewports[i].update(dt);
+			this.viewports[i].update(this.dt);
 		}
-	},
-
-	/*
-	**	Updates the scene categories.
-	*/
-	updateCategories: function (dt)
-	{
-		for (let i = this.categories.top; i; i = i.next)
-			i.value.update (dt);
-	},
-
-	/*
-	**	Runs a sync on all categories.
-	*/
-	syncCategories: function ()
-	{
-		for (let i = this.categories.top; i; i = i.next)
-			i.value.sync();
 	},
 
 	/*
@@ -424,10 +407,15 @@ const Scene = Class.extend
 	*/
 	update: function (dt)
 	{
-		this.updateCategories(dt);
+		this.dt = dt;
+		this.fupdater.exec();
+
+		this.updater.exec();
 		this.disposeQueued();
-		this.syncCategories();
-		this.updateViewports(dt);
+		this.synchronizer.exec();
+		this.updateViewports();
+
+		this.lupdater.exec();
 	}
 });
 

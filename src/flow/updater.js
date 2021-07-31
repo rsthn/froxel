@@ -1,5 +1,5 @@
 /*
-**	flow/category.js
+**	flow/updater.js
 **
 **	Copyright (c) 2013-2021, RedStar Technologies, All rights reserved.
 **	https://rsthn.com/
@@ -19,18 +19,17 @@ import List from '../utils/list.js';
 import Element from './element.js';
 
 /*
-**	A category is a set of elements that behave similarly.
+**	An updater is used to update one or more elements.
 */
 
-const Category = Class.extend
+const Updater = Class.extend
 ({
-	className: 'Category',
+	className: 'Updater',
 
 	/*
-	**	Scene and node where the category is attached.
+	**	Scene where the updater is attached.
 	*/
 	scene: null,
-	node: null,
 
 	/*
 	**	List of elements.
@@ -38,11 +37,16 @@ const Category = Class.extend
 	list: null,
 
 	/*
-	**	Constructs the category.
+	**	Constructs the updater.
 	*/
-	__ctor: function()
+	__ctor: function (scene)
 	{
 		this.list = List.calloc();
+		this.scene = scene;
+
+		this.scene.updater.add(this._update, this);
+		this.scene.synchronizer.add(this._sync, this);
+		this.scene.destroyer.add(this._destroy, this);
 	},
 
 	/*
@@ -52,15 +56,24 @@ const Category = Class.extend
 	{
 		let i;
 
+		this.scene.updater.remove(this._update, this);
+		this.scene.synchronizer.remove(this._sync, this);
+		this.scene.destroyer.remove(this._destroy, this);
+
 		while ((i = this.list.shift()) !== null) {
-			i.h_remove.remove(this._remove, this);
+			i.remover.remove(this._remove, this);
 		}
 
 		this.list.free();
 	},
 
+	_destroy: function (scene, self)
+	{
+		dispose(self);
+	},
+
 	/*
-	**	Adds an element to the category.
+	**	Adds an element to the updater.
 	*/
 	add: function (elem)
 	{
@@ -69,12 +82,12 @@ const Category = Class.extend
 
 		this.list.push(elem);
 
-		elem.h_remove.add(this._remove, this, this.list.bottom);
+		elem.remover.add(this._remove, this, this.list.bottom);
 		return true;
 	},
 
 	/*
-	**	Callback to remove an element from the category (called by Handler).
+	**	Callback to remove an element from the updater (called by Handler).
 	*/
 	_remove: function (elem, self, node)
 	{
@@ -83,32 +96,38 @@ const Category = Class.extend
 	},
 
 	/*
-	**	Removes an element from the category.
+	**	Removes an element from the updater.
 	*/
 	remove: function (elem)
 	{
-		elem.h_remove.execf(this._remove, this);
+		elem.remover.execf(this._remove, this);
 		return elem;
 	},
 
 	/*
-	**	Runs a sync cycle.
+	**	Callback for the synchronizer.
 	*/
-	sync: function ()
+	_sync: function (scene, self)
 	{
-		for (let i = this.list.top; i; i = i.next)
-		{
+		for (let i = self.list.top; i; i = i.next)
 			i.value.sync();
-		}
+	},
+
+	/*
+	**	Callback for the updater.
+	*/
+	_update: function (scene, self)
+	{
+		self.update(scene.dt);
 	},
 
 	/*
 	**	Runs an update cycle.
 	*/
-	update: function (dt)
+	update: function (dt) /* @override */
 	{
 	}
 });
 
 
-export default Category;
+export default Updater;

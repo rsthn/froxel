@@ -20,6 +20,7 @@
 
 import { Class } from '@rsthn/rin';
 import Bounds2 from '../math/bounds2.js';
+import Point2 from '../math/point2.js';
 
 const Viewport = Class.extend
 ({
@@ -50,10 +51,9 @@ const Viewport = Class.extend
 	centerRatioY: 0,
 
 	/*
-	**	Position offsets, used to move the viewport around without affecting the focus point.
+	**	Position offset, used to move the viewport around without affecting the focus point.
 	*/
-	dx: 0,
-	dy: 0,
+	offset: null,
 
 	/*
 	**	Boundaries of the world (automatically calculated from the world dimensions).
@@ -86,6 +86,11 @@ const Viewport = Class.extend
 	**	Viewport scale.
 	*/
 	scale: 1,
+
+	/*
+	**	Global scale, used to scale the entire canvas including the viewport. Useful for debugging viewport bounds.
+	*/
+	globalScale: 1,
 
 	/*
 	**	Bounds of the viewport in world space. Used to determine which elements lie inside the viewport.
@@ -134,6 +139,7 @@ const Viewport = Class.extend
 		this.bounds = Bounds2.alloc();
 		this.focusBounds = Bounds2.alloc();
 		this.screenBounds = Bounds2.alloc();
+		this.offset = Point2.alloc();
 
 		this.x = 0;
 		this.y = 0;
@@ -171,12 +177,38 @@ const Viewport = Class.extend
 	/*
 	**	Updates the bound rect of the viewport.
 	*/
-	updateBounds: function ()
+	updateBounds: function (truncateToWorld=false)
 	{
 		let w = this.width >> 1;
 		let h = this.height >> 1;
 
-		this.bounds.set (this.x-(w/this.scale)+this.dx, this.y-(h/this.scale)+this.dy, this.x+(w/this.scale)+this.dx, this.y+(h/this.scale)+this.dy);
+		let ws = (w/this.scale);
+		let hs = (h/this.scale);
+
+		let x1 = this.x-ws+this.offset.x;
+		let y1 = this.y-hs+this.offset.y;
+		let x2 = this.x+ws+this.offset.x;
+		let y2 = this.y+hs+this.offset.y;
+
+		if (truncateToWorld)
+		{
+			if (x1 < this.worldX1)
+				this.offset.setX(this.worldX1 - this.x + ws);
+			else if (x2 > this.worldX2)
+				this.offset.setX(this.worldX2 - this.x - ws);
+
+			if (y1 < this.worldY1)
+				this.offset.setY(this.worldY1 - this.y + hs);
+			else if (y2 > this.worldY2)
+				this.offset.setY(this.worldY2 - this.y - hs);
+
+			x1 = this.x-ws+this.offset.x;
+			y1 = this.y-hs+this.offset.y;
+			x2 = this.x+ws+this.offset.x;
+			y2 = this.y+hs+this.offset.y;
+		}
+
+		this.bounds.set (x1, y1, x2, y2);
 
 		this.focusBounds.set (
 			this.x - (this.focusFactorX*w + this.centerRatioX*w)/this.scale, this.y - (this.focusFactorY*h + this.centerRatioY*h)/this.scale,
@@ -228,10 +260,9 @@ const Viewport = Class.extend
 		this.x = x;
 		this.y = y;
 
-		this.dx = 0;
-		this.dy = 0;
-
+		this.offset.set(0, 0);
 		this.updateBounds();
+
 		return this;
 	},
 
@@ -240,10 +271,9 @@ const Viewport = Class.extend
 	*/
 	setOffsets: function (dx, dy)
 	{
-		this.dx = dx;
-		this.dy = dy;
-
+		this.offset.set(dx, dy);
 		this.updateBounds();
+
 		return this;
 	},
 
@@ -256,6 +286,16 @@ const Viewport = Class.extend
 
 		this.updateScreenBounds();
 		this.updateBounds();
+
+		return this;
+	},
+
+	/*
+	**	Sets the global scale of the viewport.
+	*/
+	setGlobalScale: function (value)
+	{
+		this.globalScale = value;
 		return this;
 	},
 
@@ -273,12 +313,11 @@ const Viewport = Class.extend
 	/*
 	**	Moves the viewport in the world, relative to the current focus point.
 	*/
-	translate: function (dx, dy)
+	translate: function (dx, dy, truncateToWorld=false)
 	{
-		this.dx += dx;
-		this.dy += dy;
+		this.offset.add(dx, dy);
 
-		this.updateBounds();
+		this.updateBounds(truncateToWorld);
 		return this;
 	},
 
@@ -299,7 +338,7 @@ const Viewport = Class.extend
 	*/
 	getX: function (absolute=false)
 	{
-		return this.x + (absolute ? 0 : this.dx);
+		return this.x + (absolute ? 0 : this.offset.x);
 	},
 
 	/*
@@ -307,23 +346,23 @@ const Viewport = Class.extend
 	*/
 	getY: function (absolute=false)
 	{
-		return this.y + (absolute ? 0 : this.dy);
+		return this.y + (absolute ? 0 : this.offset.y);
 	},
 
 	/*
 	**	Returns the X position of the viewport inside the world relative to the current focus point.
 	*/
-	getPositionX: function ()
+	getOffsetX: function ()
 	{
-		return this.dx;
+		return this.offset.x;
 	},
 
 	/*
 	**	Returns the Y position of the viewport inside the world relative to the current focus point.
 	*/
-	getPositionY: function ()
+	getOffsetY: function ()
 	{
-		return this.dy;
+		return this.offset.y;
 	},
 
 	/*
@@ -408,7 +447,6 @@ const Viewport = Class.extend
 
 		if (x1 < this.worldX1) nx = this.worldX1 + w;
 		if (x2 > this.worldX2) nx = this.worldX2 - w;
-
 		if (y1 < this.worldY1) ny = this.worldY1 + h;
 		if (y2 > this.worldY2) ny = this.worldY2 - h;
 
@@ -468,8 +506,17 @@ const Viewport = Class.extend
 	*/
 	applyTransform: function (g)
 	{
-		g.translate (this.screenBounds.cx, this.screenBounds.cy);
-		g.scale (this.scale, this.scale);
+		let cx = this.screenBounds.x1 + ((this.screenBounds.width() + 1) >> 1);
+		let cy = this.screenBounds.y1 + ((this.screenBounds.height() + 1) >> 1);
+
+		g.translate (cx, cy);
+
+		if (this.scale != 1.0)
+			g.scale (this.scale, this.scale);
+
+		if (this.globalScale != 1.0)
+			g.scale (this.globalScale, this.globalScale);
+
 		g.translate (-this.getX(), -this.getY());
 		g.updateTransform();
 	},
@@ -479,13 +526,16 @@ const Viewport = Class.extend
 	*/
 	toWorldSpace: function (x, y, floor=false)
 	{
+		let cx = this.screenBounds.x1 + ((this.screenBounds.width() + 1) >> 1);
+		let cy = this.screenBounds.y1 + ((this.screenBounds.height() + 1) >> 1);
+
 		if (floor) {
-			x = ((x - int(this.screenBounds.cx)) / this.scale) + int(this.getX());
-			y = ((y - int(this.screenBounds.cy)) / this.scale) + int(this.getY());
+			x = ((x - int(cx)) / this.scale) + int(this.getX());
+			y = ((y - int(cy)) / this.scale) + int(this.getY());
 		}
 		else {
-			x = ((x - this.screenBounds.cx) / this.scale) + this.getX();
-			y = ((y - this.screenBounds.cy) / this.scale) + this.getY();
+			x = ((x - cx) / this.scale) + this.getX();
+			y = ((y - cy) / this.scale) + this.getY();
 		}
 
 		return { x: x, y: y };
@@ -496,13 +546,16 @@ const Viewport = Class.extend
 	*/
 	toScreenSpace: function (x, y, floor=false)
 	{
+		let cx = this.screenBounds.x1 + ((this.screenBounds.width() + 1) >> 1);
+		let cy = this.screenBounds.y1 + ((this.screenBounds.height() + 1) >> 1);
+
 		if (floor) {
-			x = (x - int(this.getX())) * this.scale + int(this.screenBounds.cx);
-			y = (y - int(this.getY())) * this.scale + int(this.screenBounds.cy);
+			x = (x - int(this.getX())) * this.scale + int(cx);
+			y = (y - int(this.getY())) * this.scale + int(cy);
 		}
 		else {
-			x = (x - this.getX()) * this.scale + this.screenBounds.cx;
-			y = (y - this.getY()) * this.scale + this.screenBounds.cy;
+			x = (x - this.getX()) * this.scale + cx;
+			y = (y - this.getY()) * this.scale + cy;
 		}
 
 		return { x: x, y: y };

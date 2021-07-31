@@ -74,6 +74,28 @@ const Vec2 = Class.extend
 	},
 
 	/*
+	**	Sets the X-component of the vector.
+	**
+	**	Vec2 setX (float x)
+	*/
+	setX: function (x) /* Vec2 */
+	{
+		this.x = x;
+		return this;
+	},
+
+	/*
+	**	Sets the Y-component of the vector.
+	**
+	**	Vec2 setY (float y)
+	*/
+	setY: function (y) /* Vec2 */
+	{
+		this.y = y;
+		return this;
+	},
+
+	/*
 	**	Sets the components of the vector to zero.
 	*/
 	zero: function()

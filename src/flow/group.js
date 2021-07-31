@@ -31,11 +31,6 @@ export default Element.extend
 	children: null,
 
 	/*
-	**	Identifier (string) of the group.
-	*/
-	id: null,
-
-	/*
 	**	Constructs an empty group element.
 	*/
 	__ctor: function (id=null)
@@ -45,7 +40,7 @@ export default Element.extend
 		this.children = List.calloc();
 		this.bounds.reset();
 
-		this.id = id;
+		this.setId(id);
 	},
 
 	/*
@@ -70,7 +65,7 @@ export default Element.extend
 
 		while ((i = this.children.shift()) != null)
 		{
-			i.h_remove.remove(this._remove, this);
+			i.remover.remove(this._remove, this);
 			i.group = null;
 			i.destroyLater();
 		}
@@ -87,7 +82,7 @@ export default Element.extend
 
 		while ((i = this.children.shift()) != null)
 		{
-			i.h_remove.remove(this._remove, this);
+			i.remover.remove(this._remove, this);
 			i.group = null;
 			dispose(i);
 		}
@@ -104,7 +99,7 @@ export default Element.extend
 
 		while ((i = this.children.shift()) != null)
 		{
-			i.h_remove.remove(this._remove, this);
+			i.remover.remove(this._remove, this);
 			i.group = null;
 		}
 
@@ -113,8 +108,11 @@ export default Element.extend
 
 	/*
 	**	Adds a child element to the group.
+	**
+	**	Element addChild (string id, Element elem)
+	**	Element addChild (Element elem)
 	*/
-	addChild: function (elem)
+	addChild: function (elem=null)
 	{
 		if (!elem) return elem;
 
@@ -127,8 +125,11 @@ export default Element.extend
 
 		this.children.push(elem);
 
+		if (elem.id !== null)
+			this[elem.id] = elem;
+
 		elem.group = this;
-		elem.h_remove.add(this._remove, this, this.children.bottom);
+		elem.remover.add(this._remove, this, this.children.bottom);
 
 		return elem;
 	},
@@ -141,6 +142,9 @@ export default Element.extend
 		self.children.remove(node);
 		elem.group = null;
 
+		if (elem.id !== null)
+			self[elem.id] = null;
+
 		return false;
 	},
 
@@ -152,7 +156,7 @@ export default Element.extend
 		if (!elem || elem.group !== this)
 			return elem;
 
-		elem.h_remove.execf(this._remove, this);
+		elem.remover.execf(this._remove, this);
 		return elem;
 	},
 

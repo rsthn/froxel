@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import C from './config.js';
+import Random from './random.js';
 
 /*
 **	Global functions and definitions.
@@ -23,7 +23,7 @@ import C from './config.js';
 /*
 **	Variables and behavior flags, can be extended as needed from other modules.
 */
-export default
+const globals =
 {
 	/*
 	**	Active viewport (if any). Set by the `draw` method of the Scene class.
@@ -38,8 +38,17 @@ export default
 	/*
 	**	violet
 	*/
-	debugId: false
+	debugId: false,
+
+	/*
+	**	Global random generators. Only rand0 is used by the global random functions. The rand1 and rand2 can be used manually if desired.
+	*/
+	rand0: new Random(),
+	rand1: new Random(),
+	rand2: new Random()
 };
+
+export default globals;
 
 /*
 **	Converts the given pixel-value to actual screen pixels taking into account the current scale.
@@ -221,31 +230,31 @@ global.deg = function (value)
 /*
 **	Returns a random integer value from 0 to 0xFFFF (inclusive).
 **
-**	int rand ();
+**	int rand();
 */
 global.rand = function ()
 {
-	return int(Math.random()*0x10000);
+	return globals.rand0.nextInt16();
 };
 
 /*
-**	Returns a random float from 0 to 1 (non-inclusive).
+**	Returns a random float from 0 to 1 (inclusive).
 **
 **	float randf ();
 */
 global.randf = function ()
 {
-	return Math.random();
+	return globals.rand0.nextFloat();
 };
 
 /*
-**	Returns a random float within the given (non-inclusive) range.
+**	Returns a random float within the given (inclusive) range.
 **
 **	float randrf (float a, float b);
 */
 global.randrf = function (a, b)
 {
-	let t = Math.random();
+	let t = globals.rand0.nextFloat();
 	return t*b + (1-t)*a;
 };
 
@@ -256,12 +265,12 @@ global.randrf = function (a, b)
 */
 global.randr = function (a, b)
 {
-	let t = Math.random();
+	let t = globals.rand0.nextFloat();
 	return int(t*b + (1-t)*a);
 };
 
 /*
-**	Returns a table of random float numbers within the given range (non-inclusive).
+**	Returns a table of random float numbers within the given range (inclusive).
 **
 **	array randtf (float a, float b, int n);
 */

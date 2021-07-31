@@ -30,6 +30,11 @@ const GridElement = Class.extend
 	className: 'GridElement',
 
 	/*
+	**	Identifier of the element (string).
+	*/
+	id: null,
+
+	/*
 	**	Bounds of the element.
 	*/
 	bounds: null,
@@ -55,9 +60,9 @@ const GridElement = Class.extend
 	_grid_remove_node: null,
 
 	/*
-	**	Removal handler.
+	**	Remover runs when the `remove` method of the element is called or when the element is destroyed.
 	*/
-	h_remove: null,
+	remover: null,
 
 	/*
 	**	Constructs the instance.
@@ -72,7 +77,7 @@ const GridElement = Class.extend
 		this.flags = GridElement.ALIVE | GridElement.VISIBLE | GridElement.DIRTY;
 		this.tag = null;
 
-		this.h_remove = Handler.alloc().init(this);
+		this.remover = Handler.alloc().init(this);
 	},
 
 	/*
@@ -82,10 +87,19 @@ const GridElement = Class.extend
 	{
 		this.alive(false);
 
-		this.h_remove.exec();
-		this.h_remove.free();
+		this.remover.exec();
+		this.remover.free();
 
 		this.bounds.free();
+	},
+
+	/*
+	**	Sets the identifier of the element.
+	*/
+	setId: function (value)
+	{
+		this.id = value;
+		return this;
 	},
 
 	/*
@@ -178,7 +192,7 @@ const GridElement = Class.extend
 	*/
 	remove: function()
 	{
-		this.h_remove.exec();
+		this.remover.exec();
 		return this;
 	},
 

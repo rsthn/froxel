@@ -52,9 +52,14 @@ export default Group.extend
 	angleSteps: 0, radiusSteps: 0,
 
 	/*
-	**	Direction (X and Y) and magnitude of the stick vector. The dirx and diry are normalized.
+	**	Direction (X and Y), magnitude and angle of the stick vector. The dirx and diry are normalized.
 	*/
-	rdirx: 0, rdiry: 0, dirx: 0, diry: 0, magnitude: 0,
+	rdirx: 0, rdiry: 0, dirx: 0, diry: 0, magnitude: 0, angle: 0,
+
+	/*
+	**	Frozen stick state. Set by calling `freezeState`.
+	*/
+	frdirx: 0, frdiry: 0, fdirx: 0, fdiry: 0, fmagnitude: 0, fangle: 0,
 
 	/*
 	**	Indicates the displacement in X and Y directions of the inner stick. This is calculated when the update() method is called.
@@ -62,14 +67,9 @@ export default Group.extend
 	dispx: 0, dispy: 0,
 
 	/*
-	**	Current angle and radius of the stick.
+	**	Current radius of the inner stick (how far it moved). And maximum radius that the inner stick can move.
 	*/
-	angle: 0, radius: 0,
-
-	/*
-	**	Maximum radius that the inner stick can move.
-	*/
-	maxRadius: 0,
+	radius: 0, maxRadius: 0,
 
 	/*
 	**	Hitbox element.
@@ -263,6 +263,22 @@ export default Group.extend
 			return false;
 
 		return this.hitbox.bounds.containsPoint(x, y);
+	},
+
+	/*
+	**	Saves the current state of the stick in the f* variables (fdirx, fdiry, etc). When the `lastValid` parameter is true, the values will be saved
+	**	on each field only if the current value is not zero.
+	*/
+	freezeState: function (lastValid=false) /* @override */
+	{
+		this.frdirx = lastValid ? (this.rdirx != 0 ? this.rdirx : this.frdirx) : this.rdirx;
+		this.frdiry = lastValid ? (this.rdiry != 0 ? this.rdiry : this.frdiry) : this.rdiry;
+		this.fdirx = lastValid ? (this.dirx != 0 ? this.dirx : this.fdirx) : this.dirx;
+		this.fdiry = lastValid ? (this.diry != 0 ? this.diry : this.fdiry) : this.diry;
+		this.fmagnitude = lastValid ? (this.magnitude != 0 ? this.magnitude : this.fmagnitude) : this.magnitude;
+		this.fangle = lastValid ? (this.angle != 0 ? this.angle : this.fangle) : this.angle;
+
+		return this;
 	},
 
 	/**

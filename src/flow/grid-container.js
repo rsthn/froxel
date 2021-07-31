@@ -18,6 +18,8 @@ import Container from './container.js';
 import Grid from './grid.js';
 import GridElement from './grid-element.js';
 import Element from './element.js';
+import globals from '../system/globals.js';
+import System from '../system/system.js';
 
 /*
 **	A grid container is a container that uses an optimized spatial grid structure to store the elements.
@@ -31,6 +33,11 @@ export default Container.extend
 	**	Grid containing the elements.
 	*/
 	grid: null,
+
+	/*
+	**	Indicates if the container bound should be drawn.
+	*/
+	debugBounds: false,
 
 	/*
 	**	Constructs the grid container with the specified size and divisor.
@@ -112,6 +119,39 @@ export default Container.extend
 		this.g = g;
 
 		this.grid.forEachInRegion(this.viewportBounds, GridElement.ALIVE | GridElement.VISIBLE, this.drawElement, this);
+
+		if (!this.debugBounds || this.viewportBounds === null || g.gl !== null)
+			return;
+
+		let y0 = ((this.viewportBounds.y1+this.grid.offsy - (1<<this.grid.ky-1)) >> this.grid.ky) * this.grid.stride;
+		let y1 = ((this.viewportBounds.y2+this.grid.offsy) + (1<<this.grid.ky-1) >> this.grid.ky) * this.grid.stride;
+		let x0 = ((this.viewportBounds.x1+this.grid.offsx - (1<<this.grid.kx-1)) >> this.grid.kx);
+		let x1 = ((this.viewportBounds.x2+this.grid.offsx) + (1<<this.grid.kx-1) >> this.grid.kx);
+
+		y0 = (int(y0 / this.grid.stride) << this.grid.ky) - this.grid.offsy;
+		y1 = (int(y1 / this.grid.stride) << this.grid.ky) - this.grid.offsy + (1 << this.grid.ky);
+		x0 = (x0 << this.grid.kx) - this.grid.offsx;
+		x1 = (x1 << this.grid.kx) - this.grid.offsx + (1 << this.grid.kx);
+
+		g.fillStyle('rgba(0,0,0,0.2)');
+		g.fillRect(x0, y0, x1-x0+1, y1-y0+1);
+
+		y0 = this.viewportBounds.y1;
+		y1 = this.viewportBounds.y2;
+		x0 = this.viewportBounds.x1;
+		x1 = this.viewportBounds.x2;
+
+		g.lineWidth(1/System.canvasScaleFactor);
+		g.strokeStyle('#000');
+		g.strokeRect(x0, y0, x1-x0+1, y1-y0+1);
+
+		g.lineWidth(1/System.canvasScaleFactor);
+		g.strokeStyle('#00f');
+		for (let y = globals.viewport.worldY1+this.grid.offsy; y < globals.viewport.worldY2+this.grid.offsy; y += (1 << this.grid.ky))
+		for (let x = globals.viewport.worldX1+this.grid.offsx; x < globals.viewport.worldX2+this.grid.offsx; x += (1 << this.grid.kx))
+		{
+			g.strokeRect(x-this.grid.offsx, y-this.grid.offsy, (1 << this.grid.kx), (1 << this.grid.ky));
+		}
 	},
 
 	/*

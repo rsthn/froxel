@@ -17,9 +17,6 @@
 import { Class } from '@rsthn/rin';
 
 import PriorityQueue from '../utils/priority-queue.js';
-import System from '../system/system.js';
-import Resources from '../resources/resources.js';
-import C from '../system/config.js';
 
 /*
 **	
@@ -28,15 +25,6 @@ import C from '../system/config.js';
 const Boot =
 {
 	modules: new PriorityQueue(),
-
-	init: function ()
-	{
-		Resources.integerScaling = false;
-	
-		System.init ({ antialias: C.ANTIALIAS, fullscreen: false, background: C.BACKGROUND, screenWidth: C.WIDTH, screenHeight: C.HEIGHT, orientation: C.ORIENTATION, fps: C.FPS, minFps: C.MIN_FPS || 15 });
-	
-		Boot.startup();
-	},
 
 	register: function (module)
 	{

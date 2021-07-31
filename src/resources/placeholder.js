@@ -14,11 +14,11 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import IDrawable from '../system/idrawable.js';
+import { Class } from '@rsthn/rin';
 import Canvas from '../system/canvas.js';
 import Resources from './resources.js';
 
-export default IDrawable.extend
+export default Class.extend
 ({
 	className: "Placeholder",
 
@@ -30,7 +30,8 @@ export default IDrawable.extend
 		if (r.type != "object")
 			throw new Error ("Resource is not an object.");
 
-		this._super.IDrawable.__ctor(r.width, r.height);
+		this.width = r.width;
+		this.height = r.height;
 
 		this.r = r;
 		this.r.wrapper = this;
@@ -53,6 +54,11 @@ export default IDrawable.extend
 			return;
 
 		g.drawImageResource (this, x, y, width, height);
+	},
+
+	getDrawable: function()
+	{
+		return this;
 	}
 });
 

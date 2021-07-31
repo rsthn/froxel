@@ -14,19 +14,23 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import IDrawable from '../system/idrawable.js';
+import { Class } from '@rsthn/rin';
 import Resources from './resources.js';
 
-export default IDrawable.extend
+export default Class.extend
 ({
 	className: "Drawable",
+
+	width: null,
+	height: null,
 
 	__ctor: function (r)
 	{
 		if (r.type != "image")
 			throw new Error ("Resource is not an image.");
 
-		this._super.IDrawable.__ctor(r.width, r.height);
+		this.width = r.width;
+		this.height = r.height;
 
 		this.r = r;
 		this.r.wrapper = this;
@@ -38,6 +42,11 @@ export default IDrawable.extend
 			g.drawImageResource (this.r, x, y);
 		else
 			g.drawImageResource (this.r, x, y, width, height);
+	},
+
+	getDrawable: function()
+	{
+		return this;
 	}
 });
 

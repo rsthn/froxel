@@ -69,7 +69,7 @@ export default Container.extend
 
 		while ((i = this.list.shift()) !== null)
 		{
-			i.h_remove.remove(this._remove, this);
+			i.remover.remove(this._remove, this);
 			i.container = null;
 			dispose(i);
 		}
@@ -86,7 +86,7 @@ export default Container.extend
 
 		while ((i = this.list.shift()) !== null)
 		{
-			i.h_remove.remove(this._remove, this);
+			i.remover.remove(this._remove, this);
 			i.container = null;
 		}
 
@@ -105,7 +105,7 @@ export default Container.extend
 		this.elementCount++;
 
 		elem.container = this;
-		elem.h_remove.add(this._remove, this, this.list.bottom);
+		elem.remover.add(this._remove, this, this.list.bottom);
 
 		return true;
 	},
@@ -127,7 +127,7 @@ export default Container.extend
 	*/
 	remove: function (elem)
 	{
-		elem.h_remove.execf(this._remove, this);
+		elem.remover.execf(this._remove, this);
 		return elem;
 	},
 

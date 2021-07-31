@@ -37,9 +37,11 @@ export default Class.extend
 ({
 	className: "Spritesheet",
 
-	width: 0, height: 0,
+	width: 0,
+	height: 0,
 
-	numCols: 0, numFrames: 0,
+	numCols: 0,
+	numFrames: 0,
 
 	drawableCache: null,
 
@@ -127,11 +129,18 @@ export default Class.extend
 		}
 	},
 
-	getDrawable: function (frameIndex)
-	// OR getDrawable: function (x, y)
+	getFrame: function (x, y=null)
+	// OR getFrame: function (frameIndex)
 	{
-		if (arguments.length == 2)
-			frameIndex = arguments[1]*this.numCols + arguments[0];
+		let frameIndex;
+
+		if (y !== null)
+			frameIndex = y*this.numCols + x;
+		else
+			frameIndex = x;
+
+		if (frameIndex < 0 || frameIndex >= this.numFrames)
+			throw new Error ('frameIndex out of range');
 
 		if (!this.drawableCache[frameIndex])
 		{
@@ -146,11 +155,21 @@ export default Class.extend
 				draw: function (g, x=0, y=0, width=0, height=0)
 				{
 					g.drawFrame (this.r, x, y, this.frameIndex, width, height);
+				},
+
+				getDrawable: function()
+				{
+					return this;
 				}
 			};
 		}
 
 		return this.drawableCache[frameIndex];
+	},
+
+	getDrawable: function()
+	{
+		return this.getFrame(0);
 	}
 });
 
