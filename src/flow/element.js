@@ -106,6 +106,7 @@ export default GridElement.extend
 	{
 		if (this.img !== null)
 		{
+			g.zvalue = this.zvalue;
 			this.img.draw(g, this.bounds.x1, this.bounds.y1);
 		}
 

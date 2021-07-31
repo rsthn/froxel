@@ -263,11 +263,12 @@ Canvas.prototype.initGl = function ()
 		uniform mat3 texture_matrix;
 		uniform mat3 current_matrix;
 		uniform sampler2D texture;
+		uniform float zvalue;
 
 		out vec2 f_texcoords;
 
 		void main() {
-			gl_Position = vec4(((vec2(current_matrix*location_matrix*vec3(location, 1.0))/screen_size)*2.0-vec2(1.0, 1.0))*vec2(1.0, -1.0), 0.0, 1.0);
+			gl_Position = vec4(((vec2(current_matrix*location_matrix*vec3(location, 1.0))/screen_size)*2.0-vec2(1.0, 1.0))*vec2(1.0, -1.0), zvalue/16777216.0, 1.0);
 			f_texcoords = vec2(texture_matrix*vec3(location, 1.0))/texture_size;
 		}
 	`);
@@ -284,6 +285,7 @@ Canvas.prototype.initGl = function ()
 
 		void main() {
 			color = texture(tex, f_texcoords);
+			if (color.a == 0.0) discard;
 		}
 	`);
 
@@ -299,7 +301,7 @@ Canvas.prototype.initGl = function ()
 	/* **** */
 	gl.clearColor (0, 0, 0, 0);
 
-	gl.disable (gl.DEPTH_TEST);
+	gl.enable (gl.DEPTH_TEST);
 	gl.clearDepth (0.0);
 	gl.depthFunc (gl.GEQUAL);
 
@@ -314,6 +316,7 @@ Canvas.prototype.initGl = function ()
 	this.gl_uniform_matrix = gl.getUniformLocation(this.gl_program, 'location_matrix');
 	this.gl_uniform_current_matrix = gl.getUniformLocation(this.gl_program, 'current_matrix');
 	this.gl_uniform_texture_matrix = gl.getUniformLocation(this.gl_program, 'texture_matrix');
+	this.gl_uniform_zvalue = gl.getUniformLocation(this.gl_program, 'zvalue');
 
 	gl.enableVertexAttribArray (this.gl_attrib_location);
 	gl.vertexAttribPointer (this.gl_attrib_location, 2, gl.FLOAT, gl.FALSE, 2*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
@@ -322,6 +325,7 @@ Canvas.prototype.initGl = function ()
 	this.location_matrix = new Float32Array(9).fill(0);
 	this.texture_matrix = new Float32Array(9).fill(0);
 	this.texture_size = new Float32Array(2).fill(0);
+	this.zvalue = 0;
 
 	this.transform.identity(this.location_matrix);
 	this.transform.identity(this.texture_matrix);
@@ -363,6 +367,7 @@ Canvas.prototype.initGl = function ()
 			this.gl.uniformMatrix3fv(this.gl_uniform_current_matrix, false, this.transform.data);
 			this.gl.uniformMatrix3fv(this.gl_uniform_matrix, false, this.location_matrix);
 			this.gl.uniformMatrix3fv(this.gl_uniform_texture_matrix, false, this.texture_matrix);
+			this.gl.uniform1f(this.gl_uniform_zvalue, this.zvalue);
 			this.gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 
 			return;
@@ -388,6 +393,7 @@ Canvas.prototype.initGl = function ()
 		this.gl.uniformMatrix3fv(this.gl_uniform_current_matrix, false, this.transform.data);
 		this.gl.uniformMatrix3fv(this.gl_uniform_matrix, false, this.location_matrix);
 		this.gl.uniformMatrix3fv(this.gl_uniform_texture_matrix, false, this.texture_matrix);
+		this.gl.uniform1f(this.gl_uniform_zvalue, this.zvalue);
 		this.gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 	};
 };
@@ -415,6 +421,20 @@ Canvas.prototype.prepareImage = function (image)
 	image.gl_ready = true;
 
 	return true;
+};
+
+/*
+**	Enables or disabled depth-test when running in GL mode.
+*/
+Canvas.prototype.depthTest = function (value)
+{
+	let gl = this.gl;
+	if (gl === null) return;
+
+	if (value)
+		gl.enable (gl.DEPTH_TEST);
+	else
+		gl.disable (gl.DEPTH_TEST);
 };
 
 /*

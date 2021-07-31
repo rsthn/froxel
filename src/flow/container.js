@@ -36,6 +36,11 @@ const Container = Class.extend
 	width: 0, height: 0,
 
 	/*
+	**	Z-value for the container.
+	*/
+	zvalue: 0,
+
+	/*
 	**	Scene object to which this container belongs.
 	*/
 	scene: null,
@@ -68,7 +73,7 @@ const Container = Class.extend
 		this.width = width;
 		this.height = height;
 
-		this.flags = Container.VISIBLE;
+		this.flags = Container.VISIBLE | Container.DEPTH_TEST;
 	},
 
 	/*
@@ -93,6 +98,20 @@ const Container = Class.extend
 	},
 
 	/*
+	**	Sets or gets the depth-test flag.
+	*/
+	depthTest: function (value=null)
+	{
+		if (value === null)
+			return !!(this.flags & Container.DEPTH_TEST);
+
+		this.flags &= ~Container.DEPTH_TEST;
+		if (value) this.flags |= Container.DEPTH_TEST;
+
+		return this;
+	},
+
+	/*
 	**	Sets the active viewport bounds.
 	*/
 	setViewportBounds: function (rect)
@@ -108,6 +127,14 @@ const Container = Class.extend
 	{
 		self.drawCount++;
 		return elem.draw(self.g);
+	},
+
+	/*
+	**	Updates the Z-value of the specified element. Should be called after adding an element and after/before every sync.
+	*/
+	syncZ: function (elem)
+	{
+		elem.zvalue = this.zvalue + elem.bounds.y2;
 	},
 
 	/*
@@ -155,6 +182,22 @@ const Container = Class.extend
 	*/
 	draw: function(g)
 	{
+		if (!this.visible()) return;
+
+		g.depthTest(this.flags & Container.DEPTH_TEST);
+		g.zvalue = this.zvalue;
+
+		this.drawCount = 0;
+		this.g = g;
+
+		this._draw();
+	},
+
+	/*
+	**	Actually draws the contained elements.
+	*/
+	_draw: function(g)
+	{
 		throw new Error ('Container::draw not implemented');
 	}
 });
@@ -164,5 +207,6 @@ const Container = Class.extend
 **	Constants.
 */
 Container.VISIBLE = 0x001;
+Container.DEPTH_TEST = 0x002;
 
 export default Container;

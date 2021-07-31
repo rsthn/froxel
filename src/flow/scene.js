@@ -219,6 +219,8 @@ const Scene = Class.extend
 		if (this.maxHeight === null || container.height > this.maxHeight) this.maxHeight = container.height;
 
 		container.scene = this;
+		container.zvalue = index*1048576;
+
 		this.containers[index] = container;
 		return this;
 	},

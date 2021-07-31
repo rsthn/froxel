@@ -40,6 +40,11 @@ const GridElement = Class.extend
 	bounds: null,
 
 	/*
+	**	Z-value of the element.
+	*/
+	zvalue: 0,
+
+	/*
 	**	Flags of the element (see constants of this class).
 	*/
 	flags: 0,
@@ -231,7 +236,7 @@ const GridElement = Class.extend
 	*/
 	translate: function (dx, dy, upscaled=false)
 	{
-		this.flags |= GridElement.DIRTY;;
+		this.flags |= GridElement.DIRTY;
 		this.bounds.translate (dx, dy, upscaled);
 		return this;
 	},

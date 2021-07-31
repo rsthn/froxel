@@ -57,6 +57,7 @@ export default Container.extend
 	*/
 	sync: function (elem)
 	{
+		this.syncZ(elem);
 		return true;
 	},
 
@@ -107,6 +108,7 @@ export default Container.extend
 		elem.container = this;
 		elem.remover.add(this._remove, this, this.list.bottom);
 
+		this.syncZ(elem);
 		return true;
 	},
 
@@ -134,13 +136,8 @@ export default Container.extend
 	/*
 	**	Draws the contained elements. Does not take the active viewport into account.
 	*/
-	draw: function(g)
+	_draw: function(g)
 	{
-		if (!this.visible()) return;
-
-		this.drawCount = 0;
-		this.g = g;
-
 		let flags = GridElement.ALIVE | GridElement.VISIBLE;
 
 		for (let i = this.list.top; i; i = i.next)

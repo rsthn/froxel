@@ -62,6 +62,7 @@ export default Container.extend
 	*/
 	sync: function (elem)
 	{
+		this.syncZ(elem);
 		return this.grid.sync(elem);
 	},
 
@@ -95,6 +96,7 @@ export default Container.extend
 		elem.container = this;
 		this.elementCount = this.grid.count;
 
+		this.syncZ(elem);
 		return true;
 	},
 
@@ -111,13 +113,8 @@ export default Container.extend
 	/*
 	**	Draws the contained elements. Does not take the active viewport into account.
 	*/
-	draw: function(g)
+	_draw: function(g)
 	{
-		if (!this.visible()) return;
-
-		this.drawCount = 0;
-		this.g = g;
-
 		this.grid.forEachInRegion(this.viewportBounds, GridElement.ALIVE | GridElement.VISIBLE, this.drawElement, this);
 
 		if (!this.debugBounds || this.viewportBounds === null || g.gl !== null)
