@@ -21,8 +21,8 @@ import Rect from './rect.js';
 
 const BITS = 4;
 const UPSCALE = x => (x * (1<<BITS))>>0;
-const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
-//const DOWNSCALE = x => (x>>BITS);
+//const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
+const DOWNSCALE = x => (x>>BITS);
 
 /*
 **	Representation of a bounding box in 2D space. The component values are upscaled by a fixed number of bits to allow
@@ -83,6 +83,23 @@ const Bounds2 = Class.extend
 		this.y2 = DOWNSCALE(this.uy2);
 		this.cx = DOWNSCALE(this.ucx);
 		this.cy = DOWNSCALE(this.ucy);
+
+		return this;
+	},
+
+	/*
+	**	Truncates the components to remove fractional parts.
+	**
+	**	Bounds2 trunc ()
+	*/
+	trunc: function ()
+	{
+		this.ux1 = UPSCALE(this.x1);
+		this.uy1 = UPSCALE(this.y1);
+		this.ux2 = UPSCALE(this.x2);
+		this.uy2 = UPSCALE(this.y2);
+		this.ucx = UPSCALE(this.cx);
+		this.ucy = UPSCALE(this.cy);
 
 		return this;
 	},

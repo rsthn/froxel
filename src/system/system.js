@@ -633,7 +633,7 @@ const System =
 
 		if (!this.flags.renderingEnabled || this.flags.renderingPaused)
 		{
-			this.draw (this.displayBuffer);
+			this.draw();
 			return;
 		}
 
@@ -646,7 +646,7 @@ const System =
 
 		/* ~ */
 		tmp = hrnow();
-		this.draw (this.displayBuffer);
+		this.draw();
 		this.perf.drawTimeTotal += hrnow() - tmp;
 
 		/* ~ */
@@ -874,7 +874,7 @@ const System =
 		if (this.initialMatrix)
 			this.initialMatrix.free();
 
-		this.initialMatrix = this.displayBuffer.getMatrix();
+		this.initialMatrix = this.displayBuffer.getMatrix(true);
 
 		if (notRendering != true)
 		{
@@ -989,10 +989,14 @@ const System =
 	/*
 	**	Runs a rendering cycle, all objects in the drawQueue will be drawn.
 	*/
-	draw: function (canvas)
+	draw: function ()
 	{
 		if (!this.options.overdraw)
-			canvas.clear();
+		{
+			this.displayBuffer.clear();
+			this.displayBuffer2.clear();
+			this.displayBuffer3.clear();
+		}
 
 		try
 		{
@@ -1001,7 +1005,7 @@ const System =
 			for (let elem = this.drawQueue.top; elem; elem = next)
 			{
 				next = elem.next;
-				elem.value.draw(canvas);
+				elem.value.draw(this.displayBuffer);
 			}
 		}
 		catch (e)

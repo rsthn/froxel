@@ -57,15 +57,16 @@ import _Boot from './flow/boot.js'; export const Boot = _Boot;
 import _GridElement from './flow/grid-element.js'; export const GridElement = _GridElement;
 import _Grid from './flow/grid.js'; export const Grid = _Grid;
 
+import _Scene from './flow/scene.js'; export const Scene = _Scene;
 import _Viewport from './flow/viewport.js'; export const Viewport = _Viewport;
-import _Element from './flow/element.js'; export const Element = _Element;
-import _Label from './flow/label.js'; export const Label = _Label;
+import _Updater from './flow/updater.js'; export const Updater = _Updater;
 import _Container from './flow/container.js'; export const Container = _Container;
 import _SimpleContainer from './flow/simple-container.js'; export const SimpleContainer = _SimpleContainer;
 import _GridContainer from './flow/grid-container.js'; export const GridContainer = _GridContainer;
 import _Group from './flow/group.js'; export const Group = _Group;
-import _Updater from './flow/updater.js'; export const Updater = _Updater;
-import _Scene from './flow/scene.js'; export const Scene = _Scene;
+import _Element from './flow/element.js'; export const Element = _Element;
+import _Mask from './flow/mask.js'; export const Mask = _Mask;
+import _Label from './flow/label.js'; export const Label = _Label;
 
 import _KeyboardHandler from './flow/keyboard-handler.js'; export const KeyboardHandler = _KeyboardHandler;
 import _PointerHandler from './flow/pointer-handler.js'; export const PointerHandler = _PointerHandler;

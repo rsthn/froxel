@@ -1305,14 +1305,14 @@ Canvas.prototype.loadMatrix = function (matr)
 
 
 /*
-**	Returns a copy of the current transformation matrix object.
+**	Returns the current transformation matrix, when `clone` is set to true, a cloned matrix will be returned.
 **
-**	>> Matrix getMatrix();
+**	>> Matrix getMatrix(bool clone=false);
 */
 
-Canvas.prototype.getMatrix = function ()
+Canvas.prototype.getMatrix = function (clone=false)
 {
-	return this.matr.clone();
+	return clone ? this.matr.clone() : this.matr;
 };
 
 

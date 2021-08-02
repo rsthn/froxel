@@ -115,7 +115,7 @@ export default Container.extend
 	*/
 	_draw: function(g)
 	{
-		this.grid.forEachInRegion(this.viewportBounds, GridElement.ALIVE | GridElement.VISIBLE, this.drawElement, this);
+		this.grid.forEachInRegion(this.viewportBounds, GridElement.ALIVE | GridElement.VISIBLE, GridElement.ALIVE | GridElement.VISIBLE, this.drawElement, this);
 
 		if (!this.debugBounds || this.viewportBounds === null || g.gl !== null)
 			return;
@@ -155,16 +155,24 @@ export default Container.extend
 	**	Executes the specified callback function for each element that intersects the given bounds and has the specified flags set. The process
 	**	is immediately stopped if the callback returns `false`.
 	*/
-	forEachInRegion: function (bounds, flags, callback, context)
+	forEachInRegion: function (bounds, flagsAndMask, flagsValue, callback, context)
 	{
-		this.grid.forEachInRegion (bounds, flags, callback, context);
+		this.grid.forEachInRegion (bounds, flagsAndMask, flagsValue, callback, context);
 	},
 
 	/*
 	**	Collects all elements that intersect the given bounds and have the specified flags set. Returns a new List, remember to call free() after using it.
 	*/
-	selectInRegion: function (bounds, flags)
+	selectInRegion: function (bounds, flagsAndMask, flagsValue)
 	{
-		return this.grid.selectInRegion (bounds, flags);
+		return this.grid.selectInRegion (bounds, flagsAndMask, flagsValue);
+	},
+
+	/*
+	**	Returns the first element that intersect the given bounds and have the specified flags set.
+	*/
+	selectFirst: function (bounds, flagsAndMask, flagsValue)
+	{
+		return this.grid.selectFirst (bounds, flagsAndMask, flagsValue);
 	}
 });

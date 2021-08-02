@@ -36,11 +36,6 @@ const globals =
 	debugBounds: false,
 
 	/*
-	**	violet
-	*/
-	debugId: false,
-
-	/*
 	**	Global random generators. Only rand0 is used by the global random functions. The rand1 and rand2 can be used manually if desired.
 	*/
 	rand0: new Random(),

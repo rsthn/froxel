@@ -82,7 +82,6 @@ const Log =
 			let tmp = hrnow();
 
 			const g = System.displayBuffer3;
-			g.clear();
 
 			g.font('bold '+fontSize+'pt Monospace');
 			g.textBaseline('top');

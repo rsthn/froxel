@@ -126,11 +126,14 @@ const GridElement = Class.extend
 	},
 
 	/*
-	**	Returns true if masking (bitwise AND) the flags by the specified flag bits results in the same value.
+	**	Returns true if masking (bitwise AND) the flags by the specified flag bits results in the given value.
 	*/
-	getFlags: function (value)
+	getFlags: function (andMask, value=null)
 	{
-		return (this.flags & value) === value;
+		if (value === null)
+			return (this.flags & andMask) === andMask;
+
+		return (this.flags & andMask) === value;
 	},
 
 	/*
@@ -256,5 +259,7 @@ const GridElement = Class.extend
 GridElement.ALIVE 		= 	0x0001;
 GridElement.VISIBLE 	= 	0x0002;
 GridElement.DIRTY 		= 	0x0004;
+
+GridElement.USERDEF		=	0x0100; /* Bits 8 to 31 : 24 flags  */
 
 export default GridElement;
