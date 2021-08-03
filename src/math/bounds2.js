@@ -19,11 +19,6 @@ import { Class } from '@rsthn/rin';
 import Point2 from './point2.js';
 import Rect from './rect.js';
 
-const BITS = 4;
-const UPSCALE = x => (x * (1<<BITS))>>0;
-//const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
-const DOWNSCALE = x => (x>>BITS);
-
 /*
 **	Representation of a bounding box in 2D space. The component values are upscaled by a fixed number of bits to allow
 **	sub-pixel translations (internally), but the public values will always be integers.
@@ -77,12 +72,12 @@ const Bounds2 = Class.extend
 	*/
 	downscale: function ()
 	{
-		this.x1 = DOWNSCALE(this.ux1);
-		this.y1 = DOWNSCALE(this.uy1);
-		this.x2 = DOWNSCALE(this.ux2);
-		this.y2 = DOWNSCALE(this.uy2);
-		this.cx = DOWNSCALE(this.ucx);
-		this.cy = DOWNSCALE(this.ucy);
+		this.x1 = downscale(this.ux1);
+		this.y1 = downscale(this.uy1);
+		this.x2 = downscale(this.ux2);
+		this.y2 = downscale(this.uy2);
+		this.cx = downscale(this.ucx);
+		this.cy = downscale(this.ucy);
 
 		return this;
 	},
@@ -94,12 +89,12 @@ const Bounds2 = Class.extend
 	*/
 	trunc: function ()
 	{
-		this.ux1 = UPSCALE(this.x1);
-		this.uy1 = UPSCALE(this.y1);
-		this.ux2 = UPSCALE(this.x2);
-		this.uy2 = UPSCALE(this.y2);
-		this.ucx = UPSCALE(this.cx);
-		this.ucy = UPSCALE(this.cy);
+		this.ux1 = upscale(this.x1);
+		this.uy1 = upscale(this.y1);
+		this.ux2 = upscale(this.x2);
+		this.uy2 = upscale(this.y2);
+		this.ucx = upscale(this.cx);
+		this.ucy = upscale(this.cy);
 
 		return this;
 	},
@@ -161,14 +156,14 @@ const Bounds2 = Class.extend
 				dy = dx.uy;
 				dx = dx.ux;
 			} else { // Vec2
-				dy = UPSCALE(dx.y);
-				dx = UPSCALE(dx.x);
+				dy = upscale(dx.y);
+				dx = upscale(dx.x);
 			}
 		}
 		else {
 			if (!upscaled) {
-				dx = UPSCALE(dx);
-				dy = UPSCALE(dy);
+				dx = upscale(dx);
+				dy = upscale(dy);
 			}
 		}
 
@@ -196,19 +191,19 @@ const Bounds2 = Class.extend
 				y1 = x1.uy1;
 				x1 = x1.ux1;
 			} else {
-				y2 = UPSCALE(x1.y2);
-				x2 = UPSCALE(x1.x2);
-				y1 = UPSCALE(x1.y1);
-				x1 = UPSCALE(x1.x1);
+				y2 = upscale(x1.y2);
+				x2 = upscale(x1.x2);
+				y1 = upscale(x1.y1);
+				x1 = upscale(x1.x1);
 			}
 		}
 		else
 		{
 			if (!upscaled) {
-				x1 = UPSCALE(x1);
-				y1 = UPSCALE(y1);
-				x2 = UPSCALE(x2);
-				y2 = UPSCALE(y2);
+				x1 = upscale(x1);
+				y1 = upscale(y1);
+				x2 = upscale(x2);
+				y2 = upscale(y2);
 			}
 		}
 
@@ -324,8 +319,8 @@ const Bounds2 = Class.extend
 			}
 			else // Vec2
 			{
-				y1 = UPSCALE(x1.y);
-				x1 = UPSCALE(x1.x);
+				y1 = upscale(x1.y);
+				x1 = upscale(x1.x);
 			}
 		}
 		else
@@ -340,8 +335,8 @@ const Bounds2 = Class.extend
 			{
 				if (x2 !== true)
 				{
-					x1 = UPSCALE(x1);
-					y1 = UPSCALE(y1);
+					x1 = upscale(x1);
+					y1 = upscale(y1);
 				}
 			}
 		}
@@ -427,10 +422,10 @@ const Bounds2 = Class.extend
 			y2 = int(y2);
 		}
 
-		this.ux1 = UPSCALE(Math.max(this.x1, x1));
-		this.uy1 = UPSCALE(Math.max(this.y1, y1));
-		this.ux2 = UPSCALE(Math.min(this.x2, x2));
-		this.uy2 = UPSCALE(Math.min(this.y2, y2));
+		this.ux1 = upscale(Math.max(this.x1, x1));
+		this.uy1 = upscale(Math.max(this.y1, y1));
+		this.ux2 = upscale(Math.min(this.x2, x2));
+		this.uy2 = upscale(Math.min(this.y2, y2));
 
 		this.ucx = (this.ux1 + this.ux2) >> 1;
 		this.ucy = (this.uy1 + this.uy2) >> 1;
@@ -447,8 +442,8 @@ const Bounds2 = Class.extend
 	*/
 	resize: function (width, height, topLeftRelative=false)
 	{
-		width = UPSCALE(width);
-		height = UPSCALE(height);
+		width = upscale(width);
+		height = upscale(height);
 
 		if (topLeftRelative === true)
 		{
@@ -476,8 +471,8 @@ const Bounds2 = Class.extend
 	*/
 	resizeBy: function (dwidth, dheight, topLeftRelative=false)
 	{
-		dwidth = UPSCALE(dwidth);
-		dheight = UPSCALE(dheight);
+		dwidth = upscale(dwidth);
+		dheight = upscale(dheight);
 
 		if (topLeftRelative === true)
 		{
@@ -535,9 +530,9 @@ const Bounds2 = Class.extend
 	*/
 	containsPoint: function (x, y, tol=0)
 	{
-		x = UPSCALE(x);
-		y = UPSCALE(y);
-		tol = UPSCALE(tol);
+		x = upscale(x);
+		y = upscale(y);
+		tol = upscale(tol);
 
 		return (this.ux1-tol <= x && x <= this.ux2+tol) && (this.uy1-tol <= y && y <= this.uy2+tol);
 	},

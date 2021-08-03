@@ -221,7 +221,7 @@ const Viewport = Class.extend
 	*/
 	updateScreenBounds: function ()
 	{
-		this.screenBounds.set (this.sx, this.sy, this.sx + (this.width-1), this.sy + (this.height-1));
+		this.screenBounds.set (this.sx, this.sy, this.sx + this.width, this.sy + this.height);
 	},
 
 	/*
@@ -498,7 +498,7 @@ const Viewport = Class.extend
 	*/
 	applyClip: function (g)
 	{
-		g.clip(this.screenBounds.x1, this.screenBounds.y1, this.screenBounds.width()+1, this.screenBounds.height()+1);
+		g.clip(this.screenBounds.x1, this.screenBounds.y1, this.screenBounds.width(), this.screenBounds.height());
 	},
 
 	/*
@@ -506,8 +506,8 @@ const Viewport = Class.extend
 	*/
 	applyTransform: function (g)
 	{
-		let cx = this.screenBounds.x1 + ((this.screenBounds.width() + 1) >> 1);
-		let cy = this.screenBounds.y1 + ((this.screenBounds.height() + 1) >> 1);
+		let cx = this.screenBounds.x1 + (this.screenBounds.width() >> 1);
+		let cy = this.screenBounds.y1 + (this.screenBounds.height() >> 1);
 
 		g.translate (cx, cy);
 
@@ -526,8 +526,8 @@ const Viewport = Class.extend
 	*/
 	toWorldSpace: function (x, y, floor=false)
 	{
-		let cx = this.screenBounds.x1 + ((this.screenBounds.width() + 1) >> 1);
-		let cy = this.screenBounds.y1 + ((this.screenBounds.height() + 1) >> 1);
+		let cx = this.screenBounds.x1 + (this.screenBounds.width() >> 1);
+		let cy = this.screenBounds.y1 + (this.screenBounds.height() >> 1);
 
 		if (floor) {
 			x = ((x - int(cx)) / this.scale) + int(this.getX());
@@ -546,8 +546,8 @@ const Viewport = Class.extend
 	*/
 	toScreenSpace: function (x, y, floor=false)
 	{
-		let cx = this.screenBounds.x1 + ((this.screenBounds.width() + 1) >> 1);
-		let cy = this.screenBounds.y1 + ((this.screenBounds.height() + 1) >> 1);
+		let cx = this.screenBounds.x1 + (this.screenBounds.width() >> 1);
+		let cy = this.screenBounds.y1 + (this.screenBounds.height() >> 1);
 
 		if (floor) {
 			x = (x - int(this.getX())) * this.scale + int(cx);

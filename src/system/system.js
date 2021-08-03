@@ -646,13 +646,13 @@ const System =
 
 		/* ~ */
 		tmp = hrnow();
-		this.draw();
-		this.perf.drawTimeTotal += hrnow() - tmp;
+		this.update (this.frameDelta);
+		this.perf.updateTimeTotal += hrnow() - tmp;
 
 		/* ~ */
 		tmp = hrnow();
-		this.update (this.frameDelta);
-		this.perf.updateTimeTotal += hrnow() - tmp;
+		this.draw();
+		this.perf.drawTimeTotal += hrnow() - tmp;
 
 		/* ~ */
 		this.perf.lastTime = now;

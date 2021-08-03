@@ -431,3 +431,29 @@ global.alignValue = function (value, step)
 {
 	return Math.round(value/step)*step;
 };
+
+
+/*
+**	Number of bits for fixed-point number.
+*/
+const BITS = 4;
+
+/*
+**	Returns a fixed-point upscaled value.
+**
+**	int upscale (float value)
+*/
+global.upscale = function (value)
+{
+	return (value * (1 << BITS)) >> 0;
+};
+
+/*
+**	Downscales a fixed-point value to ints integer part.
+**
+**	int downscale (int value)
+*/
+global.downscale = function (value)
+{
+	return value >> BITS;
+};

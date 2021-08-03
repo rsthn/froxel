@@ -16,6 +16,9 @@
 
 import Element from './element.js';
 import List from '../utils/list.js';
+import Point2 from '../math/point2.js';
+
+const tempPoint = Point2.calloc();
 
 /*
 **	Groups one or more elements into a single one.
@@ -193,11 +196,27 @@ export default Element.extend
 		_dy = this.bounds.y1 - _dy;
 
 		for (let i = this.children.top; i; i = i.next)
-		{
 			i.value.translate(_dx, _dy);
-		}
 
 		return this;
+	},
+
+	/*
+	**	Translates the given bounds (r) as if it were a children element.
+	*/
+	getOffsets: function (dx, dy, upscaled=false)
+	{
+		tempPoint.set(this.bounds.ux1, this.bounds.uy1, true);
+
+		let _dx = tempPoint.x;
+		let _dy = tempPoint.y;
+
+		tempPoint.add(dx, dy, upscaled);
+
+		_dx = tempPoint.x - _dx;
+		_dy = tempPoint.y - _dy;
+
+		return tempPoint.set(_dx, _dy);
 	},
 
 	/*

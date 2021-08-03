@@ -17,11 +17,6 @@
 import { Class } from '@rsthn/rin';
 import Recycler from '../utils/recycler.js';
 
-const BITS = 4;
-const UPSCALE = x => (x * (1 << BITS))>>0;
-//const DOWNSCALE = x => ((1-(((x>>31)&1)<<1))*(x) >> BITS) * (1-(((x>>31)&1)<<1));
-const DOWNSCALE = x => (x>>BITS);
-
 /*
 **	Representation of a point in 2D space. The component values are upscaled by a fixed number of bits to allow
 **	sub-pixel translations (internally), but the public values will always be integers.
@@ -56,8 +51,8 @@ const Point2 = Class.extend
 	*/
 	downscale: function ()
 	{
-		this.x = DOWNSCALE(this.ux);
-		this.y = DOWNSCALE(this.uy);
+		this.x = downscale(this.ux);
+		this.y = downscale(this.uy);
 		return this;
 	},
 
@@ -76,9 +71,9 @@ const Point2 = Class.extend
 	**
 	**	Point2 set (Point2 v)
 	**	Point2 set (Vec2 v)
-	**	Point2 set (float x, float y)
+	**	Point2 set (float x, float y, bool upscaled=false)
 	*/
-	set: function (x, y=null)
+	set: function (x, y=null, upscaled=false)
 	{
 		if (x === null) {
 			x = 0;
@@ -90,13 +85,15 @@ const Point2 = Class.extend
 				y = x.uy;
 				x = x.ux;
 			} else { // Point2
-				y = UPSCALE(x.y);
-				x = UPSCALE(x.x);
+				y = upscale(x.y);
+				x = upscale(x.x);
 			}
 		}
 		else {
-			x = UPSCALE(x);
-			y = UPSCALE(y);
+			if (!upscaled) {
+				x = upscale(x);
+				y = upscale(y);
+			}
 		}
 
 		this.ux = x;
@@ -112,7 +109,7 @@ const Point2 = Class.extend
 	*/
 	setX: function (x)
 	{
-		this.ux = UPSCALE(x);
+		this.ux = upscale(x);
 		return this.downscale(this);
 	},
 
@@ -123,7 +120,7 @@ const Point2 = Class.extend
 	*/
 	setY: function (y)
 	{
-		this.uy = UPSCALE(y);
+		this.uy = upscale(y);
 		return this.downscale(this);
 	},
 
@@ -179,9 +176,9 @@ const Point2 = Class.extend
 	**
 	**	float add (Vec2 v)
 	**	float add (Point2 v)
-	**	float add (float dx, float dy)
+	**	float add (float dx, float dy, upscaled=false)
 	*/
-	add: function (dx, dy=null)
+	add: function (dx, dy=null, upscaled=false)
 	{
 		if (dy === null)
 		{
@@ -189,13 +186,15 @@ const Point2 = Class.extend
 				dy = dx.uy;
 				dx = dx.ux;
 			} else { // Point2
-				dy = UPSCALE(dx.y);
-				dx = UPSCALE(dx.x);
+				dy = upscale(dx.y);
+				dx = upscale(dx.x);
 			}
 		}
 		else {
-			dx = UPSCALE(dx);
-			dy = UPSCALE(dy);
+			if (!upscaled) {
+				dx = upscale(dx);
+				dy = upscale(dy);
+			}
 		}
 
 		this.ux += dx, this.uy += dy;
@@ -207,9 +206,9 @@ const Point2 = Class.extend
 	**
 	**	float sub (Vec2 v)
 	**	float sub (Point2 v)
-	**	float sub (float dx, float dy)
+	**	float sub (float dx, float dy, bool upscaled=false)
 	*/
-	sub: function (dx, dy)
+	sub: function (dx, dy, upscaled=false)
 	{
 		if (dy === null)
 		{
@@ -217,13 +216,15 @@ const Point2 = Class.extend
 				dy = dx.uy;
 				dx = dx.ux;
 			} else { // Point2
-				dy = UPSCALE(dx.y);
-				dx = UPSCALE(dx.x);
+				dy = upscale(dx.y);
+				dx = upscale(dx.x);
 			}
 		}
 		else {
-			dx = UPSCALE(dx);
-			dy = UPSCALE(dy);
+			if (!upscaled) {
+				dx = upscale(dx);
+				dy = upscale(dy);
+			}
 		}
 
 		this.ux -= dx, this.uy -= dy;
