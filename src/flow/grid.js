@@ -312,6 +312,49 @@ const Grid = Class.extend
 	},
 
 	/*
+	**	Counts all elements that intersect the given bounds and have the specified flags set.
+	*/
+	countInRegion: function (bounds, flagsAndMask, flagsValue)
+	{
+		let j0 = ((bounds.y1+this.offsy) - (1<<this.ky-1) >> this.ky) * this.stride;
+		let j1 = ((bounds.y2+this.offsy) + (1<<this.ky-1) >> this.ky) * this.stride;
+		let i0 = ((bounds.x1+this.offsx) - (1<<this.kx-1) >> this.kx);
+		let i1 = ((bounds.x2+this.offsx) + (1<<this.kx-1) >> this.kx);
+
+		let n = this.grid.length-1;
+
+		if (j0 < 0) j0 = 0; if (j1 < 0) j1 = 0;
+		if (i0 < 0) i0 = 0; if (i1 < 0) i1 = 0;
+		if (j0 > n) j0 = n; if (j1 > n) j1 = n;
+		if (i0 > n) i0 = n; if (i1 > n) i1 = n;
+
+		let m = 0;
+
+		for (let j = j0; j <= j1; j += this.stride)
+		{
+			for (let i = i0; i <= i1; i++)
+			{
+				let k = j + i;
+				if (k > n || this.grid[k] === null) continue;
+
+				for (let e = this.grid[k].top; e; e = e.next)
+				{
+					// First check the element flags.
+					if (!e.value.getFlags(flagsAndMask, flagsValue)) continue;
+
+					// Verify exact intersection only on elements located on the edges of the indexed-based approximated rectangle.
+					if (this.verifyIntersection && (j <= j0+1 || i <= i0+1 || j >= j1-1 || i >= i1-1) && !e.value.bounds.intersects(bounds))
+						continue;
+
+					m++;
+				}
+			}
+		}
+
+		return m;
+	},
+
+	/*
 	**	Returns the first element that intersect the given bounds and have the specified flags set.
 	*/
 	selectFirst: function (bounds, flagsAndMask, flagsValue)

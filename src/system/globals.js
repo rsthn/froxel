@@ -449,11 +449,21 @@ global.upscale = function (value)
 };
 
 /*
-**	Downscales a fixed-point value to ints integer part.
+**	Downscales a fixed-point value to its integer part.
 **
 **	int downscale (int value)
 */
 global.downscale = function (value)
 {
 	return value >> BITS;
+};
+
+/*
+**	Downscales a fixed-point value to floating point.
+**
+**	float downscale (int value)
+*/
+global.downscalef = function (value)
+{
+	return value / (1 << BITS);
 };

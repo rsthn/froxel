@@ -202,7 +202,7 @@ export default Element.extend
 	},
 
 	/*
-	**	Translates the given bounds (r) as if it were a children element.
+	**	Returns the extra offset introduced by the group when translating a child element by the specified deltas.
 	*/
 	getOffsets: function (dx, dy, upscaled=false)
 	{
@@ -216,7 +216,12 @@ export default Element.extend
 		_dx = tempPoint.x - _dx;
 		_dy = tempPoint.y - _dy;
 
-		return tempPoint.set(_dx, _dy);
+		tempPoint.set(_dx, _dy);
+
+		tempPoint.x -= dx;
+		tempPoint.y -= dy;
+
+		return tempPoint;
 	},
 
 	/*

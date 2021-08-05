@@ -169,6 +169,14 @@ export default Container.extend
 	},
 
 	/*
+	**	Counts all elements that intersect the given bounds and have the specified flags set.
+	*/
+	countInRegion: function (bounds, flagsAndMask, flagsValue)
+	{
+		return this.grid.countInRegion (bounds, flagsAndMask, flagsValue);
+	},
+
+	/*
 	**	Returns the first element that intersect the given bounds and have the specified flags set.
 	*/
 	selectFirst: function (bounds, flagsAndMask, flagsValue)
