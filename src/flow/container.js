@@ -196,7 +196,7 @@ const Container = Class.extend
 	/*
 	**	Actually draws the contained elements.
 	*/
-	_draw: function(g)
+	_draw: function()
 	{
 		throw new Error ('Container::draw not implemented');
 	}

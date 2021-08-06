@@ -26,20 +26,20 @@ export default Element.extend
 	className: 'Label',
 
 	/*
-	**	Text and color of the label.
+	**	Text to show and spritefont resource.
 	*/
 	text: null,
-	color: null,
+	font: null,
 
 	/*
 	**	Constructs a label element at the specified position with the given text.
 	*/
-	__ctor: function(x, y, text, color='#fff')
+	__ctor: function(x, y, font, text)
 	{
 		this._super.Element.__ctor(x, y, 4, 4);
 
 		this.text = text;
-		this.color = color;
+		this.font = font;
 	},
 
 	/*
@@ -47,11 +47,17 @@ export default Element.extend
 	*/
 	draw: function(g)
 	{
+		if (this.font !== null)
+		{
+			this.font.drawText (g, this.bounds.x1, this.bounds.y1, this.text);
+			return;
+		}
+
 		if (g.gl !== null) return;
 
 		g.font('bold 4px monospace');
 		g.textBaseline('top');
-		g.fillStyle(this.color);
+		g.fillStyle('#fff');
 		g.fillText(this.text, this.bounds.x1, this.bounds.y1);
 	}
 });

@@ -113,9 +113,11 @@ export default Container.extend
 	/*
 	**	Draws the contained elements. Does not take the active viewport into account.
 	*/
-	_draw: function(g)
+	_draw: function()
 	{
 		this.grid.forEachInRegion(this.viewportBounds, GridElement.ALIVE | GridElement.VISIBLE, GridElement.ALIVE | GridElement.VISIBLE, this.drawElement, this);
+
+		let g = this.g;
 
 		if (!this.debugBounds || this.viewportBounds === null || g.gl !== null)
 			return;

@@ -136,7 +136,7 @@ export default Container.extend
 	/*
 	**	Draws the contained elements. Does not take the active viewport into account.
 	*/
-	_draw: function(g)
+	_draw: function()
 	{
 		let flags = GridElement.ALIVE | GridElement.VISIBLE;
 

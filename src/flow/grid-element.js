@@ -260,6 +260,21 @@ GridElement.ALIVE 		= 	0x0001;
 GridElement.VISIBLE 	= 	0x0002;
 GridElement.DIRTY 		= 	0x0004;
 
-GridElement.USERDEF		=	0x0100; /* Bits 8 to 31 : 24 flags  */
+GridElement.USERDEF		=	0x0100; /* Bits 8 to 30 : 23 flags  */
+GridElement.LAST_FLAG	=	0x0080;
+
+/*
+**	Class-level function to allocate a new flag.
+*/
+GridElement.allocFlag = function()
+{
+	let flag = GridElement.LAST_FLAG;
+	if (flag === 0x4000_0000) throw new Error ('allocFlag: out of bit space to allocate another flag');
+
+	flag <<= 1;
+	GridElement.LAST_FLAG = flag;
+
+	return flag;
+};
 
 export default GridElement;

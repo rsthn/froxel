@@ -19,7 +19,7 @@ import Canvas from '../system/canvas.js';
 
 /*
 	font: {
-		sheetWidth: int, sheetHeight: int, charWidth: int, charHeight: int, charset: string, widths: [char, width, ...]
+		sheetWidth: int?, charWidth: int, charHeight: int, charset: string, widths: [char, width, ...]
 	}
 */
 
@@ -30,8 +30,11 @@ export default Class.extend
 		if (r.type != "image" || !r.font)
 			throw new Error ("Resource is not a sprite font.");
 
-		var r_scale = r.data.width / r.font.sheetWidth;
-		var v_scale = r.width / r.font.sheetWidth;
+		if (!r.font.sheetWidth)
+			r.font.sheetWidth = r.width;
+
+		let r_scale = r.data.width / r.font.sheetWidth;
+		let v_scale = r.width / r.font.sheetWidth;
 
 		this.r_charWidth = (r.font.charWidth * r_scale);
 		this.r_charHeight = (r.font.charHeight * r_scale);
@@ -39,14 +42,14 @@ export default Class.extend
 		this.charWidth = (r.font.charWidth * v_scale);
 		this.charHeight = (r.font.charHeight * v_scale);
 
-		var cols = int(r.font.sheetWidth / r.font.charWidth);
+		let cols = int(r.font.sheetWidth / r.font.charWidth);
 
 		this.r = r;
 		this.r.wrapper = this;
 
-		var n = r.font.charset.length;
-		var k = 0;
-		var y = 0;
+		let n = r.font.charset.length;
+		let k = 0;
+		let y = 0;
 
 		this.charTable = { };
 
@@ -54,11 +57,11 @@ export default Class.extend
 
 		while (k < n)
 		{
-			var x = 0;
+			let x = 0;
 
-			for (var i = 0; i < cols && k < n; i++)
+			for (let i = 0; i < cols && k < n; i++)
 			{
-				var c = r.font.charset[k++];
+				let c = r.font.charset[k++];
 
 				this.charTable[c] = { x: x, y: y, charWidth: this.charWidth, r_charWidth: this.r_charWidth };
 
@@ -70,16 +73,16 @@ export default Class.extend
 
 		if (!r.font.widths) return;
 
-		var n = r.font.widths.length;
+		n = r.font.widths.length;
 
-		for (var i = 0; i < n; i += 2)
+		for (let i = 0; i < n; i += 2)
 		{
-			var w1 = (r.font.widths[i] * v_scale);
-			var w2 = (r.font.widths[i] * r_scale);
+			let w1 = (r.font.widths[i] * v_scale);
+			let w2 = (r.font.widths[i] * r_scale);
 
-			var s = r.font.widths[i+1];
+			let s = r.font.widths[i+1];
 
-			for (var j = 0; j < s.length; j++)
+			for (let j = 0; j < s.length; j++)
 			{
 				this.charTable[s[j]].charWidth = w1;
 				this.charTable[s[j]].r_charWidth = w2;
@@ -87,11 +90,11 @@ export default Class.extend
 		}
 	},
 
-	draw: function (g, x, y, text)
+	drawText: function (g, x, y, text)
 	{
-		var n = text.length;
+		let n = text.length;
 
-		for (var i = 0; i < n; i++)
+		for (let i = 0; i < n; i++)
 		{
 			if (text[i] == " ")
 			{
@@ -99,7 +102,7 @@ export default Class.extend
 				continue;
 			}
 
-			var c = this.charTable[text[i]];
+			let c = this.charTable[text[i]];
 			if (!c) continue;
 
 			g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight);
@@ -110,12 +113,12 @@ export default Class.extend
 
 	measureWidth: function (text)
 	{
-		var n = text.length;
-		var x = 0;
+		let n = text.length;
+		let x = 0;
 
-		for (var i = 0; i < n; i++)
+		for (let i = 0; i < n; i++)
 		{
-			var c = this.charTable[text[i]];
+			let c = this.charTable[text[i]];
 			if (!c) continue;
 
 			x += c.charWidth;
@@ -133,13 +136,11 @@ export default Class.extend
 
 Canvas.prototype.drawText = function (r, x, y, text)
 {
-	r.draw (this, x, y, text.toString());
+	r.drawText (this, x, y, text);
 };
 
 Canvas.prototype.drawTextAligned = function (r, x, y, w, h, ax, ay, text)
 {
-	text = text.toString();
-
 	if (ax == 0) // Align-Center
 		x = x + ((w - r.measureWidth(text)) >> 1);
 	else if (ax < 0) // Align-Left
@@ -154,7 +155,7 @@ Canvas.prototype.drawTextAligned = function (r, x, y, w, h, ax, ay, text)
 	else if (ay > 0) // Align-Bottom
 		y = y + h - ay + 1 - r.measureHeight(text);
 
-	r.draw (this, x, y, text);
+	r.drawText (this, x, y, text);
 };
 
 Canvas.prototype.drawTextAligned2 = function (r, bounds, ax, ay, text)
