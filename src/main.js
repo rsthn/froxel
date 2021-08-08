@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// cherry
+// rin
 import * as _Rin from '@rsthn/rin';
 export const Class = _Rin.Class;
 
@@ -73,3 +73,7 @@ import _PointerHandler from './flow/pointer-handler.js'; export const PointerHan
 import _ScreenControls from './flow/screen-controls.js'; export const ScreenControls = _ScreenControls;
 import _Button from './flow/button.js'; export const Button = _Button;
 import _Stick from './flow/stick.js'; export const Stick = _Stick;
+
+// fxl
+import * as _fxl from './fxl/fxl.js';
+export default fxl = _fxl;

@@ -261,7 +261,7 @@ global.randrf = function (a, b)
 global.randr = function (a, b)
 {
 	let t = globals.rand0.nextFloat();
-	return int(t*b + (1-t)*a);
+	return Math.round(t*b + (1-t)*a);
 };
 
 /*

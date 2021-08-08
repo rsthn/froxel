@@ -62,7 +62,7 @@ const System =
 	defaultOptions:
 	{
 		background: "#000",
-		gl: false,
+		gl: true,
 
 		overdraw: false,
 
@@ -74,7 +74,6 @@ const System =
 		minFps: 15,
 		vsync: true,
 
-		context: null,
 		antialias: true,
 
 		screenWidth: null,

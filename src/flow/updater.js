@@ -19,7 +19,7 @@ import List from '../utils/list.js';
 import Element from './element.js';
 
 /*
-**	An updater is used to update one or more elements.
+**	An updater is used to update one or more elements and synchronize their position with their container.
 */
 
 const Updater = Class.extend
@@ -37,12 +37,21 @@ const Updater = Class.extend
 	list: null,
 
 	/*
+	**	Callback passed when constructing the updater.
+	*/
+	__update: null,
+	__context: null,
+
+	/*
 	**	Constructs the updater.
 	*/
-	__ctor: function (scene)
+	__ctor: function (scene, update=null, context=null)
 	{
 		this.list = List.calloc();
 		this.scene = scene;
+
+		this.__update = update;
+		this.__context = context;
 
 		this.scene.updater.add(this._update, this);
 		this.scene.synchronizer.add(this._sync, this);
@@ -126,6 +135,15 @@ const Updater = Class.extend
 	*/
 	update: function (dt) /* @override */
 	{
+		if (this.__update !== null)
+		{
+			let next = null;
+			for (let i = this.list.top; i; i = next)
+			{
+				next = i.next;
+				this.__update (i.value, dt, this.__context);
+			}
+		}
 	}
 });
 

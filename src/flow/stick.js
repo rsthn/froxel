@@ -88,7 +88,7 @@ export default Group.extend
 
 		this.unpressedImgInner = unpressedImgInner;
 		this.pressedImgInner = pressedImgInner || unpressedImgInner;
-		
+
 		this.maxRadius = maxRadius;
 
 		this.hitbox = new Element(x, y, unpressedImg.width, unpressedImg.height);
