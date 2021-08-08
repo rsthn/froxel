@@ -42,9 +42,9 @@ declare class collider
 	 static disable() : void;
 
 	/**
-	 * 	Utility object containing actions that are executed on the next update cycle.
+	 * 	Utility object containing actions that are executed later on the next update cycle.
 	 */
-	static next:
+	static later:
 	{
 		/**
 		 *	Sets the element's visibility flag.

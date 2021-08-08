@@ -50,9 +50,9 @@ const GridElement = Class.extend
 	flags: 0,
 
 	/*
-	**	Generic tag of the element.
+	**	Generic data of the element, used to store some value or object.
 	*/
-	tag: null,
+	data: null,
 
 	/*
 	**	The container where the element is stored.
@@ -80,7 +80,7 @@ const GridElement = Class.extend
 		this.bounds.resize (width, height, true);
 
 		this.flags = GridElement.ALIVE | GridElement.VISIBLE | GridElement.DIRTY;
-		this.tag = null;
+		this.data = null;
 
 		this.remover = Handler.alloc().init(this);
 	},
@@ -137,20 +137,20 @@ const GridElement = Class.extend
 	},
 
 	/*
-	**	Sets the generic tag of the element.
+	**	Sets the generic data of the element.
 	*/
-	setTag: function (tag)
+	setData: function (data)
 	{
-		this.tag = tag;
+		this.data = data;
 		return this;
 	},
 
 	/*
-	**	Returns the generic tag of the element.
+	**	Returns the generic data of the element.
 	*/
-	getTag: function()
+	getData: function()
 	{
-		return this.tag;
+		return this.data;
 	},
 
 	/*

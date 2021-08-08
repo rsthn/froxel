@@ -234,29 +234,6 @@ declare class world
 	static createMask (id: string, type: number, x: number, y: number, width: number, height: number, containerIndex?: number) : Mask;
 
 	/**
-	 *	Creates a label element with the given position and text, and adds it to the specified container (or the default one) in the
-	 *	active scene. If a group is active, the element will be attached to the group.
-	 *
-	 * 	@param x - X coordinate
-	 * 	@param y - Y coordinate
-	 * 	@param text - Text for the label.
-	 * 	@param containerIndex - Index of the target container within the active scene.
-	 */
-	static createLabel (x: number, y: number, text: string, containerIndex?: number) : Label;
-
-	/**
-	 *	Creates a label element with the given position and text, and adds it to the specified container (or the default one) in the
-	 *	active scene. If a group is active, the element will be attached to the group.
-	 *
-	 * 	@param id - Identifier for the label.
-	 * 	@param x - X coordinate
-	 * 	@param y - Y coordinate
-	 * 	@param text - Text for the label.
-	 * 	@param containerIndex - Index of the target container within the active scene.
-	 */
-	static createLabel (id: string, x: number, y: number, text: string, containerIndex?: number) : Label;
-
-	/**
 	 *	Creates a text element with the given position and text, and adds it to the specified container (or the default one) in the
 	 *	active scene. If a group is active, the element will be attached to the group.
 	 *
@@ -266,7 +243,7 @@ declare class world
 	 * 	@param text
 	 * 	@param containerIndex - Index of the target container within the active scene.
 	 */
-	static createText (x: number, y: number, font: any, text: string, containerIndex?: number) : Label;
+	static createLabel (x: number, y: number, font: any, text: string, containerIndex?: number) : Label;
 
 	/**
 	 *	Creates a text element with the given position and text, and adds it to the specified container (or the default one) in the
@@ -279,7 +256,7 @@ declare class world
 	 * 	@param text
 	 * 	@param containerIndex - Index of the target container within the active scene.
 	 */
-	 static createText (id: string, x: number, y: number, font: any, text: string, containerIndex?: number) : Label;
+	 static createLabel (id: string, x: number, y: number, font: any, text: string, containerIndex?: number) : Label;
 
 	/**
 	 *	Creates a new updater, attaches it to the active scene and returns it.

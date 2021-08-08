@@ -32,6 +32,25 @@ export default Element.extend
 	font: null,
 
 	/*
+	**	Last text value and its dimensions.
+	*/
+	_ltext: null,
+	_twidth: null,
+	_theight: null,
+
+	/*
+	**	Alignment properties of the label.
+	*/
+	_align: -1, /* -1=LEFT, 0=Center, 1=Right */
+	_valign: -1, /* -1=TOP, 0=Middle, 1=Bottom */
+
+	/*
+	**	Position offset for the text. Calculated based on alignment properties.
+	*/
+	_offsx: null,
+	_offsy: null,
+
+	/*
 	**	Constructs a label element at the specified position with the given text.
 	*/
 	__ctor: function(x, y, font, text)
@@ -43,16 +62,56 @@ export default Element.extend
 	},
 
 	/*
+	**	Sets the horizontal alignment value of the label.
+	*/
+	align: function(value)
+	{
+		this._align = value;
+		this._offsx = null;
+		return this;
+	},
+
+	/*
+	**	Sets the vertical alignment value of the label.
+	*/
+	valign: function(value)
+	{
+		this._valign = value;
+		this._offsy = null;
+		return this;
+	},
+
+	/*
 	**	Draws the element on the specified canvas.
 	*/
 	draw: function(g)
 	{
 		if (this.font !== null)
 		{
-			this.font.drawText (g, this.bounds.x1, this.bounds.y1, this.text);
+			if (this.text !== this._ltext)
+			{
+				this._twidth = this.font.measureWidth(this.text);
+				this._theight = this.font.measureHeight(this.text);
+				this._ltext = this.text;
+			}
+
+			if (this._offsx === null) {
+				if (this._align < 0) this._offsx = 0;
+				else if (this._align === 0) this._offsx = -this._twidth >> 1;
+				else this._offsx = -this._twidth;
+			}
+
+			if (this._offsy === null) {
+				if (this._valign < 0) this._offsy = 0;
+				else if (this._valign === 0) this._offsy = -this._theight >> 1;
+				else this._offsy = -this._theight;
+			}
+
+			this.font.drawText (g, this.bounds.x1 + this._offsx, this.bounds.y1 + this._offsy, this.text);
 			return;
 		}
 
+		// VIOLET: Possibly remove this and mark it as deprecated (fallback when no spritefont is specified).
 		if (g.gl !== null) return;
 
 		g.font('bold 4px monospace');

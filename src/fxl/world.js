@@ -73,11 +73,6 @@ const world =
 
 	/**
 	 * 	Initializes the world with the default scenes, viewports and layers.
-	 *
-	 * 	@param {number} [worldWidth] - Width of the world.
-	 * 	@param {number} [worldHeight] - Height of the world.
-	 * 	@param {number} [divisor] - Divisor to calculate number of grid slots.
-	 * 	@returns {void}
 	 */
 	init: function (worldWidth=32768, worldHeight=32768, divisor=null)
 	{
@@ -107,9 +102,6 @@ const world =
 
 	/**
 	 * 	Creates a scene for the system at the specified index and automatically selects it.
-	 *
-	 * 	@param {number} index
-	 * 	@returns {void}
 	 */
 	createScene: function (index)
 	{
@@ -126,15 +118,7 @@ const world =
 	},
 
 	/**
-	 * 	Returns the active scene.
-	 *
-	 * 	@returns {Scene | null}
-	 */
-	/**
-	 * 	Returns the scene at the specified index.
-	 *
-	 * 	@param {number} index
-	 * 	@returns {Scene | null}
+	 * 	Returns the scene at the specified index (or the active scene).
 	 */
 	getScene: function (index=null)
 	{
@@ -149,9 +133,6 @@ const world =
 
 	/**
 	 *	Selects the active scene for subsequence scene-level operations.
-	 *
-	 *	@param {number} index
-	 *	@returns {boolean}
 	 */
 	selectScene: function (index)
 	{
@@ -165,9 +146,6 @@ const world =
 	/**
 	 *	Creates a viewport at the specified index, attaches it to the active scene and selects it. Use this after attaching all containers
 	 *	to the scene or the maxWidth and maxHeight properties of the scene will not be properly set yet.
-	 *
-	 * 	@param {number} index
-	 * 	@returns {void}
 	 */
 	createViewport: function (index)
 	{
@@ -193,15 +171,7 @@ const world =
 	},
 
 	/**
-	 *	Returns the active viewport.
-	 *
-	 * 	@returns {Viewport | null}
-	 */
-	/**
-	 *	Returns a viewport given its index.
-	 *
-	 * 	@param {number} index
-	 * 	@returns {Viewport | null}
+	 *	Returns a viewport given its index (or the active viewport).
 	 */
 	getViewport: function (index=null)
 	{
@@ -216,9 +186,6 @@ const world =
 
 	/**
 	 *	Selects the active viewport for subsequence viewport-level operations.
-	 *
-	 * 	@param {number} index - Index of the viewport to select.
-	 * 	@returns {boolean}
 	 */
 	selectViewport: function (index)
 	{
@@ -231,10 +198,6 @@ const world =
 
 	/**
 	 *	Sets a container in the active scene and returns it.
-	 *
-	 * 	@param {number} index - Index of the container within the active scene.
-	 * 	@param {Container} container - Container object (see {@link GridContainer}, {@link SimpleContainer}).
-	 * 	@returns {Container}
 	 */
 	setContainer: function (index, container)
 	{
@@ -246,16 +209,7 @@ const world =
 	},
 
 	/**
-	 *	Returns the active container.
-	 *
-	 * 	@returns {Container}
-	 */
-	/**
-	 *	Returns the container of the active scene at the specified index.
-	 *
-	 * 	@param {number} index - Index of the container within the active scene.
-	 * 	@param {boolean} throwErrors - Indicates if errors should be ignored (null will be returned) or if exceptions should be thrown.
-	 * 	@returns {Container}
+	 *	Returns the container of the active scene at the specified index (or the active container).
 	 */
 	getContainer: function (index=null, throwErrors=false)
 	{
@@ -279,9 +233,6 @@ const world =
 
 	/**
 	 *	Selects the active container.
-	 *
-	 * 	@param {number} index - Index of the container within the active scene.
-	 * 	@returns {boolean}
 	 */
 	selectContainer: function (index)
 	{
@@ -291,8 +242,6 @@ const world =
 
 	/**
 	 *	Creates a group in the active scene and selects it as the active group.
-	 *
-	 * 	@param {string} [id] - Identifier of the group.
 	 */
 	createGroup: function(id=null)
 	{
@@ -308,10 +257,6 @@ const world =
 	/**
 	 *	Stores the activeGroup in `lastGroup` property, then nullifies activeGroup. If the coordinate parameters are provided the group will be translated to
 	 *	the specified position first.
-	 *
-	 * 	@param {number} [x]
-	 * 	@param {number} [y]
-	 * 	@returns {Group}
 	 */
 	endGroup: function(x=null, y=null)
 	{
@@ -327,23 +272,6 @@ const world =
 	/**
 	 *	Creates an Element with the given position and image, and adds it to the specified container (or the default one) in the
 	 *	active scene. If a group is active, the element will be attached to the group.
-	 *
-	 * 	@param {number} x - X coordinate to place the element.
-	 * 	@param {number} y - Y coordinate to place the element.
-	 * 	@param {any} [img] - Drawable-compatible object.
-	 * 	@param {number} [containerIndex] - Index of the target container within the active scene.
-	 * 	@returns {Element}
-	 */
-	/**
-	 *	Creates an Element with the given position and image, and adds it to the specified container (or the default one) in the
-	 *	active scene. If a group is active, the element will be attached to the group.
-	 *
-	 * 	@param {string} id - Identifier of the element.
-	 * 	@param {number} x - X coordinate to place the element.
-	 * 	@param {number} y - Y coordinate to place the element.
-	 * 	@param {any} [img] - Drawable-compatible object.
-	 * 	@param {number} [containerIndex] - Index of the target container within the active scene.
-	 * 	@returns {Element}
 	 */
 	createElement: function (id, x, y, img=null, containerIndex=null)
 	{
@@ -369,41 +297,6 @@ const world =
 
 	/**
 	 *	Creates a default element mask for the active group.
-	 *
-	 * 	@param {number} type - Type of the mask.
-	 * 	@returns {Mask}
-	 */
-	/**
-	 *	Creates a default element mask for the active group.
-	 *
-	 * 	@param {string} id - Identifier of the mask.
-	 * 	@param {number} type - Type of the mask.
-	 * 	@returns {Mask}
-	 */
-	/**
-	 *	Creates an element mask at the given position. Adds it to the specified container (or to LAYER_MASK if none specified) in the
-	 *	active scene. If a group is active, the element will be attached to the group.
-	 *
-	 * 	@param {number} type - Type of the mask.
-	 * 	@param {number} x - X coordinate to place the mask.
-	 * 	@param {number} y - Y coordinate to place the mask.
-	 * 	@param {number} width - Width of the mask.
-	 * 	@param {number} height - Height of the mask.
-	 * 	@param {number} [containerIndex] - Index of the target container within the active scene.
-	 * 	@returns {Mask}
-	 */
-	/**
-	 *	Creates an element mask at the given position. Adds it to the specified container (or to LAYER_MASK if none specified) in the
-	 *	active scene. If a group is active, the element will be attached to the group.
-	 *
-	 * 	@param {string} id - Identifier of the mask.
-	 * 	@param {number} type - Type of the mask.
-	 * 	@param {number} x - X coordinate to place the mask.
-	 * 	@param {number} y - Y coordinate to place the mask.
-	 * 	@param {number} width - Width of the mask.
-	 * 	@param {number} height - Height of the mask.
-	 * 	@param {number} [containerIndex] - Index of the target container within the active scene.
-	 * 	@returns {Mask}
 	 */
 	createMask: function (id, type=null, x=null, y=null, width=null, height=null, containerIndex=null)
 	{
@@ -441,70 +334,10 @@ const world =
 	},
 
 	/**
-	 *	Creates a label element with the given position and text, and adds it to the specified container (or the default one) in the
-	 *	active scene. If a group is active, the element will be attached to the group.
-	 *
-	 * 	@param {number} x - X coordinate to place the label.
-	 * 	@param {number} y - Y coordinate to place the label.
-	 * 	@param {string} text - Text for the label.
-	 * 	@param {number} [containerIndex] - Index of the target container within the active scene.
-	 * 	@returns {Label}
-	 */
-	/**
-	 *	Creates a label element with the given position and text, and adds it to the specified container (or the default one) in the
-	 *	active scene. If a group is active, the element will be attached to the group.
-	 *
-	 * 	@param {string} id - Identifier of the label.
-	 * 	@param {number} x - X coordinate to place the label.
-	 * 	@param {number} y - Y coordinate to place the label.
-	 * 	@param {string} text - Text for the label.
-	 * 	@param {number} [containerIndex] - Index of the target container within the active scene.
-	 * 	@returns {Label}
-	 */
-	createLabel: function (id, x, y, text, containerIndex=null)
-	{
-		if (typeof(id) !== 'string')
-		{
-			containerIndex = text;
-			text = y;
-			y = x;
-			x = id;
-			id = null;
-		}
-
-		let container = this.getContainer(containerIndex);
-
-		let elem = new Label (x, y, null, text);
-		container.add(elem.setId(id));
-
-		if (this.activeGroup !== null)
-			this.activeGroup.addChild(elem);
-
-		return elem;
-	},
-
-	/**
 	 *	Creates a text element with the given position and text, and adds it to the specified container (or the default one) in the
 	 *	active scene. If a group is active, the element will be attached to the group.
-	 *
-	 * 	@param {number} x
-	 * 	@param {number} y
-	 * 	@param {string} text
-	 * 	@param {number} [containerIndex] - Index of the target container within the active scene.
-	 * 	@returns {Label}
 	 */
-	/**
-	 *	Creates a text element with the given position and text, and adds it to the specified container (or the default one) in the
-	 *	active scene. If a group is active, the element will be attached to the group.
-	 *
-	 * 	@param {string} id
-	 * 	@param {number} x
-	 * 	@param {number} y
-	 * 	@param {string} text
-	 * 	@param {number} [containerIndex] - Index of the target container within the active scene.
-	 * 	@returns {Label}
-	 */
-	createText: function (id, x, y, font, text, containerIndex=null)
+	createLabel: function (id, x, y, font, text, containerIndex=null)
 	{
 		if (typeof(id) !== 'string')
 		{
@@ -528,9 +361,6 @@ const world =
 
 	/**
 	 *	Creates a new updater, attaches it to the active scene and returns it.
-	 *
-	 * 	@param {(elem:Element, dt:number) => void} update
-	 * 	@param {any} [context]
 	 */
 	createUpdater: function (update=null, context=null)
 	{

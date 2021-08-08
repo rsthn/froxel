@@ -269,7 +269,7 @@ export default Group.extend
 	**	Saves the current state of the stick in the f* variables (fdirx, fdiry, etc). When the `lastValid` parameter is true, the values will be saved
 	**	on each field only if the current value is not zero.
 	*/
-	freezeState: function (lastValid=false) /* @override */
+	freezeState: function (lastValid=false)
 	{
 		this.frdirx = lastValid ? (this.rdirx != 0 ? this.rdirx : this.frdirx) : this.rdirx;
 		this.frdiry = lastValid ? (this.rdiry != 0 ? this.rdiry : this.frdiry) : this.rdiry;

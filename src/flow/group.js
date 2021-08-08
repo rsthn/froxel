@@ -225,6 +225,28 @@ export default Element.extend
 	},
 
 	/*
+	**	Sets bits of the element flags in the group and all children.
+	*/
+	setFlags: function (value)
+	{
+		for (let i = this.children.top; i; i = i.next)
+			i.value.setFlags(value);
+
+		return this._super.Element.setFlags(value);
+	},
+
+	/*
+	**	Clears bits from the element and all children flags.
+	*/
+	clearFlags: function (value)
+	{
+		for (let i = this.children.top; i; i = i.next)
+			i.value.clearFlags(value);
+
+		return this._super.Element.clearFlags(value);
+	},
+
+	/*
 	**	Override of the `draw` method to do nothing.
 	*/
 	draw: function(g)

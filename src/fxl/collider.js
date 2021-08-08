@@ -67,8 +67,8 @@ const collider =
 	mask: null,
 	collisionItem: null,
 	offs: null,
-	dx: 0,
-	dy: 0,
+	m_dx: 0, m_dy: 0,
+	dx: 0, dy: 0,
 
 	/**
 	 *	Enables the collider system.
@@ -111,9 +111,9 @@ const collider =
 	},
 
 	/**
-	 * 	Utility object containing actions that are executed on the next update cycle.
+	 * 	Utility object containing actions that are executed later on the next update cycle.
 	 */
-	next:
+	later:
 	{
 		/**
 		 *	Sets the element's visibility flag.
@@ -285,35 +285,46 @@ const collider =
 					return;
 				}
 			}
-
-			this.group.translate(this.dx, this.dy);
 		}
 		// Single contact side.
 		else
 		{
 			if (this.flags & 1) // LEFT
-				this.group.translate(this.collisionItem.bounds.x1 - this.mask.bounds.x2, this.dy);
-
-			if (this.flags & 2) // RIGHT
-				this.group.translate(this.collisionItem.bounds.x2 - this.mask.bounds.x1, this.dy);
+				this.dx = this.collisionItem.bounds.x1 - this.mask.bounds.x2
+			else if (this.flags & 2) // RIGHT
+				this.dx = this.collisionItem.bounds.x2 - this.mask.bounds.x1
 
 			if (this.flags & 4) // TOP
-				this.group.translate(this.dx, this.collisionItem.bounds.y1 - this.mask.bounds.y2);
-
-			if (this.flags & 8) // BOTTOM
-				this.group.translate(this.dx, this.collisionItem.bounds.y2 - this.mask.bounds.y1);
+				this.dy = this.collisionItem.bounds.y1 - this.mask.bounds.y2;
+			else if (this.flags & 8) // BOTTOM
+				this.dy = this.collisionItem.bounds.y2 - this.mask.bounds.y1;
 		}
 	},
 
 	/**
 	 * 	Commits the current default action on the primary element.
 	 */
-	commit: function()
+	commit: function (finalCommit=false)
 	{
-		this.mask.clearFlags(collider.FLAG_EXCLUDE);
+		if ((this.dx != 0 || this.dy != 0) || (this.m_dx === null))
+		{
+			if (this.m_dx === null || Math.abs(this.dx) < Math.abs(this.m_dx))
+				this.m_dx = this.dx;
 
-		if (this.dx != 0 || this.dy != 0)
-			this.group.translate(this.dx, this.dy);
+			if (this.m_dy === null || Math.abs(this.dy) < Math.abs(this.m_dy))
+				this.m_dy = this.dy;
+
+			this.dx = 0;
+			this.dy = 0;
+		}
+
+		if (finalCommit === true)
+		{
+			if (this.m_dx != 0 || this.m_dy != 0)
+				this.group.translate(this.m_dx, this.m_dy);
+
+			this.group.clearFlags(collider.FLAG_EXCLUDE);
+		}
 	},
 
 	/**
@@ -324,43 +335,65 @@ const collider =
 		this.group = group;
 		this.mask = mask;
 
+		this.m_dx = null;
+		this.m_dy = null;
+
 		this.dx = dx = downscalef(upscale(dx));
 		this.dy = dy = downscalef(upscale(dy));
 
-		if (!this.maskLayer) return this.commit();
+		if (!this.maskLayer) return this.commit(true);
 
 		let primaryType = this.rules[mask.type];
-		if (!primaryType) return this.commit();
+		if (!primaryType) return this.commit(true);
 
-		this.offs = group.getOffsets(dx, dy);
+		this.offs = group.getOffsets(this.dx, this.dy);
 
-		this.futureBounds.set(mask.bounds).translate(this.offs.x+dx, this.offs.y+dy);
-		mask.setFlags(collider.FLAG_EXCLUDE);
+		this.futureBounds.set(mask.bounds).translate(this.offs.x+this.dx, this.offs.y+this.dy);
+		group.setFlags(collider.FLAG_EXCLUDE);
 
-		this.collisionItem = this.maskLayer.selectFirst(this.futureBounds, this.flagsAnd, this.flagsValue);
-		if (this.collisionItem === null) return this.commit();
-
-		let secondaryType = primaryType.rules[this.collisionItem.type];
-		if (!secondaryType) return this.commit();
-
-		this.intersectionRect.set(this.collisionItem.bounds).setAsIntersection(this.futureBounds);
-
-		this.loadContactFlags(this.intersectionRect, this.collisionItem.bounds);
-		// Possibly INSIDE the collisionItem.
-		if (!this.flags) return this.commit();
-
-		switch (secondaryType.action)
+		let collisionItems = this.maskLayer.selectInRegion(this.futureBounds, this.flagsAnd, this.flagsValue);
+		if (collisionItems.length === 0)
 		{
-			case collider.ACTION_TRUNCATE:
-				this.truncate();
-				break;
-
-			case collider.ACTION_CALLBACK:
-				secondaryType.callback (mask, this.collisionItem, secondaryType.context);
-				break;
+			collisionItems.free();
+			return this.commit(true);
 		}
 
-		mask.clearFlags(collider.FLAG_EXCLUDE);
+		while (true)
+		{
+			this.collisionItem = collisionItems.shift();
+			if (this.collisionItem === null) break;
+
+			let secondaryType = primaryType.rules[this.collisionItem.type];
+			if (!secondaryType) continue;
+
+			this.intersectionRect.set(this.collisionItem.bounds).setAsIntersection(this.futureBounds);
+
+			this.loadContactFlags(this.intersectionRect, this.collisionItem.bounds);
+			if (!this.flags) {
+				// Possibly INSIDE the collisionItem.
+				console.log('INSIDE ' + this.collisionItem.type.toString(16) + ' FROM ' + mask.type.toString(16));
+				continue;
+			}
+
+			this.dx = dx;
+			this.dy = dy;
+
+			switch (secondaryType.action)
+			{
+				case collider.ACTION_TRUNCATE:
+					this.truncate();
+					break;
+
+				case collider.ACTION_CALLBACK:
+					secondaryType.callback (mask, this.collisionItem, secondaryType.context);
+					break;
+			}
+
+			this.commit();
+		}
+
+		collisionItems.free();
+		this.commit(true);
 	},
 
 	/**
@@ -368,46 +401,7 @@ const collider =
 	 */
 	check: function (group, mask)
 	{
-		this.group = group;
-		this.mask = mask;
-
-		this.dx = 0;
-		this.dy = 0;
-
-		if (!this.maskLayer) return;
-
-		let primaryType = this.rules[mask.type];
-		if (!primaryType) return;
-
-		this.offs = group.getOffsets(0, 0);
-
-		this.futureBounds.set(mask.bounds).translate(this.offs.x, this.offs.y);
-		mask.setFlags(collider.FLAG_EXCLUDE);
-
-		this.collisionItem = this.maskLayer.selectFirst(this.futureBounds, this.flagsAnd, this.flagsValue);
-		if (this.collisionItem === null) return;
-
-		let secondaryType = primaryType.rules[this.collisionItem.type];
-		if (!secondaryType) return;
-
-		this.intersectionRect.set(this.collisionItem.bounds).setAsIntersection(this.futureBounds);
-
-		this.loadContactFlags(this.intersectionRect, this.collisionItem.bounds);
-		// Possibly INSIDE the collisionItem.
-		if (!this.flags) return;
-
-		switch (secondaryType.action)
-		{
-			case collider.ACTION_TRUNCATE:
-				this.truncate();
-				break;
-
-			case collider.ACTION_CALLBACK:
-				secondaryType.callback (mask, this.collisionItem, secondaryType.context);
-				break;
-		}
-
-		mask.clearFlags(collider.FLAG_EXCLUDE);
+		this.translate (group, mask, 0, 0);
 	}
 };
 

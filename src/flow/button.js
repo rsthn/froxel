@@ -30,9 +30,9 @@ export default Group.extend
 	focusLock: false,
 
 	/*
-	**	Current and last status of the button (0 for unpressed, 1 for pressed).
+	**	Current and previous pressed status of the button.
 	*/
-	status: 0, lstatus: 0,
+	isPressed: false, wasPressed: false,
 
 	/*
 	**	Images for the unpressed and pressed statuses.
@@ -93,8 +93,7 @@ export default Group.extend
 	*/
 	reset: function ()
 	{
-		this.status = this.lstatus = 0;
-		this.onChange (this.status, this.lstatus);
+		this.onChange (this.isPressed = false, this.wasPressed = false);
 	},
 
 	/*
@@ -102,7 +101,7 @@ export default Group.extend
 	*/
 	draw: function (g)
 	{
-		if (this.status)
+		if (this.isPressed)
 			this.pressedImg.draw (g, this.bounds.x1, this.bounds.y1);
 		else
 			this.unpressedImg.draw (g, this.bounds.x1, this.bounds.y1);
@@ -116,14 +115,22 @@ export default Group.extend
 	},
 
 	/*
+	**	Moves the isPressed value of the button to wasPressed, and updates isPressed with the specified value. If none provided, isPressed is unchanged.
+	*/
+	updateStatus: function (value=null)
+	{
+		this.wasPressed = this.isPressed;
+		this.isPressed = value === null ? this.isPressed : value;
+		return this;
+	},
+
+	/*
 	**	Called when the EVT_POINTER_DOWN event starts within the bounding box of the button.
 	*/
 	pointerActivate: function (pointer)
 	{
-		this.lstatus = this.status;
-		this.status = 1;
-
-		this.onChange (this.status, this.lstatus);
+		this.updateStatus (true);
+		this.onChange (this.isPressed, this.wasPressed);
 	},
 
 	/*
@@ -131,10 +138,8 @@ export default Group.extend
 	*/
 	pointerDeactivate: function (pointer)
 	{
-		this.lstatus = this.status;
-		this.status = 0;
-
-		this.onChange (this.status, this.lstatus);
+		this.updateStatus (false);
+		this.onChange (this.isPressed, this.wasPressed);
 	},
 
 	/*
@@ -151,17 +156,17 @@ export default Group.extend
 	/*
 	**	Executed after any change in the status of the button. Be careful when overriding this, because when so, the onTap method will not work.
 	*/
-	onChange: function (status, lstatus) /* @override */
+	onChange: function (isPressed, wasPressed) /* @override */
 	{
-		if (status != lstatus)
+		if (isPressed != wasPressed)
 		{
-			if (status)
+			if (isPressed)
 				this.onButtonDown();
 			else
 				this.onButtonUp();
 		}
 
-		if (status == 0 && lstatus == 1) this.onTap();
+		if (!isPressed && wasPressed) this.onTap();
 	},
 
 	/*
@@ -183,19 +188,5 @@ export default Group.extend
 	*/
 	onTap: function () /* @override */
 	{
-	},
-
-	/*
-	**	Returns true if the button is pressed after being unpressed. When `clear is true, automatically clears the internal flag so that the next call will return false.
-	*/
-	wasPressed: function (clear=false)
-	{
-		let status = this.status && !this.lstatus;
-
-		if (clear) {
-			this.lstatus = this.status;
-		}
-
-		return status;
 	}
 });
