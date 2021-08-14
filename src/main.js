@@ -76,4 +76,4 @@ import _Stick from './flow/stick.js'; export const Stick = _Stick;
 
 // fxl
 import * as _fxl from './fxl/fxl.js';
-export default fxl = _fxl;
+export default _fxl;

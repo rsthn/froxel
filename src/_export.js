@@ -14,5 +14,5 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import * as _froxel from './main';
+import * as _froxel from './main.js';
 export default froxel = _froxel;

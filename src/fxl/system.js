@@ -26,6 +26,11 @@ const system =
 	 */
 	canvas: null,
 
+	/*
+	**	Logical system time (mirrors the value of System.frameTime).
+	*/
+	time: 0,
+
 	/**
 	 * 	System initialization options.
 	 */
@@ -91,6 +96,12 @@ const system =
 
 			Resources.init ({ pixelated: !this.antialias });
 			System.init (this.options);
+
+			System.updateQueueAdd({
+				update: function(dt) {
+					system.time = System.frameTime;
+				}
+			});
 
 			Boot.startup(function()
 			{

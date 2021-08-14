@@ -30,6 +30,11 @@ export default Group.extend
 	focusLock: false,
 
 	/*
+	**	Indicates if keyboard events are enabled on this object.
+	*/
+	keyboardEvents: true,
+
+	/*
 	**	Current and previous pressed status of the button.
 	*/
 	isPressed: false, wasPressed: false,
@@ -41,9 +46,9 @@ export default Group.extend
 	pressedImg: null,
 
 	/*
-	**	Indicates if the button should trigger a key press for this key code.
+	**	Key related to the button. Used only when non-null.
 	*/
-	keyCode: 0,
+	keyCode: null,
 
 	/*
 	**	Hitbox element.
@@ -85,6 +90,15 @@ export default Group.extend
 	{
 		this.unpressedImg = unpressedImg;
 		this.pressedImg = pressedImg || unpressedImg;
+		return this;
+	},
+
+	/*
+	**	Changes the key code of the button.
+	*/
+	setKeyCode: function (value)
+	{
+		this.keyCode = value;
 		return this;
 	},
 
@@ -167,6 +181,30 @@ export default Group.extend
 		}
 
 		if (!isPressed && wasPressed) this.onTap();
+	},
+
+	/**
+	**	Key-down event, handles the keys that control the direction of the stick.
+	*/
+	keyDown: function (keyCode)
+	{
+		if (keyCode === this.keyCode)
+		{
+			this.pointerActivate();
+			return false;
+		}
+	},
+
+	/**
+	**	Key-up event, handles the keys that control the direction of the stick.
+	*/
+	keyUp: function (keyCode, keyArgs)
+	{
+		if (keyCode === this.keyCode)
+		{
+			this.pointerDeactivate();
+			return false;
+		}
 	},
 
 	/*

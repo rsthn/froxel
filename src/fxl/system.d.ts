@@ -89,6 +89,11 @@ declare class system
 	 */
 	static canvas: Canvas;
 
+	/*
+	**	Logical system time (mirrors the value of System.frameTime).
+	*/
+	static time: Number;
+
 	/**
 	 *	Initializes the system with the specified options.
 	 */

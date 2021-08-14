@@ -60,6 +60,8 @@ const collider =
 	/*
 	**	Current collider state fields.
 	*/
+	truncated: false,
+
 	flags: 0,
 	numFlags: 0,
 
@@ -299,6 +301,8 @@ const collider =
 			else if (this.flags & 8) // BOTTOM
 				this.dy = this.collisionItem.bounds.y2 - this.mask.bounds.y1;
 		}
+
+		this.truncated = true;
 	},
 
 	/**
@@ -334,6 +338,8 @@ const collider =
 	{
 		this.group = group;
 		this.mask = mask;
+
+		this.truncated = false;
 
 		this.m_dx = null;
 		this.m_dy = null;

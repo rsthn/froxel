@@ -17,6 +17,7 @@
 import Group from './group.js';
 import Element from './element.js';
 import ScreenControls from './screen-controls.js';
+import KeyCodes from '../system/keycodes.js';
 
 /*
 **	Stick class provides an easy way to add directional control sticks to the world.
@@ -28,6 +29,11 @@ export default Group.extend
 	**	Indicates if once focus is obtained it is locked until the user releases it.
 	*/
 	focusLock: true,
+
+	/*
+	**	Indicates if keyboard events are enabled on this object.
+	*/
+	keyboardEvents: true,
 
 	/*
 	**	Current and last status of the button (0 for unpressed, 1 for pressed).
@@ -279,6 +285,61 @@ export default Group.extend
 		this.fangle = lastValid ? (this.angle != 0 ? this.angle : this.fangle) : this.angle;
 
 		return this;
+	},
+
+	/**
+	**	Key-down event, handles the keys that control the direction of the stick.
+	*/
+	keyDown: function (keyCode, keyArgs)
+	{
+		let dx = 0;
+		let dy = 0;
+
+		if (keyArgs[KeyCodes.UP] === true) dy = -this.maxRadius;
+		if (keyArgs[KeyCodes.LEFT] === true) dx = -this.maxRadius;
+		if (keyArgs[KeyCodes.DOWN] === true) dy = this.maxRadius;
+		if (keyArgs[KeyCodes.RIGHT] === true) dx = this.maxRadius;
+
+		if (keyCode === KeyCodes.UP || keyCode === KeyCodes.LEFT || keyCode === KeyCodes.DOWN || keyCode === KeyCodes.RIGHT)
+		{
+			dx = this.bounds.cx + dx;
+			dy = this.bounds.cy + dy;
+
+			this.lstatus = this.status;
+			this.status = 1;
+
+			this.pointerUpdate (dx, dy);
+			return false;
+		}
+	},
+
+	/**
+	**	Key-up event, handles the keys that control the direction of the stick.
+	*/
+	keyUp: function (keyCode, keyArgs)
+	{
+		let dx = 0;
+		let dy = 0;
+
+		if (keyArgs[KeyCodes.UP] === true) dy = -this.maxRadius;
+		if (keyArgs[KeyCodes.LEFT] === true) dx = -this.maxRadius;
+		if (keyArgs[KeyCodes.DOWN] === true) dy = this.maxRadius;
+		if (keyArgs[KeyCodes.RIGHT] === true) dx = this.maxRadius;
+
+		if (keyCode === KeyCodes.UP || keyCode === KeyCodes.LEFT || keyCode === KeyCodes.DOWN || keyCode === KeyCodes.RIGHT)
+		{
+			this.pointerUpdate (this.bounds.cx + dx, this.bounds.cy + dy);
+
+			if (dx === 0 && dy === 0)
+			{
+				this.lstatus = this.status;
+				this.status = 0;
+
+				this.reset();
+			}
+
+			return false;
+		}
 	},
 
 	/**

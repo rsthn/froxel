@@ -42,6 +42,10 @@ const ScreenControls =
 	**		void pointerUpdate (float pointerX, float pointerY, Object pointer)
 	**		void hover (bool status, Object pointer)
 	**		bool focusLock
+	**
+	**		bool keyboardEvents
+	**		bool keyDown (int keyCode, object keyArgs)
+	**		bool keyUp (int keyCode, object keyArgs)
 	*/
 	add: function (c)
 	{
@@ -92,26 +96,11 @@ const ScreenControls =
 		{
 			if (!this.list[i]) continue;
 
-			if (this.list[i] instanceof Array)
-			{
-				alert('SHOULDN BE SUPPORTED');
-				for (let j = 0; j < this.list[i].length; j++)
-				{
-					if (filter != null && filter(this.list[i][j]) == false)
-						continue;
+			if (filter != null && filter(this.list[i]) === false)
+				continue;
 
-					if (this.list[i][j].containsPoint(x, y))
-						return this.list[i][j];
-				}
-			}
-			else
-			{
-				if (filter != null && filter(this.list[i]) == false)
-					continue;
-
-				if (this.list[i].containsPoint(x, y))
-					return this.list[i];
-			}
+			if (this.list[i].containsPoint(x, y))
+				return this.list[i];
 		}
 
 		return null;
@@ -276,30 +265,10 @@ const ScreenControls =
 
 				for (let i = 0; i < this.list.length; i++)
 				{
-					if (!this.list[i]) continue;
+					if (!this.list[i] || !this.list[i].keyboardEvents) continue;
 
-					if (this.list[i] instanceof Array)
-					{
-						for (var j = 0; j < this.list[i].length; j++)
-						{
-							if (this.list[i][j].keyCode == keyCode)
-							{
-								this.list[i][j].pointerActivate(this.dummy);
-								j = -1;
-								break;
-							}
-						}
-
-						if (j == -1) break;
-					}
-					else
-					{
-						if (this.list[i].keyCode == keyCode)
-						{
-							this.list[i].pointerActivate(this.dummy);
-							break;
-						}
-					}
+					if (this.list[i].keyDown(keyCode, keyArgs) === false)
+						break;
 				}
 
 				break;
@@ -308,32 +277,12 @@ const ScreenControls =
 
 				for (let i = 0; i < this.list.length; i++)
 				{
-					if (!this.list[i]) continue;
+					if (!this.list[i] || !this.list[i].keyboardEvents) continue;
 
-					if (this.list[i] instanceof Array)
-					{
-						for (var j = 0; j < this.list[i].length; j++)
-						{
-							if (this.list[i][j].keyCode == keyCode)
-							{
-								this.list[i][j].pointerDeactivate(this.dummy);
-								j = -1;
-								break;
-							}
-						}
-
-						if (j == -1) break;
-					}
-					else
-					{
-						if (this.list[i].keyCode == keyCode)
-						{
-							this.list[i].pointerDeactivate(this.dummy);
-							break;
-						}
-					}
+					if (this.list[i].keyUp(keyCode, keyArgs) === false)
+						break;
 				}
-	
+
 				break;
 		}
 	}

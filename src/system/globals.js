@@ -436,7 +436,7 @@ global.alignValue = function (value, step)
 /*
 **	Number of bits for fixed-point number.
 */
-const BITS = 4;
+const BITS = 7;
 
 /*
 **	Returns a fixed-point upscaled value.
