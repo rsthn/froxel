@@ -16,12 +16,13 @@
 
 import GridElement from './grid-element.js';
 import G from '../system/globals.js';
+import Recycler from '../utils/recycler.js';
 
 /*
 **	Describes an element that can be rendered to the screen.
 */
 
-export default GridElement.extend
+const Element = GridElement.extend
 ({
 	className: 'Element',
 
@@ -77,16 +78,6 @@ export default GridElement.extend
 	},
 
 	/*
-	**	Destroys the element.
-	*/
-	destroy: function()
-	{
-		if (!this.alive()) return;
-
-		dispose(this);
-	},
-
-	/*
 	**	Destroys the element later by adding it to the scene's destruction queue. If the element has no container, it will be destroyed immediately.
 	*/
 	destroyLater: function()
@@ -124,3 +115,28 @@ export default GridElement.extend
 		}
 	}
 });
+
+
+/*
+**	Setup recycling facility.
+*/
+
+const Pool = Element.extend
+({
+	className: 'Element',
+
+	__ctor: function ()
+	{
+	},
+
+	init: function(x, y, width=null, height=null, img=null)
+	{
+		this._super.Element.__ctor(x, y, width, height, img);
+		return this;
+	}
+});
+
+Recycler.attachTo(Pool);
+Element.Pool = Pool;
+
+export default Element;

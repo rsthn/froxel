@@ -16,12 +16,13 @@
 
 import Element from './element.js';
 import System from '../system/system.js';
+import Recycler from '../utils/recycler.js';
 
 /*
 **	Describes an element mask. Used for collision detection.
 */
 
-export default Element.extend
+const Mask = Element.extend
 ({
 	className: 'Mask',
 
@@ -56,3 +57,28 @@ export default Element.extend
 		g2.popMatrix();
 	}
 });
+
+
+/*
+**	Setup recycling facility.
+*/
+
+const Pool = Mask.extend
+({
+	className: 'Mask',
+
+	__ctor: function ()
+	{
+	},
+
+	init: function(type, x, y, width, height)
+	{
+		this._super.Mask.__ctor(type, x, y, width, height);
+		return this;
+	}
+});
+
+Recycler.attachTo(Pool);
+Mask.Pool = Pool;
+
+export default Mask;

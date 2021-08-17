@@ -1,11 +1,11 @@
 {
     "name": "froxel",
-    "version": "2.0.41",
+    "version": "2.0.42",
     "description": "Froxel Game Engine",
     "type": "module",
     "main": "src/main.js",
     "bin": {
-        "froxel": "bin/froxel.js"
+        "froxel": "bin/cli.js"
     },
     "scripts": {
         "test": "echo Ok",
@@ -19,7 +19,7 @@
         "target_dist": {
             "isLibrary": false,
             "engines": {
-                "browsers": "since 2020-01"
+                "browsers": "since 2021-01"
             }
         }
     },

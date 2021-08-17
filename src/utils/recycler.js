@@ -127,13 +127,27 @@ Recycler.attachTo = function (_class, maxPoolSize=2048, minPoolSize=1024)
 /*
 **	Shows stats about all recycling facilities using console.debug.
 */
-Recycler.showStats = function ()
+Recycler.showStats = function (name=null)
 {
+	let list = recyclingFacilities;
+
+	if (name !== null)
+	{
+		if (typeof(name) === 'string')
+		{
+			let c = recyclingFacilities[name];
+			console.debug (name + ': '+(100*(c.recyclerCreated/c.recyclerPool.length)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', capacity=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPool.length - c.recyclerLength));
+			return;
+		}
+
+		list = name;
+	}
+
 	console.group('Recycling Facilities');
 
-	for (let i in recyclingFacilities)
+	for (let i in list)
 	{
-		let c = recyclingFacilities[i];
+		let c = list[i];
 		console.debug (i + ': '+(100*(c.recyclerCreated/c.recyclerPool.length)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', capacity=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPool.length - c.recyclerLength));
 	}
 

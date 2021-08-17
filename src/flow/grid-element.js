@@ -249,7 +249,7 @@ const GridElement = Class.extend
 	*/
 	setPosition: function (x, y)
 	{
-		return this.translate (x-this.bounds.x1, y-this.bounds.y1);
+		return this.translate (upscale(x)-this.bounds.ux1, upscale(y)-this.bounds.uy1, true);
 	}
 });
 

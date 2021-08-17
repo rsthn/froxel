@@ -310,6 +310,9 @@ const collider =
 	 */
 	commit: function (finalCommit=false)
 	{
+		if (!this.group.alive())
+			return;
+
 		if ((this.dx != 0 || this.dy != 0) || (this.m_dx === null))
 		{
 			if (this.m_dx === null || Math.abs(this.dx) < Math.abs(this.m_dx))
@@ -394,6 +397,9 @@ const collider =
 					secondaryType.callback (mask, this.collisionItem, secondaryType.context);
 					break;
 			}
+
+			if (!mask.alive())
+				break;
 
 			this.commit();
 		}

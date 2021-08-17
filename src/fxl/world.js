@@ -3,7 +3,6 @@ import System from '../system/system.js';
 import Scene from '../flow/scene.js';
 import Viewport from '../flow/viewport.js';
 import Bounds2 from '../math/bounds2.js';
-import Container from '../flow/container.js';
 import GridContainer from '../flow/grid-container.js';
 import Element from '../flow/element.js';
 import Label from '../flow/label.js';
@@ -248,7 +247,7 @@ const world =
 		if (this.activeScene === null)
 			throw new Error ('createGroup: use selectScene first to select the active scene.');
 
-		this.activeGroup = new Group(id);
+		this.activeGroup = Group.Pool.alloc().init(id);
 		this.activeScene.addGroup (this.activeGroup);
 
 		return this.activeGroup;
@@ -286,7 +285,7 @@ const world =
 
 		let container = this.getContainer(containerIndex);
 
-		let elem = new Element (x, y, img);
+		let elem = Element.Pool.alloc().init (x, y, img);
 		container.add(elem.setId(id));
 
 		if (this.activeGroup !== null)
@@ -324,7 +323,7 @@ const world =
 			height = this.activeGroup.bounds.height();
 		}
 
-		let mask = new Mask (type, x, y, width, height);
+		let mask = Mask.Pool.alloc().init (type, x, y, width, height);
 		container.add(mask.setId(id));
 
 		if (this.activeGroup !== null)
@@ -350,7 +349,7 @@ const world =
 
 		let container = this.getContainer(containerIndex);
 
-		let elem = new Label (x, y, font, text);
+		let elem = Label.Pool.alloc().init (x, y, font, text);
 		container.add(elem.setId(id));
 
 		if (this.activeGroup !== null)

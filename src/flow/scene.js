@@ -112,6 +112,11 @@ const Scene = Class.extend
 	drawCount: 0,
 
 	/*
+	**	Scene object pointing to itself.
+	*/
+	scene: null,
+
+	/*
 	**	Constructs an empty scene.
 	*/
 	__ctor: function()
@@ -133,6 +138,7 @@ const Scene = Class.extend
 		this.destroyer = Handler.alloc().init(this);
 
 		this.flags = Scene.VISIBLE;
+		this.scene = this;
 	},
 
 	/*

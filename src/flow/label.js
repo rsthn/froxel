@@ -16,12 +16,13 @@
 
 import Element from './element.js';
 import G from '../system/globals.js';
+import Recycler from '../utils/recycler.js';
 
 /*
 **	Describes an element that can be rendered to the screen.
 */
 
-export default Element.extend
+const Label = Element.extend
 ({
 	className: 'Label',
 
@@ -120,3 +121,28 @@ export default Element.extend
 		g.fillText(this.text, this.bounds.x1, this.bounds.y1);
 	}
 });
+
+
+/*
+**	Setup recycling facility.
+*/
+
+const Pool = Label.extend
+({
+	className: 'Label',
+
+	__ctor: function ()
+	{
+	},
+
+	init: function(x, y, font, text)
+	{
+		this._super.Label.__ctor(x, y, font, text);
+		return this;
+	}
+});
+
+Recycler.attachTo(Pool);
+Label.Pool = Pool;
+
+export default Label;
