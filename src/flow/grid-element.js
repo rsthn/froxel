@@ -40,11 +40,6 @@ const GridElement = Class.extend
 	bounds: null,
 
 	/*
-	**	Z-value of the element.
-	*/
-	zvalue: 0,
-
-	/*
 	**	Flags of the element (see constants of this class).
 	*/
 	flags: 0,
@@ -79,7 +74,7 @@ const GridElement = Class.extend
 		this.bounds.translate (x, y);
 		this.bounds.resize (width, height, true);
 
-		this.flags = GridElement.ALIVE | GridElement.VISIBLE | GridElement.DIRTY;
+		this.flags = GridElement.ALIVE | GridElement.VISIBLE | GridElement.DIRTY | GridElement.DEPTH_FLAG;
 		this.data = null;
 
 		this.remover = Handler.alloc().init(this);
@@ -196,6 +191,34 @@ const GridElement = Class.extend
 	},
 
 	/*
+	**	Sets the status of the depth-flag-enable flag, or sets its value.
+	*/
+	depthFlagEnabled: function (value=null)
+	{
+		if (value === null)
+			return !!(this.flags & GridElement.DEPTH_FLAG_ENABLED);
+
+		this.flags &= ~GridElement.DEPTH_FLAG_ENABLED;
+		if (value) this.flags |= GridElement.DEPTH_FLAG_ENABLED;
+
+		return this;
+	},
+
+	/*
+	**	Sets or gets the depth-test flag. Note that the actually use the depth-test, you can have to enable the depth-flag using `depthFlagEnabled`.
+	*/
+	depthFlag: function (value=null)
+	{
+		if (value === null)
+			return !!(this.flags & GridElement.DEPTH_FLAG);
+
+		this.flags &= ~GridElement.DEPTH_FLAG;
+		if (value) this.flags |= GridElement.DEPTH_FLAG;
+
+		return this;
+	},
+
+	/*
 	**	Removes the element from the container and returns itself.
 	*/
 	remove: function()
@@ -256,9 +279,11 @@ const GridElement = Class.extend
 /*
 **	Grid element flags.
 */
-GridElement.ALIVE 		= 	0x0001;
-GridElement.VISIBLE 	= 	0x0002;
-GridElement.DIRTY 		= 	0x0004;
+GridElement.ALIVE 				= 	0x0001;
+GridElement.VISIBLE 			= 	0x0002;
+GridElement.DIRTY 				= 	0x0004;
+GridElement.DEPTH_FLAG_ENABLED	= 	0x0008;
+GridElement.DEPTH_FLAG			= 	0x0010;
 
 GridElement.USERDEF		=	0x0100; /* Bits 8 to 30 : 23 flags  */
 GridElement.LAST_FLAG	=	0x0080;

@@ -24,7 +24,7 @@ const system =
 	/**
 	 * 	Main display buffer (available after calling `init`).
 	 */
-	canvas: null,
+	renderer: null,
 
 	/*
 	**	Logical system time (mirrors the value of System.frameTime).
@@ -109,7 +109,7 @@ const system =
 
 				system.screenWidth = System.screenWidth;
 				system.screenHeight = System.screenHeight;
-				system.canvas = System.displayBuffer;
+				system.renderer = System.renderer;
 
 				system.initialized = true;
 

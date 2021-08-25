@@ -66,6 +66,11 @@ const world =
 	lastGroup: null,
 
 	/**
+	 *	Last element created.
+	 */
+	lastElement: null,
+
+	/**
 	 *	Dimensions of the world.
 	 */
 	bounds: Bounds2.calloc(),
@@ -139,6 +144,8 @@ const world =
 			return false;
 
 		this.activeScene = this._scenes[index];
+		this.activeContainer = null;
+
 		return true;
 	},
 
@@ -291,6 +298,7 @@ const world =
 		if (this.activeGroup !== null)
 			this.activeGroup.addChild(elem);
 
+		this.lastElement = elem;
 		return elem;
 	},
 
@@ -341,7 +349,8 @@ const world =
 		if (typeof(id) !== 'string')
 		{
 			containerIndex = text;
-			text = y;
+			text = font;
+			font = y;
 			y = x;
 			x = id;
 			id = null;
@@ -355,6 +364,7 @@ const world =
 		if (this.activeGroup !== null)
 			this.activeGroup.addChild(elem);
 
+		this.lastElement = elem;
 		return elem;
 	},
 

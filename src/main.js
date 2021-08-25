@@ -27,6 +27,9 @@ import _KeyCodes from './system/keycodes.js'; export const KeyCodes = _KeyCodes;
 import _Canvas from './system/canvas.js'; export const Canvas = _Canvas;
 import _Perf from './system/perf.js'; export const Perf = _Perf;
 import _Log from './system/log.js'; export const Log = _Log;
+import _Shader from './system/shader.js'; export const Shader = _Shader;
+import _ShaderProgram from './system/shader-program.js'; export const ShaderProgram = _ShaderProgram;
+import _Framebuffer from './system/framebuffer.js'; export const Framebuffer = _Framebuffer;
 
 // resources
 import * as _Wrappers from './resources/wrappers.js'; export const Wrappers = _Wrappers;

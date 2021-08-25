@@ -285,5 +285,15 @@ const Matrix = Class.extend
 	}
 });
 
+/*
+**	Sets the components of the specified Float32Array[9] to the identity matrix.
+*/
+Matrix.loadIdentity = function (target)
+{
+	target.fill(0);
+	target[0] = target[4] = target[8] = 1;
+};
+
+
 Recycler.attachTo (Matrix, 4096);
 export default Matrix;

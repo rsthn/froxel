@@ -13,24 +13,24 @@ declare class world
 	/**
 	 *	Built-in scenes.
 	 */
-	static readonly SCENE_MAIN;
-	static readonly SCENE_HUD;
+	static readonly SCENE_MAIN: number;
+	static readonly SCENE_HUD: number;
 
 	/**
 	 *	Default layers for the SCENE_MAIN scene.
 	 */
-	static readonly LAYER_BG0;
-	static readonly LAYER_BG1;
-	static readonly LAYER_MAIN;
-	static readonly LAYER_FG0;
-	static readonly LAYER_FG1;
-	static readonly LAYER_MASK;
+	static readonly LAYER_BG0: number;
+	static readonly LAYER_BG1: number;
+	static readonly LAYER_MAIN: number;
+	static readonly LAYER_FG0: number;
+	static readonly LAYER_FG1: number;
+	static readonly LAYER_MASK: number;
 
 	/**
 	 *	Default layers for the SCENE_HUD scene.
 	 */
-	static readonly LAYER_HUD_BG;
-	static readonly LAYER_HUD_FG;
+	static readonly LAYER_HUD_BG: number;
+	static readonly LAYER_HUD_FG: number;
 
 	/**
 	 *	Active scene.
@@ -56,6 +56,11 @@ declare class world
 	 * 	Last ended group.
 	 */
 	static lastGroup: Group;
+
+	/**
+	 * 	Last element created.
+	 */
+	static lastElement: Element;
 
 	/**
 	 *	Dimensions of the world.

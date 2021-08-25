@@ -45,7 +45,7 @@ const PARALLEL =
 		cmd.block = null;
 	},
 
-	update: function(anim, block, cmd)
+	update: function (anim, block, cmd)
 	{
 		if (cmd.started === false)
 		{
@@ -74,6 +74,7 @@ const PARALLEL =
 
 		cmd.started = false;
 		block.time = time;
+
 		return true;
 	}
 };

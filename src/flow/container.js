@@ -36,7 +36,7 @@ const Container = Class.extend
 	width: 0, height: 0,
 
 	/*
-	**	Z-value for the container.
+	**	Depth (z-value) of the container.
 	*/
 	zvalue: 0,
 
@@ -73,7 +73,7 @@ const Container = Class.extend
 		this.width = width;
 		this.height = height;
 
-		this.flags = Container.VISIBLE | Container.DEPTH_TEST;
+		this.flags = Container.VISIBLE | Container.DEPTH_FLAG;
 	},
 
 	/*
@@ -100,13 +100,13 @@ const Container = Class.extend
 	/*
 	**	Sets or gets the depth-test flag.
 	*/
-	depthTest: function (value=null)
+	depthFlag: function (value=null)
 	{
 		if (value === null)
-			return !!(this.flags & Container.DEPTH_TEST);
+			return !!(this.flags & Container.DEPTH_FLAG);
 
-		this.flags &= ~Container.DEPTH_TEST;
-		if (value) this.flags |= Container.DEPTH_TEST;
+		this.flags &= ~Container.DEPTH_FLAG;
+		if (value) this.flags |= Container.DEPTH_FLAG;
 
 		return this;
 	},
@@ -184,13 +184,16 @@ const Container = Class.extend
 	{
 		if (!this.visible()) return;
 
-		g.depthTest(this.flags & Container.DEPTH_TEST);
+		let depthFlagChanged = g.pushDepthFlag(this.flags & Container.DEPTH_FLAG);
+
 		g.zvalue = this.zvalue;
 
 		this.drawCount = 0;
 		this.g = g;
 
 		this._draw();
+
+		if (depthFlagChanged) g.popDepthFlag();
 	},
 
 	/*
@@ -207,6 +210,6 @@ const Container = Class.extend
 **	Constants.
 */
 Container.VISIBLE = 0x001;
-Container.DEPTH_TEST = 0x002;
+Container.DEPTH_FLAG = 0x002;
 
 export default Container;

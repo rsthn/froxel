@@ -26,6 +26,16 @@ import Random from './random.js';
 const globals =
 {
 	/*
+	**	Renderer's GL context.
+	*/
+	gl: null,
+
+	/*
+	**	Global system time, updated once per frame. Mirrors the System.frameTime property.
+	*/
+	time: 0,
+
+	/*
 	**	Active viewport (if any). Set by the `draw` method of the Scene class.
 	*/
 	viewport: null,
@@ -436,7 +446,7 @@ global.alignValue = function (value, step)
 /*
 **	Number of bits for fixed-point number.
 */
-const BITS = 7;
+global.FIXED_POINT_BITS = 8;
 
 /*
 **	Returns a fixed-point upscaled value.
@@ -445,7 +455,7 @@ const BITS = 7;
 */
 global.upscale = function (value)
 {
-	return (value * (1 << BITS)) >> 0;
+	return (value * (1 << FIXED_POINT_BITS)) >> 0;
 };
 
 /*
@@ -455,7 +465,7 @@ global.upscale = function (value)
 */
 global.downscale = function (value)
 {
-	return value >> BITS;
+	return value >> FIXED_POINT_BITS;
 };
 
 /*
@@ -465,5 +475,15 @@ global.downscale = function (value)
 */
 global.downscalef = function (value)
 {
-	return value / (1 << BITS);
+	return value / (1 << FIXED_POINT_BITS);
+};
+
+/*
+**	Aligns a value to its fixed point floating point representation such that downscaling results in an integer.
+**
+**	float falign (float value)
+*/
+global.falign = function (value)
+{
+	return downscalef(upscale(value));
 };

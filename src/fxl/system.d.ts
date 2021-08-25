@@ -85,9 +85,9 @@ declare class system
 	static screenHeight: number;
 
 	/**
-	 *	Main display buffer (available after calling `init`).
+	 *	Primary renderer (available after calling `init`).
 	 */
-	static canvas: Canvas;
+	static renderer: Canvas;
 
 	/*
 	**	Logical system time (mirrors the value of System.frameTime).

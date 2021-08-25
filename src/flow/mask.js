@@ -36,7 +36,7 @@ const Mask = Element.extend
 	*/
 	__ctor: function(type, x, y, width, height)
 	{
-		this._super.Element.__ctor(x, y, width, height, null);
+		this._super.Element.__ctor(x, y, width, height);
 
 		this.type = type;
 	},

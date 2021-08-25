@@ -42,6 +42,21 @@ const Element = GridElement.extend
 	debugBounds: false,
 
 	/*
+	**	Depth (z-value) of the element.
+	*/
+	zvalue: 0,
+
+	/*
+	**	Alpha value of the element.
+	*/
+	_alpha: 1.0,
+
+	/*
+	**	Element shader program.
+	*/
+	_shaderProgram: null,
+
+	/*
 	**	Constructs a drawable element at the specified position with the given image.
 	**
 	**	x, y, width, height, img
@@ -61,6 +76,12 @@ const Element = GridElement.extend
 
 		this._super.GridElement.__ctor(x, y, width, height);
 		this.img = img !== null ? img.getDrawable() : img;
+
+		this.group = null;
+		this.debugBounds = false;
+		this.zvalue = 0;
+		this._alpha = 1.0;
+		this._shaderProgram = null;
 	},
 
 	/*
@@ -91,16 +112,54 @@ const Element = GridElement.extend
 	},
 
 	/*
+	**	Sets or returns the alpha value of the element.
+	*/
+	alpha: function (value=null)
+	{
+		if (value === null)
+			return this._alpha;
+
+		this._alpha = value;
+		return this;
+	},
+
+	/*
+	**	Sets or returns the shader program of the element.
+	*/
+	shaderProgram: function (shaderProgram=null)
+	{
+		if (shaderProgram === null)
+			return this._shaderProgram;
+
+		this._shaderProgram = shaderProgram;
+		return this;
+	},
+
+	/*
 	**	Draws the element on the specified canvas.
 	*/
 	draw: function(g)
 	{
-		if (this.img !== null)
+		let shaderChanged = this._shaderProgram !== null ? g.pushShaderProgram(this._shaderProgram) : false;
+		let depthFlagChanged = this.depthFlagEnabled() ? g.pushDepthFlag(this.depthFlag()) : false;
+
+		g.zvalue = this.zvalue;
+
+		if (this._alpha != 1.0)
 		{
-			g.zvalue = this.zvalue;
-			this.img.draw(g, this.bounds.x1, this.bounds.y1);
+			g.pushAlpha();
+			g.alpha(this._alpha);
 		}
 
+		this.render(g);
+
+		if (depthFlagChanged) g.popDepthFlag();
+		if (shaderChanged) g.popShaderProgram();
+
+		if (this._alpha != 1.0)
+			g.popAlpha();
+
+		/* *********** */
 		if (G.debugBounds || this.debugBounds)
 		{
 			let g2 = System.displayBuffer2;
@@ -113,6 +172,14 @@ const Element = GridElement.extend
 
 			g2.popMatrix();
 		}
+	},
+
+	/**
+	 * 	Renders the element to the graphics surface. Called by `draw` after the required renderer configuration has been set.
+	 */
+	render: function(g) /* @override */
+	{
+		this.img.draw (g, this.bounds.x1, this.bounds.y1);
 	}
 });
 

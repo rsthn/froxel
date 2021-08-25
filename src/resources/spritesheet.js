@@ -35,7 +35,7 @@ import Canvas from '../system/canvas.js';
 
 export default Class.extend
 ({
-	className: "Spritesheet",
+	className: 'Spritesheet',
 
 	width: 0,
 	height: 0,
@@ -47,15 +47,15 @@ export default Class.extend
 
 	__ctor: function (r)
 	{
-		if ((r.type != "image" && r.type != "images"))
-			throw new Error ("Resource is not a sprite sheet.");
+		if ((r.type != 'image' && r.type != 'images'))
+			throw new Error ('Resource is not a sprite sheet.');
 
 		var r_scale, v_scale;
 
-		if (r.type == "image")
+		if (r.type == 'image')
 		{
 			if (!r.config.sheetWidth && (!r.config.numFrames || !r.config.frameWidth))
-				throw new Error ("Required sheetWidth or numFrames+frameWidth");
+				throw new Error ('Required sheetWidth or numFrames+frameWidth');
 
 			if (!r.config.sheetWidth)
 				r.config.sheetWidth = r.config.numFrames * r.config.frameWidth;
@@ -66,7 +66,7 @@ export default Class.extend
 			r_scale = r.data.width / r.config.sheetWidth;
 			v_scale = r.width / r.config.sheetWidth;
 		}
-		else // r.type == "images"
+		else // r.type == 'images'
 		{
 			if (!r.config) r.config = { };
 
@@ -80,16 +80,13 @@ export default Class.extend
 			v_scale = r.data[0].width / r.config.frameWidth;
 		}
 
-		var _width = r.config.frameWidth;
-		var _height = r.config.frameHeight;
+		this.r_frameWidth = (r.config.frameWidth * r_scale);
+		this.r_frameHeight = (r.config.frameHeight * r_scale);
 
-		this.r_frameWidth = (_width * r_scale);
-		this.r_frameHeight = (_height * r_scale);
+		this.width = r.config.frameWidth * v_scale;
+		this.height = r.config.frameHeight * v_scale;
 
-		this.width = (_width * v_scale);
-		this.height = (_height * v_scale);
-
-		if (r.type == "image")
+		if (r.type == 'image')
 		{
 			this.numCols = int(r.data.width / this.r_frameWidth);
 			this.numRows = Math.ceil(r.data.height / this.r_frameHeight);

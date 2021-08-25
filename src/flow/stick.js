@@ -15,7 +15,7 @@
 */
 
 import Group from './group.js';
-import Element from './element.js';
+import Mask from './mask.js';
 import ScreenControls from './screen-controls.js';
 import KeyCodes from '../system/keycodes.js';
 
@@ -97,7 +97,7 @@ export default Group.extend
 
 		this.maxRadius = maxRadius;
 
-		this.hitbox = new Element(x, y, unpressedImg.width, unpressedImg.height);
+		this.hitbox = new Mask(0, x, y, unpressedImg.width, unpressedImg.height).visible(false);
 		this.addChild(this.hitbox);
 
 		container.add(this.hitbox);
@@ -172,9 +172,9 @@ export default Group.extend
 	},
 
 	/*
-	**	Draws the element on the given graphics surface.
+	**	Renders the element to the graphics surface.
 	*/
-	draw: function (g)
+	render: function (g)
 	{
 		if (this.status)
 		{

@@ -62,11 +62,11 @@ declare class Gamepad
 	button (id:string , x: number, y: number, unpressedDrawable: Drawable, pressedDrawable: Drawable) : Button;
 
 	/**
-	 * 	Sets the `debugBounds` property of all gamepad controls to the specified value.
+	 * 	Sets the `visible` property of all masks to the specified value.
 	 * 
-	 * 	@param value - Value to be used to set debugBounds property of each gamepad control.
+	 * 	@param value - Value to be used to set `visible` property of each gamepad control.
 	 */
-	debug (value: boolean) : void;
+	showMasks (value: boolean) : void;
 }
 
 export default Gamepad;

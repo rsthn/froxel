@@ -11,13 +11,21 @@ declare class collider
 	/*
 	**	Allowed actions.
 	*/
-	static readonly ACTION_TRUNCATE;
-	static readonly ACTION_CALLBACK;
+	static readonly ACTION_TRUNCATE: number;
+	static readonly ACTION_CALLBACK: number;
 
+	/**
+	 * 	Contact flag bits.
+	 */
+	static readonly CONTACT_LEFT: number;
+	static readonly CONTACT_RIGHT: number;
+	static readonly CONTACT_TOP: number;
+	static readonly CONTACT_BOTTOM: number;
+ 
 	/*
 	**	Collider element flags.
 	*/
-	static readonly FLAG_EXCLUDE;
+	static readonly FLAG_EXCLUDE: number;
 
 	/*
 	**	First updater.
@@ -47,12 +55,23 @@ declare class collider
 	static later:
 	{
 		/**
+		 *	Runs the specified callback.
+		 *
+		 * 	@param elem
+		 * 	@param callback
+		 * 	@param arg1
+		 * 	@param arg2
+		 * 	@param arg3
+		 */
+		run (elem: any, callback: function, arg1?: any, arg2?: any, arg3?: any);
+
+		/**
 		 *	Sets the element's visibility flag.
 		 *
 		 * 	@param elem
 		 * 	@param value
 		 */
-		setVisible  (elem: any, value: boolean) : void;
+		setVisible (elem: any, value: boolean) : void;
 
 		/**
 		 *	Sets the element's flags.
@@ -60,7 +79,7 @@ declare class collider
 		 * 	@param elem
 		 * 	@param value
 		 */
-		setFlags  (elem: any, value: number) : void;
+		setFlags (elem: any, value: number) : void;
 
 		/**
 		 *	Clears the element's flags.
@@ -68,7 +87,7 @@ declare class collider
 		 * 	@param elem
 		 * 	@param value
 		 */
-		clearFlags  (elem: any, value: number) : void;
+		clearFlags (elem: any, value: number) : void;
 	};
 
 	/**

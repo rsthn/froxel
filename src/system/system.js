@@ -111,9 +111,9 @@ const System =
 	initialMatrix: null,
 
 	/*
-	**	Display buffer for the renderer (either 2d or webgl).
+	**	Primary renderer.
 	*/
-	displayBuffer: null,
+	renderer: null,
 
 	/*
 	**	Secondary display buffer (always 2d) and has the same initial transformation matrix as the primary display buffer.
@@ -258,7 +258,7 @@ const System =
 		this.frameTimer = new Timer (o.vsync, this.frameInterval, (delta) => this.onFrame(delta));
 
 		// Setup canvas buffer.
-		this.displayBuffer = new Canvas ({ gl: o.gl, elem: o.canvas, absolute: true, hidden: false, antialias: o.antialias, background: o.background });
+		this.renderer = new Canvas ({ gl: o.gl, elem: o.canvas, absolute: true, hidden: false, antialias: o.antialias, background: o.background });
 
 		this.displayBuffer2 = new Canvas ({ gl: false, elem: o.canvas2, absolute: true, hidden: false, antialias: o.antialias, background: 'none' });
 		this.displayBuffer2.elem.style.pointerEvents = 'none';
@@ -268,16 +268,16 @@ const System =
 
 		this.tempDisplayBuffer = new Canvas ({ hidden: true, antialias: o.antialias }).resize(320, 240);
 
-		let display0 = this.displayBuffer.elem;
+		let display0 = this.renderer.elem;
 
 		// Obtain device display ratios.
 		this.devicePixelRatio = global.devicePixelRatio || 1;
 
-		this.backingStoreRatio = o.gl == true ? 1 : (this.displayBuffer.context.webkitBackingStorePixelRatio ||
-									this.displayBuffer.context.mozBackingStorePixelRatio ||
-									this.displayBuffer.context.msBackingStorePixelRatio ||
-									this.displayBuffer.context.oBackingStorePixelRatio ||
-									this.displayBuffer.context.backingStorePixelRatio || 1);
+		this.backingStoreRatio = o.gl == true ? 1 : (this.renderer.context.webkitBackingStorePixelRatio ||
+									this.renderer.context.mozBackingStorePixelRatio ||
+									this.renderer.context.msBackingStorePixelRatio ||
+									this.renderer.context.oBackingStorePixelRatio ||
+									this.renderer.context.backingStorePixelRatio || 1);
 
 		this.canvasPixelRatio = this.devicePixelRatio / this.backingStoreRatio;
 
@@ -640,6 +640,7 @@ const System =
 
 		this.frameDelta = delta / 1000.0;
 		this.frameTime += this.frameDelta;
+		global.time = this.frameTime;
 
 		this.frameNumber++;
 
@@ -794,16 +795,16 @@ const System =
 		**	to the same color as the primary canvas.
 		*/
 		if ('document' in global)
-			global.document.body.style.backgroundColor = this.displayBuffer.backgroundColor;
+			global.document.body.style.backgroundColor = this.renderer.backgroundColor;
 
 		/*
 		**	Resize all display buffers.
 		*/
 		if (!this.reverseRender)
 		{
-			this.displayBuffer.resize (this.screenWidth*this.scaleFactor, this.screenHeight*this.scaleFactor);
-			this.displayBuffer.elem.style.width = (this.screenWidth*this.canvasScaleFactor) + "px";
-			this.displayBuffer.elem.style.height = (this.screenHeight*this.canvasScaleFactor) + "px";
+			this.renderer.resize (this.screenWidth*this.scaleFactor, this.screenHeight*this.scaleFactor);
+			this.renderer.elem.style.width = (this.screenWidth*this.canvasScaleFactor) + "px";
+			this.renderer.elem.style.height = (this.screenHeight*this.canvasScaleFactor) + "px";
 
 			this.displayBuffer2.resize (this.screenWidth*this.scaleFactor, this.screenHeight*this.scaleFactor);
 			this.displayBuffer2.elem.style.width = (this.screenWidth*this.canvasScaleFactor) + "px";
@@ -815,9 +816,9 @@ const System =
 		}
 		else
 		{
-			this.displayBuffer.resize (this.screenHeight*this.scaleFactor, this.screenWidth*this.scaleFactor);
-			this.displayBuffer.elem.style.width = (this.screenHeight*this.canvasScaleFactor) + "px";
-			this.displayBuffer.elem.style.height = (this.screenWidth*this.canvasScaleFactor) + "px";
+			this.renderer.resize (this.screenHeight*this.scaleFactor, this.screenWidth*this.scaleFactor);
+			this.renderer.elem.style.width = (this.screenHeight*this.canvasScaleFactor) + "px";
+			this.renderer.elem.style.height = (this.screenWidth*this.canvasScaleFactor) + "px";
 
 			this.displayBuffer2.resize (this.screenHeight*this.scaleFactor, this.screenWidth*this.scaleFactor);
 			this.displayBuffer2.elem.style.width = (this.screenHeight*this.canvasScaleFactor) + "px";
@@ -828,26 +829,26 @@ const System =
 			this.displayBuffer3.elem.style.height = _screenWidth + "px";
 		}
 
-		this.displayBuffer.elem.style.marginLeft = this.offsX + "px";
-		this.displayBuffer.elem.style.marginTop = this.offsY + "px";
+		this.renderer.elem.style.marginLeft = this.offsX + "px";
+		this.renderer.elem.style.marginTop = this.offsY + "px";
 
 		this.displayBuffer2.elem.style.marginLeft = this.offsX + "px";
 		this.displayBuffer2.elem.style.marginTop = this.offsY + "px";
 
-		this.displayBuffer.loadIdentity();
+		this.renderer.loadIdentity();
 		this.displayBuffer2.loadIdentity();
 		this.displayBuffer3.loadIdentity();
 
 		if (this.scaleFactor != 1) {
-			this.displayBuffer.globalScale(this.scaleFactor);
+			this.renderer.globalScale(this.scaleFactor);
 			this.displayBuffer2.globalScale(this.scaleFactor);
 		}
 
 		if (this.reverseRender)
 		{
-			this.displayBuffer.rotate(Math.PI/2);
-			this.displayBuffer.translate(-this.screenWidth, 0);
-			this.displayBuffer.flipped(true);
+			this.renderer.rotate(Math.PI/2);
+			this.renderer.translate(-this.screenWidth, 0);
+			this.renderer.flipped(true);
 
 			this.displayBuffer2.rotate(Math.PI/2);
 			this.displayBuffer2.translate(-this.screenWidth, 0);
@@ -859,7 +860,7 @@ const System =
 		}
 		else
 		{
-			this.displayBuffer.flipped(false);
+			this.renderer.flipped(false);
 			this.displayBuffer2.flipped(false);
 			this.displayBuffer3.flipped(false);
 		}
@@ -873,7 +874,7 @@ const System =
 		if (this.initialMatrix)
 			this.initialMatrix.free();
 
-		this.initialMatrix = this.displayBuffer.getMatrix(true);
+		this.initialMatrix = this.renderer.getMatrix(true);
 
 		if (notRendering != true)
 		{
@@ -990,9 +991,12 @@ const System =
 	*/
 	draw: function ()
 	{
+		if (this.renderer.gl !== null)
+			this.renderer.start();
+
 		if (!this.options.overdraw)
 		{
-			this.displayBuffer.clear();
+			this.renderer.clear();
 			this.displayBuffer2.clear();
 			this.displayBuffer3.clear();
 		}
@@ -1004,7 +1008,13 @@ const System =
 			for (let elem = this.drawQueue.top; elem; elem = next)
 			{
 				next = elem.next;
-				elem.value.draw(this.displayBuffer);
+				elem.value.draw(this.renderer);
+			}
+
+			if (this.renderer.gl !== null)
+			{
+				this.renderer.flush();
+				this.renderer.end();
 			}
 		}
 		catch (e)

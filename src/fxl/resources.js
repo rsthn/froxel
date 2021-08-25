@@ -134,6 +134,36 @@ const res =
 			},
 			...optsB
 		};
+	},
+
+	/*
+	**	Registers a JSON data resource.
+	*/
+	json: function (id, path, opts=null)
+	{
+		this.__resIdMustNotExist(id);
+
+		return res.r[id] = { type: 'json', src: path, ...opts };
+	},
+
+	/*
+	**	Registers a binary data resource.
+	*/
+	data: function (id, path, opts=null)
+	{
+		this.__resIdMustNotExist(id);
+
+		return res.r[id] = { type: 'data', src: path, ...opts };
+	},
+
+	/*
+	**	Registers a text data resource.
+	*/
+	text: function (id, path, opts=null)
+	{
+		this.__resIdMustNotExist(id);
+
+		return res.r[id] = { type: 'text', src: path, ...opts };
 	}
 };
 

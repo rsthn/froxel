@@ -17,6 +17,10 @@
 import { Rin } from '@rsthn/rin';
 import Matrix from '../math/matrix.js';
 import System from './system.js';
+import List from '../utils/list.js';
+import ShaderProgram from './shader-program.js';
+import Shader from './shader.js';
+import globals from './globals.js';
 
 /*
 **	Constructs a canvas object. If the Canvas DOM element is not provided a new element will be created and attached to the page.
@@ -62,11 +66,13 @@ const Canvas = function (options=null)
 
 	if (opts.gl === true)
 	{
-		this.gl = this.elem.getContext('webgl2', { desynchronized: false });
+		this.gl = this.elem.getContext('webgl2', { desynchronized: false, alpha: false });
 		this.context = null;
 
 		console.log(this.gl.getParameter(this.gl.VERSION));
 		console.log(this.gl.getParameter(this.gl.SHADING_LANGUAGE_VERSION));
+
+		globals.gl = this.gl;
 	}
 	else
 	{
@@ -74,29 +80,34 @@ const Canvas = function (options=null)
 		this.gl = null;
 	}
 
-	this.antialias = opts.antialias;
-	this.setBackground (opts.background);
-
 	// State stack support.
-	this.matrixStack = [];
-	this.alphaStack = [];
+	this.matrixStack = List.calloc();
+	this.alphaStack = List.calloc();
+	this.depthFlagStack = List.calloc();
+	this.shaderProgramStack = List.calloc();
 
 	this.matr = Matrix.calloc();
 	this.transform = Matrix.calloc();
 
-	// Default alpha value.
-	this._alpha = 1.0;
+	// Default context values.
 	this._globalScale = 1.0;
+	this._alpha = 1.0;
+	this._depthFlag = true;
+	this.shaderProgram = null;
 
 	// Set initial transformation matrix.
 	this.updateTransform();
 	this.strokeStyle("#fff");
 	this.fillStyle("#fff");
 
-	this.resize(opts.width, opts.height);
+	if (opts.width && opts.height)
+	this.resize (opts.width, opts.height);
 
 	if (opts.gl === true)
 		this.initGl();
+
+	this.antialias = opts.antialias;
+	this.setBackground (opts.background);
 };
 
 Canvas.passThruCanvas = 
@@ -211,26 +222,6 @@ Canvas.passThruCanvas =
 	}
 };
 
-
-/*
-**	Compiles a shader and attaches it to the program.
-*/
-
-Canvas.prototype.buildShader = function (program, type, source)
-{
-	const gl = this.gl;
-
-	const shader = gl.createShader(type);
-	gl.shaderSource(shader, source);
-	gl.compileShader(shader);
-
-	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
-		throw new Error ('compilerShader: ' + gl.getShaderInfoLog(shader));
-
-	gl.attachShader(program, shader);
-};
-
-
 /*
 **	Initializes the OpenGL ES context.
 */
@@ -244,62 +235,136 @@ Canvas.prototype.initGl = function ()
 	//else
 	//	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
-	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+	/**
+	 * 	Create the default shader program.
+	 */
+	this.glDefaultProgram = new ShaderProgram('def');
 
-	this.gl_array_buffer = gl.createBuffer();
-	gl.bindBuffer (gl.ARRAY_BUFFER, this.gl_array_buffer);
-	gl.bufferData (gl.ARRAY_BUFFER, new Float32Array ([0, 0, 0, 1, 1, 0, 1, 1]), gl.STATIC_DRAW);
-
-	this.gl_program = gl.createProgram();
-
-	this.buildShader (this.gl_program, gl.VERTEX_SHADER,
-	`#version 300 es
-
-		in vec2 location;
-
-		uniform vec2 screen_size;
-		uniform vec2 texture_size;
-		uniform mat3 location_matrix;
-		uniform mat3 texture_matrix;
-		uniform mat3 current_matrix;
-		uniform sampler2D texture;
-		uniform float zvalue;
-
-		out vec2 f_texcoords;
-
-		void main() {
-			gl_Position = vec4(((vec2(current_matrix*location_matrix*vec3(location, 1.0))/screen_size)*2.0-vec2(1.0, 1.0))*vec2(1.0, -1.0), zvalue/16777216.0, 1.0);
-			f_texcoords = vec2(texture_matrix*vec3(location, 1.0))/texture_size;
-		}
-	`);
-
-	this.buildShader (this.gl_program, gl.FRAGMENT_SHADER,
-	`#version 300 es
-
+	(new Shader ('def-vert', Shader.VERTEX_SHADER))
+	.source(
+		`#version 300 es
 		precision highp float;
 
-		uniform sampler2D tex;
-		in vec2 f_texcoords;
+		uniform mat3 m_location;
+		uniform mat3 m_transform;
+		uniform mat3 m_texture;
+
+		uniform vec2 v_resolution;
+		uniform vec2 v_texture_size;
+
+		uniform float f_time;
+		uniform float f_depth;
+
+		uniform sampler2D texture0;
+
+		in vec2 location;
+		out vec2 texcoords;
+
+		void main()
+		{
+			gl_Position = vec4(((vec2(m_transform * m_location * vec3(location, 1.0)) / v_resolution)*2.0 - vec2(1.0, 1.0)) * vec2(1.0, -1.0), f_depth / 16777216.0, 1.0);
+			texcoords = vec2(m_texture * vec3(location, 1.0)) / v_texture_size;
+		}
+	`)
+	.compile();
+
+	(new Shader ('def-frag', Shader.FRAGMENT_SHADER))
+	.source(
+		`#version 300 es
+		precision highp float;
+
+		uniform sampler2D texture0;
+		uniform float f_alpha;
+		in vec2 texcoords;
 
 		out vec4 color;
 
-		void main() {
-			color = texture(tex, f_texcoords);
+		void main()
+		{
+			color = texture(texture0, texcoords);
+			color.a *= f_alpha;
+
 			if (color.a == 0.0) discard;
 		}
-	`);
+	`)
+	.compile();
 
-	gl.bindAttribLocation(this.gl_program, 0, 'location');
+	/**
+	 * 	Create the frame buffer blit shader program.
+	 */
+	this.glBlitProgram = new ShaderProgram('blit');
 
-	gl.linkProgram (this.gl_program);
+	(new Shader ('blit-vert', Shader.VERTEX_SHADER))
+	.source(
+		`#version 300 es
+		precision highp float;
 
-	if (!gl.getProgramParameter(this.gl_program, gl.LINK_STATUS))
-		throw new Error ('linkProgram: ' + gl.getProgramInfoLog(program));
+		uniform mat3 m_location;
+		uniform mat3 m_texture;
+		uniform vec2 v_resolution;
+		uniform vec2 v_texture_size;
+		uniform sampler2D texture0;
 
-	gl.useProgram (this.gl_program);
+		in vec2 location;
+		out vec2 texcoords;
 
-	/* **** */
-	gl.clearColor (0, 0, 0, 0);
+		void main()
+		{
+			gl_Position = vec4(((vec2(m_location * vec3(location, 1.0)) / v_resolution)*2.0 - vec2(1.0, 1.0)) * vec2(1.0, 1.0), 0.0, 1.0);
+			texcoords = vec2(m_texture * vec3(location, 1.0)) / v_texture_size;
+		}
+	`)
+	.compile();
+
+	(new Shader ('blit-frag', Shader.FRAGMENT_SHADER))
+	.source(
+		`#version 300 es
+		precision highp float;
+
+		uniform sampler2D texture0;
+		in vec2 texcoords;
+
+		out vec4 color;
+
+		void main()
+		{
+			color = texture(texture0, texcoords);
+		}
+	`)
+	.compile();
+
+	/* ****** */
+	this.glDefaultProgram.attach('def-vert');
+	this.glDefaultProgram.attach('def-frag');
+
+	this.glBlitProgram.attach('blit-vert');
+	this.glBlitProgram.attach('blit-frag');
+
+	this.glDefaultProgram.link();
+	this.glBlitProgram.link();
+
+	if (!this.glDefaultProgram.getStatus())
+		throw new Error (this.glDefaultProgram.getAllErrors());
+
+	if (!this.glBlitProgram.getStatus())
+		throw new Error (this.glDefaultProgram.getAllErrors());
+
+	this.setShaderProgram(this.glDefaultProgram);
+
+	/**
+	 * 	Create the vertex buffer.
+	 */
+	let buffer = this.attrib_location_buffer = gl.createBuffer();
+	gl.bindBuffer (gl.ARRAY_BUFFER, buffer);
+	gl.bufferData (gl.ARRAY_BUFFER, new Float32Array ([0, 0, 0, 1, 1, 0, 1, 1]), gl.STATIC_DRAW);
+
+	gl.enableVertexAttribArray (this.shaderProgram.attrib_location);
+	gl.vertexAttribPointer (this.shaderProgram.attrib_location, 2, gl.FLOAT, gl.FALSE, 2*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
+
+	/**
+	 * 	Setup initial GL configuration.
+	 */
+	gl.clearColor (0, 0, 0, 1.0);
 
 	gl.enable (gl.DEPTH_TEST);
 	gl.clearDepth (0.0);
@@ -308,67 +373,67 @@ Canvas.prototype.initGl = function ()
 	gl.enable (gl.BLEND);
 	gl.blendFunc (gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-	/* **** */
-	this.gl_attrib_location = gl.getAttribLocation(this.gl_program, 'location');
-	this.gl_uniform_screen_size = gl.getUniformLocation(this.gl_program, 'screen_size');
-	this.gl_uniform_texture_size = gl.getUniformLocation(this.gl_program, 'texture_size');
-	this.gl_uniform_texture = gl.getUniformLocation(this.gl_program, 'texture');
-	this.gl_uniform_matrix = gl.getUniformLocation(this.gl_program, 'location_matrix');
-	this.gl_uniform_current_matrix = gl.getUniformLocation(this.gl_program, 'current_matrix');
-	this.gl_uniform_texture_matrix = gl.getUniformLocation(this.gl_program, 'texture_matrix');
-	this.gl_uniform_zvalue = gl.getUniformLocation(this.gl_program, 'zvalue');
-
-	gl.enableVertexAttribArray (this.gl_attrib_location);
-	gl.vertexAttribPointer (this.gl_attrib_location, 2, gl.FLOAT, gl.FALSE, 2*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
+	/**
+	 * 	Setup frame buffer.
+	 */
 
 	/* *** */
-	this.location_matrix = new Float32Array(9).fill(0);
-	this.texture_matrix = new Float32Array(9).fill(0);
-	this.texture_size = new Float32Array(2).fill(0);
+	this.m_location = new Float32Array(9).fill(0);
+	this.m_texture = new Float32Array(9).fill(0);
+	this.v_texture_size = new Float32Array(2).fill(0);
+	this.v_resolution = new Float32Array(2).fill(0);
 	this.zvalue = 0;
 
-	this.transform.identity(this.location_matrix);
-	this.transform.identity(this.texture_matrix);
+	Matrix.loadIdentity(this.m_location);
+	Matrix.loadIdentity(this.m_texture);
 
 	// drawImage (Image img, float x, float y);
 	// drawImage (Image img, float x, float y, float w, float h);
 	// drawImage (Image img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);
 	this.drawImage = function (img, sx=0, sy=0, sw=null, sh=null, dx=null, dy=null, dw=null, dh=null)
 	{
-		if (!img.gl_ready)
+		if (!img.glTextureReady)
 			return;
 
-		if (this.gl_active_texture != img.gl_texture)
+		let gl = this.gl;
+		let program = this.shaderProgram;
+
+		gl.uniform2fv (program.uniform_resolution, this.v_resolution);
+		gl.uniform1f (program.uniform_time, global.time);
+		gl.uniform1f (program.uniform_scale, this._globalScale);
+		gl.uniform1f (program.uniform_alpha, this._alpha);
+
+		if (this.glActiveTextureId !== img.glTextureId)
 		{
-			this.gl.activeTexture(gl.TEXTURE0);
-			this.gl.bindTexture(gl.TEXTURE_2D, img.gl_texture);
-			this.gl.uniform1i(this.gl_uniform_texture, 0);
+			gl.activeTexture (gl.TEXTURE0);
+			gl.bindTexture (gl.TEXTURE_2D, img.glTextureId);
+			gl.uniform1i (program.uniform_texture_0, 0);
 
-			this.texture_size[0] = img.width;
-			this.texture_size[1] = img.height;
-			this.gl.uniform2fv(this.gl_uniform_texture_size, this.texture_size);
+			this.v_texture_size[0] = img.width;
+			this.v_texture_size[1] = img.height;
+			gl.uniform2fv (program.uniform_texture_size, this.v_texture_size);
 
-			this.gl_active_texture = img.gl_texture;
+			this.glActiveTextureId = img.glTextureId;
 		}
 
 		// [3] image, x, y
 		if (sw === null)
 		{
-			this.location_matrix[0] = img.width;
-			this.location_matrix[4] = img.height;
-			this.location_matrix[6] = sx;
-			this.location_matrix[7] = sy;
+			this.m_location[0] = img.width;
+			this.m_location[4] = img.height;
+			this.m_location[6] = sx;
+			this.m_location[7] = sy;
 
-			this.texture_matrix[0] = img.width;
-			this.texture_matrix[4] = img.height;
-			this.texture_matrix[6] = 0;
-			this.texture_matrix[7] = 0;
-	
-			this.gl.uniformMatrix3fv(this.gl_uniform_current_matrix, false, this.transform.data);
-			this.gl.uniformMatrix3fv(this.gl_uniform_matrix, false, this.location_matrix);
-			this.gl.uniformMatrix3fv(this.gl_uniform_texture_matrix, false, this.texture_matrix);
-			this.gl.uniform1f(this.gl_uniform_zvalue, this.zvalue);
-			this.gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
+			this.m_texture[0] = img.width;
+			this.m_texture[4] = img.height;
+			this.m_texture[6] = 0;
+			this.m_texture[7] = 0;
+
+			gl.uniformMatrix3fv (program.uniform_transform_matrix, false, this.transform.data);
+			gl.uniformMatrix3fv (program.uniform_location_matrix, false, this.m_location);
+			gl.uniformMatrix3fv (program.uniform_texture_matrix, false, this.m_texture);
+			gl.uniform1f (program.uniform_depth, this.zvalue);
+			gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 
 			return;
 		}
@@ -380,26 +445,61 @@ Canvas.prototype.initGl = function ()
 		}
 
 		// [9] image, sx, sy, sw, sh, dx, dy, dw, dh
-		this.location_matrix[0] = dw;
-		this.location_matrix[4] = dh;
-		this.location_matrix[6] = dx;
-		this.location_matrix[7] = dy;
+		this.m_location[0] = dw;
+		this.m_location[4] = dh;
+		this.m_location[6] = dx;
+		this.m_location[7] = dy;
 
-		this.texture_matrix[0] = sw;
-		this.texture_matrix[4] = sh;
-		this.texture_matrix[6] = sx;
-		this.texture_matrix[7] = sy;
+		this.m_texture[0] = sw;
+		this.m_texture[4] = sh;
+		this.m_texture[6] = sx;
+		this.m_texture[7] = sy;
 
-		this.gl.uniformMatrix3fv(this.gl_uniform_current_matrix, false, this.transform.data);
-		this.gl.uniformMatrix3fv(this.gl_uniform_matrix, false, this.location_matrix);
-		this.gl.uniformMatrix3fv(this.gl_uniform_texture_matrix, false, this.texture_matrix);
-		this.gl.uniform1f(this.gl_uniform_zvalue, this.zvalue);
-		this.gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
+		gl.uniformMatrix3fv (program.uniform_transform_matrix, false, this.transform.data);
+		gl.uniformMatrix3fv (program.uniform_location_matrix, false, this.m_location);
+		gl.uniformMatrix3fv (program.uniform_texture_matrix, false, this.m_texture);
+		gl.uniform1f (program.uniform_depth, this.zvalue);
+		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
+	};
+
+	// drawRect (float x, float y, float w, float h);
+	this.drawRect = function (x, y, w, h)
+	{
+		let gl = this.gl;
+		let program = this.shaderProgram;
+
+		gl.uniform2fv (program.uniform_resolution, this.v_resolution);
+		gl.uniform1f (program.uniform_time, global.time);
+		gl.uniform1f (program.uniform_scale, this._globalScale);
+		gl.uniform1f (program.uniform_alpha, this._alpha);
+
+		this.glActiveTextureId = null;
+
+		this.v_texture_size[0] = w;
+		this.v_texture_size[1] = h;
+		gl.uniform2fv (program.uniform_texture_size, this.v_texture_size);
+
+		this.m_location[0] = w;
+		this.m_location[4] = h;
+		this.m_location[6] = x;
+		this.m_location[7] = y;
+
+		this.m_texture[0] = w;
+		this.m_texture[4] = h;
+		this.m_texture[6] = 0;
+		this.m_texture[7] = 0;
+
+		gl.uniformMatrix3fv (program.uniform_transform_matrix, false, this.transform.data);
+		gl.uniformMatrix3fv (program.uniform_location_matrix, false, this.m_location);
+		gl.uniformMatrix3fv (program.uniform_texture_matrix, false, this.m_texture);
+		gl.uniform1f (program.uniform_depth, this.zvalue);
+		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 	};
 };
 
+
 /*
-**	Prepares an image to use it on the canvas. Used only if gl is not null.
+**	Prepares an image to use it on the canvas. Used only when GL mode is active.
 */
 Canvas.prototype.prepareImage = function (image)
 {
@@ -411,30 +511,15 @@ Canvas.prototype.prepareImage = function (image)
 
 	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, image.width, image.height);
 	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, image);
-	//gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-	image.gl_texture = texture;
-	image.gl_ready = true;
+	image.glTextureId = texture;
+	image.glTextureReady = true;
 
 	return true;
-};
-
-/*
-**	Enables or disabled depth-test when running in GL mode.
-*/
-Canvas.prototype.depthTest = function (value)
-{
-	let gl = this.gl;
-	if (gl === null) return;
-
-	if (value)
-		gl.enable (gl.DEPTH_TEST);
-	else
-		gl.disable (gl.DEPTH_TEST);
 };
 
 /*
@@ -473,8 +558,10 @@ Canvas.prototype.dispose = function ()
 	if (this.elem.parentNode)
 		this.elem.parentNode.removeChild (this.elem);
 
-	this.matrixStack = null;
-	this.alphaStack = null;
+	this.matrixStack.free();
+	this.alphaStack.free();
+	this.depthFlagStack.free();
+	this.shaderProgramStack.free();
 
 	this.matr = null;
 	this.context = null;
@@ -492,6 +579,18 @@ Canvas.prototype.setBackground = function (color)
 {
 	this.elem.style.background = color;
 	this.backgroundColor = color;
+
+	if (this.gl !== null)
+	{
+		if (color.length != 7)
+			throw new Error ('Canvas.setBackground: color parameter should be CSS-style hex-rgb with 6 digits.');
+
+		let r = parseInt(color.substr(1,2), 16) / 255.0;
+		let g = parseInt(color.substr(3,2), 16) / 255.0;
+		let b = parseInt(color.substr(5,2), 16) / 255.0;
+
+		this.gl.clearColor (r, g, b, 1.0);
+	}
 };
 
 
@@ -517,15 +616,22 @@ Canvas.prototype.resize = function (width, height)
 	this._width = int(this.width / this._globalScale);
 	this._height = int(this.height / this._globalScale);
 
-	if (this.gl != null)
+	let gl = this.gl;
+	if (gl != null)
 	{
-		this.gl.viewport (0, 0, width, height);
+		gl.enable (gl.SCISSOR_TEST);
+		gl.scissor (0, 0, this.width, this.height);
+		gl.viewport (0, 0, this.width, this.height);
 
-		if (this.gl_uniform_screen_size)
-			this.gl.uniform2fv (this.gl_uniform_screen_size, [width, height]);
+		if (this.v_resolution)
+		{
+			//violet:hardware scaling
+			//this.v_resolution[0] = this._width;
+			//this.v_resolution[1] = this._height;
 
-		this.gl.enable(this.gl.SCISSOR_TEST);
-		this.gl.scissor(0, 0, width, height);
+			this.v_resolution[0] = this.width;
+			this.v_resolution[1] = this.height;
+		}
 	}
 
 	this.applyConfig();
@@ -547,7 +653,10 @@ Canvas.prototype.globalScale = function (value)
 	this._height = int(this.height / this._globalScale);
 
 	this.loadIdentity();
-	this.scale(value, value);
+
+	//violet:hardware scaling
+	//if (this.gl === null)
+		this.scale(value, value);
 
 	return this;
 };
@@ -824,9 +933,9 @@ Canvas.prototype.textBaseline = function (value)
 **	>> float globalAlpha ();
 */
 
-Canvas.prototype.globalAlpha = function (value)
+Canvas.prototype.globalAlpha = function (value=null)
 {
-	if (value !== undefined)
+	if (value !== null)
 		this._alpha = value;
 	else
 		return this._alpha;
@@ -834,23 +943,6 @@ Canvas.prototype.globalAlpha = function (value)
 	return this.alpha(1.0);
 };
 
-
-/*
-**	Sets or returns the relative alpha value for subsequent drawing operations.
-**
-**	>> Canvas alpha (float value);
-**	>> float alpha ();
-*/
-
-Canvas.prototype.alpha = function (value)
-{
-	this._alpha *= value;
-
-	if (this.context)
-		this.context.globalAlpha = this._alpha;
-
-	return this;
-};
 
 /*
 **	Sets or returns the current global composite operation value (source-atop, source-in, source-out, source-over, destination-atop,
@@ -865,7 +957,7 @@ Canvas.prototype.globalCompositeOperation = function (value)
 };
 
 /*
-**	Updates the underlying canvas or webgl transformation matrix. 
+**	Updates the underlying canvas or gl transformation matrix. 
 **
 **	Canvas updateTransform();
 */
@@ -876,7 +968,7 @@ Canvas.prototype.updateTransform = function()
 };
 
 /*
-**	Sets the canvas or webgl transformation matrix to the given one.
+**	Sets the canvas or gl transformation matrix to the given one.
 **
 **	Canvas setTransform (float a, float b, float c, float d, float e, float f)
 */
@@ -1196,7 +1288,7 @@ Canvas.prototype.clear = function (backgroundColor=null)
 	if (this.gl != null)
 	{
 		this.gl.clear(this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
-		this.gl_active_texture = null;
+		this.glActiveTextureId = null;
 
 		return this;
 	}
@@ -1215,6 +1307,80 @@ Canvas.prototype.clear = function (backgroundColor=null)
 	return this;
 };
 
+
+/*
+**	Indicates that rendering is about to start. Used only in gl mode.
+*/
+Canvas.prototype.start = function ()
+{
+};
+
+/*
+**	Indicates that rendering has ended. Used only in gl mode.
+*/
+Canvas.prototype.end = function ()
+{
+};
+
+/*
+**	Indicates that rendering has been completed and any flush operation should be executed. Used only in gl mode.
+*/
+Canvas.prototype.flush = function ()
+{
+	let gl = this.gl;
+	if (gl === null) return;
+
+	gl.colorMask (false, false, false, true);
+	gl.clear (gl.COLOR_BUFFER_BIT);
+	gl.colorMask (true, true, true, true);
+
+	// VIOLET: Add gl.flush() if not using RAF.
+};
+
+/**
+ *	Blits the specified texture to the active framebuffer.
+ */
+Canvas.prototype.blit = function (texture, width, height, shaderProgram=null)
+{
+	let gl = this.gl;
+	if (gl === null) return;
+
+	shaderProgram = shaderProgram || this.glBlitProgram;
+
+	this.setShaderProgram(shaderProgram);
+	gl.disable (gl.DEPTH_TEST);
+
+		gl.activeTexture (gl.TEXTURE0);
+		gl.bindTexture (gl.TEXTURE_2D, texture);
+		gl.uniform1i (shaderProgram.uniform_texture_0, 0);
+
+		gl.uniform2fv (shaderProgram.uniform_resolution, this.v_resolution);
+		gl.uniform1f (shaderProgram.uniform_time, global.time);
+		gl.uniform1f (shaderProgram.uniform_scale, this._globalScale);
+		gl.uniform1f (shaderProgram.uniform_alpha, this._alpha);
+
+		this.v_texture_size[0] = width;
+		this.v_texture_size[1] = height;
+		gl.uniform2fv (shaderProgram.uniform_texture_size, this.v_texture_size);
+
+		this.m_location[0] = this.width;
+		this.m_location[4] = this.height;
+		this.m_location[6] = 0;
+		this.m_location[7] = 0;
+
+		this.m_texture[0] = this.width;
+		this.m_texture[4] = this.height;
+		this.m_texture[6] = 0;
+		this.m_texture[7] = 0;
+
+		gl.uniformMatrix3fv (shaderProgram.uniform_location_matrix, false, this.m_location);
+		gl.uniformMatrix3fv (shaderProgram.uniform_texture_matrix, false, this.m_texture);
+		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
+
+	this.setShaderProgram(this.glDefaultProgram);
+	gl.enable (gl.DEPTH_TEST);
+};
+
 /*
 **	Resets the context drawing properties to their initial values.
 **
@@ -1231,7 +1397,6 @@ Canvas.prototype.reset = function (clearPath=false)
 	return this;
 };
 
-
 /*
 **	Pushes the current transformation matrix into the matrix stack.
 */
@@ -1242,7 +1407,6 @@ Canvas.prototype.pushMatrix = function ()
 
 	return this;
 };
-
 
 /*
 **	Pops a matrix from the matrix stack into the transformation matrix.
@@ -1256,6 +1420,23 @@ Canvas.prototype.popMatrix = function ()
 };
 
 /*
+**	Sets or returns the relative alpha value for subsequent drawing operations.
+**
+**	>> Canvas alpha (float value);
+**	>> float alpha ();
+*/
+
+Canvas.prototype.alpha = function (value)
+{
+	this._alpha *= value;
+
+	if (this.context && this.gl === null)
+		this.context.globalAlpha = this._alpha;
+
+	return this;
+};
+
+/*
 **	Pushes the current global alpha into the stack.
 */
 Canvas.prototype.pushAlpha = function ()
@@ -1264,17 +1445,121 @@ Canvas.prototype.pushAlpha = function ()
 	return this;
 };
 
-
 /*
 **	Pops an alpha from the stack into the global alpha.
 **
 **	>> Canvas popAlpha();
 */
-
 Canvas.prototype.popAlpha = function ()
 {
 	this.globalAlpha(this.alphaStack.pop());
 	return this;
+};
+
+/*
+**	Sets the depth-test flag.
+*/
+Canvas.prototype.setDepthFlag = function (value)
+{
+	let gl = this.gl;
+	if (gl === null) return;
+
+	if (value)
+	{
+		gl.enable (gl.DEPTH_TEST);
+		this._depthFlag = true;
+	}
+	else
+	{
+		gl.disable (gl.DEPTH_TEST);
+		this._depthFlag = false;
+	}
+};
+
+/*
+**	Returns the depth-test flag.
+*/
+Canvas.prototype.getDepthFlag = function ()
+{
+	return this._depthFlag;
+};
+
+/*
+**	Pushes the current depth-test flag into the depth flag stack. If a value is provided, the current flag will be pushed and set to the
+**	given value only if they're different, when so, true will be returned.
+*/
+Canvas.prototype.pushDepthFlag = function (value=null)
+{
+	if (value !== null)
+	{
+		value = !!value;
+
+		if (value === this._depthFlag)
+			return false;
+
+		this.depthFlagStack.push(this._depthFlag);
+		this.setDepthFlag(value);
+
+		return true;
+	}
+
+	this.depthFlagStack.push(this._depthFlag);
+};
+
+/*
+**	Pops the depth-test flag from the depth flag stack.
+*/
+Canvas.prototype.popDepthFlag = function ()
+{
+	this.setDepthFlag(this.depthFlagStack.pop());
+};
+
+/*
+**	Sets the active shader program.
+*/
+Canvas.prototype.setShaderProgram = function (program)
+{
+	let gl = this.gl;
+	if (gl === null) return;
+
+	this.shaderProgram = program;
+	this.shaderProgram.use();
+};
+
+/*
+**	Returns the current shader program.
+*/
+Canvas.prototype.getShaderProgram = function ()
+{
+	return this.shaderProgram;
+};
+
+/*
+**	Pushes the current shader program into the stack. If a value is provided, the current shader program will be pushed and set to the
+**	given one only if they're different, when so, true will be returned.
+*/
+Canvas.prototype.pushShaderProgram = function (program=null)
+{
+	if (program !== null)
+	{
+		if (program === this.shaderProgram)
+			return false;
+
+		this.shaderProgramStack.push(this.shaderProgram);
+		this.setShaderProgram(program);
+
+		return true;
+	}
+
+	this.shaderProgramStack.push(this.shaderProgram);
+};
+
+/*
+**	Pops the shader program from the stack.
+*/
+Canvas.prototype.popShaderProgram = function ()
+{
+	this.setShaderProgram(this.shaderProgramStack.pop());
 };
 
 
@@ -1621,7 +1906,7 @@ Canvas.renderImage = function (width, height, draw, completed)
 
 	let img = new Image();
 	img.onload = () => {
-		System.displayBuffer.prepareImage(img);
+		System.renderer.prepareImage(img);
 		completed(img);
 	};
 

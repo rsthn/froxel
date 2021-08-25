@@ -27,8 +27,8 @@ export default Class.extend
 ({
 	__ctor: function (r)
 	{
-		if (r.type != "image" || !r.font)
-			throw new Error ("Resource is not a sprite font.");
+		if (r.type != 'image' || !r.font)
+			throw new Error ('Resource is not a sprite font.');
 
 		if (!r.font.sheetWidth)
 			r.font.sheetWidth = r.width;
@@ -42,6 +42,12 @@ export default Class.extend
 		this.charWidth = (r.font.charWidth * v_scale);
 		this.charHeight = (r.font.charHeight * v_scale);
 
+		this.paddingX = (r.font.paddingX || 0) * v_scale;
+		this.paddingY = (r.font.paddingY || 0) * v_scale;
+
+		this.spacingX = (r.font.spacingX || 0) * v_scale;
+		this.spacingY = (r.font.spacingY || 0) * v_scale;
+
 		let cols = int(r.font.sheetWidth / r.font.charWidth);
 
 		this.r = r;
@@ -53,7 +59,7 @@ export default Class.extend
 
 		this.charTable = { };
 
-		this.charTable[" "] = { charWidth: this.charWidth >> 1, r_charWidth: this.r_charWidth };
+		this.charTable[' '] = { charWidth: int((this.charWidth + this.paddingX)*2/3), r_charWidth: this.r_charWidth };
 
 		while (k < n)
 		{
@@ -94,11 +100,16 @@ export default Class.extend
 	{
 		let n = text.length;
 
+		let pX = -2*this.paddingX + this.spacingX;
+
+		x -= this.paddingX;
+		y -= this.paddingY;
+
 		for (let i = 0; i < n; i++)
 		{
-			if (text[i] == " ")
+			if (text[i] == ' ')
 			{
-				x += this.charTable[text[i]].charWidth;
+				x += this.charTable[text[i]].charWidth + pX;
 				continue;
 			}
 
@@ -107,7 +118,7 @@ export default Class.extend
 
 			g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight);
 
-			x += c.charWidth;
+			x += c.charWidth + pX;
 		}
 	},
 
@@ -116,12 +127,14 @@ export default Class.extend
 		let n = text.length;
 		let x = 0;
 
+		let pX = -2*this.paddingX + this.spacingX;
+
 		for (let i = 0; i < n; i++)
 		{
 			let c = this.charTable[text[i]];
 			if (!c) continue;
 
-			x += c.charWidth;
+			x += c.charWidth + pX;
 		}
 
 		return x;
@@ -129,7 +142,7 @@ export default Class.extend
 
 	measureHeight: function (text)
 	{
-		return this.charHeight;
+		return this.charHeight - 2*this.paddingY + this.spacingY;
 	}
 });
 

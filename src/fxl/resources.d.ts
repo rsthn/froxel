@@ -81,6 +81,30 @@ declare class res
 	 * 	@param optsB
 	 */
 	static spritefont (id: string, path: string, charWidth: number, charHeight: number, charset: string, optsA?: object, optsB?: object) : any;
+
+	/**
+	 * 	Registers a JSON data resource.
+	 *
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 */
+	 static json (id: string, path: string, opts?: object) : any;
+
+	/**
+	 * 	Registers a binary data resource.
+	 *
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 */
+	 static data (id: string, path: string, opts?: object) : any;
+
+	/**
+	 * 	Registers a text data resource.
+	 *
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 */
+	 static text (id: string, path: string, opts?: object) : any;
 }
 
 export default res;

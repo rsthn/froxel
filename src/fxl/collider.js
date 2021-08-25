@@ -18,6 +18,14 @@ const collider =
 	ACTION_CALLBACK: 2,
 
 	/**
+	 * 	Contact flag bits.
+	 */
+	CONTACT_LEFT: 1,
+	CONTACT_RIGHT: 2,
+	CONTACT_TOP: 4,
+	CONTACT_BOTTOM: 8,
+
+	/**
 	 *	Collider element flags.
 	 */
 	FLAG_EXCLUDE: GridElement.allocFlag(),
@@ -61,6 +69,7 @@ const collider =
 	**	Current collider state fields.
 	*/
 	truncated: false,
+	destroyed: false,
 
 	flags: 0,
 	numFlags: 0,
@@ -118,6 +127,20 @@ const collider =
 	later:
 	{
 		/**
+		 *	Runs the specified callback.
+		 *
+		 * 	@param elem
+		 * 	@param callback
+		 * 	@param arg1
+		 * 	@param arg2
+		 * 	@param arg3
+		 */
+		run: function (elem, callback, arg1, arg2, arg3)
+		{
+			collider.fupdater.add(this._run, elem, callback, arg1, arg2, arg3);
+		},
+
+		/**
 		 *	Sets the element's visibility flag.
 		 *
 		 * 	@param elem
@@ -151,6 +174,12 @@ const collider =
 		},
 
 		/* ******* */
+
+		_run: function (host, elem, callback, arg1, arg2, arg3)
+		{
+			callback (host, elem, arg1, arg2, arg3);
+			return false;
+		},
 
 		_setVisible: function (host, elem, value)
 		{
@@ -205,25 +234,25 @@ const collider =
 
 		if (intersectionBounds.x1 == elemBounds.x1)
 		{
-			this.flags |= 1; // LEFT
+			this.flags |= collider.CONTACT_LEFT; // LEFT
 			this.numFlags++;
 		}
 
 		if (intersectionBounds.x2 == elemBounds.x2)
 		{
-			this.flags |= 2; // RIGHT
+			this.flags |= collider.CONTACT_RIGHT; // RIGHT
 			this.numFlags++;
 		}
 
 		if (intersectionBounds.y1 == elemBounds.y1)
 		{
-			this.flags |= 4; // TOP
+			this.flags |= collider.CONTACT_TOP; // TOP
 			this.numFlags++;
 		}
 
 		if (intersectionBounds.y2 == elemBounds.y2)
 		{
-			this.flags |= 8; // BOTTOM
+			this.flags |= collider.CONTACT_BOTTOM; // BOTTOM
 			this.numFlags++;
 		}
 
@@ -343,6 +372,7 @@ const collider =
 		this.mask = mask;
 
 		this.truncated = false;
+		this.destroyed = false;
 
 		this.m_dx = null;
 		this.m_dy = null;
@@ -399,7 +429,10 @@ const collider =
 			}
 
 			if (!mask.alive())
+			{
+				this.destroyed = true;
 				break;
+			}
 
 			this.commit();
 		}

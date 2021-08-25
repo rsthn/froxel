@@ -248,9 +248,9 @@ const Group = Element.extend
 	},
 
 	/*
-	**	Override of the `draw` method to do nothing.
+	**	Override render method to do nothing.
 	*/
-	draw: function(g)
+	render: function(g)
 	{
 	}
 });

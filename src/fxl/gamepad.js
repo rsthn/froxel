@@ -40,7 +40,7 @@ const Gamepad = Class.extend
 		this.scene = scene;
 
 		this.layer = scene.getContainer(containerIndex);
-		this.layer.depthTest(false);
+		this.layer.depthFlag(false);
 	},
 
 	/*
@@ -73,15 +73,15 @@ const Gamepad = Class.extend
 	},
 
 	/*
-	**	Sets the `debugBounds` property of all gamepad controls to the specified value.
+	**	Sets the `visible` property of all masks to the specified value.
 	*/
-	debug: function (value)
+	showMasks: function (value)
 	{
 		for (let i in this.sticks)
-			this.sticks[i].hitbox.debugBounds = value;
+			this.sticks[i].hitbox.visible(value);
 
 		for (let i in this.buttons)
-			this.buttons[i].hitbox.debugBounds = value;
+			this.buttons[i].hitbox.visible(value);
 	}
 });
 

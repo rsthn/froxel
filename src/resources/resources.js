@@ -59,6 +59,8 @@ Object.assign(Resources,
 	**	{ type: "audio", wrapper: "", src: "assets/ui/tap.wav" }
 	**	{ type: "audios", wrapper: "", src: "assets/ui/snd-##.wav", count: 4 }
 	**	{ type: "json", wrapper: "", src: "assets/config.json" }
+	**	{ type: "data", wrapper: "", src: "assets/config.dat" }
+	**	{ type: "text", wrapper: "", src: "assets/config.frag" }
 	**	{ type: "object", wrapper: "" }
 	*/
 	load: function (list, callback, completeCallback, keyList, index)
@@ -93,7 +95,6 @@ Object.assign(Resources,
 
 		switch (r.type)
 		{
-			// *********************
 			case "image":
 				r.data = new Image ();
 
@@ -140,7 +141,7 @@ Object.assign(Resources,
 					// Used to prevent a delay when rendering an image for the first time on some browsers.
 					System.tempDisplayBuffer.drawImage(r.data, 0, 0);
 
-					System.displayBuffer.prepareImage(r.data);
+					System.renderer.prepareImage(r.data);
 					Resources.onLoaded (list, keyList[index]);
 
 					Resources.load (list, callback, completeCallback, keyList, index+1);
@@ -153,7 +154,6 @@ Object.assign(Resources,
 				r.data.src = r.src + "?r=" + Math.random();
 				break;
 
-			// *********************
 			case "images":
 
 				var src = r.src;
@@ -243,7 +243,7 @@ Object.assign(Resources,
 						}
 
 						System.tempDisplayBuffer.drawImage(tmp.data, 0, 0);
-						System.displayBuffer.prepareImage(tmp.data);
+						System.renderer.prepareImage(tmp.data);
 
 						r.data.push(tmp);
 						cb();
@@ -415,6 +415,38 @@ Object.assign(Resources,
 				fetchd (r.src + "?r=" + Math.random(), { responseType: 'json' }).then(function(json)
 				{
 					r.data = json;
+
+					Resources.onLoaded (list, keyList[index]);
+					Resources.load (list, callback, completeCallback, keyList, index + 1);
+				})
+				.catch(function(err)
+				{
+					console.error("Error: Unable to load: " + r.resName + ". Error: " + err);
+				});
+
+				break;
+
+			case "data":
+
+				fetchd (r.src + "?r=" + Math.random()).then(function(arraybuffer)
+				{
+					r.data = arraybuffer;
+
+					Resources.onLoaded (list, keyList[index]);
+					Resources.load (list, callback, completeCallback, keyList, index + 1);
+				})
+				.catch(function(err)
+				{
+					console.error("Error: Unable to load: " + r.resName + ". Error: " + err);
+				});
+
+				break;
+
+			case "text":
+
+				fetchd (r.src + "?r=" + Math.random()).then(function(arrayBuffer)
+				{
+					r.data = String.fromCharCode.apply(null, new Uint8Array(arrayBuffer));
 
 					Resources.onLoaded (list, keyList[index]);
 					Resources.load (list, callback, completeCallback, keyList, index + 1);

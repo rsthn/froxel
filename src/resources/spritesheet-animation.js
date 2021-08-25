@@ -282,7 +282,7 @@ export const Animation = Class.extend
 		this.draw (null, 0, 0);
 	},
 
-	getName: function ()
+	getSequenceName: function ()
 	{
 		return (this.trans == null ? this.seq : this.trans_t).name;
 	},
