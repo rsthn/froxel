@@ -94,6 +94,11 @@ declare class system
 	*/
 	static time: Number;
 
+	/*
+	**	Logical system delta time (mirrors the value of System.frameDelta).
+	*/
+	static dt: Number;
+
 	/**
 	 *	Initializes the system with the specified options.
 	 */

@@ -34,7 +34,8 @@ const world =
 	LAYER_MAIN: 2,
 	LAYER_FG0: 3,
 	LAYER_FG1: 4,
-	LAYER_MASK: 5,
+	LAYER_FG2: 5,
+	LAYER_MASK: 6,
 
 	/**
 	 *	Default layers for the SCENE_HUD scene.
@@ -94,6 +95,7 @@ const world =
 		this.setContainer(world.LAYER_MAIN, new GridContainer (worldWidth, worldHeight, divisor));
 		this.setContainer(world.LAYER_FG0, new GridContainer (worldWidth, worldHeight, divisor));
 		this.setContainer(world.LAYER_FG1, new GridContainer (worldWidth, worldHeight, divisor));
+		this.setContainer(world.LAYER_FG2, new GridContainer (worldWidth, worldHeight, divisor));
 
 		this.setContainer(world.LAYER_MASK, new GridContainer (worldWidth, worldHeight, divisor));
 		this.getContainer(world.LAYER_MASK).visible(false);

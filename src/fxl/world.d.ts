@@ -24,6 +24,7 @@ declare class world
 	static readonly LAYER_MAIN: number;
 	static readonly LAYER_FG0: number;
 	static readonly LAYER_FG1: number;
+	static readonly LAYER_FG2: number;
 	static readonly LAYER_MASK: number;
 
 	/**

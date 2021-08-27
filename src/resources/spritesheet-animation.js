@@ -184,7 +184,7 @@ export const Animation = Class.extend
 		{
 			if (!this.paused)
 			{
-				this.time += this.frameNumber == System.frameNumber ? 0 : System.frameDelta;
+				this.time += this.frameNumber === System.frameNumber ? 0 : System.frameDelta;
 				this.frameNumber = System.frameNumber;
 			}
 
@@ -192,7 +192,7 @@ export const Animation = Class.extend
 			return;
 		}
 
-		if (this.seq_i == this.seq.group.length)
+		if (this.seq_i === this.seq.group.length)
 		{
 			let t = this.seq.group[this.seq_i-1];
 
@@ -215,7 +215,7 @@ export const Animation = Class.extend
 
 		if (!this.paused)
 		{
-			this.time += this.frameNumber == System.frameNumber ? 0 : System.frameDelta;
+			this.time += this.frameNumber === System.frameNumber ? 0 : System.frameDelta;
 			this.frameNumber = System.frameNumber;
 		}
 
@@ -226,11 +226,11 @@ export const Animation = Class.extend
 			this.time -= this.frameSeconds;
 			this.seq_i++;
 
-			if (this.seq_i == this.seq.group.length)
+			if (this.seq_i === this.seq.group.length)
 			{
 				if (this.trans != null)
 				{
-					if (++this.trans_i == this.trans.length)
+					if (++this.trans_i === this.trans.length)
 					{
 						this.trans = null;
 						this.seq = this.trans_t;
@@ -284,15 +284,15 @@ export const Animation = Class.extend
 
 	getSequenceName: function ()
 	{
-		return (this.trans == null ? this.seq : this.trans_t).name;
+		return (this.trans === null ? this.seq : this.trans_t).name;
 	},
 
 	use: function (seqName, force=false)
 	{
-		let seq = this.trans == null ? this.seq : this.trans_t;
+		let seq = this.trans === null ? this.seq : this.trans_t;
 
-		if (seq.name == seqName && !this.finished && force !== true)
-			return this;
+		if (seq.name === seqName && !this.finished && force !== true)
+			return false;
 
 		if (seq.trans && seq.trans[seqName])
 		{
@@ -313,7 +313,7 @@ export const Animation = Class.extend
 		this.time = 0;
 
 		this.finished = false;
-		return this;
+		return true;
 	},
 
 	setQueue: function (list)
@@ -330,14 +330,14 @@ export const Animation = Class.extend
 
 	enqueue: function (seqName, force=false)
 	{
-		let seq = this.trans == null ? this.seq : this.trans_t;
+		let seq = this.trans === null ? this.seq : this.trans_t;
 
 		let lastName = this.queue.length > 0 ? this.queue[this.queue.length-1] : seq.name;
 
-		if (seq.name == seqName && seq.loop)
+		if (seq.name === seqName && seq.loop)
 			return this;
 
-		if (lastName == seqName && !force)
+		if (lastName === seqName && !force)
 			return this;
 
 		if (seq.loop || this.finished)

@@ -31,6 +31,11 @@ const system =
 	*/
 	time: 0,
 
+	/*
+	**	Logical system delta time (mirrors the value of System.frameDelta).
+	*/
+	dt: 0,
+
 	/**
 	 * 	System initialization options.
 	 */
@@ -100,6 +105,7 @@ const system =
 			System.updateQueueAdd({
 				update: function(dt) {
 					system.time = System.frameTime;
+					system.dt = dt;
 				}
 			});
 

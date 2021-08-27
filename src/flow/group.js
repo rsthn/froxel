@@ -35,6 +35,11 @@ const Group = Element.extend
 	children: null,
 
 	/*
+	**	Virtual zero reference point.
+	*/
+	ref: null,
+
+	/*
 	**	Constructs an empty group element.
 	*/
 	__ctor: function (id=null)
@@ -44,6 +49,7 @@ const Group = Element.extend
 		this.children = List.calloc();
 		this.bounds.reset();
 
+		this.ref = Point2.calloc();
 		this.setId(id);
 	},
 
@@ -54,6 +60,7 @@ const Group = Element.extend
 	{
 		this.clear();
 		this.children.free();
+		this.ref.free();
 
 		this._super.Element.__dtor();
 	},
@@ -192,6 +199,7 @@ const Group = Element.extend
 		let _dy = this.bounds.y1;
 
 		this._super.Element.translate(dx, dy, upscaled);
+		this.ref.add(dx, dy, upscaled);
 
 		_dx = this.bounds.x1 - _dx;
 		_dy = this.bounds.y1 - _dy;
