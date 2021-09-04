@@ -134,7 +134,7 @@ const Container = Class.extend
 	*/
 	syncZ: function (elem)
 	{
-		elem.zvalue = this.zvalue + elem.bounds.y2;
+		elem.__zvalue = this.zvalue + elem._zvalue + elem.bounds.y2;
 	},
 
 	/*

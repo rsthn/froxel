@@ -403,7 +403,7 @@ Canvas.prototype.initGl = function ()
 		gl.uniform1f (program.uniform_scale, this._globalScale);
 		gl.uniform1f (program.uniform_alpha, this._alpha);
 
-		if (this.glActiveTextureId !== img.glTextureId)
+		if (this.glActiveTextureId !== img.glTextureId || this.glActiveShader !== program)
 		{
 			gl.activeTexture (gl.TEXTURE0);
 			gl.bindTexture (gl.TEXTURE_2D, img.glTextureId);
@@ -414,6 +414,7 @@ Canvas.prototype.initGl = function ()
 			gl.uniform2fv (program.uniform_texture_size, this.v_texture_size);
 
 			this.glActiveTextureId = img.glTextureId;
+			this.glActiveShader = program;
 		}
 
 		// [3] image, x, y

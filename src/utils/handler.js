@@ -194,6 +194,5 @@ const Handler = Class.extend
 	}
 });
 
-Recycler.attachTo(Handler);
-
+Recycler.attachTo(Handler, 16384, 6144);
 export default Handler;

@@ -219,6 +219,50 @@ const Bounds2 = Class.extend
 	},
 
 	/*
+	**	Adds the specified coordinates to the current ones.
+	**
+	**	Bounds2 add (Bounds2 b)
+	**	Bounds2 add (Rect r)
+	**	Bounds2 add (float x1, float y1, float x2, float y2, bool upscaled=false)
+	*/
+	add: function (x1, y1=null, x2=null, y2=null, upscaled=false)
+	{
+		if (y1 === null)
+		{
+			if (Bounds2.isInstance(x1)) {
+				y2 = x1.uy2;
+				x2 = x1.ux2;
+				y1 = x1.uy1;
+				x1 = x1.ux1;
+			} else {
+				y2 = upscale(x1.y2);
+				x2 = upscale(x1.x2);
+				y1 = upscale(x1.y1);
+				x1 = upscale(x1.x1);
+			}
+		}
+		else
+		{
+			if (!upscaled) {
+				x1 = upscale(x1);
+				y1 = upscale(y1);
+				x2 = upscale(x2);
+				y2 = upscale(y2);
+			}
+		}
+
+		this.ux1 += x1;
+		this.uy1 += y1;
+		this.ux2 += x2;
+		this.uy2 += y2;
+
+		this.ucx += (x1 + x2) >> 1;
+		this.ucy += (y1 + y2) >> 1;
+
+		return this.downscale();
+	},
+
+	/*
 	**	Returns true if the integer coordinates have the same values as the given argument.
 	**
 	**	bool equals (Bounds2 b)
@@ -584,5 +628,5 @@ const Bounds2 = Class.extend
 	}
 });
 
-Recycler.attachTo (Bounds2, 8192);
+Recycler.attachTo (Bounds2, 8192, 3072);
 export default Bounds2;

@@ -271,6 +271,21 @@ export default Group.extend
 		return this.hitbox.bounds.containsPoint(x, y);
 	},
 
+	/**
+	 * 	Sets the direction of the stick, the provided deltas should be normalized in the [-1, 1] range.
+	 */
+	setDirection: function (dx, dy, deadZoneX=0.10, deadZoneY=0.10)
+	{
+		if (Math.abs(dx) < deadZoneX) dx = 0;
+		if (Math.abs(dy) < deadZoneY) dy = 0;
+
+		this.lstatus = this.status;
+		this.status = dx == 0 && dy == 0 ? 0 : 1;
+
+		this.pointerUpdate (this.bounds.cx + dx*this.maxRadius, this.bounds.cy + dy*this.maxRadius);
+		return false;
+	},
+
 	/*
 	**	Saves the current state of the stick in the f* variables (fdirx, fdiry, etc). When the `lastValid` parameter is true, the values will be saved
 	**	on each field only if the current value is not zero.
@@ -334,8 +349,6 @@ export default Group.extend
 			{
 				this.lstatus = this.status;
 				this.status = 0;
-
-				this.reset();
 			}
 
 			return false;

@@ -123,6 +123,5 @@ const Callback = Class.extend
 	}
 });
 
-Recycler.attachTo(Callback);
-
+Recycler.attachTo(Callback, 16384, 6144);
 export default Callback;

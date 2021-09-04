@@ -129,6 +129,20 @@ export default Group.extend
 	},
 
 	/*
+	**	Sets the pressed state of the button.
+	*/
+	setStatus: function (value)
+	{
+		if ((this.isPressed && value) || (!this.isPressed && !value))
+			return this;
+
+		this.updateStatus (value);
+		this.onChange (this.isPressed, this.wasPressed);
+
+		return this;
+	},
+
+	/*
 	**	Moves the isPressed value of the button to wasPressed, and updates isPressed with the specified value. If none provided, isPressed is unchanged.
 	*/
 	updateStatus: function (value=null)
@@ -143,8 +157,7 @@ export default Group.extend
 	*/
 	pointerActivate: function (pointer)
 	{
-		this.updateStatus (true);
-		this.onChange (this.isPressed, this.wasPressed);
+		this.setStatus(true);
 	},
 
 	/*
@@ -152,8 +165,7 @@ export default Group.extend
 	*/
 	pointerDeactivate: function (pointer)
 	{
-		this.updateStatus (false);
-		this.onChange (this.isPressed, this.wasPressed);
+		this.setStatus(false);
 	},
 
 	/*

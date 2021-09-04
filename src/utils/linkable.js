@@ -111,5 +111,5 @@ const Linkable = Class.extend
 	}
 });
 
-Recycler.attachTo (Linkable, 16384, 4096);
+Recycler.attachTo (Linkable, 16384, 6144);
 export default Linkable;

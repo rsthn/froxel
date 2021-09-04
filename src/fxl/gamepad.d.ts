@@ -48,7 +48,7 @@ declare class Gamepad
 	 * 	@param innerDrawable - Image to use as inner circle of the stick, should always be smaller than outerDrawable.
 	 * 	@param maxRadius - Maximum radius the innerDrawable can move when the user is pressing it in some direction.
 	 */
-	stick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius: number) : Stick;
+	addStick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius: number) : Stick;
 
 	/**
 	 * 	Creates a new button control and adds it to the gamepad.
@@ -59,14 +59,19 @@ declare class Gamepad
 	 * 	@param unpressedDrawable - Image to use when the button is not pressed.
 	 * 	@param pressedDrawable - Image to use when the button is pressed.
 	 */
-	button (id:string , x: number, y: number, unpressedDrawable: Drawable, pressedDrawable: Drawable) : Button;
+	addButton (id:string , x: number, y: number, unpressedDrawable: Drawable, pressedDrawable: Drawable) : Button;
+
+	/**
+	 *	Gets or sets the `visible` property of all gamepad controls.
+	 * 	@param value
+	 */
+	visible (value?: boolean) : Gamepad;
 
 	/**
 	 * 	Sets the `visible` property of all masks to the specified value.
-	 * 
 	 * 	@param value - Value to be used to set `visible` property of each gamepad control.
 	 */
-	showMasks (value: boolean) : void;
+	showMasks (value: boolean) : Gamepad;
 }
 
 export default Gamepad;

@@ -295,5 +295,5 @@ Matrix.loadIdentity = function (target)
 };
 
 
-Recycler.attachTo (Matrix, 4096);
+Recycler.attachTo (Matrix, 4096, 1024);
 export default Matrix;

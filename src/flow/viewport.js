@@ -98,6 +98,11 @@ const Viewport = Class.extend
 	bounds: null,
 
 	/*
+	**	Extra padding for the viewport bounds. Used to extend the viewport bounds without altering the original viewport size nor the world bounds.
+	*/
+	padding: null,
+
+	/*
 	**	Bounds of the focus area of the viewport in world space. When the focusRect moves outside this area the viewport will be
 	**	panned to keep it inside these bounds.
 	*/
@@ -116,35 +121,26 @@ const Viewport = Class.extend
 	{
 		this.focusFactorX = focusFactorX == undefined ? 0.4 : focusFactorX;
 		this.focusFactorY = focusFactorY == undefined ? 0.4 : focusFactorY;
-
 		this.focusRect = null;
 
 		this.sx = sx;
 		this.sy = sy;
-
-		if (width > worldWidth) width = worldWidth;
-		if (height > worldHeight) height = worldHeight;
-
 		this.width = width;
 		this.height = height;
-
-		worldWidth >>= 1;
-		worldHeight >>= 1;
-
-		this.worldX1 = -worldWidth;
-		this.worldY1 = -worldHeight;
-		this.worldX2 = +worldWidth;
-		this.worldY2 = +worldHeight;
-
-		this.bounds = Bounds2.alloc();
-		this.focusBounds = Bounds2.alloc();
-		this.screenBounds = Bounds2.alloc();
-		this.offset = Point2.alloc();
 
 		this.x = 0;
 		this.y = 0;
 
+		this.bounds = Bounds2.alloc();
+		this.padding = null;
+
+		this.focusBounds = Bounds2.alloc();
+		this.screenBounds = Bounds2.alloc();
+		this.offset = Point2.alloc();
+
 		this.flags = Viewport.ENABLED;
+
+		this.setWorldBounds(-worldWidth>>1, -worldHeight>>1, worldWidth>>1, worldHeight>>1);
 
 		this.updateScreenBounds();
 		this.updateBounds();
@@ -158,6 +154,9 @@ const Viewport = Class.extend
 		this.bounds.free();
 		this.focusBounds.free();
 		this.screenBounds.free();
+
+		if (this.padding !== null)
+			this.padding.free();
 	},
 
 	/*
@@ -171,6 +170,34 @@ const Viewport = Class.extend
 		this.flags &= ~Viewport.ENABLED;
 		if (value) this.flags |= Viewport.ENABLED;
 
+		return this;
+	},
+
+	/*
+	**	Sets the world bounds.
+	*/
+	setWorldBounds: function (x1, y1, x2, y2)
+	{
+		if (this.width > x2-x1) this.width = x2-x1;
+		if (this.height > y2-y1) this.height = y2-y1;
+
+		this.worldX1 = x1;
+		this.worldY1 = y1;
+		this.worldX2 = x2;
+		this.worldY2 = y2;
+
+		return this;
+	},
+
+	/*
+	**	Sets the viewport padding.
+	*/
+	setPadding: function (x1, y1=null, x2=null, y2=null)
+	{
+		if (this.padding === null)
+			this.padding = Bounds2.calloc();
+
+		this.padding.set(x1, y1, x2, y2);
 		return this;
 	},
 
@@ -209,6 +236,9 @@ const Viewport = Class.extend
 		}
 
 		this.bounds.set (x1, y1, x2, y2);
+
+		if (this.padding !== null)
+			this.bounds.add (this.padding);
 
 		this.focusBounds.set (
 			this.x - (this.focusFactorX*w + this.centerRatioX*w)/this.scale, this.y - (this.focusFactorY*h + this.centerRatioY*h)/this.scale,

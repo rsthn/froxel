@@ -2,6 +2,7 @@
 import Bounds2 from '../math/bounds2.js';
 import GridElement from '../flow/grid-element.js';
 import Handler from '../utils/handler.js';
+import System from '../system/system.js';
 
 import world from './world.js';
 
@@ -312,8 +313,10 @@ const collider =
 				}
 				else
 				{
-					console.log('ISSUE WITH MOVEMENT');
-					return;
+					console.log(System.frameNumber + ': MOVEMENT ISSUE ' + this.mask.type.toString(16));
+
+					this.dx = 0;
+					this.dy = 0;
 				}
 			}
 		}
@@ -342,7 +345,7 @@ const collider =
 		if (!this.group.alive())
 			return;
 
-		if ((this.dx != 0 || this.dy != 0) || (this.m_dx === null))
+		if ((this.dx != 0 || this.dy != 0) || (this.m_dx === null || this.m_dy === null))
 		{
 			if (this.m_dx === null || Math.abs(this.dx) < Math.abs(this.m_dx))
 				this.m_dx = this.dx;
@@ -357,7 +360,9 @@ const collider =
 		if (finalCommit === true)
 		{
 			if (this.m_dx != 0 || this.m_dy != 0)
-				this.group.translate(this.m_dx, this.m_dy);
+			{
+				this.group.translate (this.m_dx, this.m_dy);
+			}
 
 			this.group.clearFlags(collider.FLAG_EXCLUDE);
 		}
@@ -407,10 +412,10 @@ const collider =
 
 			this.intersectionRect.set(this.collisionItem.bounds).setAsIntersection(this.futureBounds);
 
-			this.loadContactFlags(this.intersectionRect, this.collisionItem.bounds);
-			if (!this.flags) {
-				// Possibly INSIDE the collisionItem.
-				console.log('INSIDE ' + this.collisionItem.type.toString(16) + ' FROM ' + mask.type.toString(16));
+			this.loadContactFlags (this.intersectionRect, this.collisionItem.bounds);
+			if (!this.flags)
+			{
+				console.log(System.frameNumber + ': ' + mask.type.toString(16) + ' INSIDE OF ' + this.collisionItem.type.toString(16));
 				continue;
 			}
 

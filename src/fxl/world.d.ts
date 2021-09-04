@@ -21,6 +21,7 @@ declare class world
 	 */
 	static readonly LAYER_BG0: number;
 	static readonly LAYER_BG1: number;
+	static readonly LAYER_BG2: number;
 	static readonly LAYER_MAIN: number;
 	static readonly LAYER_FG0: number;
 	static readonly LAYER_FG1: number;

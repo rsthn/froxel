@@ -240,5 +240,5 @@ const Point2 = Class.extend
 	}
 });
 
-Recycler.attachTo (Point2, 1024);
+Recycler.attachTo (Point2, 2048, 1024);
 export default Point2;

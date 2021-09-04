@@ -17,6 +17,7 @@
 import GridElement from './grid-element.js';
 import G from '../system/globals.js';
 import Recycler from '../utils/recycler.js';
+import globals from '../system/globals.js';
 
 /*
 **	Describes an element that can be rendered to the screen.
@@ -42,9 +43,14 @@ const Element = GridElement.extend
 	debugBounds: false,
 
 	/*
-	**	Depth (z-value) of the element.
+	**	Basic depth (z-value) of the element (used for depth micro-adjustments).
 	*/
-	zvalue: 0,
+	_zvalue: 0,
+
+	/*
+	**	Actual depth (z-value) of the element, calculated by the container.
+	*/
+	__zvalue: 0,
 
 	/*
 	**	Alpha value of the element.
@@ -55,6 +61,11 @@ const Element = GridElement.extend
 	**	Element shader program.
 	*/
 	_shaderProgram: null,
+
+	/*
+	**	Function used to set the uniforms of the shader.
+	*/
+	_uniformSetter: null,
 
 	/*
 	**	Constructs a drawable element at the specified position with the given image.
@@ -79,7 +90,9 @@ const Element = GridElement.extend
 
 		this.group = null;
 		this.debugBounds = false;
-		this.zvalue = 0;
+
+		this._zvalue = 0;
+		this.__zvalue = 0;
 		this._alpha = 1.0;
 		this._shaderProgram = null;
 	},
@@ -124,14 +137,36 @@ const Element = GridElement.extend
 	},
 
 	/*
+	**	Sets or returns the depth zvalue of the element.
+	*/
+	zvalue: function (value=null)
+	{
+		if (value === null)
+			return this._zvalue;
+
+		this._zvalue = value;
+		return this;
+	},
+
+	/*
 	**	Sets or returns the shader program of the element.
 	*/
-	shaderProgram: function (shaderProgram=null)
+	shaderProgram: function (shaderProgram=false)
 	{
-		if (shaderProgram === null)
+		if (shaderProgram === false)
 			return this._shaderProgram;
 
 		this._shaderProgram = shaderProgram;
+		return this;
+	},
+
+	/**
+	 * 	Sets the uniform setter function.
+	 * 	@param { (elem, gl, pgm) => void } uniformSetter
+	 */
+	uniformSetter: function (uniformSetter)
+	{
+		this._uniformSetter = uniformSetter;
 		return this;
 	},
 
@@ -143,7 +178,10 @@ const Element = GridElement.extend
 		let shaderChanged = this._shaderProgram !== null ? g.pushShaderProgram(this._shaderProgram) : false;
 		let depthFlagChanged = this.depthFlagEnabled() ? g.pushDepthFlag(this.depthFlag()) : false;
 
-		g.zvalue = this.zvalue;
+		if (this._shaderProgram !== null && this._uniformSetter !== null && g.gl !== null)
+			this._uniformSetter (this, g.gl, g.getShaderProgram());
+
+		g.zvalue = this.__zvalue;
 
 		if (this._alpha != 1.0)
 		{

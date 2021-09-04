@@ -30,6 +30,11 @@ const Gamepad = Class.extend
 	container: null,
 
 	/*
+	**	Indicates the visible state of the gamepad.
+	*/
+	_visible: true,
+
+	/*
 	**	Constructs a new gamepad object.
 	*/
 	__ctor: function(scene, containerIndex)
@@ -73,6 +78,25 @@ const Gamepad = Class.extend
 	},
 
 	/*
+	**	Gets or sets the `visible` property of all gamepad controls.
+	*/
+	visible: function (value=null)
+	{
+		if (value === null)
+			return this._visible;
+
+		this._visible = value;
+
+		for (let i in this.sticks)
+			this.sticks[i].visible(value);
+
+		for (let i in this.buttons)
+			this.buttons[i].visible(value);
+
+		return this;
+	},
+
+	/*
 	**	Sets the `visible` property of all masks to the specified value.
 	*/
 	showMasks: function (value)
@@ -82,6 +106,8 @@ const Gamepad = Class.extend
 
 		for (let i in this.buttons)
 			this.buttons[i].hitbox.visible(value);
+
+		return this;
 	}
 });
 
