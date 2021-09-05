@@ -58,7 +58,7 @@ export const Animation = Class.extend
 	frameNumber: -1,
 
 	finished: false,
-	paused: false,
+	_paused: false,
 
 	finishedCallback: null,
 	finishedCallbackHandler: null,
@@ -83,7 +83,7 @@ export const Animation = Class.extend
 
 		this.frameNumber = -1;
 		this.finished = false;
-		this.paused = false;
+		this._paused = false;
 
 		this.finishedCallback = null;
 		this.finishedCallbackHandler = null;
@@ -115,9 +115,12 @@ export const Animation = Class.extend
 		return this;
 	},
 
-	setPaused: function (value)
+	paused: function (value=null)
 	{
-		this.paused = value;
+		if (value === null)
+			return this._paused;
+
+		this._paused = value;
 		return this;
 	},
 
@@ -164,7 +167,7 @@ export const Animation = Class.extend
 
 	setFrame: function (i)
 	{
-		this.seq_i = i % this.seq.group.length;
+		this.seq_i = int(i) % this.seq.group.length;
 		return this;
 	},
 
@@ -182,7 +185,7 @@ export const Animation = Class.extend
 	{
 		if (this.time < 0)
 		{
-			if (!this.paused)
+			if (!this._paused)
 			{
 				this.time += this.frameNumber === System.frameNumber ? 0 : System.frameDelta;
 				this.frameNumber = System.frameNumber;
@@ -213,7 +216,7 @@ export const Animation = Class.extend
 				g.drawFrame (this.anim, x, y, t[i]);
 		}
 
-		if (!this.paused)
+		if (!this._paused)
 		{
 			this.time += this.frameNumber === System.frameNumber ? 0 : System.frameDelta;
 			this.frameNumber = System.frameNumber;
@@ -278,7 +281,7 @@ export const Animation = Class.extend
 
 	advance: function ()
 	{
-		this.setPaused (false);
+		this.paused (false);
 		this.draw (null, 0, 0);
 	},
 
@@ -434,6 +437,8 @@ export default Spritesheet.extend
 
 					while (a--) t.seq[i].group.push([frameIndex++]);
 				}
+
+				t.seq[i].count = t.seq[i].group.length;
 			}
 		}
 
@@ -462,6 +467,11 @@ export default Spritesheet.extend
 	getAnimation: function (initialseq=null, fps=null)
 	{
 		return Animation.alloc().init(this, initialseq ? this.a.seq[initialseq] : this.a.def, fps || this.a.fps);
+	},
+
+	getSequence: function (name)
+	{
+		return this.a.seq[name];
 	},
 
 	getDrawable: function()

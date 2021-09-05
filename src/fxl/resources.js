@@ -1,6 +1,8 @@
 
 import Resources from '../resources/resources.js';
 
+import r from './r.js';
+
 /*
 **	Resource manager allows to specify resource descriptors to load them.
 */
@@ -8,18 +10,13 @@ import Resources from '../resources/resources.js';
 const res =
 {
 	/*
-	**	Registered resources. Initially these are resource descriptors, but after a call to `res.load` these will be fully loaded resources.
-	*/
-	r: { },
-
-	/*
 	**	Loads all registered resources that have not been loaded yet. Returns a promise.
 	*/
 	load: function(progressCallback=null)
 	{
 		return new Promise (function (resolve, reject)
 		{
-			Resources.load (res.r,
+			Resources.load (r,
 				function (index, total, value) {
 					if (progressCallback) progressCallback(value);
 				},
@@ -35,7 +32,7 @@ const res =
 	*/
 	get: function (id)
 	{
-		return res.r[id];
+		return r[id];
 	},
 
 	/*
@@ -43,7 +40,7 @@ const res =
 	*/
 	__resIdMustNotExist: function (id)
 	{
-		if (id in res.r) throw new Error ('res.res: identifier `' + id + '` is already in use');
+		if (id in r) throw new Error ('Resource identifier `' + id + '` is already in use');
 	},
 
 	/*
@@ -53,7 +50,7 @@ const res =
 	{
 		this.__resIdMustNotExist(id);
 
-		return res.r[id] = { type: 'object', wrapper: 'Placeholder', color: color, width: width, height: height };
+		return r[id] = { type: 'object', wrapper: 'Placeholder', color: color, width: width, height: height };
 	},
 
 	/*
@@ -63,7 +60,7 @@ const res =
 	{
 		this.__resIdMustNotExist(id);
 
-		return res.r[id] = { type: 'image', wrapper: 'Drawable', src: path, pixelated: null, ...opts };
+		return r[id] = { type: 'image', wrapper: 'Drawable', src: path, pixelated: null, ...opts };
 	},
 
 	/*
@@ -73,7 +70,7 @@ const res =
 	{
 		this.__resIdMustNotExist(id);
 
-		return res.r[id] = { type: 'image', wrapper: 'Spritesheet', src: path, pixelated: null,
+		return r[id] = { type: 'image', wrapper: 'Spritesheet', src: path, pixelated: null,
 			config: {
 				frameWidth: frameWidth, frameHeight: frameHeight, numFrames: numFrames, ...optsA
 			},
@@ -88,7 +85,7 @@ const res =
 	{
 		this.__resIdMustNotExist(id);
 
-		return res.r[id] = { type: 'image', wrapper: 'SpritesheetAnimation', src: path,
+		return r[id] = { type: 'image', wrapper: 'SpritesheetAnimation', src: path,
 			config: {
 				frameWidth: frameWidth, frameHeight: frameHeight, numFrames: numFrames, ...optsA
 			},
@@ -128,7 +125,7 @@ const res =
 	{
 		this.__resIdMustNotExist(id);
 		
-		return res.r[id] = { type: 'image', wrapper: 'SpriteFont', src: path,
+		return r[id] = { type: 'image', wrapper: 'SpriteFont', src: path,
 			font: {
 				charWidth: charWidth, charHeight: charHeight, charset: charset, ...optsA
 			},
@@ -143,7 +140,7 @@ const res =
 	{
 		this.__resIdMustNotExist(id);
 
-		return res.r[id] = { type: 'json', src: path, ...opts };
+		return r[id] = { type: 'json', src: path, ...opts };
 	},
 
 	/*
@@ -153,7 +150,7 @@ const res =
 	{
 		this.__resIdMustNotExist(id);
 
-		return res.r[id] = { type: 'data', src: path, ...opts };
+		return r[id] = { type: 'data', src: path, ...opts };
 	},
 
 	/*
@@ -163,7 +160,7 @@ const res =
 	{
 		this.__resIdMustNotExist(id);
 
-		return res.r[id] = { type: 'text', src: path, ...opts };
+		return r[id] = { type: 'text', src: path, ...opts };
 	}
 };
 

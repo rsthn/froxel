@@ -7,11 +7,6 @@
 declare class res
 {
 	/**
-	 * 	Registered resources. Initially these are resource descriptors, but after a call to `res.load` these will be fully loaded resources.
-	 */
-	static r: { [key: string]: any };
-
-	/**
 	 *	Loads all registered resources that have not been loaded yet. Returns a promise.
 	 *
 	 *	@param progressCallback

@@ -6,6 +6,9 @@ export const sys = _sys;
 import _world from './world.js';
 export const world = _world;
 
+import _r from './r.js';
+export const r = _r;
+
 import _res from './resources.js';
 export const res = _res;
 
