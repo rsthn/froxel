@@ -141,7 +141,9 @@ const Updater = Class.extend
 			for (let i = this.list.top; i; i = next)
 			{
 				next = i.next;
-				this.__update (i.value, dt, this.__context);
+
+				if (this.__update (i.value, dt, this.__context) === false)
+					this.remove(i.value);
 			}
 		}
 	}

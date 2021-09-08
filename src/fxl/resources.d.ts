@@ -83,7 +83,7 @@ declare class res
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.
 	 */
-	 static json (id: string, path: string, opts?: object) : any;
+	static json (id: string, path: string, opts?: object) : any;
 
 	/**
 	 * 	Registers a binary data resource.
@@ -91,7 +91,7 @@ declare class res
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.
 	 */
-	 static data (id: string, path: string, opts?: object) : any;
+	static data (id: string, path: string, opts?: object) : any;
 
 	/**
 	 * 	Registers a text data resource.
@@ -99,7 +99,23 @@ declare class res
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.
 	 */
-	 static text (id: string, path: string, opts?: object) : any;
+	static text (id: string, path: string, opts?: object) : any;
+
+	/**
+	 *	Registers an sound effect audio resource.
+	 *
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 */
+	static sfx (id: string, path: string, opts?: object) : any;
+
+	/**
+	 *	Registers an music audio resource.
+	 *
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 */
+	static music (id: string, path: string, opts?: object) : any;
 }
 
 export default res;

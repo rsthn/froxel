@@ -549,11 +549,14 @@ const Anim = Class.extend
 	finishedCallbackHandler: null,
 	finishedCallbackContext: null,
 
-	init: function ()
+	__ctor: function ()
 	{
 		this.initialData = { };
 		this.data = { };
+	},
 
+	init: function ()
+	{
 		this.block = Block.calloc();
 		this.blockStack = List.calloc();
 		this.cmdStack = List.calloc();
@@ -568,10 +571,16 @@ const Anim = Class.extend
 		this.cmdStack.clear().free();
 
 		if (this.finishedCallbackHandler !== null)
+		{
 			this.finishedCallbackHandler.free();
+			this.finishedCallbackHandler = null;
+		}
 
 		if (this.finishedCallbackContext !== null)
+		{
 			this.finishedCallbackContext.free();
+			this.finishedCallbackContext = null;
+		}
 	},
 
 	copyTo: function (target)
@@ -621,7 +630,7 @@ const Anim = Class.extend
 	},
 
 	/*
-	**	Clears the object and removes all commands. The finished callback, initialData and data objects aren't changed.
+	**	Clears the object and removes all commands. The initialData and data objects aren't changed.
 	*/
 	clear: function ()
 	{
@@ -632,6 +641,21 @@ const Anim = Class.extend
 		this.paused = false;
 		this.finished = false;
 		this.time = 0;
+		this.timeScale = 1;
+
+		if (this.finishedCallbackHandler !== null)
+		{
+			this.finishedCallbackHandler.free();
+			this.finishedCallbackHandler = null;
+		}
+
+		if (this.finishedCallbackContext !== null)
+		{
+			this.finishedCallbackContext.free();
+			this.finishedCallbackContext = null;
+		}
+
+		this.finishedCallback = null;
 
 		return this;
 	},
@@ -641,25 +665,22 @@ const Anim = Class.extend
 	*/
 	reset: function ()
 	{
-		this.blockStack.clear();
-		this.cmdStack.clear();
-		this.block.reset(0);
-
-		this.paused = false;
-		this.finished = false;
-		this.time = 0;
-
+		this.clear();
 		Object.assign (this.data, this.initialData);
+
 		return this;
 	},
 
 	/*
 	**	Sets the initial data.
 	*/
-	initial: function (data)
+	initial: function (data=null)
 	{
-		this.initialData = data;
-		return this.reset();
+		if (data !== null)
+			this.initialData = data;
+
+		Object.assign (this.data, this.initialData);
+		return this;
 	},
 
 	/*

@@ -56,7 +56,7 @@ Object.assign(Resources,
 	**
 	**	{ type: "image", wrapper: "", src: "assets/ui/btn-left.png", width: 64, [ height: 64 ], scale: 1, pixelated: false, original: false }
 	**	{ type: "images", wrapper: "", src: "assets/ui/##.png", count: 16, width: 64, [ height: 64 ], pixelated: false }
-	**	{ type: "audio", wrapper: "", src: "assets/ui/tap.wav" }
+	**	{ type: "audio", wrapper: "", src: "assets/ui/tap.wav", track: "sfx|music" }
 	**	{ type: "audios", wrapper: "", src: "assets/ui/snd-##.wav", count: 4 }
 	**	{ type: "json", wrapper: "", src: "assets/config.json" }
 	**	{ type: "data", wrapper: "", src: "assets/config.dat" }

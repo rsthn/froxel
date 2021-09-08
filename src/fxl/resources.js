@@ -161,6 +161,26 @@ const res =
 		this.__resIdMustNotExist(id);
 
 		return r[id] = { type: 'text', src: path, ...opts };
+	},
+
+	/*
+	**	Registers an sound effect audio resource.
+	*/
+	sfx: function (id, path, opts=null)
+	{
+		this.__resIdMustNotExist(id);
+
+		return r[id] = { type: 'audio', wrapper: 'Sound', src: path, track: 'sfx', ...opts };
+	},
+
+	/*
+	**	Registers an music audio resource.
+	*/
+	music: function (id, path, opts=null)
+	{
+		this.__resIdMustNotExist(id);
+
+		return r[id] = { type: 'audio', wrapper: 'Sound', src: path, track: 'music', ...opts };
 	}
 };
 
