@@ -78,6 +78,11 @@ export default Group.extend
 	radius: 0, maxRadius: 0,
 
 	/*
+	**	Dead zone values for each axis.
+	*/
+	deadZoneX: 0, deadZoneY: 0,
+
+	/*
 	**	Hitbox element.
 	*/
 	hitbox: 0,
@@ -96,6 +101,9 @@ export default Group.extend
 		this.pressedImgInner = pressedImgInner || unpressedImgInner;
 
 		this.maxRadius = maxRadius;
+
+		this.deadZoneX = 0;
+		this.deadZoneY = 0;
 
 		this.hitbox = new Mask(0, x, y, unpressedImg.width, unpressedImg.height).visible(false);
 		this.addChild(this.hitbox);
@@ -150,6 +158,17 @@ export default Group.extend
 	setRadiusSteps: function (n)
 	{
 		this.radiusSteps = n;
+		return this;
+	},
+
+	/*
+	**	Sets the dead zone values (normalized).
+	*/
+	setDeadZone: function (deadZoneX, deadZoneY)
+	{
+		this.deadZoneX = deadZoneX;
+		this.deadZoneY = deadZoneY;
+
 		return this;
 	},
 
@@ -233,6 +252,16 @@ export default Group.extend
 			this.diry = 0;
 
 			this.magnitude = 0;
+		}
+
+		if (Math.abs(this.rdirx) < this.deadZoneX) {
+			this.rdirx = 0;
+			this.dirx = 0;
+		}
+
+		if (Math.abs(this.rdiry) < this.deadZoneY) {
+			this.rdiry = 0;
+			this.diry = 0;
 		}
 
 		this.onChange(this.dirx, this.diry, this.magnitude, this.angle);
