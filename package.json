@@ -1,6 +1,6 @@
 {
     "name": "froxel",
-    "version": "2.0.46",
+    "version": "2.0.47",
     "description": "Froxel Game Engine",
     "type": "module",
     "main": "src/main.js",

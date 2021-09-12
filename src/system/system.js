@@ -61,7 +61,7 @@ const System =
 	*/
 	defaultOptions:
 	{
-		background: "#000",
+		background: "#000000",
 		gl: true,
 
 		overdraw: false,

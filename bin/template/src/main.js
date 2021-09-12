@@ -6,7 +6,7 @@ import fxl, { Bounds2 } from 'froxel';
  */
 async function main()
 {
-	await fxl.sys.init({ log: true, screenWidth: 180, orientation: 'portrait' });
+	await fxl.sys.init({ log: true, screenWidth: 180, background: '#000000', orientation: 'portrait' });
 
 	fxl.world.init(fxl.sys.screenWidth, fxl.sys.screenHeight);
 
@@ -54,10 +54,10 @@ async function main()
 	});
 
 	let drawables = [
-		fxl.res.r.red_block,
-		fxl.res.r.blue_block,
-		fxl.res.r.cyan_block,
-		fxl.res.r.magenta_block
+		fxl.r.red_block,
+		fxl.r.blue_block,
+		fxl.r.cyan_block,
+		fxl.r.magenta_block
 	];
 
 	let getDrawable = randitem(drawables);

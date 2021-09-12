@@ -59,7 +59,7 @@ const system =
 		/**
 		 * 	Background of the system canvas.
 		 */
-		background: '#000',
+		background: '#000000',
 
 		/**
 		 * 	Desired orientaton of the display.

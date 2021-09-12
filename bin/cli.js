@@ -42,7 +42,7 @@ if (args.length == 0)
     froxel <command> [options]
 
 Command:
-    create <name>                Create a project <name> in the current folder.
+    create <name>                Create a project <name> in the current folder (yarn).
 	prepare                      Installs global requirements (yarn).
 `);
 
