@@ -81,20 +81,20 @@ const res =
 	/*
 	**	Registers a spritesheet animation resource.
 	*/
-	animation: function (id, path, frameWidth, frameHeight, numFrames=0, optsA=null, optsB=null)
+	animation: function (id, path, frameWidth, frameHeight, numFrames=null, configOptions=null, resOptions=null)
 	{
 		this.__resIdMustNotExist(id);
 
 		return r[id] = { type: 'image', wrapper: 'SpritesheetAnimation', src: path,
 			config: {
-				frameWidth: frameWidth, frameHeight: frameHeight, numFrames: numFrames, ...optsA
+				frameWidth: frameWidth, frameHeight: frameHeight, numFrames: numFrames, ...configOptions
 			},
 
 			anim: {
-				def: null, fps: 15, seq: { }
+				def: null, fps: 15, seq: { }, trans: { }
 			},
 
-			...optsB,
+			...resOptions,
 
 			fps: function(value) {
 				this.anim.fps = value;
@@ -108,6 +108,15 @@ const res =
 				if (fps !== null)
 					this.anim.seq[id].fps = fps;
 
+				return this;
+			},
+
+			trans: function(srcSeq, dstSeq, group)
+			{
+				if (!(srcSeq in this.anim.trans))
+					this.anim.trans[srcSeq] = { };
+
+				this.anim.trans[srcSeq][dstSeq] = group;
 				return this;
 			},
 

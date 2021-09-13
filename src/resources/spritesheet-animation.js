@@ -241,6 +241,8 @@ export const Animation = Class.extend
 					else
 						this.seq = this.trans[this.trans_i];
 
+					this.setFps (this.seq.fps || this.fps);
+
 					this.seq_i = 0;
 					this.time = 0;
 
@@ -309,8 +311,9 @@ export const Animation = Class.extend
 		else
 		{
 			this.seq = this.anim.a.seq[seqName];
-			this.setFps (this.seq.fps || this.fps);
 		}
+
+		this.setFps (this.seq.fps || this.fps);
 
 		this.seq_i = 0;
 		this.time = 0;

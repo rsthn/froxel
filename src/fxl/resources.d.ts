@@ -59,10 +59,10 @@ declare class res
 	 * 	@param frameWidth
 	 * 	@param frameHeight
 	 * 	@param numFrames
-	 * 	@param optsA
-	 * 	@param optsB
+	 * 	@param configOptions
+	 * 	@param resOptions
 	 */
-	static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, optsA?: object, optsB?: object) : any;
+	static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : any;
 
 	/**
 	 * 	Registers a spritefont animation resource.

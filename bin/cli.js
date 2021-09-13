@@ -43,7 +43,7 @@ if (args.length == 0)
 
 Command:
     create <name>                Create a project <name> in the current folder (yarn).
-	prepare                      Installs global requirements (yarn).
+    prepare                      Installs global requirements (yarn).
 `);
 
 	process.exit();
