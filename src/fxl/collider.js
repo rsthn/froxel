@@ -81,16 +81,19 @@ const collider =
 	offs: null,
 	m_dx: 0, m_dy: 0,
 	dx: 0, dy: 0,
+	commited_zeroes: 0,
+	commited_total: 0,
 
 	/**
 	 *	Enables the collider system.
 	 *
-	 * 	@param layerIndex - Index within the active scene of the layer where element masks are stored. Uses world.LAYER_MASK if none specified.
+	 * 	@param sceneIndex - Scene to attach the collider updater methods. Used world.SCENE_MAIN if none specified.
+	 * 	@param layerIndex - Index within the scene of the layer where element masks are stored. Uses world.LAYER_MASK if none specified.
 	 */
-	enable: function(layerIndex=null)
+	enable: function(sceneIndex=null, layerIndex=null)
 	{
-		this.scene = world.getScene();
-		this.maskLayer = world.getContainer(layerIndex || world.LAYER_MASK);
+		this.scene = world.getScene(sceneIndex || world.SCENE_MAIN);
+		this.maskLayer = this.scene.getContainer(layerIndex || world.LAYER_MASK);
 
 		this.flagsAnd = GridElement.ALIVE | GridElement.VISIBLE | collider.FLAG_EXCLUDE;
 		this.flagsValue = GridElement.ALIVE | GridElement.VISIBLE;
@@ -300,20 +303,20 @@ const collider =
 		if (this.numFlags != 1)
 		{
 			this.tempRect.set(this.mask.bounds).translate(this.offs.x+this.dx, 0);
-			if (0 == this.maskLayer.countInRegion(this.tempRect, this.flagsAnd, this.flagsValue))
+			if (0 === this.maskLayer.countInRegion(this.tempRect, this.flagsAnd, this.flagsValue))
 			{
 				this.dy = 0;
 			}
 			else
 			{
 				this.tempRect.set(this.mask.bounds).translate(0, this.offs.y+this.dy);
-				if (0 == this.maskLayer.countInRegion(this.tempRect, this.flagsAnd, this.flagsValue))
+				if (0 === this.maskLayer.countInRegion(this.tempRect, this.flagsAnd, this.flagsValue))
 				{
 					this.dx = 0;
 				}
 				else
 				{
-					console.log(System.frameNumber + ': MOVEMENT ISSUE ' + this.mask.type.toString(16));
+					console.log(System.frameNumber + ': #' + this.mask.objectId + ' t=' + this.mask.type.toString(16) + ' dx=' + this.dx + ' dy=' + this.dy);
 
 					this.dx = 0;
 					this.dy = 0;
@@ -345,6 +348,14 @@ const collider =
 		if (!this.group.alive())
 			return;
 
+		if (!finalCommit)
+		{
+			if (this.dx == 0 && this.dy == 0)
+				this.commited_zeroes++;
+
+			this.commited_total++;
+		}
+
 		if ((this.dx != 0 || this.dy != 0) || (this.m_dx === null || this.m_dy === null))
 		{
 			if (this.m_dx === null || Math.abs(this.dx) < Math.abs(this.m_dx))
@@ -359,8 +370,10 @@ const collider =
 
 		if (finalCommit === true)
 		{
-			if (this.m_dx != 0 || this.m_dy != 0)
-			{
+			if (this.commited_zeroes !== 0 && this.commited_zeroes === this.commited_total)
+				this.m_dx = this.m_dy = 0;
+
+			if (this.m_dx != 0 || this.m_dy != 0) {
 				this.group.translate (this.m_dx, this.m_dy);
 			}
 
@@ -385,6 +398,9 @@ const collider =
 		this.dx = dx = downscalef(upscale(dx));
 		this.dy = dy = downscalef(upscale(dy));
 
+		this.commited_zeroes = 0;
+		this.commited_total = 0;
+
 		if (!this.maskLayer) return this.commit(true);
 
 		let primaryType = this.rules[mask.type];
@@ -401,6 +417,8 @@ const collider =
 			collisionItems.free();
 			return this.commit(true);
 		}
+
+		let _truncated = false;
 
 		while (true)
 		{
@@ -419,6 +437,7 @@ const collider =
 				continue;
 			}
 
+			this.truncated = false;
 			this.dx = dx;
 			this.dy = dy;
 
@@ -433,14 +452,18 @@ const collider =
 					break;
 			}
 
+			_truncated |= this.truncated;
+
 			if (!mask.alive())
 			{
 				this.destroyed = true;
 				break;
 			}
 
-			this.commit();
+			if (this.truncated) this.commit();
 		}
+
+		this.truncated = _truncated;
 
 		collisionItems.free();
 		this.commit(true);

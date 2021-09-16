@@ -197,6 +197,12 @@ const Viewport = Class.extend
 		if (this.padding === null)
 			this.padding = Bounds2.calloc();
 
+		if (y1 === null)
+		{
+			x2 = y2 = x1;
+			x1 = y1 = -x1;
+		}
+
 		this.padding.set(x1, y1, x2, y2);
 		return this;
 	},

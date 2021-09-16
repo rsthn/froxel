@@ -310,6 +310,9 @@ export const Animation = Class.extend
 		}
 		else
 		{
+			if (force === true)
+				this.trans = null;
+
 			this.seq = this.anim.a.seq[seqName];
 		}
 

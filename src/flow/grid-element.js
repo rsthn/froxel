@@ -87,6 +87,12 @@ const GridElement = Class.extend
 	{
 		this.alive(false);
 
+		if (this.data !== null)
+		{
+			dispose(this.data);
+			this.data = null;
+		}
+
 		this.remover.exec();
 		this.remover.free();
 

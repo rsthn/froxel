@@ -26,7 +26,7 @@ let constructorAllowed = 0;
 **	instance (and returns itself) and __dtor to destroy it.
 */
 
-Recycler.attachTo = function (_class, maxPoolSize=8192, minPoolSize=1536)
+Recycler.attachTo = function (_class, maxPoolSize=8192, minPoolSize=3072)
 {
 	if (!_class.prototype.className)
 		throw new Error ('Unable to attach recycler functions to unnamed class.');
