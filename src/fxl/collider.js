@@ -370,11 +370,14 @@ const collider =
 
 		if (finalCommit === true)
 		{
+			this.dx = 0;
+			this.dy = 0;
+
 			if (this.commited_zeroes !== 0 && this.commited_zeroes === this.commited_total)
 				this.m_dx = this.m_dy = 0;
 
 			if (this.m_dx != 0 || this.m_dy != 0) {
-				this.group.translate (this.m_dx, this.m_dy);
+				this.group.translate (this.dx = this.m_dx, this.dy = this.m_dy);
 			}
 
 			this.group.clearFlags(collider.FLAG_EXCLUDE);
@@ -386,6 +389,9 @@ const collider =
 	 */
 	translate: function (group, mask, dx, dy)
 	{
+		if (!group.alive() || !mask.alive())
+			return;
+
 		this.group = group;
 		this.mask = mask;
 

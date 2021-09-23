@@ -17,7 +17,6 @@
 import GridElement from './grid-element.js';
 import G from '../system/globals.js';
 import Recycler from '../utils/recycler.js';
-import globals from '../system/globals.js';
 
 /*
 **	Describes an element that can be rendered to the screen.

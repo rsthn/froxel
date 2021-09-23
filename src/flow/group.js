@@ -245,7 +245,7 @@ const Group = Element.extend
 	},
 
 	/*
-	**	Clears bits from the element and all children flags.
+	**	Clears bits from the group and all children flags.
 	*/
 	clearFlags: function (value)
 	{
@@ -253,6 +253,20 @@ const Group = Element.extend
 			i.value.clearFlags(value);
 
 		return this._super.Element.clearFlags(value);
+	},
+
+	/*
+	**	Sets or gets the visible flag of the group and all children.
+	*/
+	visible: function (value=null)
+	{
+		if (value === null)
+			return this._super.Element.visible();
+
+		for (let i = this.children.top; i; i = i.next)
+			i.value.visible(value);
+
+		return this._super.Element.visible(value);
 	},
 
 	/*

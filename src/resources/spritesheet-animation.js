@@ -27,7 +27,7 @@ import Recycler from '../utils/recycler.js';
 		seq: {
 			seq1: { loop: bool?, group: [ [int, int, ...], ... ] },
 			seq2: { loop: bool?, group: [ [int, int, ...], ... ] },
-			seq2: { loop: bool?, group: "0,12" },
+			seq2: { loop: bool?, group: "0-12" },
 			seq2: { loop: bool?, group: "4 1 1 2 3" },
 		},
 
@@ -424,9 +424,9 @@ export default Spritesheet.extend
 					for (let j in a)
 						t.seq[i].group.push([int(a[j])]);
 				}
-				else if (t.seq[i].group.indexOf(',') != -1)
+				else if (t.seq[i].group.indexOf('-') != -1)
 				{
-					c = t.seq[i].group.split(',');
+					c = t.seq[i].group.split('-');
 					
 					a = int(c[0]);
 					b = int(c[1]);
