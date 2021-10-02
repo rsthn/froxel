@@ -17,11 +17,14 @@
 import { Rin } from '@rsthn/rin';
 import System from '../system/system.js';
 import Canvas from '../system/canvas.js';
+import Log from '../system/log.js';
 
 const Resources = { };
 export default Resources;
 
 import * as Wrappers from './wrappers.js';
+
+let reported = false;
 
 /**
 **	Provides functionality to load and manipulate resources (images, audio, etc).
@@ -265,6 +268,11 @@ Object.assign(Resources,
 
 				if (global.plugins && global.plugins.NativeAudio && r.track == "sfx")
 				{
+					if (!reported) {
+						Log.write('ENGINE_NATIVEAUDIO');
+						reported = true;
+					}
+
 					r.engine = Wrappers.Sound.ENGINE_NATIVEAUDIO;
 					r.data = "snd_" + index;
 
@@ -283,6 +291,11 @@ Object.assign(Resources,
 
 				if (global.audioContext)
 				{
+					if (!reported) {
+						Log.write('ENGINE_WEBAUDIO');
+						reported = true;
+					}
+
 					r.engine = Wrappers.Sound.ENGINE_WEBAUDIO;
 
 					fetchAudioBuffer (r.src + "?r=" + Math.random())
@@ -296,6 +309,11 @@ Object.assign(Resources,
 					});
 
 					break;
+				}
+
+				if (!reported) {
+					Log.write('ENGINE_HTML5');
+					reported = true;
 				}
 
 				r.data = new Audio ();

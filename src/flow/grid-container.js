@@ -117,10 +117,13 @@ export default Container.extend
 	{
 		this.grid.forEachInRegion(this.viewportBounds, GridElement.ALIVE | GridElement.VISIBLE, GridElement.ALIVE | GridElement.VISIBLE, this.drawElement, this);
 
-		let g = this.g;
-
-		if (!this.debugBounds || this.viewportBounds === null || g.gl !== null)
+		if (!this.debugBounds || this.viewportBounds === null)
 			return;
+
+		let g = System.displayBuffer2;
+
+		g.pushMatrix();
+		g.loadMatrix(this.g.getMatrix());
 
 		let y0 = ((this.viewportBounds.y1+this.grid.offsy - (1<<this.grid.ky-1)) >> this.grid.ky) * this.grid.stride;
 		let y1 = ((this.viewportBounds.y2+this.grid.offsy) + (1<<this.grid.ky-1) >> this.grid.ky) * this.grid.stride;
@@ -132,7 +135,7 @@ export default Container.extend
 		x0 = (x0 << this.grid.kx) - this.grid.offsx;
 		x1 = (x1 << this.grid.kx) - this.grid.offsx + (1 << this.grid.kx);
 
-		g.fillStyle('rgba(0,0,0,0.2)');
+		g.fillStyle('rgba(255,0,0,0.2)');
 		g.fillRect(x0, y0, x1-x0+1, y1-y0+1);
 
 		y0 = this.viewportBounds.y1;
@@ -141,16 +144,18 @@ export default Container.extend
 		x1 = this.viewportBounds.x2;
 
 		g.lineWidth(1/System.canvasScaleFactor);
-		g.strokeStyle('#000');
+		g.strokeStyle('#fff');
 		g.strokeRect(x0, y0, x1-x0+1, y1-y0+1);
 
 		g.lineWidth(1/System.canvasScaleFactor);
-		g.strokeStyle('#00f');
+		g.strokeStyle('#008');
 		for (let y = globals.viewport.worldY1+this.grid.offsy; y < globals.viewport.worldY2+this.grid.offsy; y += (1 << this.grid.ky))
 		for (let x = globals.viewport.worldX1+this.grid.offsx; x < globals.viewport.worldX2+this.grid.offsx; x += (1 << this.grid.kx))
 		{
 			g.strokeRect(x-this.grid.offsx, y-this.grid.offsy, (1 << this.grid.kx), (1 << this.grid.ky));
 		}
+
+		g.popMatrix();
 	},
 
 	/*

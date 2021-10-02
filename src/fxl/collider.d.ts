@@ -99,7 +99,7 @@ declare class collider
 	 * 	@param callback - Callback to execute (when action is collider.ACTION_CALLBACK).
 	 * 	@param context - Optional value passed as last parameter to the callback.
 	 */
-	static add (primaryType: number, secondaryType: number, action: number, callback?: (primary: Mask, secondary: Mask, context:? any) => void, context?: any) : void;
+	static rule (primaryType: number, secondaryType: number, action: number, callback?: (primary: Mask, secondary: Mask, context:? any) => void, context?: any) : void;
 
 	/**
 	 * 	Adds a collision rule.
@@ -109,7 +109,7 @@ declare class collider
 	 * 	@param callback - Callback to execute.
 	 * 	@param context - Optional value passed as last parameter to the callback.
 	 */
-	static add (primaryType: number, secondaryType: number, callback?: (primary: Mask, secondary: Mask, context:? any) => void, context?: any) : void;
+	static rule (primaryType: number, secondaryType: number, callback?: (primary: Mask, secondary: Mask, context:? any) => void, context?: any) : void;
 
 	/**
 	 *	Truncates the primary element against the secondary element.
@@ -132,12 +132,12 @@ declare class collider
 	static translate (group: Group, mask: Mask, dx: number, dy: number) : void;
 
 	/**
-	 *	Checks collisions against the specified mask.
+	 *	Tests collisions against the specified mask.
 	 *
 	 * 	@param group - Group where the mask is stored.
 	 * 	@param mask - Mask element.
 	 */
-	static check (group, mask) : void;
+	static test (group, mask) : void;
 }
 
 export default collider;

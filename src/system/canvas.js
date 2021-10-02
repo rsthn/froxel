@@ -21,6 +21,7 @@ import List from '../utils/list.js';
 import ShaderProgram from './shader-program.js';
 import Shader from './shader.js';
 import globals from './globals.js';
+import Log from './log.js';
 
 /*
 **	Constructs a canvas object. If the Canvas DOM element is not provided a new element will be created and attached to the page.
@@ -69,8 +70,8 @@ const Canvas = function (options=null)
 		this.gl = this.elem.getContext('webgl2', { desynchronized: false, alpha: false });
 		this.context = null;
 
-		console.log(this.gl.getParameter(this.gl.VERSION));
-		console.log(this.gl.getParameter(this.gl.SHADING_LANGUAGE_VERSION));
+		Log.write(this.gl.getParameter(this.gl.VERSION));
+		Log.write(this.gl.getParameter(this.gl.SHADING_LANGUAGE_VERSION));
 
 		globals.gl = this.gl;
 	}
@@ -399,7 +400,7 @@ Canvas.prototype.initGl = function ()
 		let program = this.shaderProgram;
 
 		gl.uniform2fv (program.uniform_resolution, this.v_resolution);
-		gl.uniform1f (program.uniform_time, global.time);
+		gl.uniform1f (program.uniform_time, globals.time);
 		gl.uniform1f (program.uniform_scale, this._globalScale);
 		gl.uniform1f (program.uniform_alpha, this._alpha);
 
@@ -470,7 +471,7 @@ Canvas.prototype.initGl = function ()
 		let program = this.shaderProgram;
 
 		gl.uniform2fv (program.uniform_resolution, this.v_resolution);
-		gl.uniform1f (program.uniform_time, global.time);
+		gl.uniform1f (program.uniform_time, globals.time);
 		gl.uniform1f (program.uniform_scale, this._globalScale);
 		gl.uniform1f (program.uniform_alpha, this._alpha);
 
@@ -1356,7 +1357,7 @@ Canvas.prototype.blit = function (texture, width, height, shaderProgram=null)
 		gl.uniform1i (shaderProgram.uniform_texture_0, 0);
 
 		gl.uniform2fv (shaderProgram.uniform_resolution, this.v_resolution);
-		gl.uniform1f (shaderProgram.uniform_time, global.time);
+		gl.uniform1f (shaderProgram.uniform_time, globals.time);
 		gl.uniform1f (shaderProgram.uniform_scale, this._globalScale);
 		gl.uniform1f (shaderProgram.uniform_alpha, this._alpha);
 
@@ -1889,7 +1890,7 @@ Canvas.prototype.removePointerHandler = function (id)
 
 Canvas.prototype.drawImageResource = function (image, x=0, y=0, width=null, height=null)
 {
-	if (width == null)
+	if (width === null)
 		return this.drawImage (image.data, 0, 0, image.data.width, image.data.height, x, y, image.width, image.height);
 
 	return this.drawImage (image.data, 0, 0, image.data.width, image.data.height, x, y, width, height);

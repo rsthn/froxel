@@ -19,6 +19,7 @@ import List from '../utils/list.js';
 import Linkable from '../utils/linkable.js';
 import Timer from './timer.js';
 import Canvas from './canvas.js';
+import globals from './globals.js';
 
 /*
 **	System object.
@@ -227,15 +228,11 @@ const System =
 	/*
 	**	Initializes the system with the specified configuration.
 	*/
-	init: function (opts)
+	init: function (options=null)
 	{
-		let o = { };
 		let self = this;
 
-		// Load options from defaults and from the specified ones.
-		Object.assign(o, this.defaultOptions);
-		if (opts) Object.assign(o, opts);
-
+		let o = { ...this.defaultOptions, ...options };
 		this.options = o;
 
 		// Set default orientation if both target sizes were specified.
@@ -640,7 +637,7 @@ const System =
 
 		this.frameDelta = delta / 1000.0;
 		this.frameTime += this.frameDelta;
-		global.time = this.frameTime;
+		globals.time = this.frameTime;
 
 		this.frameNumber++;
 
@@ -726,13 +723,18 @@ const System =
 		let targetScreenWidth = this.options.screenWidth;
 		let targetScreenHeight = this.options.screenHeight;
 
-		if (targetScreenWidth == null || targetScreenHeight == null)
+		if (targetScreenWidth === null || targetScreenHeight === null)
 		{
-			if (targetScreenWidth == null)
+			if (targetScreenWidth === null && targetScreenHeight === null)
+			{
+				targetScreenWidth = this.screenWidth;
+				targetScreenHeight = this.screenHeight;
+			}
+			else if (targetScreenWidth === null)
 			{
 				targetScreenWidth = int(this.screenWidth * (this.options.screenHeight / this.screenHeight));
 			}
-			else if (targetScreenHeight == null)
+			else if (targetScreenHeight === null)
 			{
 				targetScreenHeight = int(this.screenHeight * (this.options.screenWidth / this.screenWidth));
 			}
@@ -756,7 +758,7 @@ const System =
 
 		if (screenWidth && screenHeight)
 		{
-			this.canvasScaleFactor = Math.min (this.screenWidth / screenWidth, this.screenHeight / screenHeight);
+			this.canvasScaleFactor = Math.min(this.screenWidth / screenWidth, this.screenHeight / screenHeight);
 		}
 		else if (screenWidth)
 		{
@@ -839,7 +841,8 @@ const System =
 		this.displayBuffer2.loadIdentity();
 		this.displayBuffer3.loadIdentity();
 
-		if (this.scaleFactor != 1) {
+		if (this.scaleFactor != 1)
+		{
 			this.renderer.globalScale(this.scaleFactor);
 			this.displayBuffer2.globalScale(this.scaleFactor);
 		}

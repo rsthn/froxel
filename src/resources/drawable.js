@@ -38,7 +38,7 @@ export default Class.extend
 
 	draw: function (g, x=0, y=0, width=null, height=null)
 	{
-		if (width == null)
+		if (width === null)
 			g.drawImageResource (this.r, x, y);
 		else
 			g.drawImageResource (this.r, x, y, width, height);

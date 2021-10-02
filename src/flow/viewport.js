@@ -78,6 +78,12 @@ const Viewport = Class.extend
 	focusOffsY: 0,
 
 	/*
+	**	Enabled focus axes. Used by the `update` method to figure which axis to update.
+	*/
+	focusAxisX: true,
+	focusAxisY: true,
+
+	/*
 	**	Flags of the viewport.
 	*/
 	flags: 0,
@@ -442,54 +448,65 @@ const Viewport = Class.extend
 	},
 
 	/*
-	**	Moves the viewport to focus on the specified rectangle or point. If (i1,j1) is not specified then the viewport will be point-focused
-	**	to the given point (i0,j0). Also, if no focus factors are specified the default ones will be used.
+	**	Moves the viewport to focus on the specified line or coordinate (X-axis). Method `updateBounds` should be called afterwards.
 	*/
-	focusOn: function (i0, j0, i1=null, j1=null, kx=null, ky=null)
+	focusX: function (i0, i1=null, kx=null)
 	{
 		if (kx === null) kx = this.focusFactorX;
-		if (ky === null) ky = this.focusFactorY;
-
 		if (i1 === null) i1 = i0;
-		if (j1 === null) j1 = j0;
 
 		let w = this.width >> 1;
-		let h = this.height >> 1;
 
 		let x1 = this.x - int((kx*w + this.centerRatioX*w)/this.scale);
 		let x2 = this.x + int((kx*w + this.centerRatioX*w)/this.scale);
-		let y1 = this.y - int((ky*h + this.centerRatioY*h)/this.scale);
-		let y2 = this.y + int((ky*h + this.centerRatioY*h)/this.scale);
 
 		if (x1 == x2)
 			i0 = i1 = (i0 + i1) >> 1;
 
-		if (y1 == y2)
-			j0 = j1 = (j0 + j1) >> 1;
-
 		let nx = this.x;
-		let ny = this.y;
 
 		if (i0 < x1) nx += (i0 - x1);
 		else if (i1 > x2) nx += (i1 - x2);
 
-		if (j0 < y1) ny += (j0 - y1);
-		else if (j1 > y2) ny += (j1 - y2);
-
 		x1 = nx - w;
 		x2 = nx + w;
-		y1 = ny - h;
-		y2 = ny + h;
 
 		if (x1 < this.worldX1) nx = this.worldX1 + w;
 		if (x2 > this.worldX2) nx = this.worldX2 - w;
+
+		this.x = nx;
+		return this;
+	},
+
+	/*
+	**	Moves the viewport to focus on the specified line or coordinate (Y-axis). Method `updateBounds` should be called afterwards.
+	*/
+	focusY: function (j0, j1=null, ky=null)
+	{
+		if (ky === null) ky = this.focusFactorY;
+		if (j1 === null) j1 = j0;
+
+		let h = this.height >> 1;
+
+		let y1 = this.y - int((ky*h + this.centerRatioY*h)/this.scale);
+		let y2 = this.y + int((ky*h + this.centerRatioY*h)/this.scale);
+
+		if (y1 == y2)
+			j0 = j1 = (j0 + j1) >> 1;
+
+		let ny = this.y;
+
+		if (j0 < y1) ny += (j0 - y1);
+		else if (j1 > y2) ny += (j1 - y2);
+
+		y1 = ny - h;
+		y2 = ny + h;
+
 		if (y1 < this.worldY1) ny = this.worldY1 + h;
 		if (y2 > this.worldY2) ny = this.worldY2 - h;
 
-		this.x = nx;
 		this.y = ny;
-
-		this.updateBounds();
+		return this;
 	},
 
 	/*
@@ -497,11 +514,16 @@ const Viewport = Class.extend
 	*/
 	update: function (dt)
 	{
-		if (this.focusRect != null)
-		{
-//console.log(System.frameNumber + ' viewport: ' + this.focusRect.objectId + ' => ' + this.focusRect.x1 + ', ' + this.focusRect.y1);
-			this.focusOn (this.focusRect.x1, this.focusRect.y1, this.focusRect.x2, this.focusRect.y2);
-		}
+		if (this.focusRect === null)
+			return;
+
+		if (this.focusAxisX)
+			this.focusX (this.focusRect.x1, this.focusRect.x2);
+
+		if (this.focusAxisY)
+			this.focusY (this.focusRect.y1, this.focusRect.y2);
+
+		this.updateBounds();
 	},
 
 	/*
@@ -519,7 +541,29 @@ const Viewport = Class.extend
 	},
 
 	/*
-	**	Sets the focus factor of the viewport.
+	**	Sets the focus offsets of the viewport. Used to translate the focus point.
+	*/
+	setFocusOffsets: function (/*float*/offsX, /*float*/offsY)
+	{
+		this.focusOffsX = offsX;
+		this.focusOffsY = offsY;
+
+		return this;
+	},
+
+	/*
+	**	Sets the enabled flag of the focus axes.
+	*/
+	setFocusAxes: function (/*float*/enabledX, /*float*/enabledY)
+	{
+		this.focusAxisX = enabledX;
+		this.focusAxisY = enabledY;
+
+		return this;
+	},
+
+	/*
+	**	Sets the focus factor of the viewport (value from 0 to 1), that is, the ratio of the smaller focus viewport.
 	*/
 	setFocusFactor: function (/*float*/valueX, /*float*/valueY)
 	{

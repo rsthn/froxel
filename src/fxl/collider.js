@@ -213,7 +213,7 @@ const collider =
 	 * 	@param callback - Callback to execute (when action is collider.ACTION_CALLBACK).
 	 * 	@param context - Optional value passed as last parameter to the callback.
 	 */
-	add: function (primaryType, secondaryType, action, callback=null, context=null)
+	rule: function (primaryType, secondaryType, action, callback=null, context=null)
 	{
 		if (typeof(action) === 'function')
 		{
@@ -407,7 +407,8 @@ const collider =
 		this.commited_zeroes = 0;
 		this.commited_total = 0;
 
-		if (!this.maskLayer) return this.commit(true);
+		if (!this.maskLayer || !mask.visible())
+			return this.commit(true);
 
 		let primaryType = this.rules[mask.type];
 		if (!primaryType) return this.commit(true);
@@ -467,6 +468,9 @@ const collider =
 			}
 
 			if (this.truncated) this.commit();
+
+			if (!mask.visible())
+				break;
 		}
 
 		this.truncated = _truncated;
@@ -476,9 +480,9 @@ const collider =
 	},
 
 	/**
-	 *	Checks collisions against the specified mask.
+	 *	Tests collisions against the specified mask.
 	 */
-	check: function (group, mask)
+	test: function (group, mask)
 	{
 		this.translate (group, mask, 0, 0);
 	}

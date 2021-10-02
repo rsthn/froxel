@@ -433,8 +433,14 @@ export default Spritesheet.extend
 
 					t.seq[i].group = [ ];
 
-					for (c = a; c <= b; c++)
-						t.seq[i].group.push([c]);
+					if (a < b) {
+						for (c = a; c <= b; c++)
+							t.seq[i].group.push([c]);
+					}
+					else {
+						for (c = a; c >= b; c--)
+							t.seq[i].group.push([c]);
+					}
 				}
 				else
 				{

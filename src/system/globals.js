@@ -15,6 +15,7 @@
 */
 
 import Random from './random.js';
+import Log from './log.js';
 
 /*
 **	Global functions and definitions.
@@ -87,7 +88,10 @@ global.dispose = function (obj)
 **	Creates a global AudioContext if supported.
 */
 if ('AudioContext' in global)
-	global.audioContext = new AudioContext();
+{
+	global.audioContext = new AudioContext({ latencyHint: 'interactive', sampleRate: 44100 });
+	Log.write('AudioContext: baseLatency=' + global.audioContext.baseLatency);
+}
 else
 	global.audioContext = null;
 
