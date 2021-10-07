@@ -111,26 +111,5 @@ const Label = Element.extend
 });
 
 
-/*
-**	Setup recycling facility.
-*/
-
-const Pool = Label.extend
-({
-	className: 'Label',
-
-	__ctor: function ()
-	{
-	},
-
-	init: function(x, y, font, text)
-	{
-		this._super.Label.__ctor(x, y, font, text);
-		return this;
-	}
-});
-
-Recycler.attachTo(Pool);
-Label.Pool = Pool;
-
+Recycler.createPool(Label);
 export default Label;

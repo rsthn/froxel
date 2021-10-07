@@ -221,26 +221,5 @@ const Element = GridElement.extend
 });
 
 
-/*
-**	Setup recycling facility.
-*/
-
-const Pool = Element.extend
-({
-	className: 'Element',
-
-	__ctor: function ()
-	{
-	},
-
-	init: function(x, y, width=null, height=null, img=null)
-	{
-		this._super.Element.__ctor(x, y, width, height, img);
-		return this;
-	}
-});
-
-Recycler.attachTo(Pool);
-Element.Pool = Pool;
-
+Recycler.createPool(Element);
 export default Element;

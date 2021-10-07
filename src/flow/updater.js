@@ -47,7 +47,7 @@ const Updater = Class.extend
 	*/
 	__ctor: function (scene, update=null, context=null)
 	{
-		this.list = List.calloc();
+		this.list = List.Pool.calloc();
 		this.scene = scene;
 
 		this.__update = update;
@@ -148,6 +148,5 @@ const Updater = Class.extend
 		}
 	}
 });
-
 
 export default Updater;

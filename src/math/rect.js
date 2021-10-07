@@ -36,7 +36,7 @@ const Rect = Class.extend
 	/*
 	**	Initializes the rect (takes 0, 2 or 4 parameters).
 	*/
-	init: function (x1=null, y1=null, x2=null, y2=null)
+	__ctor: function (x1=null, y1=null, x2=null, y2=null)
 	{
 		if (x1 === null)
 		{
@@ -66,7 +66,7 @@ const Rect = Class.extend
 	*/
 	clone: function ()
 	{
-		return Rect.alloc().init(this.x1, this.y1, this.x2, this.y2);
+		return Rect.Rool.calloc(this.x1, this.y1, this.x2, this.y2);
 	},
 
 	zero: function ()
@@ -423,5 +423,5 @@ const Rect = Class.extend
 	}
 });
 
-Recycler.attachTo (Rect, 4096, 2048);
+Recycler.createPool (Rect, 4096, 2048);
 export default Rect;

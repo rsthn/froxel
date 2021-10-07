@@ -1,6 +1,6 @@
 //@ts-check
 
-import { Handler } from 'froxel';
+import { Group, Mask, Handler, Bounds2 } from 'froxel';
 
 /*
 **	The collider system is responsible of detecting collisions and performing the respective actions.
@@ -8,19 +8,15 @@ import { Handler } from 'froxel';
 
 declare class collider
 {
-	/*
-	**	Allowed actions.
-	*/
-	static readonly ACTION_TRUNCATE: number;
-	static readonly ACTION_CALLBACK: number;
-
 	/**
 	 * 	Contact flag bits.
 	 */
 	static readonly CONTACT_LEFT: number;
 	static readonly CONTACT_RIGHT: number;
+	static readonly CONTACT_HORIZONTAL: number;
 	static readonly CONTACT_TOP: number;
 	static readonly CONTACT_BOTTOM: number;
+	static readonly CONTACT_VERTICAL: number;
  
 	/*
 	**	Collider element flags.
@@ -38,11 +34,36 @@ declare class collider
 	static lupdater: Handler
 
 	/**
-	 *	Enables the collider system.
-	 *
-	 * 	@param layerIndex - Index within the active scene of the layer where element masks are stored. Uses world.LAYER_MASK if none specified.
+	 *	Flags used to filter elements.
 	 */
-	static enable (layerIndex?: number) : void;
+	static flagsAnd: number;
+	static flagsValue: number;
+
+	/**
+	 *	Current collider state fields.
+	 */
+	static state:
+	{
+		/**
+		 * 	Contact flags and contact area.
+		 */
+		contact: Bounds2,
+		flags: number,
+
+		/**
+		 * 	Final delta values calculated by `translate`.
+		 */
+		dx: number,
+		dy: number
+	};
+
+	/**
+	 *	Enables the collider system on the specified scene and layer.
+	 *
+	 * 	@param sceneIndex - Scene to attach the collider updater methods. Uses world.SCENE_MAIN if none specified.
+	 * 	@param layerIndex - Index within the scene of the layer where element masks are stored. Uses world.LAYER_MASK if none specified.
+	 */
+	static enable (sceneIndex?: number, layerIndex?: number) : void;
 
 	/**
 	 *	Disables the collider system.
@@ -63,7 +84,7 @@ declare class collider
 		 * 	@param arg2
 		 * 	@param arg3
 		 */
-		run (elem: any, callback: function, arg1?: any, arg2?: any, arg3?: any);
+		run (elem: any, callback: Function, arg1?: any, arg2?: any, arg3?: any);
 
 		/**
 		 *	Sets the element's visibility flag.
@@ -91,53 +112,67 @@ declare class collider
 	};
 
 	/**
-	 * 	Adds a collision rule.
+	 * 	Adds a contact rule.
 	 *
-	 * 	@param primaryType - Type of the primary element.
-	 * 	@param secondaryType - Type of the secondary element.
-	 * 	@param action - Action to perform.
-	 * 	@param callback - Callback to execute (when action is collider.ACTION_CALLBACK).
-	 * 	@param context - Optional value passed as last parameter to the callback.
+	 * 	@param {Number} primaryType - Type of the primary element.
+	 * 	@param {Number} secondaryType - Type of the secondary element.
+	 * 	@param {(elemA:Mask, elemB:Mask) => void} callback - Callback to execute when contact is detected.
+	 * 	@param {*} context - Optional value passed as last parameter to the callback.
 	 */
-	static rule (primaryType: number, secondaryType: number, action: number, callback?: (primary: Mask, secondary: Mask, context:? any) => void, context?: any) : void;
+	static contact (primaryType: number, secondaryType: number, callback: (primary: Mask, secondary: Mask, context?: any) => void, context?: any) : void;
 
 	/**
-	 * 	Adds a collision rule.
+	 * 	Adds a truncation rule.
 	 *
-	 * 	@param primaryType - Type of the primary element.
-	 * 	@param secondaryType - Type of the secondary element.
-	 * 	@param callback - Callback to execute.
-	 * 	@param context - Optional value passed as last parameter to the callback.
+	 * 	@param {Number} primaryType - Type of the primary element.
+	 * 	@param {Number} secondaryType - Type of the secondary element.
+	 * 	@param {(elemA:Mask, elemB:Mask) => boolean} callback - Returns boolean indicating if the truncation rule should be applied.
+	 * 	@param {*} context - Optional value passed as last parameter to the callback.
 	 */
-	static rule (primaryType: number, secondaryType: number, callback?: (primary: Mask, secondary: Mask, context:? any) => void, context?: any) : void;
+	static truncate (primaryType: number, secondaryType: number, callback: (primary: Mask, secondary: Mask, context?: any) => void, context?: any) : void;
 
 	/**
-	 *	Truncates the primary element against the secondary element.
-	 */
-	static truncate () : void;
-
-	/**
-	 * 	Commits the current default action on the primary element.
-	 */
-	static commit () : void;
-
-	/**
-	 * 	Attempts to move the specified group by the given deltas. Any collisions detected against the mask will trigger the respective actions.
+	 * 	Loads the contact flags in the collider state.
 	 *
+	 * 	@param {Bounds2} boundsA 
+	 * 	@param {Bounds2} boundsB 
+	 * 	@returns {number}
+	 */
+	static getContactFlags (boundsA: Bounds2, boundsB: Bounds2) : number;
+
+	/**
+	 * 	Attempts to move the specified group by the given deltas. Any collisions detected on the mask will trigger the respective actions.
+	 *
+	 * 	@param mask - Mask element.
 	 * 	@param group - Group where the mask is stored.
+	 * 	@param dx - X delta value.
+	 * 	@param dy - Y delta value.
+	 */
+	static translate (mask: Mask, group: Group, dx: number, dy: number) : void;
+
+	/**
+	 * 	Attempts to move the specified group by the given deltas. Any collisions detected on the mask will trigger the respective actions.
+	 *
 	 * 	@param mask - Mask element.
 	 * 	@param dx - X delta value.
 	 * 	@param dy - Y delta value.
 	 */
-	static translate (group: Group, mask: Mask, dx: number, dy: number) : void;
+	static translate (mask: Mask, dx: number, dy: number) : void;
 
 	/**
-	 *	Tests collisions against the specified mask.
+	 *	Scans for collisions against the specified mask.
 	 *
+	 * 	@param mask - Mask element.
 	 * 	@param group - Group where the mask is stored.
+	 */
+	static scan (mask: Mask, group: Group) : void;
+
+	/**
+	 *	Scans for collisions against the specified mask.
+	 *
 	 * 	@param mask - Mask element.
 	 */
-	static test (group, mask) : void;
+	static scan (mask: Mask) : void;
 }
 
 export default collider;

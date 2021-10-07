@@ -48,7 +48,7 @@ const Callback = Class.extend
 	/*
 	**	Initializes the instance with the specified arguments.
 	*/
-	init: function (callback, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
+	__ctor: function (callback, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
 	{
 		this.callback = callback;
 		this.context = context;
@@ -60,7 +60,6 @@ const Callback = Class.extend
 
 		this.prev = null;
 		this.next = null;
-		return this;
 	},
 
 	/*
@@ -123,5 +122,5 @@ const Callback = Class.extend
 	}
 });
 
-Recycler.attachTo(Callback, 16384, 6144);
+Recycler.createPool(Callback, 16384, 6144);
 export default Callback;

@@ -6,6 +6,8 @@ import System from '../system/system.js';
 
 import world from './world.js';
 
+xasd
+
 /*
 **	The collider system is responsible of detecting collisions and performing the respective actions.
 */
@@ -13,18 +15,15 @@ import world from './world.js';
 const collider =
 {
 	/**
-	 *	Allowed actions.
-	 */
-	ACTION_TRUNCATE: 1,
-	ACTION_CALLBACK: 2,
-
-	/**
 	 * 	Contact flag bits.
 	 */
 	CONTACT_LEFT: 1,
 	CONTACT_RIGHT: 2,
+	CONTACT_HORIZONTAL: 1|2,
+
 	CONTACT_TOP: 4,
 	CONTACT_BOTTOM: 8,
+	CONTACT_VERTICAL: 4|8,
 
 	/**
 	 *	Collider element flags.
@@ -32,62 +31,84 @@ const collider =
 	FLAG_EXCLUDE: GridElement.allocFlag(),
 
 	/**
-	 *	Internal fields.
+	 * 	Contact rules, define what to do when certain types of elements are in contact.
 	 */
-	futureBounds: Bounds2.calloc(),
-	intersectionRect: Bounds2.calloc(),
-	tempRect: Bounds2.calloc(),
+	contactRules: { },
 
-	rules: { },
+	/**
+	 * 	Truncation rules, indicate which type of elements are not allowed to penetrate each other.
+	 */
+	truncationRules: { },
 
-	/*
-	**	Scene where the mask layer is contained.
-	*/
+	/**
+	 *	Scene where the mask layer is contained.
+	 */
 	scene: null,
 
-	/*
-	**	Layer containing the element masks.
-	*/
+	/**
+	 *	Layer containing the element masks.
+	 */
 	maskLayer: null,
 
-	/*
-	**	First updater.
-	*/
+	/**
+	 *	First updater.
+	 */
 	fupdater: null,
 
-	/*
-	**	Last updater.
-	*/
+	/**
+	 *	Last updater.
+	 */
 	lupdater: null,
 
-	/*
-	**	Flags used to filter elements.
-	*/
+	/**
+	 *	Flags used to filter elements.
+	 */
 	flagsAnd: 0,
 	flagsValue: 0,
 
-	/*
-	**	Current collider state fields.
-	*/
-	truncated: false,
-	destroyed: false,
+	/**
+	 *	Current collider state fields.
+	 */
+	state:
+	{
+		/**
+		 * 	Contact flags and contact area.
+		 */
+		contact: Bounds2.Pool.calloc(),
+		flags: 0,
 
-	flags: 0,
-	numFlags: 0,
+		/**
+		 * 	Final delta values calculated by `translate`.
+		 */
+		dx: 0,
+		dy: 0,
 
-	group: null,
-	mask: null,
-	collisionItem: null,
-	offs: null,
-	m_dx: 0, m_dy: 0,
-	dx: 0, dy: 0,
-	commited_zeroes: 0,
-	commited_total: 0,
+		bounds: Bounds2.Pool.calloc(),
+
+		x: new Array(32).fill(0),
+		y: new Array(32).fill(0),
+		v0x: new Array(32).fill(0),
+		v0y: new Array(32).fill(0),
+		v1x: new Array(32).fill(0),
+		v1y: new Array(32).fill(0),
+		v2x: new Array(32).fill(0),
+		v2y: new Array(32).fill(0),
+
+		count: 0,
+		target: 0,
+
+		v0: 0, w0: 0, delta0: 0,
+		v1: 0, w1: 0, delta1: 0,
+
+		w2: 0,
+		t_dx: 0,
+		t_dy: 0,
+	},
 
 	/**
-	 *	Enables the collider system.
+	 *	Enables the collider system on the specified scene and layer.
 	 *
-	 * 	@param sceneIndex - Scene to attach the collider updater methods. Used world.SCENE_MAIN if none specified.
+	 * 	@param sceneIndex - Scene to attach the collider updater methods. Uses world.SCENE_MAIN if none specified.
 	 * 	@param layerIndex - Index within the scene of the layer where element masks are stored. Uses world.LAYER_MASK if none specified.
 	 */
 	enable: function(sceneIndex=null, layerIndex=null)
@@ -100,8 +121,8 @@ const collider =
 
 		this.scene.fupdater.add(this.update, this);
 
-		this.fupdater = Handler.alloc().init(this);
-		this.lupdater = Handler.alloc().init(this);
+		this.fupdater = Handler.Pool.calloc(this);
+		this.lupdater = Handler.Pool.calloc(this);
 	},
 
 	/**
@@ -117,7 +138,7 @@ const collider =
 	},
 
 	/**
-	 * 	Runs an update cycle, the `fupdater` and `lupdater` will be executed.
+	 * 	Runs an update cycle, the `fupdater` and `lupdater` handlers will be executed.
 	 */
 	update: function(scene, self)
 	{
@@ -205,286 +226,420 @@ const collider =
 	},
 
 	/**
-	 * 	Adds a collision rule.
+	 * 	Adds a contact rule.
 	 *
-	 * 	@param primaryType - Type of the primary element.
-	 * 	@param secondaryType - Type of the secondary element.
-	 * 	@param action - Action to perform.
-	 * 	@param callback - Callback to execute (when action is collider.ACTION_CALLBACK).
-	 * 	@param context - Optional value passed as last parameter to the callback.
+	 * 	@param {Number} primaryType - Type of the primary element.
+	 * 	@param {Number} secondaryType - Type of the secondary element.
+	 * 	@param {(elemA:Mask, elemB:Mask) => void} callback - Callback to execute when contact is detected.
+	 * 	@param {*} context - Optional value passed as last parameter to the callback.
 	 */
-	rule: function (primaryType, secondaryType, action, callback=null, context=null)
+	contact: function (primaryType, secondaryType, callback, context=null)
 	{
-		if (typeof(action) === 'function')
-		{
-			context = callback;
-			callback = action;
-			action = collider.ACTION_CALLBACK;
-		}
+		if (!(primaryType in this.contactRules))
+			this.contactRules[primaryType] = { };
 
-		if (!(primaryType in this.rules))
-			this.rules[primaryType] = { rules: { } };
-
-		this.rules[primaryType].rules[secondaryType] = { action: action, callback: callback, context: context };
+		this.contactRules[primaryType][secondaryType] = { callback: callback, context: context };
 	},
 
 	/**
-	 *	Loads the contact flags in the collider state.
+	 * 	Adds a truncation rule.
+	 *
+	 * 	@param {Number} primaryType - Type of the primary element.
+	 * 	@param {Number} secondaryType - Type of the secondary element.
+	 * 	@param {(elemA:Mask, elemB:Mask) => boolean} callback - Returns boolean indicating if the truncation rule should be applied.
+	 * 	@param {*} context - Optional value passed as last parameter to the callback.
 	 */
-	loadContactFlags: function (intersectionBounds, elemBounds)
+	truncate: function (primaryType, secondaryType, callback, context=null)
 	{
-		this.flags = 0;
-		this.numFlags = 0;
+		if (!(primaryType in this.truncationRules))
+			this.truncationRules[primaryType] = { };
 
-		if (intersectionBounds.x1 == elemBounds.x1)
-		{
-			this.flags |= collider.CONTACT_LEFT; // LEFT
-			this.numFlags++;
-		}
-
-		if (intersectionBounds.x2 == elemBounds.x2)
-		{
-			this.flags |= collider.CONTACT_RIGHT; // RIGHT
-			this.numFlags++;
-		}
-
-		if (intersectionBounds.y1 == elemBounds.y1)
-		{
-			this.flags |= collider.CONTACT_TOP; // TOP
-			this.numFlags++;
-		}
-
-		if (intersectionBounds.y2 == elemBounds.y2)
-		{
-			this.flags |= collider.CONTACT_BOTTOM; // BOTTOM
-			this.numFlags++;
-		}
-
-		return this.flags;
+		this.truncationRules[primaryType][secondaryType] = { callback: callback, context: context };
 	},
 
 	/**
-	 *	Truncates the primary element against the secondary element.
+	 * 	Loads the contact flags in the collider state.
+	 *
+	 * 	@param {Bounds2} boundsA 
+	 * 	@param {Bounds2} boundsB 
+	 * 	@returns {number}
 	 */
-	truncate: function ()
+	getContactFlags: function (boundsA, boundsB)
 	{
-		// Multiple contact sides, but only one non-zero component.
-		if (this.numFlags != 1 && (this.dx == 0 || this.dy == 0))
-		{
-			if (this.dx == 0)
-				this.flags &= 4|8;
-			else
-				this.flags &= 1|2;
+		this.state.contact.set(boundsA).setAsIntersection(boundsB);
+		let contact = this.state.contact;
 
-			this.numFlags = 1;
+		this.state.flags = 0;
+		this.state.numFlags = 0;
+
+		if (contact.x1 == boundsB.x1)
+		{
+			this.state.flags |= collider.CONTACT_LEFT; // LEFT
+			this.state.numFlags++;
 		}
 
-		// Multiple contact sides, but one collision dimension is greater than the other.
-		if (this.numFlags != 1 && this.intersectionRect.width() != this.intersectionRect.height())
+		if (contact.x2 == boundsB.x2)
 		{
-			if (this.intersectionRect.width() > this.intersectionRect.height())
-				this.flags &= 4|8;
-			else
-				this.flags &= 1|2;
-
-			this.numFlags = 1;
+			this.state.flags |= collider.CONTACT_RIGHT; // RIGHT
+			this.state.numFlags++;
 		}
 
-		// Multiple contact sides, remove flags in the same direction as the movement components.
-		if (this.numFlags != 1)
+		if (contact.y1 == boundsB.y1)
 		{
-			if ((this.flags & 1) && this.dx <= 0) { this.flags &= ~1; this.numFlags--; }
-			if ((this.flags & 2) && this.dx >= 0) { this.flags &= ~2; this.numFlags--; }
-			if ((this.flags & 4) && this.dy <= 0) { this.flags &= ~4; this.numFlags--; }
-			if ((this.flags & 8) && this.dy >= 0) { this.flags &= ~8; this.numFlags--; }
+			this.state.flags |= collider.CONTACT_TOP; // TOP
+			this.state.numFlags++;
 		}
 
-		// Multiple contact sides. Attempt to figure which movement component does not generate a collision.
-		if (this.numFlags != 1)
+		if (contact.y2 == boundsB.y2)
 		{
-			this.tempRect.set(this.mask.bounds).translate(this.offs.x+this.dx, 0);
-			if (0 === this.maskLayer.countInRegion(this.tempRect, this.flagsAnd, this.flagsValue))
+			this.state.flags |= collider.CONTACT_BOTTOM; // BOTTOM
+			this.state.numFlags++;
+		}
+
+		return this.state.flags;
+	},
+
+	calc: function (store0, sign, a, v0a, v1a, v1b)
+	{
+		let n = this.state.count;
+		let delta = null;
+		let v = 0;
+
+		if (sign > 0)
+		{
+			for (let i = 0; i < n; i++)
 			{
-				this.dy = 0;
-			}
-			else
-			{
-				this.tempRect.set(this.mask.bounds).translate(0, this.offs.y+this.dy);
-				if (0 === this.maskLayer.countInRegion(this.tempRect, this.flagsAnd, this.flagsValue))
-				{
-					this.dx = 0;
-				}
-				else
-				{
-					console.log(System.frameNumber + ': #' + this.mask.objectId + ' t=' + this.mask.type.toString(16) + ' dx=' + this.dx + ' dy=' + this.dy);
+				if (!v0a[i] || !v1a[i] || a[i] < 0) continue;
 
-					this.dx = 0;
-					this.dy = 0;
-				}
+				if (delta === null || a[i] > delta)
+					delta = a[i];
+
+				v1a[i] = v1b[i] = 0;
+				v += v0a[i];
 			}
 		}
-		// Single contact side.
 		else
 		{
-			if (this.flags & 1) // LEFT
-				this.dx = this.collisionItem.bounds.x1 - this.mask.bounds.x2
-			else if (this.flags & 2) // RIGHT
-				this.dx = this.collisionItem.bounds.x2 - this.mask.bounds.x1
+			for (let i = 0; i < n; i++)
+			{
+				if (!v0a[i] || !v1a[i] || a[i] > 0) continue;
 
-			if (this.flags & 4) // TOP
-				this.dy = this.collisionItem.bounds.y1 - this.mask.bounds.y2;
-			else if (this.flags & 8) // BOTTOM
-				this.dy = this.collisionItem.bounds.y2 - this.mask.bounds.y1;
+				if (delta === null || a[i] < delta)
+					delta = a[i];
+
+				v1a[i] = v1b[i] = 0;
+				v += v0a[i];
+			}
 		}
 
-		this.truncated = true;
+		if (delta === null)
+			delta = 0;
+
+		if (store0) {
+			this.state.v0 = v;
+			this.state.w0 = Math.abs(delta);
+			this.state.delta0 = delta;
+		} else {
+			this.state.v1 = v;
+			this.state.w1 = Math.abs(delta);
+			this.state.delta1 = delta;
+		}
+	},
+
+	attemptSelect: function (swapped)
+	{
+		if (this.state.v1 + this.state.v0 === this.state.target)
+		{
+			if (this.state.w2 === null || this.state.w1 + this.state.w0 < this.state.w2)
+			{
+				this.state.w2 = this.state.w1 + this.state.w0;
+
+				if (!swapped) {
+					this.state.t_dx = this.state.delta1;
+					this.state.t_dy = this.state.delta0;
+				}
+				else {
+					this.state.t_dx = this.state.delta0;
+					this.state.t_dy = this.state.delta1;
+				}
+			}
+		}
+	},
+
+	load0: function()
+	{
+		let n = this.state.count;
+
+		for (let i = 0; i < n; i++)
+		{
+			this.state.v1x[i] = this.state.v0x[i];
+			this.state.v1y[i] = this.state.v0y[i];
+		}
+	},
+
+	save1: function()
+	{
+		let n = this.state.count;
+
+		for (let i = 0; i < n; i++)
+		{
+			this.state.v2x[i] = this.state.v1x[i];
+			this.state.v2y[i] = this.state.v1y[i];
+		}
+	},
+
+	load1: function()
+	{
+		let n = this.state.count;
+
+		for (let i = 0; i < n; i++)
+		{
+			this.state.v1x[i] = this.state.v2x[i];
+			this.state.v1y[i] = this.state.v2y[i];
+		}
+	},
+
+	resolveXpos: function (single=false)
+	{
+		this.calc (single, 1, this.state.x, this.state.v0x, this.state.v1x, this.state.v1y);
+		if (single) return true;
+
+		this.save1();
+		if (this.resolveYpos(true)) this.attemptSelect(false);
+
+		this.load1();
+		if (this.resolveYneg(true)) this.attemptSelect(false);
+
+		this.load0();
+	},
+
+	resolveXneg: function (single=false)
+	{
+		this.calc (single, -1, this.state.x, this.state.v0x, this.state.v1x, this.state.v1y);
+		if (single) return true;
+
+		this.save1();
+		if (this.resolveYpos(true)) this.attemptSelect(false);
+
+		this.load1();
+		if (this.resolveYneg(true)) this.attemptSelect(false);
+
+		this.load0();
+	},
+
+	resolveYpos: function (single=false)
+	{
+		this.calc (single, 1, this.state.y, this.state.v0y, this.state.v1y, this.state.v1x);
+		if (single) return true;
+
+		this.save1();
+		if (this.resolveXpos(true)) this.attemptSelect(true);
+
+		this.load1();
+		if (this.resolveXneg(true)) this.attemptSelect(true);
+
+		this.load0();
+	},
+
+	resolveYneg: function (single=false)
+	{
+		this.calc (single, -1, this.state.y, this.state.v0y, this.state.v1y, this.state.v1x);
+		if (single) return true;
+
+		this.save1();
+		if (this.resolveXpos(true)) this.attemptSelect(true);
+
+		this.load1();
+		if (this.resolveXneg(true)) this.attemptSelect(true);
+
+		this.load0();
 	},
 
 	/**
-	 * 	Commits the current default action on the primary element.
+	 * 	Completes the translation on the current group.
 	 */
-	commit: function (finalCommit=false)
+	commit: function ()
 	{
-		if (!this.group.alive())
+		if (!this.state.group.alive())
 			return;
 
-		if (!finalCommit)
-		{
-			if (this.dx == 0 && this.dy == 0)
-				this.commited_zeroes++;
-
-			this.commited_total++;
-		}
-
-		if ((this.dx != 0 || this.dy != 0) || (this.m_dx === null || this.m_dy === null))
-		{
-			if (this.m_dx === null || Math.abs(this.dx) < Math.abs(this.m_dx))
-				this.m_dx = this.dx;
-
-			if (this.m_dy === null || Math.abs(this.dy) < Math.abs(this.m_dy))
-				this.m_dy = this.dy;
-
-			this.dx = 0;
-			this.dy = 0;
-		}
-
-		if (finalCommit === true)
-		{
-			this.dx = 0;
-			this.dy = 0;
-
-			if (this.commited_zeroes !== 0 && this.commited_zeroes === this.commited_total)
-				this.m_dx = this.m_dy = 0;
-
-			if (this.m_dx != 0 || this.m_dy != 0) {
-				this.group.translate (this.dx = this.m_dx, this.dy = this.m_dy);
-			}
-
-			this.group.clearFlags(collider.FLAG_EXCLUDE);
-		}
+		this.state.group.translate (this.state.dx, this.state.dy);
+		this.state.group.clearFlags (collider.FLAG_EXCLUDE);
 	},
 
 	/**
-	 *	Attempts to move the specified group by the given deltas. Any collisions detected against the mask will trigger the respective actions.
+	 * 	Attempts to move the specified group by the given deltas. Any collisions detected on the mask will trigger the respective actions.
+	 *
+	 * 	@param mask - Mask element.
+	 * 	@param group - Group where the mask is stored.
+	 * 	@param dx - X delta value.
+	 * 	@param dy - Y delta value.
 	 */
-	translate: function (group, mask, dx, dy)
+	translate: function (mask, group=null, dx=0, dy=0)
 	{
+		if (typeof(group) === 'number')
+		{
+			dy = dx;
+			dx = group;
+			group = null;
+		}
+
+		if (!group) group = mask.group;
+
 		if (!group.alive() || !mask.alive())
 			return;
 
-		this.group = group;
-		this.mask = mask;
+		this.state.mask = mask;
+		this.state.group = group;
 
-		this.truncated = false;
-		this.destroyed = false;
+		this.state.dx = downscalef(upscale(dx));
+		this.state.dy = downscalef(upscale(dy));
 
-		this.m_dx = null;
-		this.m_dy = null;
+		let truncationRules = this.truncationRules[mask.type];
+		if (!this.maskLayer || !mask.visible() || !truncationRules)
+			return this.commit();
 
-		this.dx = dx = downscalef(upscale(dx));
-		this.dy = dy = downscalef(upscale(dy));
+		this.state.offs = group.getOffsets(this.state.dx, this.state.dy);
+		this.state.bounds.set(mask.bounds).translate(this.state.offs.x+this.state.dx, this.state.offs.y+this.state.dy);
 
-		this.commited_zeroes = 0;
-		this.commited_total = 0;
+		group.setFlags (collider.FLAG_EXCLUDE);
 
-		if (!this.maskLayer || !mask.visible())
-			return this.commit(true);
-
-		let primaryType = this.rules[mask.type];
-		if (!primaryType) return this.commit(true);
-
-		this.offs = group.getOffsets(this.dx, this.dy);
-
-		this.futureBounds.set(mask.bounds).translate(this.offs.x+this.dx, this.offs.y+this.dy);
-		group.setFlags(collider.FLAG_EXCLUDE);
-
-		let collisionItems = this.maskLayer.selectInRegion(this.futureBounds, this.flagsAnd, this.flagsValue);
+		let collisionItems = this.maskLayer.selectInRegion(this.state.bounds, this.flagsAnd, this.flagsValue);
 		if (collisionItems.length === 0)
 		{
 			collisionItems.free();
-			return this.commit(true);
+			return this.commit();
 		}
 
-		let _truncated = false;
+		let n = 0;
+		let v = 0;
 
 		while (true)
 		{
-			this.collisionItem = collisionItems.shift();
-			if (this.collisionItem === null) break;
+			let item = collisionItems.shift();
+			if (item === null) break;
 
-			let secondaryType = primaryType.rules[this.collisionItem.type];
-			if (!secondaryType) continue;
+			let allowsTruncation = truncationRules[item.type];
+			if (!allowsTruncation) continue;
 
-			this.intersectionRect.set(this.collisionItem.bounds).setAsIntersection(this.futureBounds);
-
-			this.loadContactFlags (this.intersectionRect, this.collisionItem.bounds);
-			if (!this.flags)
-			{
-				console.log(System.frameNumber + ': ' + mask.type.toString(16) + ' INSIDE OF ' + this.collisionItem.type.toString(16));
+			if ((allowsTruncation.callback !== null && !allowsTruncation.callback (mask, item, allowsTruncation.context)) || allowsTruncation.callback === false)
 				continue;
+
+			let width = Math.min(this.state.bounds.x2, item.bounds.x2) - Math.max(this.state.bounds.x1, item.bounds.x1);
+			let height = Math.min(this.state.bounds.y2, item.bounds.y2) - Math.max(this.state.bounds.y1, item.bounds.y1);
+
+			this.state.v0x[n] = 0;
+			this.state.v0y[n] = 0;
+
+			if (Math.min(this.state.bounds.width(), item.bounds.width()) != width) {
+				this.state.x[n] = absmin(this.state.bounds.x2 - item.bounds.x1, this.state.bounds.x1 - item.bounds.x2);
+				this.state.v0x[n] = 1;
 			}
 
-			this.truncated = false;
-			this.dx = dx;
-			this.dy = dy;
-
-			switch (secondaryType.action)
-			{
-				case collider.ACTION_TRUNCATE:
-					this.truncate();
-					break;
-
-				case collider.ACTION_CALLBACK:
-					secondaryType.callback (mask, this.collisionItem, secondaryType.context);
-					break;
+			if (Math.min(this.state.bounds.height(), item.bounds.height()) != height) {
+				this.state.y[n] = absmin(this.state.bounds.y2 - item.bounds.y1, this.state.bounds.y1 - item.bounds.y2);
+				this.state.v0y[n] = 1;
 			}
 
-			_truncated |= this.truncated;
+			let sv = this.state.v0x[n] + this.state.v0y[n];
+			v += sv;
 
-			if (!mask.alive())
-			{
-				this.destroyed = true;
-				break;
+			if (sv > 1) {
+				this.state.v0x[n] = sv;
+				this.state.v0y[n] = sv;
 			}
 
-			if (this.truncated) this.commit();
+			this.state.v1x[n] = this.state.v0x[n];
+			this.state.v1y[n] = this.state.v0y[n];
 
-			if (!mask.visible())
-				break;
+			n++;
 		}
 
-		this.truncated = _truncated;
-
 		collisionItems.free();
-		this.commit(true);
+
+		if (v == 0)
+			return this.commit();
+
+		this.state.target = v;
+		this.state.count = n;
+		this.state.w2 = null;
+
+		this.resolveXpos();
+		this.resolveXneg();
+		this.resolveYpos();
+		this.resolveYneg();
+
+		if (this.state.w2 !== null)
+		{
+			let contactRules = this.contactRules[mask.type];
+			if (contactRules)
+			{
+				this.state.bounds.set(mask.bounds).translate(this.state.offs.x+this.state.dx-this.state.t_dx*0.0, this.state.offs.y+this.state.dy-this.state.t_dy*0.0);
+
+				collisionItems = this.maskLayer.selectInRegion(this.state.bounds, this.flagsAnd, this.flagsValue);
+
+				while (true)
+				{
+					let item = collisionItems.shift();
+					if (item === null) break;
+		
+					let contact = contactRules[item.type];
+					if (!contact) continue;
+
+					contact.callback (mask, item, contact.context);
+				}
+
+				collisionItems.free();
+			}
+
+			this.state.dx -= this.state.t_dx;
+			this.state.dy -= this.state.t_dy;
+		}
+		else
+		{
+			console.log('UNRESOLVED');
+			System.stop();
+		}
+
+		this.commit();
 	},
 
 	/**
-	 *	Tests collisions against the specified mask.
+	 *	Scans for collisions against the specified mask.
+	 *
+	 * 	@param mask - Mask element.
+	 * 	@param group - Group where the mask is stored.
 	 */
-	test: function (group, mask)
+	scan: function (mask, group=null)
 	{
-		this.translate (group, mask, 0, 0);
+		if (!group) group = mask.group;
+
+		if (!group.alive() || !mask.alive())
+			return;
+
+		this.state.mask = mask;
+		this.state.group = group;
+
+		let contactRules = this.contactRules[mask.type];
+		if (!this.maskLayer || !mask.visible() || !contactRules)
+			return;
+
+		group.setFlags (collider.FLAG_EXCLUDE);
+		let collisionItems = this.maskLayer.selectInRegion(mask.bounds, this.flagsAnd, this.flagsValue);
+		group.clearFlags (collider.FLAG_EXCLUDE);
+
+		while (true)
+		{
+			let item = collisionItems.shift();
+			if (item === null) break;
+
+			let contact = contactRules[item.type];
+			if (!contact) continue;
+
+			contact.callback (mask, item, contact.context);
+		}
+
+		collisionItems.free();
 	}
 };
 

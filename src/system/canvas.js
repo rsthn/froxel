@@ -82,13 +82,13 @@ const Canvas = function (options=null)
 	}
 
 	// State stack support.
-	this.matrixStack = List.calloc();
-	this.alphaStack = List.calloc();
-	this.depthFlagStack = List.calloc();
-	this.shaderProgramStack = List.calloc();
+	this.matrixStack = List.Pool.calloc();
+	this.alphaStack = List.Pool.calloc();
+	this.depthFlagStack = List.Pool.calloc();
+	this.shaderProgramStack = List.Pool.calloc();
 
-	this.matr = Matrix.calloc();
-	this.transform = Matrix.calloc();
+	this.matr = Matrix.Pool.calloc();
+	this.transform = Matrix.Pool.calloc();
 
 	// Default context values.
 	this._globalScale = 1.0;

@@ -69,7 +69,7 @@ const GridElement = Class.extend
 	*/
 	__ctor: function (x, y, width, height)
 	{
-		this.bounds = Bounds2.calloc();
+		this.bounds = Bounds2.Pool.calloc();
 
 		this.bounds.translate (x, y);
 		this.bounds.resize (width, height, true);
@@ -77,7 +77,7 @@ const GridElement = Class.extend
 		this.flags = GridElement.ALIVE | GridElement.VISIBLE | GridElement.DIRTY | GridElement.DEPTH_FLAG;
 		this.data = null;
 
-		this.remover = Handler.alloc().init(this);
+		this.remover = Handler.Pool.calloc(this);
 	},
 
 	/*

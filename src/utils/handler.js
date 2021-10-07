@@ -41,7 +41,7 @@ const Handler = Class.extend
 	/*
 	**	Initializes the instance.
 	*/
-	init: function (host)
+	__ctor: function (host=null)
 	{
 		this.host = host;
 
@@ -64,7 +64,7 @@ const Handler = Class.extend
 	*/
 	add: function(callback, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
 	{
-		let node = Callback.isInstance(callback) ? callback : Callback.alloc().init(callback, context, arg1, arg2, arg3, arg4);
+		let node = Callback.isInstance(callback) ? callback : Callback.Pool.calloc(callback, context, arg1, arg2, arg3, arg4);
 
 		node.prev = this.bottom;
 
@@ -194,5 +194,5 @@ const Handler = Class.extend
 	}
 });
 
-Recycler.attachTo(Handler, 16384, 6144);
+Recycler.createPool(Handler, 16384, 6144);
 export default Handler;

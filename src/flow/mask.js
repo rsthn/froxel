@@ -58,27 +58,5 @@ const Mask = Element.extend
 	}
 });
 
-
-/*
-**	Setup recycling facility.
-*/
-
-const Pool = Mask.extend
-({
-	className: 'Mask',
-
-	__ctor: function ()
-	{
-	},
-
-	init: function(type, x, y, width, height)
-	{
-		this._super.Mask.__ctor(type, x, y, width, height);
-		return this;
-	}
-});
-
-Recycler.attachTo(Pool);
-Mask.Pool = Pool;
-
+Recycler.createPool(Mask);
 export default Mask;

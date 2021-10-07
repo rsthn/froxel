@@ -162,7 +162,7 @@ const Grid = Class.extend
 		if (i < 0 || i >= this.grid.length) return false;
 
 		if (this.grid[i] === null)
-			this.grid[i] = List.calloc();
+			this.grid[i] = List.Pool.calloc();
 
 		this.grid[i].push(elem);
 		this.count++;
@@ -217,7 +217,7 @@ const Grid = Class.extend
 		this.grid[node.arg1].remove(node.arg2);
 
 		if (this.grid[i] === null)
-			this.grid[i] = List.calloc();
+			this.grid[i] = List.Pool.calloc();
 
 		this.grid[i].push(elem);
 
@@ -285,7 +285,7 @@ const Grid = Class.extend
 		if (j0 > n) j0 = n; if (j1 > n) j1 = n;
 		if (i0 > n) i0 = n; if (i1 > n) i1 = n;
 
-		let list = List.calloc();
+		let list = List.Pool.calloc();
 
 		for (let j = j0; j <= j1; j += this.stride)
 		{

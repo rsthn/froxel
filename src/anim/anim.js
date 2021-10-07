@@ -28,7 +28,7 @@ const PARALLEL =
 		if (!postinit)
 		{
 			cmd.block = Block.calloc();
-			cmd.blocks = List.calloc();
+			cmd.blocks = List.Pool.calloc();
 			return;
 		}
 
@@ -386,7 +386,7 @@ const Block = Class.extend
 
 	init: function()
 	{
-		this.commands = List.calloc();
+		this.commands = List.Pool.calloc();
 		this.reset(0);
 		return this;
 	},
@@ -551,15 +551,13 @@ const Anim = Class.extend
 
 	__ctor: function ()
 	{
+		// VIOLET: Possibly optimize this.
 		this.initialData = { };
 		this.data = { };
-	},
 
-	init: function ()
-	{
 		this.block = Block.calloc();
-		this.blockStack = List.calloc();
-		this.cmdStack = List.calloc();
+		this.blockStack = List.Pool.calloc();
+		this.cmdStack = List.Pool.calloc();
 
 		return this.reset();
 	},
@@ -605,8 +603,8 @@ const Anim = Class.extend
 
 			if (this.finishedCallbackHandler === null)
 			{
-				this.finishedCallbackHandler = List.calloc();
-				this.finishedCallbackContext = List.calloc();
+				this.finishedCallbackHandler = List.Pool.calloc();
+				this.finishedCallbackContext = List.Pool.calloc();
 			}
 			else
 			{
@@ -852,7 +850,7 @@ const Anim = Class.extend
 	*/
 	parallel: function ()
 	{
-		let cmd = this.block.add(Command.alloc().init(PARALLEL));
+		let cmd = this.block.add(Command.calloc(PARALLEL));
 
 		this.blockStack.push (this.block);
 		this.cmdStack.push (cmd);
@@ -866,7 +864,7 @@ const Anim = Class.extend
 	*/
 	serial: function ()
 	{
-		let cmd = this.block.add(Command.alloc().init(SERIAL));
+		let cmd = this.block.add(Command.calloc(SERIAL));
 
 		this.blockStack.push (this.block);
 		this.cmdStack.push (cmd);
@@ -880,7 +878,7 @@ const Anim = Class.extend
 	*/
 	repeat: function (count)
 	{
-		let cmd = this.block.add(Command.alloc().init(REPEAT));
+		let cmd = this.block.add(Command.calloc(REPEAT));
 		cmd.count = count;
 
 		this.blockStack.push (this.block);
@@ -905,7 +903,7 @@ const Anim = Class.extend
 	*/
 	set: function (field, value)
 	{
-		let cmd = this.block.add(Command.alloc().init(SET));
+		let cmd = this.block.add(Command.calloc(SET));
 
 		cmd.field = this.prepareFieldName(field);
 		cmd.value = value;
@@ -918,7 +916,7 @@ const Anim = Class.extend
 	*/
 	restart: function ()
 	{
-		this.block.add(Command.alloc().init(RESTART));
+		this.block.add(Command.calloc(RESTART));
 		return this;
 	},
 
@@ -927,7 +925,7 @@ const Anim = Class.extend
 	*/
 	wait: function (duration)
 	{
-		let cmd = this.block.add(Command.alloc().init(WAIT));
+		let cmd = this.block.add(Command.calloc(WAIT));
 
 		cmd.duration = duration;
 
@@ -939,7 +937,7 @@ const Anim = Class.extend
 	*/
 	range: function (field, duration, startValue, endValue, easing=null)
 	{
-		let cmd = this.block.add(Command.alloc().init(RANGE));
+		let cmd = this.block.add(Command.calloc(RANGE));
 
 		cmd.field = this.prepareFieldName(field);
 		cmd.duration = duration;
@@ -955,7 +953,7 @@ const Anim = Class.extend
 	*/
 	rand: function (field, duration, count, startValue, endValue, easing=null)
 	{
-		let cmd = this.block.add(Command.alloc().init(RAND));
+		let cmd = this.block.add(Command.calloc(RAND));
 
 		cmd.field = this.prepareFieldName(field);
 		cmd.duration = duration;
@@ -972,7 +970,7 @@ const Anim = Class.extend
 	*/
 	randt: function (field, duration, count, startValue, endValue, easing)
 	{
-		let cmd = this.block.add(Command.alloc().init(RANDT));
+		let cmd = this.block.add(Command.calloc(RANDT));
 
 		cmd.field = this.prepareFieldName(field);
 		cmd.duration = duration;
@@ -991,7 +989,7 @@ const Anim = Class.extend
 	*/
 	play: function (snd)
 	{
-		let cmd = this.block.add(Command.alloc().init(PLAY));
+		let cmd = this.block.add(Command.calloc(PLAY));
 		cmd.snd = snd;
 
 		return this;
@@ -1002,7 +1000,7 @@ const Anim = Class.extend
 	*/
 	exec: function (fn)
 	{
-		let cmd = this.block.add(Command.alloc().init(EXEC));
+		let cmd = this.block.add(Command.calloc(EXEC));
 		cmd.fn = fn;
 
 		return this;
@@ -1153,5 +1151,5 @@ Anim.speed = function (value)
 	Anim.timeScale = value > 0.0 ? value : 1.0;
 };
 
-Recycler.attachTo(Anim, 8192);
+Recycler.createPool(Anim, 8192);
 export default Anim;

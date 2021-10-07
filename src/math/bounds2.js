@@ -46,12 +46,12 @@ const Bounds2 = Class.extend
 	/*
 	**	Initializes the instance.
 	**
-	**	Bounds2 init (Bounds2 b)
-	**	Bounds2 init (Rect r)
-	**	Bounds2 init (float width, float height)
-	**	Bounds2 init (float x1, float y1, float x2, float y2, bool upscaled=false)
+	**	Bounds2 __ctor (Bounds2 b)
+	**	Bounds2 __ctor (Rect r)
+	**	Bounds2 __ctor (float width, float height)
+	**	Bounds2 __ctor (float x1, float y1, float x2, float y2, bool upscaled=false)
 	*/
-	init: function (x1=null, y1=null, x2=null, y2=null, upscaled=false)
+	__ctor: function (x1=null, y1=null, x2=null, y2=null, upscaled=false)
 	{
 		if (x1 === null)
 		{
@@ -106,7 +106,7 @@ const Bounds2 = Class.extend
 	*/
 	clone: function ()
 	{
-		return Bounds2.alloc().init(this.ux1, this.uy1, this.ux2, this.uy2, true);
+		return Bounds2.Pool.calloc(this.ux1, this.uy1, this.ux2, this.uy2, true);
 	},
 
 	/*
@@ -628,5 +628,5 @@ const Bounds2 = Class.extend
 	}
 });
 
-Recycler.attachTo (Bounds2, 8192, 3072);
+Recycler.createPool (Bounds2, 8192, 3072);
 export default Bounds2;

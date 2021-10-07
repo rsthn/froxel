@@ -19,72 +19,67 @@ const recyclingFacilities = { };
 const Recycler = { };
 export default Recycler;
 
-let constructorAllowed = 0;
-
 /*
 **	Attaches recycling methods (alloc, calloc and free) to the specified class. Class should implement method `init` to initialize the
 **	instance (and returns itself) and __dtor to destroy it.
 */
 
-Recycler.attachTo = function (_class, maxPoolSize=8192, minPoolSize=3072)
+Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 {
-	if (!_class.prototype.className)
+	if (!targetClass.prototype.className)
 		throw new Error ('Unable to attach recycler functions to unnamed class.');
 
-	if (!('__dtor' in _class.prototype))
-		throw new Error ('Recycler: Class '+_class.prototype.className+' requires `__dtor` method.');
+	if (!('__dtor' in targetClass.prototype))
+		throw new Error ('Recycler: Class '+targetClass.prototype.className+' requires `__dtor` method.');
 
-	if (!('init' in _class.prototype))
-		throw new Error ('Recycler: Class '+_class.prototype.className+' requires `init` method.');
+	if (!('init' in targetClass.prototype))
+		throw new Error ('Recycler: Class '+targetClass.prototype.className+' requires `init` method.');
 
-	recyclingFacilities[_class.prototype.className] = _class;
+	if (minPoolSize === null)
+		minPoolSize = int(maxPoolSize * 0.375);
 
-	_class.recyclerPool = [ ];
-	_class.recyclerPoolMax = maxPoolSize;
+	recyclingFacilities[targetClass.prototype.className] = targetClass;
 
-	_class.prototype.objectId = 0;
+	targetClass.recyclerPool = [ ];
+	targetClass.recyclerPoolMax = maxPoolSize;
 
-	_class.recyclerNextObjectId = 0;
-	_class.recyclerCreated = 0;
-	_class.recyclerRecycled = 0;
-	_class.recyclerMissed = 0;
-	_class.recyclerLength = 0;
-	_class.recyclerActive = 0;
+	targetClass.prototype.objectId = 0;
+
+	targetClass.recyclerNextObjectId = 0;
+	targetClass.recyclerCreated = 0;
+	targetClass.recyclerRecycled = 0;
+	targetClass.recyclerMissed = 0;
+	targetClass.recyclerLength = 0;
+	targetClass.recyclerActive = 0;
 
 	for (let i = 0; i < minPoolSize; i++)
 	{
-		_class.recyclerPool.push(new _class ());
-		_class.recyclerLength++;
+		targetClass.recyclerPool.push(new targetClass ());
+		targetClass.recyclerLength++;
 	}
 
-	const __ctor = _class.prototype.__ctor;
+	const __ctor = targetClass.prototype.__ctor;
 
-	_class.prototype.__ctor = function()
-	{
-		if (!constructorAllowed)
-			throw new Error ('Recycler: Constructor blocked for class '+_class.prototype.className+', use alloc() instead.');
-
+	targetClass.prototype.__ctor = function() {
 		__ctor.call(this);
 	};
 
-	_class.alloc = function()
+	targetClass.alloc = function()
 	{
 		let item;
 
 		if (!this.recyclerLength)
 		{
-			constructorAllowed++;
-			item = new _class ();
-			constructorAllowed--;
-			_class.recyclerCreated++;
+			item = new targetClass ();
+			targetClass.recyclerCreated++;
 		}
 		else
 		{
 			item = this.recyclerPool[--this.recyclerLength];
-			_class.recyclerRecycled++;
+			targetClass.recyclerRecycled++;
 		}
 
-		_class.recyclerActive++;
+		targetClass.recyclerActive++;
 
 		item.objectId = ++this.recyclerNextObjectId;
 		this.recyclerNextObjectId &= 0x7FFFFFFF;
@@ -92,21 +87,21 @@ Recycler.attachTo = function (_class, maxPoolSize=8192, minPoolSize=3072)
 		return item;
 	};
 
-	_class.calloc = function()
+	targetClass.calloc = function(a0=null, a1=null, a2=null, a3=null, a4=null, a5=null, a6=null, a7=null, a8=null, a9=null)
 	{
-		return _class.alloc().init();
+		return targetClass.alloc().init(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
 	};
 
-	_class.free = function(item)
+	targetClass.free = function(item)
 	{
 		return item ? item.free() : item;
 	};
 
-	_class.prototype.free = function()
+	targetClass.prototype.free = function()
 	{
 		if (this.objectId == 0)
 		{
-			console.error ('Already freed (' + _class.prototype.className + ')');
+			console.error ('Already freed (' + targetClass.prototype.className + ')');
 			return this;
 		}
 
@@ -114,12 +109,12 @@ Recycler.attachTo = function (_class, maxPoolSize=8192, minPoolSize=3072)
 
 		this.objectId = 0;
 
-		if (_class.recyclerLength >= maxPoolSize)
-			_class.recyclerMissed++;
+		if (targetClass.recyclerLength >= maxPoolSize)
+			targetClass.recyclerMissed++;
 		else
-			_class.recyclerPool[_class.recyclerLength++] = this;
+			targetClass.recyclerPool[targetClass.recyclerLength++] = this;
 
-		_class.recyclerActive--;
+		targetClass.recyclerActive--;
 		return this;
 	};
 };
@@ -169,4 +164,34 @@ Recycler.showStats = function (name=null)
 	}
 
 	console.groupEnd();
+};
+
+
+/*
+**	Create a new class extending the specified target class, this new class is a recycling facility and is placed under property `Pool` of the target class. This
+**	method can be used instead of the usual `attachTo` when the target class construct/deconstruct methods need to remain untouched.
+*/
+Recycler.createPool = function (targetClass, maxPoolSize=8192, minPoolSize=null)
+{
+	const name = targetClass.prototype.className;
+	if (!name) throw new Error ('Unable to create pool sub-class on an unnamed class.');
+
+	const Pool = targetClass.extend
+	({
+		className: targetClass.prototype.className,
+
+		__ctor: function () {
+		},
+
+		init: function(a0=null, a1=null, a2=null, a3=null, a4=null, a5=null, a6=null, a7=null, a8=null, a9=null)
+		{
+			this._super[name].__ctor(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+			return this;
+		}
+	});
+
+	Recycler.attachTo(Pool, maxPoolSize, minPoolSize);
+	targetClass.Pool = Pool;
+
+	return targetClass;
 };

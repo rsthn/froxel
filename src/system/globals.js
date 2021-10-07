@@ -491,3 +491,23 @@ global.falign = function (value)
 {
 	return downscalef(upscale(value));
 };
+
+/*
+**	Returns the value having the minimum absolute value.
+**
+**	>> float absmin (float a, float b);
+*/
+global.absmin = function(a, b)
+{
+	return Math.abs(a) < Math.abs(b) ? a : b;
+};
+
+/*
+**	Returns the value having the maximum absolute value.
+**
+**	>> float absmax (float a, float b);
+*/
+global.absmax = function(a, b)
+{
+	return Math.abs(a) > Math.abs(b) ? a : b;
+};

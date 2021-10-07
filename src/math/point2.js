@@ -33,13 +33,13 @@ const Point2 = Class.extend
 	x: 0, y: 0,
 
 	/*
-	**	Initializes the instance.
+	**	Constructs the instance.
 	**
-	**	Point2 init (Point2 v)
-	**	Point2 init (Vec2 v)
-	**	Point2 init (float x, float y)
+	**	Point2 __ctor (Point2 v)
+	**	Point2 __ctor (Vec2 v)
+	**	Point2 __ctor (float x, float y)
 	*/
-	init: function (x=null, y=null)
+	__ctor: function (x=null, y=null)
 	{
 		return this.set(x, y);
 	},
@@ -63,7 +63,7 @@ const Point2 = Class.extend
 	*/
 	clone: function ()
 	{
-		return Point2.alloc().init(this);
+		return Point2.Pool.calloc(this);
 	},
 
 	/*
@@ -240,5 +240,5 @@ const Point2 = Class.extend
 	}
 });
 
-Recycler.attachTo (Point2, 2048, 1024);
+Recycler.createPool (Point2, 2048, 1024);
 export default Point2;

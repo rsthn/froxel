@@ -44,12 +44,10 @@ const Linkable = Class.extend
 	/*
 	**	Initializes the linkable item and wraps the given value. Makes sure the previous and next pointers are clear.
 	*/
-	init: function (value)
+	__ctor: function (value)
 	{
 		this.value = value;
 		this.clear();
-
-		return this;
 	},
 
 	/*
@@ -111,5 +109,5 @@ const Linkable = Class.extend
 	}
 });
 
-Recycler.attachTo (Linkable, 16384, 6144);
+Recycler.createPool (Linkable, 16384, 6144);
 export default Linkable;

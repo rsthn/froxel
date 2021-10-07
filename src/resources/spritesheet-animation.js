@@ -66,10 +66,10 @@ export const Animation = Class.extend
 
 	frameCallback: null,
 
-	init: function (anim, seq, fps)
+	__ctor: function (anim, seq, fps)
 	{
 		this.anim = anim;
-		this.queue = List.calloc();
+		this.queue = List.Pool.calloc();
 
 		this.seq = seq;
 		this.seq_i = 0;
@@ -92,8 +92,6 @@ export const Animation = Class.extend
 
 		this.fps = fps;
 		this.setFps (this.seq.fps || this.fps);
-
-		return this;
 	},
 
 	__dtor: function ()
@@ -141,8 +139,8 @@ export const Animation = Class.extend
 		if (this.finishedCallback !== this.thenCallback)
 		{
 			this.finishedCallback = this.thenCallback;
-			this.finishedCallbackHandler = List.calloc();
-			this.finishedCallbackContext = List.calloc();
+			this.finishedCallbackHandler = List.Pool.calloc();
+			this.finishedCallbackContext = List.Pool.calloc();
 		}
 
 		this.finishedCallbackHandler.push(callback);
@@ -360,7 +358,7 @@ export const Animation = Class.extend
 	}
 });
 
-Recycler.attachTo(Animation);
+Recycler.createPool(Animation);
 
 /* ********************************************************** */
 export default Spritesheet.extend
@@ -478,7 +476,7 @@ export default Spritesheet.extend
 
 	getAnimation: function (initialseq=null, fps=null)
 	{
-		return Animation.alloc().init(this, initialseq ? this.a.seq[initialseq] : this.a.def, fps || this.a.fps);
+		return Animation.Pool.calloc(this, initialseq ? this.a.seq[initialseq] : this.a.def, fps || this.a.fps);
 	},
 
 	getSequence: function (name)

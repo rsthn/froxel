@@ -47,13 +47,11 @@ const List = Class.extend
 	/*
 	**	Initializes the instance.
 	*/
-	init: function ()
+	__ctor: function ()
 	{
 		this.top = null;
 		this.bottom = null;
 		this.length = 0;
-
-		return this;
 	},
 
 	/*
@@ -70,7 +68,7 @@ const List = Class.extend
 	*/
 	clone: function()
 	{
-		let list = List.calloc();
+		let list = List.Pool.calloc();
 
 		for (let i = this.top; i; i = i.next)
 			list.push(Rin.clone(i.value));
@@ -192,7 +190,7 @@ const List = Class.extend
 	{
 		if (!ref) return this;
 
-		let item = Linkable.alloc().init(value);
+		let item = Linkable.Pool.calloc(value);
 
 		item.linkBefore (ref);
 
@@ -209,7 +207,7 @@ const List = Class.extend
 	{
 		if (!ref) return this;
 
-		let item = Linkable.alloc().init(value);
+		let item = Linkable.Pool.calloc(value);
 
 		item.linkAfter (ref);
 
@@ -224,7 +222,7 @@ const List = Class.extend
 	*/
 	unshift: function (value) /* List */
 	{
-		let item = Linkable.alloc().init(value);
+		let item = Linkable.Pool.calloc(value);
 
 		item.linkBefore (this.top);
 		if (!this.bottom) this.bottom = item;
@@ -254,7 +252,7 @@ const List = Class.extend
 	*/
 	push: function (value) /* List */
 	{
-		let item = Linkable.alloc().init(value);
+		let item = Linkable.Pool.calloc(value);
 
 		item.linkAfter (this.bottom);
 		if (!this.top) this.top = item;
@@ -338,7 +336,7 @@ const List = Class.extend
 	*/
 	filter: function (filter, context=null)
 	{
-		let list = List.calloc();
+		let list = List.Pool.calloc();
 
 		for (let i = this.top; i; i = i.next)
 			if (filter(i.value, context)) list.push(i.value);
@@ -360,5 +358,5 @@ const List = Class.extend
 	}
 });
 
-Recycler.attachTo (List, 16384, 6144);
+Recycler.createPool (List, 16384, 6144);
 export default List;

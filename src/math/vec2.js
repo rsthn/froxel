@@ -33,10 +33,10 @@ const Vec2 = Class.extend
 	/*
 	**	Initializes the instance.
 	**
-	**	Vec2 init (Vec2 v)
-	**	Vec2 init (float x, float y)
+	**	Vec2 __ctor (Vec2 v)
+	**	Vec2 __ctor (float x, float y)
 	*/
-	init: function (x=null, y=null)
+	__ctor: function (x=null, y=null)
 	{
 		return this.set(x, y);
 	},
@@ -46,7 +46,7 @@ const Vec2 = Class.extend
 	*/
 	clone: function () /* Vec2 */
 	{
-		return Vec2.alloc().init(this);
+		return Vec2.Pool.calloc(this);
 	},
 
 	/*
@@ -332,5 +332,5 @@ const Vec2 = Class.extend
 	}
 });
 
-Recycler.attachTo (Vec2, 4096, 2048);
+Recycler.createPool (Vec2, 4096, 2048);
 export default Vec2;

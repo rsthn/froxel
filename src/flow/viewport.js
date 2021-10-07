@@ -137,12 +137,12 @@ const Viewport = Class.extend
 		this.x = 0;
 		this.y = 0;
 
-		this.bounds = Bounds2.alloc();
+		this.bounds = Bounds2.Pool.calloc();
 		this.padding = null;
 
-		this.focusBounds = Bounds2.alloc();
-		this.screenBounds = Bounds2.alloc();
-		this.offset = Point2.alloc();
+		this.focusBounds = Bounds2.Pool.calloc();
+		this.screenBounds = Bounds2.Pool.calloc();
+		this.offset = Point2.Pool.calloc();
 
 		this.flags = Viewport.ENABLED;
 
@@ -201,7 +201,7 @@ const Viewport = Class.extend
 	setPadding: function (x1, y1=null, x2=null, y2=null)
 	{
 		if (this.padding === null)
-			this.padding = Bounds2.calloc();
+			this.padding = Bounds2.Pool.calloc();
 
 		if (y1 === null)
 		{

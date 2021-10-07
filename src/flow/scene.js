@@ -124,18 +124,18 @@ const Scene = Class.extend
 		this.containers = [];
 
 		this.viewports = [];
-		this.viewportBounds = Bounds2.alloc();
+		this.viewportBounds = Bounds2.Pool.calloc();
 
-		this.groupList = List.calloc();
+		this.groupList = List.Pool.calloc();
 		this.groups = { };
 
-		this.disposalQueue = List.calloc();
+		this.disposalQueue = List.Pool.calloc();
 
-		this.fupdater = Handler.alloc().init(this);
-		this.updater = Handler.alloc().init(this);
-		this.synchronizer = Handler.alloc().init(this);
-		this.lupdater = Handler.alloc().init(this);
-		this.destroyer = Handler.alloc().init(this);
+		this.fupdater = Handler.Pool.calloc(this);
+		this.updater = Handler.Pool.calloc(this);
+		this.synchronizer = Handler.Pool.calloc(this);
+		this.lupdater = Handler.Pool.calloc(this);
+		this.destroyer = Handler.Pool.calloc(this);
 
 		this.flags = Scene.VISIBLE;
 		this.scene = this;

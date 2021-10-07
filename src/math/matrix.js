@@ -28,25 +28,20 @@ const Matrix = Class.extend
 ({
 	className: 'Matrix',
 
+	data: null,
+
 	/*
 	**	Constructor.
 	*/
-	__ctor: function()
+	__ctor: function(value=null)
 	{
-		this.data = new Float32Array(9);
-	},
+		if (this.data === null)
+			this.data = new Float32Array(9);
 
-	/*
-	**	Initializes the instance.
-	*/
-	init: function(value=null)
-	{
 		if (value !== null)
 			this.set(value);
 		else
 			this.identity();
-
-		return this;
 	},
 
 	/*
@@ -112,7 +107,7 @@ const Matrix = Class.extend
 	*/
 	clone: function ()
 	{
-		return Matrix.alloc().init(this);
+		return Matrix.Pool.calloc(this);
 	},
 
 	/*
@@ -210,7 +205,7 @@ const Matrix = Class.extend
 		let nx = this.data[0]*x + this.data[3]*y + this.data[6];
 		let ny = this.data[1]*x + this.data[4]*y + this.data[7];
 
-		return Vec2.alloc().init(nx, ny);
+		return Vec2.Pool.calloc(nx, ny);
 	},
 
 	/*
@@ -295,5 +290,5 @@ Matrix.loadIdentity = function (target)
 };
 
 
-Recycler.attachTo (Matrix, 4096, 1024);
+Recycler.createPool (Matrix, 4096, 1024);
 export default Matrix;
