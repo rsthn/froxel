@@ -232,6 +232,7 @@ const collider =
 	 * 	@param {Number} secondaryType - Type of the secondary element.
 	 * 	@param {(elemA:Mask, elemB:Mask) => void} callback - Callback to execute when contact is detected.
 	 * 	@param {*} context - Optional value passed as last parameter to the callback.
+	 * 	@returns {fxl.collider}
 	 */
 	contact: function (primaryType, secondaryType, callback, context=null)
 	{
@@ -239,6 +240,7 @@ const collider =
 			this.contactRules[primaryType] = { };
 
 		this.contactRules[primaryType][secondaryType] = { callback: callback, context: context };
+		return this;
 	},
 
 	/**
@@ -248,6 +250,7 @@ const collider =
 	 * 	@param {Number} secondaryType - Type of the secondary element.
 	 * 	@param {(elemA:Mask, elemB:Mask) => boolean} callback - Returns boolean indicating if the truncation rule should be applied.
 	 * 	@param {*} context - Optional value passed as last parameter to the callback.
+	 * 	@returns {fxl.collider}
 	 */
 	truncate: function (primaryType, secondaryType, callback=null, context=null)
 	{
@@ -255,6 +258,7 @@ const collider =
 			this.truncationRules[primaryType] = { };
 
 		this.truncationRules[primaryType][secondaryType] = { callback: callback, context: context };
+		return this;
 	},
 
 	/**
@@ -495,9 +499,11 @@ const collider =
 		this.state.dx = downscalef(upscale(dx));
 		this.state.dy = downscalef(upscale(dy));
 
-		let truncationRules = this.truncationRules[mask.type];
-		if (!this.maskLayer || !mask.visible() || !truncationRules)
+		if (!this.maskLayer || !mask.visible())
 			return this.commit();
+
+		let truncationRules = this.truncationRules[mask.type];
+		if (!truncationRules) return this.scan(mask, group);
 
 		this.state.offs = group.getOffsets(this.state.dx, this.state.dy);
 		this.state.bounds.set(mask.bounds).translate(this.state.offs.x+this.state.dx, this.state.offs.y+this.state.dy);
@@ -558,7 +564,10 @@ const collider =
 		collisionItems.free();
 
 		if (v == 0)
-			return this.commit();
+		{
+			this.commit();
+			return this.scan(mask, group);
+		}
 
 		this.state.target = v;
 		this.state.count = n;
@@ -594,11 +603,6 @@ const collider =
 
 			this.state.dx -= this.state.t_dx;
 			this.state.dy -= this.state.t_dy;
-		}
-		else
-		{
-			console.log('UNRESOLVED');
-			System.stop();
 		}
 
 		this.commit();

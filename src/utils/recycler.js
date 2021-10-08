@@ -106,6 +106,9 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 	 */
 	targetClass.prototype.free = function()
 	{
+		if (this.objectId < 0)
+			return this;
+
 		if (this.objectId == 0)
 		{
 			console.error ('Already freed (' + targetClass.prototype.className + ')');
@@ -122,6 +125,17 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 			targetClass.recyclerPool[targetClass.recyclerLength++] = this;
 
 		targetClass.recyclerActive--;
+		return this;
+	};
+
+	/**
+	 * 	Sets a flag used to prevent the instance from being destroyed.
+	 * 	@returns {object}
+	 */
+	targetClass.prototype.lockInstance = function(value)
+	{
+		this.objectId = Math.abs(this.objectId);
+		if (value) this.objectId = -this.objectId;
 		return this;
 	};
 };
