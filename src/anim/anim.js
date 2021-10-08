@@ -27,8 +27,8 @@ const PARALLEL =
 	{
 		if (!postinit)
 		{
-			cmd.block = Block.calloc();
-			cmd.blocks = List.Pool.calloc();
+			cmd.block = Block.alloc();
+			cmd.blocks = List.Pool.alloc();
 			return;
 		}
 
@@ -36,7 +36,7 @@ const PARALLEL =
 
 		while ((i = cmd.block.commands.shift()) != null)
 		{
-			let block = Block.calloc();
+			let block = Block.alloc();
 			block.add(i);
 			cmd.blocks.push(block);
 		}
@@ -84,7 +84,7 @@ const SERIAL =
 	init: function(cmd, postinit=false)
 	{
 		if (!postinit)
-			cmd.block = Block.calloc();
+			cmd.block = Block.alloc();
 	},
 
 	update: function(anim, block, cmd)
@@ -109,7 +109,7 @@ const REPEAT =
 	init: function(cmd, postinit=false)
 	{
 		if (!postinit)
-			cmd.block = Block.calloc();
+			cmd.block = Block.alloc();
 	},
 
 	update: function(anim, block, cmd)
@@ -386,7 +386,7 @@ const Block = Class.extend
 
 	init: function()
 	{
-		this.commands = List.Pool.calloc();
+		this.commands = List.Pool.alloc();
 		this.reset(0);
 		return this;
 	},
@@ -555,9 +555,9 @@ const Anim = Class.extend
 		this.initialData = { };
 		this.data = { };
 
-		this.block = Block.calloc();
-		this.blockStack = List.Pool.calloc();
-		this.cmdStack = List.Pool.calloc();
+		this.block = Block.alloc();
+		this.blockStack = List.Pool.alloc();
+		this.cmdStack = List.Pool.alloc();
 
 		return this.reset();
 	},
@@ -603,8 +603,8 @@ const Anim = Class.extend
 
 			if (this.finishedCallbackHandler === null)
 			{
-				this.finishedCallbackHandler = List.Pool.calloc();
-				this.finishedCallbackContext = List.Pool.calloc();
+				this.finishedCallbackHandler = List.Pool.alloc();
+				this.finishedCallbackContext = List.Pool.alloc();
 			}
 			else
 			{
@@ -850,7 +850,7 @@ const Anim = Class.extend
 	*/
 	parallel: function ()
 	{
-		let cmd = this.block.add(Command.calloc(PARALLEL));
+		let cmd = this.block.add(Command.alloc(PARALLEL));
 
 		this.blockStack.push (this.block);
 		this.cmdStack.push (cmd);
@@ -864,7 +864,7 @@ const Anim = Class.extend
 	*/
 	serial: function ()
 	{
-		let cmd = this.block.add(Command.calloc(SERIAL));
+		let cmd = this.block.add(Command.alloc(SERIAL));
 
 		this.blockStack.push (this.block);
 		this.cmdStack.push (cmd);
@@ -878,7 +878,7 @@ const Anim = Class.extend
 	*/
 	repeat: function (count)
 	{
-		let cmd = this.block.add(Command.calloc(REPEAT));
+		let cmd = this.block.add(Command.alloc(REPEAT));
 		cmd.count = count;
 
 		this.blockStack.push (this.block);
@@ -903,7 +903,7 @@ const Anim = Class.extend
 	*/
 	set: function (field, value)
 	{
-		let cmd = this.block.add(Command.calloc(SET));
+		let cmd = this.block.add(Command.alloc(SET));
 
 		cmd.field = this.prepareFieldName(field);
 		cmd.value = value;
@@ -916,7 +916,7 @@ const Anim = Class.extend
 	*/
 	restart: function ()
 	{
-		this.block.add(Command.calloc(RESTART));
+		this.block.add(Command.alloc(RESTART));
 		return this;
 	},
 
@@ -925,7 +925,7 @@ const Anim = Class.extend
 	*/
 	wait: function (duration)
 	{
-		let cmd = this.block.add(Command.calloc(WAIT));
+		let cmd = this.block.add(Command.alloc(WAIT));
 
 		cmd.duration = duration;
 
@@ -937,7 +937,7 @@ const Anim = Class.extend
 	*/
 	range: function (field, duration, startValue, endValue, easing=null)
 	{
-		let cmd = this.block.add(Command.calloc(RANGE));
+		let cmd = this.block.add(Command.alloc(RANGE));
 
 		cmd.field = this.prepareFieldName(field);
 		cmd.duration = duration;
@@ -953,7 +953,7 @@ const Anim = Class.extend
 	*/
 	rand: function (field, duration, count, startValue, endValue, easing=null)
 	{
-		let cmd = this.block.add(Command.calloc(RAND));
+		let cmd = this.block.add(Command.alloc(RAND));
 
 		cmd.field = this.prepareFieldName(field);
 		cmd.duration = duration;
@@ -970,7 +970,7 @@ const Anim = Class.extend
 	*/
 	randt: function (field, duration, count, startValue, endValue, easing)
 	{
-		let cmd = this.block.add(Command.calloc(RANDT));
+		let cmd = this.block.add(Command.alloc(RANDT));
 
 		cmd.field = this.prepareFieldName(field);
 		cmd.duration = duration;
@@ -989,7 +989,7 @@ const Anim = Class.extend
 	*/
 	play: function (snd)
 	{
-		let cmd = this.block.add(Command.calloc(PLAY));
+		let cmd = this.block.add(Command.alloc(PLAY));
 		cmd.snd = snd;
 
 		return this;
@@ -1000,7 +1000,7 @@ const Anim = Class.extend
 	*/
 	exec: function (fn)
 	{
-		let cmd = this.block.add(Command.calloc(EXEC));
+		let cmd = this.block.add(Command.alloc(EXEC));
 		cmd.fn = fn;
 
 		return this;

@@ -20,14 +20,14 @@ const Recycler = { };
 export default Recycler;
 
 /*
-**	Attaches recycling methods (alloc, calloc and free) to the specified class. Class should implement method `init` to initialize the
-**	instance (and returns itself) and __dtor to destroy it.
+**	Attaches recycling methods (allocate, alloc and free) to the specified class. Class should implement method `init` to initialize the
+**	instance (and return itself) and __dtor to destroy it.
 */
 
 Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 {
 	if (!targetClass.prototype.className)
-		throw new Error ('Unable to attach recycler functions to unnamed class.');
+		throw new Error ('Unable to attach recycler methods to an unnamed class.');
 
 	if (!('__dtor' in targetClass.prototype))
 		throw new Error ('Recycler: Class '+targetClass.prototype.className+' requires `__dtor` method.');
@@ -58,13 +58,16 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 		targetClass.recyclerLength++;
 	}
 
-	const __ctor = targetClass.prototype.__ctor;
-
+	/*const __ctor = targetClass.prototype.__ctor;
 	targetClass.prototype.__ctor = function() {
 		__ctor.call(this);
-	};
+	};*/
 
-	targetClass.alloc = function()
+	/**
+	 * 	Allocates a new instance of the class. To ensure correct instance state a call to `init` must be made later.
+	 * 	@returns {object}
+	 */
+	targetClass.allocate = function()
 	{
 		let item;
 
@@ -87,16 +90,20 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 		return item;
 	};
 
-	targetClass.calloc = function(a0=null, a1=null, a2=null, a3=null, a4=null, a5=null, a6=null, a7=null, a8=null, a9=null)
+	/**
+	 * 	Allocates an instance and initializes it. Internally runs `allocate` first and then `init` with up to 10 parameters.
+	 * 	@param {any} a0..a9 
+	 * 	@returns {object}
+	 */
+	targetClass.alloc = function(a0=null, a1=null, a2=null, a3=null, a4=null, a5=null, a6=null, a7=null, a8=null, a9=null)
 	{
-		return targetClass.alloc().init(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+		return targetClass.allocate().init(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
 	};
 
-	targetClass.free = function(item)
-	{
-		return item ? item.free() : item;
-	};
-
+	/**
+	 * 	Releases the self object and adds it back to the pool. Duplicate call to this method will result in an error.
+	 * 	@returns {object}
+	 */
 	targetClass.prototype.free = function()
 	{
 		if (this.objectId == 0)

@@ -38,7 +38,7 @@ export default Container.extend
 	__ctor: function (width, height)
 	{
 		this._super.Container.__ctor (width, height);
-		this.list = List.Pool.calloc();
+		this.list = List.Pool.alloc();
 	},
 
 	/*

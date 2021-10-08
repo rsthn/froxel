@@ -129,7 +129,16 @@ declare class collider
 	 * 	@param {(elemA:Mask, elemB:Mask) => boolean} callback - Returns boolean indicating if the truncation rule should be applied.
 	 * 	@param {*} context - Optional value passed as last parameter to the callback.
 	 */
-	static truncate (primaryType: number, secondaryType: number, callback: (primary: Mask, secondary: Mask, context?: any) => void, context?: any) : void;
+	static truncate (primaryType: number, secondaryType: number, callback?: (primary: Mask, secondary: Mask, context?: any) => void, context?: any) : void;
+
+	/**
+	 * 	Adds a truncation rule.
+	 *
+	 * 	@param {Number} primaryType - Type of the primary element.
+	 * 	@param {Number} secondaryType - Type of the secondary element.
+	 * 	@param {boolean} value - Indicates the status of the truncation rule.
+	 */
+	static truncate (primaryType: number, secondaryType: number, value: boolean) : void;
 
 	/**
 	 * 	Loads the contact flags in the collider state.

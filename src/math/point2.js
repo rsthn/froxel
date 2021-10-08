@@ -63,7 +63,7 @@ const Point2 = Class.extend
 	*/
 	clone: function ()
 	{
-		return Point2.Pool.calloc(this);
+		return Point2.Pool.alloc(this);
 	},
 
 	/*

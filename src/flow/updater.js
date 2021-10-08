@@ -47,7 +47,7 @@ const Updater = Class.extend
 	*/
 	__ctor: function (scene, update=null, context=null)
 	{
-		this.list = List.Pool.calloc();
+		this.list = List.Pool.alloc();
 		this.scene = scene;
 
 		this.__update = update;

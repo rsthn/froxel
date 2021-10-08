@@ -64,7 +64,7 @@ const Handler = Class.extend
 	*/
 	add: function(callback, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
 	{
-		let node = Callback.isInstance(callback) ? callback : Callback.Pool.calloc(callback, context, arg1, arg2, arg3, arg4);
+		let node = Callback.isInstance(callback) ? callback : Callback.Pool.alloc(callback, context, arg1, arg2, arg3, arg4);
 
 		node.prev = this.bottom;
 

@@ -74,7 +74,7 @@ const collider =
 		/**
 		 * 	Contact flags and contact area.
 		 */
-		contact: Bounds2.Pool.calloc(),
+		contact: Bounds2.Pool.alloc(),
 		flags: 0,
 
 		/**
@@ -83,7 +83,7 @@ const collider =
 		dx: 0,
 		dy: 0,
 
-		bounds: Bounds2.Pool.calloc(),
+		bounds: Bounds2.Pool.alloc(),
 
 		x: new Array(32).fill(0),
 		y: new Array(32).fill(0),
@@ -121,8 +121,8 @@ const collider =
 
 		this.scene.fupdater.add(this.update, this);
 
-		this.fupdater = Handler.Pool.calloc(this);
-		this.lupdater = Handler.Pool.calloc(this);
+		this.fupdater = Handler.Pool.alloc(this);
+		this.lupdater = Handler.Pool.alloc(this);
 	},
 
 	/**
@@ -249,7 +249,7 @@ const collider =
 	 * 	@param {(elemA:Mask, elemB:Mask) => boolean} callback - Returns boolean indicating if the truncation rule should be applied.
 	 * 	@param {*} context - Optional value passed as last parameter to the callback.
 	 */
-	truncate: function (primaryType, secondaryType, callback, context=null)
+	truncate: function (primaryType, secondaryType, callback=null, context=null)
 	{
 		if (!(primaryType in this.truncationRules))
 			this.truncationRules[primaryType] = { };
@@ -522,7 +522,7 @@ const collider =
 			let allowsTruncation = truncationRules[item.type];
 			if (!allowsTruncation) continue;
 
-			if ((allowsTruncation.callback !== null && !allowsTruncation.callback (mask, item, allowsTruncation.context)) || allowsTruncation.callback === false)
+			if (allowsTruncation.callback === false || (allowsTruncation.callback !== null && allowsTruncation.callback !== true && !allowsTruncation.callback(mask, item, allowsTruncation.context)))
 				continue;
 
 			let width = Math.min(this.state.bounds.x2, item.bounds.x2) - Math.max(this.state.bounds.x1, item.bounds.x1);

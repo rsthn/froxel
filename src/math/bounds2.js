@@ -106,7 +106,7 @@ const Bounds2 = Class.extend
 	*/
 	clone: function ()
 	{
-		return Bounds2.Pool.calloc(this.ux1, this.uy1, this.ux2, this.uy2, true);
+		return Bounds2.Pool.alloc(this.ux1, this.uy1, this.ux2, this.uy2, true);
 	},
 
 	/*

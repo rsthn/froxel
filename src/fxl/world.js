@@ -75,7 +75,7 @@ const world =
 	/**
 	 *	Dimensions of the world.
 	 */
-	bounds: Bounds2.Pool.calloc(),
+	bounds: Bounds2.Pool.alloc(),
 
 	/**
 	 * 	Initializes the world with the default scenes, viewports and layers.
@@ -258,7 +258,7 @@ const world =
 		if (this.activeScene === null)
 			throw new Error ('createGroup: use selectScene first to select the active scene.');
 
-		this.activeGroup = Group.Pool.calloc(id);
+		this.activeGroup = Group.Pool.alloc(id);
 		this.activeScene.addGroup (this.activeGroup);
 
 		return this.activeGroup;
@@ -296,7 +296,7 @@ const world =
 
 		let container = this.getContainer(containerIndex);
 
-		let elem = Element.Pool.calloc(x, y, img);
+		let elem = Element.Pool.alloc(x, y, img);
 		container.add(elem.setId(id));
 
 		if (this.activeGroup !== null)
@@ -335,7 +335,7 @@ const world =
 			height = this.activeGroup.bounds.height();
 		}
 
-		let mask = Mask.Pool.calloc(type, x, y, width, height);
+		let mask = Mask.Pool.alloc(type, x, y, width, height);
 		container.add(mask.setId(id));
 
 		if (this.activeGroup !== null)
@@ -362,7 +362,7 @@ const world =
 
 		let container = this.getContainer(containerIndex);
 
-		let elem = Label.Pool.calloc(x, y, font, text);
+		let elem = Label.Pool.alloc(x, y, font, text);
 		container.add(elem.setId(id));
 
 		if (this.activeGroup !== null)

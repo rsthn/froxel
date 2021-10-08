@@ -19,7 +19,7 @@ async function main()
 	fxl.world.selectScene(fxl.world.SCENE_MAIN);
 	fxl.world.selectContainer(fxl.world.LAYER_MAIN);
 
-	let tmp = Bounds2.alloc().init();
+	let tmp = Bounds2.Pool.alloc();
 
 	let updater = fxl.world.createUpdater((elem, dt) =>
 	{

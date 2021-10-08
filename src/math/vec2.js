@@ -46,7 +46,7 @@ const Vec2 = Class.extend
 	*/
 	clone: function () /* Vec2 */
 	{
-		return Vec2.Pool.calloc(this);
+		return Vec2.Pool.alloc(this);
 	},
 
 	/*

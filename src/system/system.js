@@ -243,8 +243,8 @@ const System =
 
 		this.orientation = o.orientation;
 
-		this.updateQueue = List.Pool.calloc();
-		this.drawQueue = List.Pool.calloc();
+		this.updateQueue = List.Pool.alloc();
+		this.drawQueue = List.Pool.alloc();
 
 		// Attach frame event handlers.
 		this.frameInterval = 1000 / o.fps;

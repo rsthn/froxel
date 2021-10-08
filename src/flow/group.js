@@ -19,7 +19,7 @@ import List from '../utils/list.js';
 import Point2 from '../math/point2.js';
 import Recycler from '../utils/recycler.js';
 
-const tempPoint = Point2.Pool.calloc();
+const tempPoint = Point2.Pool.alloc();
 
 /*
 **	Groups one or more elements into a single one.
@@ -46,10 +46,10 @@ const Group = Element.extend
 	{
 		this._super.Element.__ctor(0, 0, 0, 0);
 
-		this.children = List.Pool.calloc();
+		this.children = List.Pool.alloc();
 		this.bounds.reset();
 
-		this.ref = Point2.Pool.calloc();
+		this.ref = Point2.Pool.alloc();
 		this.setId(id);
 	},
 

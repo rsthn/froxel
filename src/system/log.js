@@ -26,7 +26,7 @@ const Log =
 	activated: false,
 	paused: false,
 
-	data: List.Pool.calloc(),
+	data: List.Pool.alloc(),
 	count: 0,
 	maxsize: 30,
 	debugEcho: false,

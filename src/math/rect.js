@@ -66,7 +66,7 @@ const Rect = Class.extend
 	*/
 	clone: function ()
 	{
-		return Rect.Rool.calloc(this.x1, this.y1, this.x2, this.y2);
+		return Rect.Rool.alloc(this.x1, this.y1, this.x2, this.y2);
 	},
 
 	zero: function ()

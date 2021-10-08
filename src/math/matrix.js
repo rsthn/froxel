@@ -107,7 +107,7 @@ const Matrix = Class.extend
 	*/
 	clone: function ()
 	{
-		return Matrix.Pool.calloc(this);
+		return Matrix.Pool.alloc(this);
 	},
 
 	/*
@@ -205,7 +205,7 @@ const Matrix = Class.extend
 		let nx = this.data[0]*x + this.data[3]*y + this.data[6];
 		let ny = this.data[1]*x + this.data[4]*y + this.data[7];
 
-		return Vec2.Pool.calloc(nx, ny);
+		return Vec2.Pool.alloc(nx, ny);
 	},
 
 	/*
@@ -241,7 +241,7 @@ const Matrix = Class.extend
 	adj: function () // violet:verify and fix
 	{
 		/*let t = this.transpose();
-		let d = Matrix.alloc();
+		let d = Matrix.Pool.alloc();
 
 		d.data[0] = (t.data[4]*t.data[8] - t.data[5]*t.data[7]);
 		d.data[1] = -(t.data[3]*t.data[8] - t.data[5]*t.data[6]);

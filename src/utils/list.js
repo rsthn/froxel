@@ -68,7 +68,7 @@ const List = Class.extend
 	*/
 	clone: function()
 	{
-		let list = List.Pool.calloc();
+		let list = List.Pool.alloc();
 
 		for (let i = this.top; i; i = i.next)
 			list.push(Rin.clone(i.value));
@@ -190,7 +190,7 @@ const List = Class.extend
 	{
 		if (!ref) return this;
 
-		let item = Linkable.Pool.calloc(value);
+		let item = Linkable.Pool.alloc(value);
 
 		item.linkBefore (ref);
 
@@ -207,7 +207,7 @@ const List = Class.extend
 	{
 		if (!ref) return this;
 
-		let item = Linkable.Pool.calloc(value);
+		let item = Linkable.Pool.alloc(value);
 
 		item.linkAfter (ref);
 
@@ -222,7 +222,7 @@ const List = Class.extend
 	*/
 	unshift: function (value) /* List */
 	{
-		let item = Linkable.Pool.calloc(value);
+		let item = Linkable.Pool.alloc(value);
 
 		item.linkBefore (this.top);
 		if (!this.bottom) this.bottom = item;
@@ -252,7 +252,7 @@ const List = Class.extend
 	*/
 	push: function (value) /* List */
 	{
-		let item = Linkable.Pool.calloc(value);
+		let item = Linkable.Pool.alloc(value);
 
 		item.linkAfter (this.bottom);
 		if (!this.top) this.top = item;
@@ -336,7 +336,7 @@ const List = Class.extend
 	*/
 	filter: function (filter, context=null)
 	{
-		let list = List.Pool.calloc();
+		let list = List.Pool.alloc();
 
 		for (let i = this.top; i; i = i.next)
 			if (filter(i.value, context)) list.push(i.value);
