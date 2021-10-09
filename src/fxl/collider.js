@@ -583,7 +583,7 @@ const collider =
 			let contactRules = this.contactRules[mask.type];
 			if (contactRules)
 			{
-				this.state.bounds.set(mask.bounds).translate(this.state.offs.x+this.state.dx-this.state.t_dx*0.0, this.state.offs.y+this.state.dy-this.state.t_dy*0.0);
+				this.state.bounds.set(mask.bounds).translate(this.state.offs.x+this.state.dx-this.state.t_dx*0.5, this.state.offs.y+this.state.dy-this.state.t_dy*0.5);
 
 				collisionItems = this.maskLayer.selectInRegion(this.state.bounds, this.flagsAnd, this.flagsValue);
 

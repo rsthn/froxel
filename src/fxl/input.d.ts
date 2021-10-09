@@ -14,8 +14,36 @@ declare class input
 	/**
 	 * 	Currently active gamepad.
 	 */
-	static activeGamepad: Gamepad|null;
+	static activeGamepad?: Gamepad;
 
+	/**
+	 *	Cursor element used when the single-cursor input is enabled.
+	 */
+	static activeCursor?: Element;
+
+	/**
+	 *	Pointer state related to the cursor when single-cursor input is enabled.
+	 */
+	static pointer?: object;
+ 
+	/**
+	 *	Sets or returns the specified element for the single-cursor input.
+	 *	@param {Element} element?
+	 */
+	static cursorElement (element?: Element) : Element|object|null;
+
+	/**
+	 *	Enables or disables the single-cursor input.
+	 *	@param {boolean} value
+	 */
+	static cursorEnabled (value?: boolean) : boolean|object|null;
+
+	/**
+	 *	Callback to execute when a cursor event happens.
+	 *	@param { (action:number, pointer:object) => void } callback
+	 */
+	static cursorHandler (callback: (action:number, pointer:object) => void) : object;
+ 
 	/**
 	 * 	Creates a gamepad object and attaches it to the active scene in the specified layer (defaults to LAYER_HUD_FG).
 	 *

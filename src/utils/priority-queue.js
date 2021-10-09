@@ -83,8 +83,7 @@ export default Class.extend
 			{
 				if (q.list[j] == null)
 				{
-					console.log('CLEANUP CALLED');
-					q.list[j--].splice(1, 0);
+					q.list.splice(j--, 1);
 				}
 			}
 

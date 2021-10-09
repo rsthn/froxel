@@ -111,7 +111,7 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 
 		if (this.objectId == 0)
 		{
-			console.error ('Already freed (' + targetClass.prototype.className + ')');
+			console.error ('ERROR: Already released instance of ' + targetClass.prototype.className);
 			return this;
 		}
 
