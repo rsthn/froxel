@@ -17,28 +17,64 @@
 import System from './system.js';
 import List from '../utils/list.js';
 
+//!namespace Log
+
 /**
 **	Logging module to show logs on the system display buffer.
 */
 
 const Log =
 {
+	/**
+	 * 	Indicates if the log module is enabled.
+	 *	!let activated: boolean;
+	 */
 	activated: false,
+
+	/**
+	 * 	Indicates if the log module is paused.
+	 * 	!let paused: boolean;
+	 */
 	paused: false,
+
+	/**
+	 * 	Maximum number of entries to show in the screen.
+	 * 	!let maxsize: number;
+	 */
+	maxsize: 30,
 
 	data: List.Pool.alloc(),
 	count: 0,
-	maxsize: 30,
+
+
+	/**
+	 * 	Indicates if output showuld also be passed to `console.debug` as secondary echo.
+	 * 	!let debugEcho: boolean;
+	 */
 	debugEcho: false,
 
+	/**
+	 * 	Foreground (text) color.
+	 * 	!let color: string;
+	 */
 	color: '#fff',
+
+	/**
+	 * 	Background color.
+	 * 	!let background: string;
+	 */
 	background: '#cf266a',
 
+	/**
+	 * 	Debugging variables to show continuously at the top of the log output.
+	 * 	!let vars: object;
+	 */
 	vars: { },
 
 	/**
-	**	Writes a message to the log buffer, ensure logging has been enabled by calling enable() or any messages will be ignored.
-	*/
+	 * 	Writes a message to the log buffer, ensure logging has been enabled by calling `enable` first or any messages will be ignored.
+	 * 	!function write (msg: string) : void;
+	 */
 	write: function (msg)
 	{
 		this.data.push(msg);
@@ -52,8 +88,9 @@ const Log =
 	},
 
 	/**
-	**	Clears the current log buffer.
-	*/
+	 * 	Clears the current log buffer.
+	 * 	!function clear () : void;
+	 */
 	clear: function ()
 	{
 		this.data.reset();
@@ -61,18 +98,22 @@ const Log =
 	},
 
 	/**
-	**	Enables on-screen logging, must be called first before any call to write() or logging messages will be ignored.
-	*/
-	enable: function (x, y, fontSize, showFps, showIndex)
+	 * 	Enables on-screen logging for cool stuff.
+	 *
+	 * 	@param x - X-coordinate of the top-left corner.
+	 * 	@param y - Y-coordinate of the top-left corner.
+	 * 	@param fontSize - Desired font size in `pt` units.
+	 * 	@param showFps - Set to `true` to show FPS.
+	 * 	@param showIndex - Set to `true to show the message index.
+	 *
+	 * 	!function enable (x?: number, y?: number, fontSize?: number, showFps?: boolean, showIndex?: boolean) : void;
+	 */
+	enable: function (x=0, y=0, fontSize=9.5, showFps=true, showIndex=true)
 	{
 		if (this.activated) return;
 		this.activated = true;
 
-		if (!x) x = 0;
-		if (!y) y = 0;
-		if (!fontSize) fontSize = 9.5;
-
-		if (showFps === false) y -= 16;
+		if (!showFps) y -= 16;
 		let _y = y;
 
 		System.drawQueueAdd ({ draw: function ()
@@ -124,7 +165,7 @@ const Log =
 			let i = 0;
 			for (let ii = Log.data.top; ii; ii = ii.next, i++)
 			{
-				s = (showIndex !== false ? "#" + (Log.count-Log.data.length+i+1) + ": " : "> ") + ii.value;
+				s = (showIndex ? "#" + (Log.count-Log.data.length+i+1) + ": " : "> ") + ii.value;
 
 				if (Log.background) {
 					g.fillStyle(Log.background);
@@ -141,18 +182,20 @@ const Log =
 		}});
 	},
 
-	/*
-	**	Pauses log on-screen rendering.
-	*/
+	/**
+	 * 	Pauses log rendering.
+	 * 	!function pause () : void;
+	 */
 	pause: function ()
 	{
 		this.paused = true;
 		return;
 	},
 
-	/*
-	**	Resumes log on-screen rendering (requires log to be enabled first).
-	*/
+	/**
+	 * 	Resumes log rendering.
+	 * 	!function resume () : void;
+	 */
 	resume: function ()
 	{
 		this.paused = false;

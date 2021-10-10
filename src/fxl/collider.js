@@ -2,11 +2,8 @@
 import Bounds2 from '../math/bounds2.js';
 import GridElement from '../flow/grid-element.js';
 import Handler from '../utils/handler.js';
-import System from '../system/system.js';
 
 import world from './world.js';
-
-xasd
 
 /*
 **	The collider system is responsible of detecting collisions and performing the respective actions.

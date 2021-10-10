@@ -120,6 +120,11 @@ const Viewport = Class.extend
 	screenBounds: null,
 
 	/*
+	**	Temporal Point2 object used as temporary result for toWorldSpace and toScreenSpace.
+	*/
+	tmpPoint: null,
+
+	/*
 	**	Constructs the viewport with the specified viewport and world dimensions. A focus factor can
 	**	be specified as well, if none provided the default value is 0.4.
 	*/
@@ -145,6 +150,7 @@ const Viewport = Class.extend
 		this.offset = Point2.Pool.alloc();
 
 		this.flags = Viewport.ENABLED;
+		this.tmpPoint = Point2.Pool.alloc();
 
 		this.setWorldBounds(-worldWidth>>1, -worldHeight>>1, worldWidth>>1, worldHeight>>1);
 
@@ -160,6 +166,7 @@ const Viewport = Class.extend
 		this.bounds.free();
 		this.focusBounds.free();
 		this.screenBounds.free();
+		this.tmpPoint.free();
 
 		if (this.padding !== null)
 			this.padding.free();
@@ -604,8 +611,15 @@ const Viewport = Class.extend
 	/*
 	**	Converts a point from screen-space to world-space.
 	*/
-	toWorldSpace: function (x, y, floor=false)
+	toWorldSpace: function (x, y=null, floor=false)
 	{
+		if (y === null || y === true)
+		{
+			floor = y === true;
+			y = x.y;
+			x = x.x;
+		}
+
 		let cx = this.screenBounds.x1 + (this.screenBounds.width() >> 1);
 		let cy = this.screenBounds.y1 + (this.screenBounds.height() >> 1);
 
@@ -618,14 +632,21 @@ const Viewport = Class.extend
 			y = ((y - cy) / this.scale) + this.getY();
 		}
 
-		return { x: x, y: y };
+		return this.tmpPoint.set(x, y);
 	},
 
 	/*
 	**	Converts a point from world-space to screen-space.
 	*/
-	toScreenSpace: function (x, y, floor=false)
+	toScreenSpace: function (x, y=null, floor=false)
 	{
+		if (y === null || y === true)
+		{
+			floor = y === true;
+			y = x.y;
+			x = x.x;
+		}
+
 		let cx = this.screenBounds.x1 + (this.screenBounds.width() >> 1);
 		let cy = this.screenBounds.y1 + (this.screenBounds.height() >> 1);
 
@@ -638,8 +659,8 @@ const Viewport = Class.extend
 			y = (y - this.getY()) * this.scale + cy;
 		}
 
-		return { x: x, y: y };
-	},
+		return this.tmpPoint.set(x, y);
+	}
 });
 
 

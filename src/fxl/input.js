@@ -22,95 +22,103 @@ const input =
 	activeGamepad: null,
 
 	/**
-	 *	Indicates if the single-cursor input has been enabled.
+	 * 	Cursor object, used to control the state of the single-cursor input.
 	 */
-	_cursorEnabled: null,
-
-	/**
-	 *	Handler callaback for cursor events.
-	 */
-	_cursorHandler: null,
-
-	/**
-	 *	Cursor element used when the single-cursor input is enabled.
-	 */
-	activeCursor: null,
-
-	/**
-	 *	Pointer state related to the cursor when single-cursor input is enabled.
-	 */
-	pointer: null,
-
-	/**
-	 *	Sets or returns the specified element for the single-cursor input.
-	 *	@param {Element} element?
-	 */
-	cursorElement: function (element=false)
+	cursor:
 	{
-		if (element === false)
-			return this.activeCursor;
+		/**
+		 *	Indicates if the single-cursor input has been enabled.
+ 		 */
+		_enabled: null,
 
-		this.activeCursor = element;
-		return this;
-	},
+		/**
+		 *	Handler callback for cursor events.
+		 */
+		_handler: null,
 
-	/**
-	 *	Enables or disables the single-cursor input.
-	 *	@param {boolean} value
-	 */
-	cursorEnabled: function (value=null)
-	{
-		if (value === null)
-			return this._cursorEnabled;
+		/**
+		 *	Cursor element used when the single-cursor input is enabled.
+		 */
+		_element: null,
 
-		if (this._cursorEnabled === value)
+		/**
+		 *	Pointer state related to the cursor when single-cursor input is enabled.
+		 */
+		pointer: null,
+
+		/**
+		 *	Sets or returns the specified element for the single-cursor input.
+		 *	@param {Element} element?
+		 */
+		element: function (element=false)
+		{
+			if (element === false)
+				return this._element;
+
+			this._element = element;
 			return this;
+		},
 
-		this._cursorEnabled = value;
-
-		if (value === true)
+		/**
+		 *	Enables or disables the single-cursor input.
+		*	@param {boolean} value
+		*/
+		enabled: function (value=null)
 		{
-			system.renderer.elem.style.cursor = 'none';
-			PointerHandler.register(this.cursorPointerHandler);
-		}
-		else
+			if (value === null)
+				return this._enabled;
+
+			if (this._enabled === value)
+				return this;
+
+			this._enabled = value;
+
+			if (value === true)
+			{
+				if (this._element !== null)
+					system.renderer.elem.style.cursor = 'none';
+
+				PointerHandler.register(this.pointerHandler);
+			}
+			else
+			{
+				system.renderer.elem.style.removeProperty('cursor');
+				PointerHandler.unregister(this.pointerHandler);
+			}
+
+			return this;
+		},
+
+		/**
+		 *	Sets the callback to execute when a cursor event happens.
+		 *	@param { (action:number, pointer:object) => void } callback
+		 */
+		handler: function (callback)
 		{
-			system.renderer.elem.style.removeProperty('cursor');
-			PointerHandler.unregister(this.cursorPointerHandler);
-		}
+			this._handler = callback;
+			return this;
+		},
 
-		return this;
-	},
-
-	/**
-	 *	Sets the callback to execute when a cursor event happens.
-	 *	@param { (action:number, pointer:object) => void } callback
-	 */
-	cursorHandler: function (callback)
-	{
-		this._cursorHandler = callback;
-		return this;
-	},
-
-	/**
-	 * 	Pointer event handler for single-cursor input.
-	 */
-	cursorPointerHandler:
-	{
-		priority: 50,
-
-		onPointerEvent: function (action, pointer, pointers)
+		/**
+		 * 	Pointer event handler for single-cursor input.
+		 */
+		pointerHandler:
 		{
-			if (!input._cursorEnabled)
-				return;
+			priority: 50,
 
-			input.pointer = pointer;
+			onPointerEvent: function (action, pointer, pointers)
+			{
+				if (!input.cursor._enabled)
+					return;
 
-			if (input.activeCursor !== null)
-				input.activeCursor.setPosition(pointer.x, pointer.y);
+				input.cursor.pointer = pointer;
 
-			if (this._cursorHandler !== null)
-				this._cursorHandler (action, pointer);
+				if (input.cursor._element !== null)
+					input.cursor._element.setPosition(pointer.x, pointer.y);
+
+				if (input.cursor._handler !== null)
+					input.cursor._handler (action, pointer);
+			},
 		},
 	},
 

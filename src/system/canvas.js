@@ -42,10 +42,12 @@ const Canvas = function (options=null)
 		...options
 	};
 
+	const headless = global.document ? false : true;
+
 	// Create canvas element if required.
 	if (opts.elem == null)
 	{
-		this.elem = global.document ? global.document.createElement ("canvas") : Rin.clone(Canvas.passThruCanvas);
+		this.elem = !headless ? global.document.createElement('canvas') : Rin.clone(Canvas.passThruCanvas);
 
 		if (global.document && opts.hidden != true)
 		{
@@ -65,7 +67,7 @@ const Canvas = function (options=null)
 
 	if (!this.elem.getContext) return;
 
-	if (opts.gl === true)
+	if (opts.gl === true && !headless)
 	{
 		this.gl = this.elem.getContext('webgl2', { desynchronized: false, alpha: false });
 		this.context = null;
@@ -104,7 +106,7 @@ const Canvas = function (options=null)
 	if (opts.width && opts.height)
 	this.resize (opts.width, opts.height);
 
-	if (opts.gl === true)
+	if (this.gl !== null)
 		this.initGl();
 
 	this.antialias = opts.antialias;
@@ -120,7 +122,7 @@ Canvas.passThruCanvas =
 	style: {
 	},
 
-	width: 950,
+	width: 960,
 	height: 540,
 
 	getContext: function (renderingContext) {

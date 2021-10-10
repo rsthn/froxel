@@ -58,11 +58,6 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 		targetClass.recyclerLength++;
 	}
 
-	/*const __ctor = targetClass.prototype.__ctor;
-	targetClass.prototype.__ctor = function() {
-		__ctor.call(this);
-	};*/
-
 	/**
 	 * 	Allocates a new instance of the class. To ensure correct instance state a call to `init` must be made later.
 	 * 	@returns {object}

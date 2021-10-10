@@ -14,9 +14,15 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-**	Timer class.
-*/
+//!class Timer
+
+/**
+ * 	@param vsync - Indicates if requestAnimationFrame should be used instead of setTimeout.
+ * 	@param interval - Amount of milliseconds between timer activations.
+ * 	@param callback - Function to execute on each timer activation.
+ *
+ * 	!constructor (vsync: boolean, interval: number, callback: (dt: number, timer: Timer) => void );
+ */
 const Timer = function (vsync, interval, callback)
 {
 	this.callback = callback;
@@ -39,9 +45,9 @@ const Timer = function (vsync, interval, callback)
 	};
 };
 
-/*
-**	Timeout handler.
-*/
+/**
+ * 	Timer onTimeout handler.
+ */
 Timer.prototype.onTimeout = function ()
 {
 	if (!this.isRunning) return;
@@ -64,26 +70,25 @@ Timer.prototype.onTimeout = function ()
 	this.callback(this.tDelta, this);
 };
 
-/*
-**	Timer start handler (overridable).
-*/
-Timer.prototype.onStart = function ()
-{
-};
-
-/*
-**	Starts the timer. When immediate is `true` the callback will be executed immediately. The scale parameter is used to control when to
-**	trigger the first timeout, set to timeInterval*scale.
-*/
+/**
+ * 	Starts the timer and triggers `onStarted`.
+ *
+ * 	@param immediate - When `true` the callback will be executed immediately.
+ * 	@param scale - Used to control when to trigger the first timeout, delay is timeInterval*scale.
+ *
+ * 	!start (immediate?: boolean, scale?: number) : void;
+ */
 Timer.prototype.start = function (immediate=false, scale=1.0)
 {
+	if (this.isRunning) return;
+
 	this.startTime = hrnow();
 	this.isRunning = true;
 
 	this.sTime = 0;
 	this.lTime = 0;
 
-	this.onStart();
+	this.onStarted();
 
 	if (immediate)
 		this.callback (0, this);
@@ -91,9 +96,11 @@ Timer.prototype.start = function (immediate=false, scale=1.0)
 	this.runAfter(this.interval*scale);
 };
 
-/*
-**	Executes the timer onTimeout() after the specified amount of milliseconds.
-*/
+/**
+ * 	Executes the timer activation after the specified amount of milliseconds.
+ *
+ * 	!runAfter (timeout: number) : void;
+ */
 Timer.prototype.runAfter = function (timeout)
 {
 	if (process.browser && this.vsync)
@@ -102,20 +109,45 @@ Timer.prototype.runAfter = function (timeout)
 		setTimeout(this._onTimeout, 0);
 };
 
-/*
-**	Executes the onTimeout callback as soon as possible.
-*/
+/**
+ * 	Executes the timer activaton as soon as possible.
+ *
+ * 	!runNow() : void;
+ */
 Timer.prototype.runNow = function ()
 {
 	setTimeout(this._onTimeout, 0);
 };
 
-/*
-**	Stops the timer.
-*/
+/**
+ * 	Stops the timer and triggers `onStopped`.
+ *
+ * 	!stop() : void;
+ */
 Timer.prototype.stop = function ()
 {
+	if (!this.isRunning) return;
+
 	this.isRunning = false;
+	this.onStopped();
+};
+
+/**
+ * 	Timer started event handler.
+ *
+ * 	!onStarted() : void;
+ */
+Timer.prototype.onStarted = function ()
+{
+};
+
+/**
+ * 	Timer stopped event handler.
+ *
+ * 	!onStopped() : void;
+ */
+Timer.prototype.onStopped = function ()
+{
 };
 
 export default Timer;

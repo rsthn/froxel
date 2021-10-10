@@ -98,8 +98,8 @@ global.fetchd = function (url, options)
 {
 	return new Promise ((resolve, reject) =>
 	{
-		if (!('responseType' in options))
-			options.responseType = 'arraybuffer';
+		if (!options) options = { };
+		if (!('responseType' in options)) options.responseType = 'arraybuffer';
 
 		url = url.split('?')[0];
 

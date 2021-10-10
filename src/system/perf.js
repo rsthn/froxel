@@ -14,69 +14,56 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
-**	Small utility class for performance tracking.
-**
-**	>> Perf __constructor (float accumSize, float expectedValue);
-**	>> Perf __constructor (float accumSize);
-*/
+//!class Perf
 
-const Perf = function (accumSize, expectedValue)
+/**
+ * 	Initializes the performance monitoring instance.
+ *
+ * 	@param accumSize - Maximum amount of samples to accumulate.
+ * 	@param expectedValue - Expected value (average) of resulting samples.
+ * 
+ * 	!constructor (accumSize: number, expectedValue?: number);
+ */
+const Perf = function (accumSize, expectedValue=null)
 {
 	this.data = [ ];
 	this.accumSize = accumSize;
 
 	this.expectedValue = expectedValue;
 
+	this.lastFeed = 0;
+	this.lastUpdate = 0;
+
 	this.stdSum = 0;
 	this.stdCount = 0;
 };
 
-Perf.SAMPLES = 0x01;
-Perf.MIN = 0x02;
-Perf.MAX = 0x04;
-Perf.AVG = 0x08;
-Perf.EXPECTED = 0x10;
-Perf.STDDEV = 0x20;
-Perf.AVG_STDDEV = 0x40;
-Perf.ALL = 0xFF;
-
 export default Perf;
 
 /**
-**	Marks the start time of the performance test.
-**
-**	>> void begin();
-*/
-
-Perf.prototype.begin = function ()
-{
+ * 	Marks the start time of a performance test.
+ * 	!begin() : void;
+ */
+Perf.prototype.begin = function () {
 	this.startTime = performance.now();
 };
 
-
 /**
-**	Marks the end time of the performance test, the elapsed time is fed into the tracker.
-**
-**	>> void end();
-*/
-
-Perf.prototype.end = function ()
-{
+ * 	Marks the end time of the performance test, the elapsed time is fed into the monitor.
+ * 	!end() : void;
+ */
+Perf.prototype.end = function () {
 	this.feed (performance.now() - this.startTime);
 };
 
-
 /**
-**	Feeds a value into the tracker, auto-generates a report using console.log when the number of samples
-**	reaches the accumSize specified in the constructor.
-**
-**	>> void feed (float value);
-*/
-
+ * 	Feeds a value into the monitor, auto-generates a report using `console.log` when the number of samples reaches the `accumSize` specified in the constructor.
+ * 	!feed (value: number) : void;
+ */
 Perf.prototype.feed = function (value)
 {
 	this.data.push(value);
+	this.lastFeed++;
 
 	if (this.data.length != this.accumSize)
 		return;
@@ -85,10 +72,10 @@ Perf.prototype.feed = function (value)
 	this.data = [ ];
 };
 
-/*
-**	Updates the min, max, avg std, stdSum and stdCount fields of the object.
-*/
-
+/**
+ * 	Updates the `min`, `max`, `avg` `std`, `stdSum` and `stdCount` fields of the object.
+ * 	!update () : void;
+ */
 Perf.prototype.update = function ()
 {
 	let min = null;
@@ -105,7 +92,7 @@ Perf.prototype.update = function ()
 
 	avg /= this.data.length;
 
-	let e = this.expectedValue !== undefined ? this.expectedValue : avg;
+	let e = this.expectedValue !== null ? this.expectedValue : avg;
 
 	for (let i = 0; i < this.data.length; i++) std += Math.pow(this.data[i] - e, 2);
 
@@ -119,25 +106,55 @@ Perf.prototype.update = function ()
 	this.avg = avg;
 	this.std = std;
 
+	this.lastUpdate = this.lastFeed;
 	return this;
 };
 
-
 /**
-**	Returns a report string. After a call to this method instance variables 'min', 'max', 'avg' and 'std' will be populated.
-*/
-
+ * 	Returns a report string with the values selected by the specified flags.
+ * 	!report (flags: Perf.Flags) : string;
+ */
 Perf.prototype.report = function (flags=255)
 {
 	let out = '';
 
-	if (flags & Perf.SAMPLES) out += 'n: ' + this.stdCount;
-	if (flags & Perf.MIN) out += (out != '' ? ', ' : '') + 'min: ' + this.min;
-	if (flags & Perf.MAX) out += (out != '' ? ', ' : '') + 'max: ' + this.max;
-	if (flags & Perf.AVG) out += (out != '' ? ', ' : '') + 'avg: ' + this.avg.toFixed(2);
-	if (flags & Perf.EXPECTED) out += (out != '' ? ', ' : '') + (this.expectedValue !== undefined ? 'e: ' + this.expectedValue : '');
-	if (flags & Perf.STDDEV) out += (out != '' ? ', ' : '') + 'stddev: ' + this.std.toFixed(2);
-	if (flags & Perf.AVG_STDDEV) out += (out != '' ? ', ' : '') + 'avg_stddev: ' + (this.stdSum / this.stdCount).toFixed(2)
+	if (this.lastUpdate != this.lastFeed)
+		this.update();
+
+	if (flags & Perf.Flags.SAMPLES) out += 'n: ' + this.stdCount;
+	if (flags & Perf.Flags.MIN) out += (out != '' ? ', ' : '') + 'min: ' + this.min;
+	if (flags & Perf.Flags.MAX) out += (out != '' ? ', ' : '') + 'max: ' + this.max;
+	if (flags & Perf.Flags.AVG) out += (out != '' ? ', ' : '') + 'avg: ' + this.avg.toFixed(2);
+	if (flags & Perf.Flags.EXPECTED) out += (out != '' ? ', ' : '') + (this.expectedValue !== undefined ? 'e: ' + this.expectedValue : '');
+	if (flags & Perf.Flags.STDDEV) out += (out != '' ? ', ' : '') + 'stddev: ' + this.std.toFixed(2);
+	if (flags & Perf.Flags.AVG_STDDEV) out += (out != '' ? ', ' : '') + 'avg_stddev: ' + (this.stdSum / this.stdCount).toFixed(2)
 
 	return out;
 };
+
+//!/class
+
+//!namespace Perf
+
+//!enum Flags
+	//!SAMPLES
+	//!MIN
+	//!MAX
+	//!AVG
+	//!EXPECTED
+	//!STDDEV
+	//!AVG_STDDEV
+	//!ALL
+
+Perf.Flags = {
+	SAMPLES: 1,
+	MIN: 2,
+	MAX: 4,
+	AVG: 8,
+	EXPECTED: 16,
+	STDDEV: 32,
+	AVG_STDDEV: 64,
+	ALL: 255,
+};
+
+//!/enum

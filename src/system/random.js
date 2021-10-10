@@ -22,17 +22,41 @@ const add16 = function (value, x) { return (value + x) & 0xFFFF; };
 const sub16 = function (value, x) { return (value - x) & 0xFFFF; };
 const xor16 = function (value, x) { return (value ^ x) & 0xFFFF; };
 
+//!class Random
+
 const Random = Class.extend
 ({
+	/**
+	 * 	Seed value of the generator. Remains constant throughout the life of the generator.
+	 * 	!seed: number;
+	 */
 	seed: 0,
-	a: 0, b: 0,
+
+	/**
+	 * 	Last value returned by the generator.
+	 * 	!last: number;
+	 */
 	last: 0,
 
+	a: 0, b: 0,
+
+	/**
+	 * 	Initializes the instance of the pseudo-random number generator.
+	 * 	@param seed - Value to seed the random number generator. If none provided, default one (0xDAE7A5D3) will be used.
+	 *
+	 *	!constructor (seed?: number);
+	 */
 	__ctor: function(seed=0xDAE7A5D3)
 	{
 		this.setSeed(seed);
 	},
 
+	/**
+	 * 	Sets the seed of the pseudo-random number generator.
+	 * 	@param value - Seed value to use (32-bit unsigned integer).
+	 *
+	 *	!setSeed (value: number) : Random;
+	 */
 	setSeed: function(value)
 	{
 		this.seed = value;
@@ -44,6 +68,10 @@ const Random = Class.extend
 		return this;
 	},
 
+	/**
+	 * 	Generates a 16-bit unsigned integer.
+	 *	!nextInt16 () : number;
+	 */
 	nextInt16: function ()
 	{
 		let value = this.last;
@@ -60,11 +88,19 @@ const Random = Class.extend
 		return ((this.last = value) & 0xFFFF);
 	},
 
+	/**
+	 * 	Generates an 8-bit unsigned integer.
+	 * 	!nextInt8 () : number;
+	 */
 	nextInt8: function ()
 	{
 		return this.nextInt16() & 0xFF;
 	},
 
+	/**
+	 * 	Generates a floating point number between 0 an 1 (inclusive).
+	 * 	!nextFloat () : number;
+	 */
 	nextFloat: function ()
 	{
 		return this.nextInt16() / 0xFFFF;
