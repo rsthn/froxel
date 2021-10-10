@@ -109,6 +109,362 @@ export namespace Log
 
 }
 
+export class Point2
+{
+	/**
+	 * 	Upscaled coordinates of the point.
+	 */
+	readonly ux: number;
+	readonly uy: number;
+
+	/**
+	 * 	Coordinates of the point.
+	 */
+	readonly x: number;
+	readonly y: number;
+
+	/**
+	 *	Constructs the Point2 instance from another Point2.
+	 */
+	constructor (value: Point2);
+
+	/**
+	 *	Constructs the Point2 instance from a Vec2.
+	 */
+	constructor (value: Vec2);
+
+	/**
+	 *	Constructs the Point2 instance with the specified coordinates.
+	 */
+	constructor (x?: number, y?: number);
+
+	/**
+	 * 	Clones the point coordinates into a new Point2 object.
+	 */
+	clone() : Point2;
+
+	/**
+	 *	Sets the coordinates of the point from another Point2.
+	 */
+	set (value: Point2) : Point2;
+
+	/**
+	 *	Sets the coordinates of the point from a Vec2 object.
+	 */
+	set (value: Vec2) : Point2;
+
+	/**
+	 *	Sets the coordinates of the point.
+	 *	@param upscaled - When `true` the specified values are assumed to have already been upscaled.
+	 */
+	set (x: number, y: number, upscaled?: boolean) : Point2;
+
+	/**
+	 * 	Sets the X-coordinate of the point.
+	 */
+	setX (x: number) : Point2;
+
+	/**
+	 * 	Sets the Y-coordinate of the point.
+	 */
+	setY (y: number) : Point2;
+
+	/**
+	 * 	Sets the coordinates of the point to zero.
+	 */
+	zero() : Point2;
+
+	/**
+	 * 	Returns true if the point coordinates are both zero.
+	 */
+	isZero() : boolean;
+
+	/**
+	 *	Returns true if the coordinates of the point have the same values as the given Point2.
+	 */
+	equals (value: Point2) : boolean;
+
+	/**
+	 *	Returns true if the coordinates of the point have the same values as the given Vec2.
+	 */
+	equals (value: Vec2) : boolean;
+
+	/**
+	 *	Returns true if the coordinates of the point have the same values as the given ones.
+	 */
+	equals (x: number, y: number) : boolean;
+
+	/**
+	 *	Adds the coordinates of the given Point2 to the point.
+	 */
+	add (value: Point2) : boolean;
+
+	/**
+	 *	Adds the coordinates of the given Vec2 to the point.
+	 */
+	add (value: Vec2) : boolean;
+
+	/**
+	 *	Adds the given delta values to the point.
+	 *	@param upscaled - When `true` the specified values are assumed to have already been upscaled.
+	 */
+	add (dx: number, dy: number, upscaled?: boolean) : boolean;
+
+	/**
+	 *	Subtracts the coordinates of the given Point2 from the point.
+	 */
+	sub (value: Point2) : boolean;
+
+	/**
+	 *	Subtracts the coordinates of the given Vec2 from the point.
+	 */
+	sub (value: Vec2) : boolean;
+
+	/**
+	 *	Subtracts the given delta values from the point.
+	 *	@param upscaled - When `true` the specified values are assumed to have already been upscaled.
+	 */
+	sub (dx: number, dy: number, upscaled?: boolean) : boolean;
+
+}
+
+export namespace Point2
+{
+	export namespace Pool
+	{
+		/**
+		 *	Allocates a Point2 instance from another Point2.
+		 */
+		function alloc (value: Point2) : Point2;
+
+		/**
+		 *	Allocates a Point2 instance from a Vec2.
+		 */
+		function alloc (value: Vec2) : Point2;
+
+		/**
+		 *	Allocates a Point2 instance with the specified coordinates.
+		 */
+		function alloc (x?: number, y?: number) : Point2;
+
+	}
+}
+
+
+
+export class Viewport
+{
+	/**
+	 * 	Dimensions of the viewport.
+	 */
+	readonly width: number;
+	readonly height: number;
+
+	/**
+	 * 	Boundaries of the container, set by `setContainerBounds`.
+	 */
+	readonly container: Bounds2;
+
+	/**
+	 * 	Bounds of the viewport in world space. Used to determine which elements lie inside the viewport.
+	 */
+	readonly bounds: Bounds2;
+
+	/**
+	 * 	Bounds of the focus area of the viewport in world space. When the `focusRect` moves outside this area the viewport will be panned to keep it inside these bounds.
+	 */
+	readonly focusBounds: Bounds2;
+
+	/**
+	 * 	Bounds of the viewport in screen space, used as target rendering area.
+	 */
+	readonly screenBounds: Bounds2;
+
+	/**
+	 * 	Constructs the viewport with the specified size and container dimensions.
+	 *
+	 * 	@param sx - Screen position X.
+	 * 	@param sy - Screen position Y.
+	 * 	@param width - Viewport width.
+	 * 	@param height - Viewport height.
+	 * 	@param containerWidth - Container width.
+	 * 	@param containerHeight - Container height.
+	 */
+	constructor (sx: number, sy: number, width: number, height: number, containerWidth: number, containerHeight: number);
+
+	/**
+	 * 	Returns the value of the `enabled` flag.
+	 */
+	enabled() : boolean;
+
+	/**
+	 * 	Sets the `enabled` flag.
+	 */
+	enabled (value: boolean) : Viewport;
+
+	/**
+	 * 	Sets the container bounds. Used to ensure the viewport bounds are never outside these limits.
+	 */
+	setContainerBounds (x1: number, y1: number, x2: number, y2: number) : Viewport;
+
+	/**
+	 * 	Sets the viewport padding.
+	 */
+	setPadding (value: number) : Viewport;
+
+	/**
+	 * 	Sets the padding of each side of the viewport (left, top, right and bottom).
+	 */
+	setPadding (x1: number, y1: number, x2: number, y2: number) : Viewport;
+
+	/**
+	 * 	Resizes the viewport to the specified size.
+	 */
+	resize (width: number, height: number) : Viewport;
+
+	/**
+	 * 	Resizes the viewport by the specified deltas.
+	 */
+	resizeBy (dWidth: number, dHeight: number) : Viewport;
+
+	/**
+	 * 	Sets the position of the viewport's center within the world and resets the relative offset to zero.
+	 */
+	setPosition (x: number, y: number) : Viewport;
+
+	/**
+	 * 	Sets the position of the viewport relative to the current focus point.
+	 */
+	setOffsets (dx: number, dy: number) : Viewport;
+
+	/**
+	 * 	Sets the scale of the viewport.
+	 */
+	setScale (value: number) : Viewport;
+
+	/**
+	 * 	Sets the global scale of the viewport.
+	 */
+	setGlobalScale (value: number) : Viewport;
+
+	/**
+	 * 	Sets the center ratio of the viewport (values from -1 to 1, default is 0). Used to focus on a different point instead of the exact center.
+	 */
+	setCenter (rx: number, ry: number) : Viewport;
+
+	/**
+	 * 	Moves the viewport within the world. Values are relative to the current focus point.
+	 *	@param truncateToContainer - When `true` the final viewport bounds will be ensured to not lie outside the container bounds.
+	 */
+	translate (dx: number, dy: number, truncateToContainer?: boolean) : Viewport;
+
+	/**
+	 * 	Sets the screen position of the viewport.
+	 */
+	setScreenPosition (sx: number, sy: number) : number;
+
+	/**
+	 * 	Returns the X coordinate of the viewport's focus point inside the world.
+	 * 	@param absolute - When `true`, the focus point X (without offset) will be returned.
+	 */
+	getX (absolute?: boolean)
+
+	/**
+	 * 	Returns the Y coordinate of the viewport's focus point inside the world.
+	 * 	@param absolute - When `true`, the focus point Y (without offset) will be returned.
+	 */
+	getY (absolute?: boolean)
+
+	/**
+	 * 	Returns the X position of the viewport inside the world relative to the current focus point.
+	 */
+	getOffsetX() : void;
+
+	/**
+	 * 	Returns the Y position of the viewport inside the world relative to the current focus point.
+	 */
+	getOffsetY() : void;
+
+	/**
+	 * 	Returns the width of the viewport.
+	 */
+	getWidth() : number;
+
+	/**
+	 * 	Returns the height of the viewport.
+	 */
+	getHeight() : number;
+
+	/**
+	 * 	Moves the viewport X coordinate to focus on the specified line or coordinate. Method `updateBounds` should be called afterwards.
+	 */
+	focusX (x0: number, x1?: number, factor?: number) : Viewport;
+
+	/**
+	 * 	Moves the viewport Y coordinate to focus on the specified line or coordinate. Method `updateBounds` should be called afterwards.
+	 */
+	focusY (y0: number, y1?: number, factor?: number) : Viewport;
+
+	/**
+	 * 	Updates the viewport.
+	 */
+	update (dt?: number) : void;
+
+	/**
+	 * 	Tracks a specified rectangle by maintaining focus on it (a call to `update` must be made on every frame update).
+	 */
+	setFocusRect (rect: Rect|Bounds2, offsX?: number, offsY? :number) : Viewport;
+
+	/**
+	 * 	Sets the focus offsets of the viewport. Used to translate the viewport without altering the focus point.
+	 */
+	setFocusOffsets (offsX: number, offsY: number) : Viewport;
+
+	/**
+	 * 	Sets the enabled flag of the focus axes. Only enabled axes will be updated when calling `update`.
+	 */
+	setFocusAxes (enabledX: boolean, enabledY: boolean) : Viewport;
+
+	/**
+	 * 	Sets the focus factor of the viewport (value from 0 to 1), that is, the ratio of the smaller focus viewport.
+	 */
+	setFocusFactor (valueX: number, valueY: number) : Viewport;
+
+	/**
+	 * 	Applies the viewport clipping area to the specified canvas.
+	 */
+	applyClip (g: Canvas) : void;
+
+	/**
+	 * 	Applies the viewport transform to the specified canvas.
+	 */
+	applyTransform (g: Canvas) : void;
+
+	/**
+	 * 	Converts a point from screen-space to world-space.
+	 * 	@returns Temporal Point2 object.
+	 */
+	toWorldSpace (input: Point2|Vec2|{x:number,y:number}, floor?: boolean) : Point2;
+
+	/**
+	 * 	Converts a point from screen-space to world-space.
+	 * 	@returns Temporal Point2 object.
+	 */
+	toWorldSpace (x: number, y: number, floor?: boolean) : Point2;
+
+	/**
+	 * 	Converts a point from world-space to screen-space.
+	 * 	@returns Temporal Point2 object.
+	 */
+	toScreenSpace (input: Point2|Vec2|{x:number,y:number}, floor?: boolean) : Point2;
+
+	/**
+	 * 	Converts a point from world-space to screen-space.
+	 * 	@returns Temporal Point2 object.
+	 */
+	toScreenSpace (x: number, y: number, floor?: boolean) : Point2;
+
+}
 export namespace globals
 {
 	/**
@@ -407,39 +763,3 @@ export namespace Perf
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

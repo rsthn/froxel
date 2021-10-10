@@ -362,7 +362,7 @@ const Scene = Class.extend
 			viewport.applyClip(g);
 			viewport.applyTransform(g);
 
-			this.viewportBounds.set(viewport.getBounds());//.resizeBy(2, 2);
+			this.viewportBounds.set(viewport.bounds);//.resizeBy(2, 2);
 			this.drawContainers(g, this.viewportBounds);
 
 			g.popMatrix();

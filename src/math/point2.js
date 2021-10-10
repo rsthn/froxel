@@ -17,38 +17,53 @@
 import { Class } from '@rsthn/rin';
 import Recycler from '../utils/recycler.js';
 
+//![import "./vec2"]
+
 /*
-**	Representation of a point in 2D space. The component values are upscaled by a fixed number of bits to allow
+**	Representation of a point in 2D space. The coordinate values are upscaled by a fixed number of bits to allow
 **	sub-pixel translations (internally), but the public values will always be integers.
 */
+
+//!class Point2
 
 const Point2 = Class.extend
 ({
 	className: 'Point2',
 
-	/*
-	**	Components of the point (upscaled and integer).
-	*/
+	/**
+	 * 	Upscaled coordinates of the point.
+	 * 	!readonly ux: number;
+	 * 	!readonly uy: number;
+	 */
 	ux: 0, uy: 0,
+
+	/**
+	 * 	Coordinates of the point.
+	 * 	!readonly x: number;
+	 * 	!readonly y: number;
+	 */
 	x: 0, y: 0,
 
-	/*
-	**	Constructs the instance.
-	**
-	**	Point2 __ctor (Point2 v)
-	**	Point2 __ctor (Vec2 v)
-	**	Point2 __ctor (float x, float y)
-	*/
+	/**
+	 *	Constructs the Point2 instance from another Point2.
+	 * 	!constructor (value: Point2);
+	 */
+	/**
+	 *	Constructs the Point2 instance from a Vec2.
+	 * 	!constructor (value: Vec2);
+	 */
+	/**
+	 *	Constructs the Point2 instance with the specified coordinates.
+	 * 	!constructor (x?: number, y?: number);
+	 */
 	__ctor: function (x=null, y=null)
 	{
 		return this.set(x, y);
 	},
 
-	/*
-	**	Populates the downscaled components.
-	**
-	**	Point2 downscale ()
-	*/
+	/**
+	 *	Populates the downscaled coordinates.
+	 */
 	downscale: function ()
 	{
 		this.x = downscale(this.ux);
@@ -56,23 +71,29 @@ const Point2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Clones the point and returns a new object.
-	**
-	**	Point2 clone ()
-	*/
+	/**
+	 * 	Clones the point coordinates into a new Point2 object.
+	 * 	!clone() : Point2;
+	 */
 	clone: function ()
 	{
 		return Point2.Pool.alloc(this);
 	},
 
-	/*
-	**	Sets the components of the point.
-	**
-	**	Point2 set (Point2 v)
-	**	Point2 set (Vec2 v)
-	**	Point2 set (float x, float y, bool upscaled=false)
-	*/
+	/**
+	 *	Sets the coordinates of the point from another Point2.
+	 *	!set (value: Point2) : Point2;
+	 */
+	/**
+	 *	Sets the coordinates of the point from a Vec2 object.
+	 *	!set (value: Vec2) : Point2;
+	 */
+	/**
+	 *	Sets the coordinates of the point.
+	 *	@param upscaled - When `true` the specified values are assumed to have already been upscaled.
+	 *
+	 *	!set (x: number, y: number, upscaled?: boolean) : Point2;
+	 */
 	set: function (x, y=null, upscaled=false)
 	{
 		if (x === null) {
@@ -102,55 +123,56 @@ const Point2 = Class.extend
 		return this.downscale(this);
 	},
 
-	/*
-	**	Sets the X-component of the point.
-	**
-	**	Point2 setX (float x)
-	*/
+	/**
+	 * 	Sets the X-coordinate of the point.
+	 * 	!setX (x: number) : Point2;
+	 */
 	setX: function (x)
 	{
 		this.ux = upscale(x);
 		return this.downscale(this);
 	},
 
-	/*
-	**	Sets the Y-component of the point.
-	**
-	**	Point2 setY (float y)
-	*/
+	/**
+	 * 	Sets the Y-coordinate of the point.
+	 * 	!setY (y: number) : Point2;
+	 */
 	setY: function (y)
 	{
 		this.uy = upscale(y);
 		return this.downscale(this);
 	},
 
-	/*
-	**	Sets the components of the point to zero.
-	**
-	**	Point2 zero ()
-	*/
+	/**
+	 * 	Sets the coordinates of the point to zero.
+	 * 	!zero() : Point2;
+	 */
 	zero: function()
 	{
 		return this.set(0, 0);
 	},
 
-	/*
-	**	Returns true if the point is zero.
-	**
-	**	bool isZero ()
-	*/
+	/**
+	 * 	Returns true if the point coordinates are both zero.
+	 * 	!isZero() : boolean;
+	 */
 	isZero: function()
 	{
 		return this.x == 0 && this.y == 0;
 	},
 
-	/*
-	**	Returns true if the integer coordinates have the same values as the given argument.
-	**
-	**	Point2 equals (Point2 v)
-	**	Point2 equals (Vec2 v)
-	**	Point2 equals (int x, int y)
-	*/
+	/**
+	 *	Returns true if the coordinates of the point have the same values as the given Point2.
+	 *	!equals (value: Point2) : boolean;
+	 */
+	/**
+	 *	Returns true if the coordinates of the point have the same values as the given Vec2.
+	 *	!equals (value: Vec2) : boolean;
+	 */
+	/**
+	 *	Returns true if the coordinates of the point have the same values as the given ones.
+	 *	!equals (x: number, y: number) : boolean;
+	 */
 	equals: function (x, y=null)
 	{
 		if (y === null)
@@ -171,13 +193,19 @@ const Point2 = Class.extend
 		return this.x == x && this.y == y;
 	},
 
-	/*
-	**	Adds given values to the components of the point.
-	**
-	**	float add (Vec2 v)
-	**	float add (Point2 v)
-	**	float add (float dx, float dy, upscaled=false)
-	*/
+	/**
+	 *	Adds the coordinates of the given Point2 to the point.
+	 *	!add (value: Point2) : boolean;
+	 */
+	/**
+	 *	Adds the coordinates of the given Vec2 to the point.
+	 *	!add (value: Vec2) : boolean;
+	 */
+	/**
+	 *	Adds the given delta values to the point.
+	 *	@param upscaled - When `true` the specified values are assumed to have already been upscaled.
+	 *	!add (dx: number, dy: number, upscaled?: boolean) : boolean;
+	 */
 	add: function (dx, dy=null, upscaled=false)
 	{
 		if (dy === null)
@@ -201,13 +229,19 @@ const Point2 = Class.extend
 		return this.downscale();
 	},
 
-	/*
-	**	Subtracts given values from the components of the point.
-	**
-	**	float sub (Vec2 v)
-	**	float sub (Point2 v)
-	**	float sub (float dx, float dy, bool upscaled=false)
-	*/
+	/**
+	 *	Subtracts the coordinates of the given Point2 from the point.
+	 *	!sub (value: Point2) : boolean;
+	 */
+	/**
+	 *	Subtracts the coordinates of the given Vec2 from the point.
+	 *	!sub (value: Vec2) : boolean;
+	 */
+	/**
+	 *	Subtracts the given delta values from the point.
+	 *	@param upscaled - When `true` the specified values are assumed to have already been upscaled.
+	 *	!sub (dx: number, dy: number, upscaled?: boolean) : boolean;
+	 */
 	sub: function (dx, dy, upscaled=false)
 	{
 		if (dy === null)
@@ -231,14 +265,33 @@ const Point2 = Class.extend
 		return this.downscale();
 	},
 
-	/*
-	**	Returns the string representation of the integer components of the point.
-	*/
+	/**
+	 * 	Returns the string representation of the coordinates of the point.
+	 * 	toString() : string;
+	 */
 	toString: function ()
 	{
 		return `(${this.x}, ${this.y})`;
 	}
 });
+
+//!/class
+
+//!namespace Point2
+//!namespace Pool
+
+/**
+ *	Allocates a Point2 instance from another Point2.
+ * 	!function alloc (value: Point2) : Point2;
+ */
+/**
+ *	Allocates a Point2 instance from a Vec2.
+ * 	!function alloc (value: Vec2) : Point2;
+ */
+/**
+ *	Allocates a Point2 instance with the specified coordinates.
+ * 	!function alloc (x?: number, y?: number) : Point2;
+ */
 
 Recycler.createPool (Point2, 2048, 1024);
 export default Point2;
