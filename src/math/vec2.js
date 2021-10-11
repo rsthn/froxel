@@ -21,41 +21,50 @@ import Recycler from '../utils/recycler.js';
 **	Representation of a vector in 2D space, that is, a float tuple with components x and y.
 */
 
+//!class Vec2
+
 const Vec2 = Class.extend
 ({
 	className: 'Vec2',
 
-	/*
-	**	Coordinates of the vector.
-	*/
+	/**
+	 * 	Coordinates of the vector.
+	 * 	!x: number;
+	 * 	!y: number;
+	 */
 	x: 0, y: 0,
 
-	/*
-	**	Initializes the instance.
-	**
-	**	Vec2 __ctor (Vec2 v)
-	**	Vec2 __ctor (float x, float y)
-	*/
+	/**
+	 *	Constructs the vector from another Vec2.
+	 * 	!constructor (value: Vec2);
+	 */
+	/**
+	 *	Constructs the vector with the specified coordinates.
+	 * 	!constructor (x?: number, y?: number);
+	 */
 	__ctor: function (x=null, y=null)
 	{
 		return this.set(x, y);
 	},
 
-	/*
-	**	Clones the vector and returns a new object.
-	*/
-	clone: function () /* Vec2 */
+	/**
+	 * 	Clones the vector coordinates into a new Vec2 object.
+	 * 	!clone() : Vec2;
+	 */
+	clone: function ()
 	{
 		return Vec2.Pool.alloc(this);
 	},
 
-	/*
-	**	Sets the components of the vector.
-	**
-	**	Vec2 set (Vec2 v)
-	**	Vec2 set (float x, float y)
-	*/
-	set: function (x, y=null) /* Vec2 */
+	/**
+	 *	Sets the coordinates of the vector from a Vec2 object.
+	 *	!set (value: Vec2) : Vec2;
+	 */
+	/**
+	 *	Sets the coordinates of the vector.
+	 *	!set (x: number, y: number) : Vec2;
+	 */
+	set: function (x, y=null)
 	{
 		if (x === null) {
 			x = 0;
@@ -73,50 +82,52 @@ const Vec2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the X-component of the vector.
-	**
-	**	Vec2 setX (float x)
-	*/
-	setX: function (x) /* Vec2 */
+	/**
+	 * 	Sets the X-coordinate of the vector.
+	 * 	!setX (x: number) : Vec2;
+	 */
+	setX: function (x)
 	{
 		this.x = x;
 		return this;
 	},
 
-	/*
-	**	Sets the Y-component of the vector.
-	**
-	**	Vec2 setY (float y)
-	*/
-	setY: function (y) /* Vec2 */
+	/**
+	 * 	Sets the Y-coordinate of the vector.
+	 * 	!setY (y: number) : Vec2;
+	 */
+	setY: function (y)
 	{
 		this.y = y;
 		return this;
 	},
 
-	/*
-	**	Sets the components of the vector to zero.
-	*/
+	/**
+	 * 	Sets the coordinates of the vector to zero.
+	 * 	!zero() : Vec2;
+	 */
 	zero: function()
 	{
 		return this.set(0, 0);
 	},
 
-	/*
-	**	Returns true if the vector is zero.
-	*/
+	/**
+	 * 	Returns true if the vector coordinates are both zero.
+	 * 	!isZero() : boolean;
+	 */
 	isZero: function()
 	{
 		return this.x == 0 && this.y == 0;
 	},
 
-	/*
-	**	Returns true if the coordinates have the same components as the vector.
-	**
-	**	bool equals (Vec2 v)
-	**	bool equals (float x, float y)
-	*/
+	/**
+	 *	Returns true if the coordinates of the vector have the same values as the given Vec2.
+	 *	!equals (value: Vec2) : boolean;
+	 */
+	/**
+	 *	Returns true if the coordinates of the vector have the same values as the given ones.
+	 *	!equals (x: number, y: number) : boolean;
+	 */
 	equals: function (x, y=null)
 	{
 		if (y === null)
@@ -129,27 +140,30 @@ const Vec2 = Class.extend
 		return this.x == x && this.y == y;
 	},
 
-	/*
-	**	Negates the vector, that is changing the sign of each component in the vector.
-	*/
+	/**
+	 * 	Negates the vector, that is changing the sign of each component in the vector.
+	 * 	!neg() : Vec2;
+	 */
 	neg: function ()
 	{
 		this.x = -this.x; this.y = -this.y;
 		return this;
 	},
 
-	/*
-	**	Inverts the vector by changing each component to its reciprocal.
-	*/
+	/**
+	 * 	Inverts the vector by changing each component to its reciprocal.
+	 * 	!inv() : Vec2;
+	 */
 	inv: function ()
 	{
 		this.x = 1 / this.x; this.y = 1 / this.y;
 		return this;
 	},
 
-	/*
-	**	Changes the components of the vector to their absolute value.
-	*/
+	/**
+	 * 	Changes the components of the vector to their absolute value.
+	 * 	!abs() : Vec2;
+	 */
 	abs: function ()
 	{
 		this.x = this.x < 0 ? -this.x : this.x;
@@ -157,12 +171,14 @@ const Vec2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Adds the given value to all components of the vector.
-	**
-	**	float translate (Vec2 v)
-	**	float translate (float dx, float dy)
-	*/
+	/**
+	 *	Adds the coordinates of the given Vec2 to the vector.
+	 *	!translate (value: Vec2) : Vec2;
+	 */
+	/**
+	 *	Adds the given delta values to the vector.
+	 *	!translate (dx: number, dy: number) : Vec2;
+	 */
 	translate: function (dx, dy=null)
 	{
 		if (dy === null)
@@ -176,12 +192,14 @@ const Vec2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Adds given values to the components of the vector.
-	**
-	**	float add (Vec2 v)
-	**	float add (float dx, float dy)
-	*/
+	/**
+	 *	Adds the coordinates of the given Vec2 to the vector.
+	 *	!add (value: Vec2) : Vec2;
+	 */
+	/**
+	 *	Adds the given delta values to the vector.
+	 *	!add (dx: number, dy: number) : Vec2;
+	 */
 	add: function (dx, dy=null)
 	{
 		if (dy === null)
@@ -195,13 +213,15 @@ const Vec2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Subtracts given values from the components of the vector.
-	**
-	**	float sub (Vec2 v)
-	**	float sub (float dx, float dy)
-	*/
-	sub: function (dx, dy)
+	/**
+	 *	Subtracts the coordinates of the given Vec2 from the vector.
+	 *	!sub (value: Vec2) : Vec2;
+	 */
+	/**
+	 *	Subtracts the given delta values from the vector.
+	 *	!sub (dx: number, dy: number) : Vec2;
+	 */
+	sub: function (dx, dy=null)
 	{
 		if (dy === null)
 		{
@@ -214,13 +234,18 @@ const Vec2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Scales both components of the vector by the given factor.
-	**
-	**	float scale (Vec2 v)
-	**	float scale (float k)
-	**	float scale (float fx, float fy)
-	*/
+	/**
+	 * 	Scales each components of the vector by the respective component of the given one.
+	 * 	!scale (k: number) : Vec2;
+	 */
+	/**
+	 * 	Scales both components of the vector by the given factor.
+	 * 	!scale (k: number) : Vec2;
+	 */
+	/**
+	 * 	Scales each components of the vector by the given factors.
+	 * 	!scale (fx: number, fy: number) : Vec2;
+	 */
 	scale: function (fx, fy=null)
 	{
 		if (fy === null)
@@ -238,9 +263,10 @@ const Vec2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the components to their integer parts.
-	*/
+	/**
+	 * 	Sets the components to their integer parts.
+	 * 	!floor() : Vec2;
+	 */
 	floor: function ()
 	{
 		this.x = int(this.x);
@@ -249,9 +275,10 @@ const Vec2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the components to their fractional parts.
-	*/
+	/**
+	 * 	Sets the components to their fractional parts.
+	 * 	!fract() : Vec2;
+	 */
 	fract: function ()
 	{
 		this.x = this.x - int(this.x);
@@ -260,12 +287,14 @@ const Vec2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns the dot product of the vector and the provided values (x, y).
-	**
-	**	float dot (Vec2 v)
-	**	float dot (float x, float y)
-	*/
+	/**
+	 * 	Returns the dot product of the vectors.
+	 * 	!dot (value: Vec2) : number;
+	 */
+	/**
+	 * 	Returns the dot product of the vector and the given values.
+	 * 	!dot (x: number, y: number) : number;
+	 */
 	dot: function (x, y=null)
 	{
 		if (y === null)
@@ -278,44 +307,48 @@ const Vec2 = Class.extend
 		return this.x*x + this.y*y;
 	},
 
-	/*
-	**	Returns the magnitude of the vector.
-	*/
+	/**
+	 * 	Returns the magnitude of the vector.
+	 * 	!magnitude() : number;
+	 */
 	magnitude: function ()
 	{
 		return Math.sqrt(this.x*this.x + this.y*this.y);
 	},
 
-	/*
-	**	Normalizes the vector. That is achieved by dividing each component of the Vector by its
-	**	magnitude in order to obtain a unit vector.
-	*/
+	/**
+	 * 	Normalizes the vector by dividing each component by the vector magnitude to obtain a unit vector.
+	 * 	!normalize() : Vec2;
+	 */
 	normalize: function ()
 	{
 		return this.isZero() ? this : this.scale (1 / this.magnitude());
 	},
 
-	/*
-	**	Sets the vector to its major-axis.
-	*/
+	/**
+	 * 	Sets the vector to its major-axis, that is the component with the maximum absolute value.
+	 * 	!majorAxis() : Vec2;
+	 */
 	majorAxis: function ()
 	{
 		if (Math.abs(this.x) > Math.abs(this.y)) this.y = 0; else this.x = 0;
 		return this;
 	},
 
-	/*
-	**	Sets the vector to its minor-axis.
-	*/
+	/**
+	 * 	Sets the vector to its minor-axis, that is the component with the minimum absolute value.
+	 * 	!minorAxis() : Vec2;
+	 */
 	minorAxis: function ()
 	{
 		if (Math.abs(this.x) < Math.abs(this.y)) this.y = 0; else this.x = 0;
 		return this;
 	},
 
-	/*
-	**	Sets the vector to its sign-vector representation.
-	*/
+	/**
+	 * 	Sets the vector to its sign-vector representation.
+	 * 	!sign() : Vec2;
+	 */
 	sign: function ()
 	{
 		this.x = !this.x ? 0 : (this.x < 0 ? -1 : 1);
@@ -323,14 +356,29 @@ const Vec2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns the string representation of the vector.
-	*/
+	/**
+	 * 	Returns the string representation of the coordinates of the vector.
+	 * 	toString() : string;
+	 */
 	toString: function ()
 	{
 		return `(${this.x}, ${this.y})`;
 	}
 });
+
+//!/class
+
+//!namespace Vec2
+//!namespace Pool
+
+/**
+ *	Allocates a vector from another Vec2.
+ * 	!function alloc (value: Vec2) : Vec2;
+ */
+/**
+ *	Allocates a vector with the specified coordinates.
+ * 	!function alloc (x?: number, y?: number) : Vec2;
+ */
 
 Recycler.createPool (Vec2, 4096, 2048);
 export default Vec2;

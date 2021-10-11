@@ -19,10 +19,17 @@ const recyclingFacilities = { };
 const Recycler = { };
 export default Recycler;
 
-/*
-**	Attaches recycling methods (allocate, alloc and free) to the specified class. Class should implement method `init` to initialize the
-**	instance (and return itself) and __dtor to destroy it.
-*/
+//!namespace Recycler
+
+/**
+ * 	Attaches recycling methods (`allocate`, `alloc` and `free`) to the specified class. Class should implement method `init` to initialize the instance (and return itself)
+ * 	and `__dtor` to destroy it.
+ *
+ * 	@param {*} maxPoolSize - Maximum number of instance to hold in the recycler.
+ * 	@param {*} minPoolSize - Minimum number of instances to pre-allocate. Defaults to 0.375*`maxPoolSize` if not specified.
+ * 
+ * 	!function attachTo (targetClass: any, maxPoolSize?: number, minPoolSize?: number) : any;
+ */
 
 Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 {
@@ -135,10 +142,11 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 	};
 };
 
-
-/*
-**	Shows stats about all recycling facilities using console.debug.
-*/
+/**
+ * 	Shows stats about all recycling facilities (or just the specified one) using `console.debug`.
+ * 	@param name - Name of the class to show.
+ * 	!function showStats (name?: string) : void;
+ */
 Recycler.showStats = function (name=null)
 {
 	let list = recyclingFacilities;
@@ -183,10 +191,15 @@ Recycler.showStats = function (name=null)
 };
 
 
-/*
-**	Create a new class extending the specified target class, this new class is a recycling facility and is placed under property `Pool` of the target class. This
-**	method can be used instead of the usual `attachTo` when the target class construct/deconstruct methods need to remain untouched.
-*/
+/**
+ * 	Create a new class extending the specified target class, this new class is a recycling facility and is placed under property `Pool` of the target class. This
+ * 	method can be used instead of the usual `attachTo` when the target class construct/deconstruct methods need to remain untouched.
+ *
+ * 	@param {*} maxPoolSize - Maximum number of instance to hold in the recycler.
+ * 	@param {*} minPoolSize - Minimum number of instances to pre-allocate. Defaults to 0.375*`maxPoolSize` if not specified.
+ * 
+ *	!function createPool (targetClass: any, maxPoolSize?: number, minPoolSize?: number) : any;
+ */
 Recycler.createPool = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 {
 	const name = targetClass.prototype.className;

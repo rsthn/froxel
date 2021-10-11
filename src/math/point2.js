@@ -195,16 +195,16 @@ const Point2 = Class.extend
 
 	/**
 	 *	Adds the coordinates of the given Point2 to the point.
-	 *	!add (value: Point2) : boolean;
+	 *	!add (value: Point2) : Point2;
 	 */
 	/**
 	 *	Adds the coordinates of the given Vec2 to the point.
-	 *	!add (value: Vec2) : boolean;
+	 *	!add (value: Vec2) : Point2;
 	 */
 	/**
 	 *	Adds the given delta values to the point.
 	 *	@param upscaled - When `true` the specified values are assumed to have already been upscaled.
-	 *	!add (dx: number, dy: number, upscaled?: boolean) : boolean;
+	 *	!add (dx: number, dy: number, upscaled?: boolean) : Point2;
 	 */
 	add: function (dx, dy=null, upscaled=false)
 	{
@@ -231,16 +231,16 @@ const Point2 = Class.extend
 
 	/**
 	 *	Subtracts the coordinates of the given Point2 from the point.
-	 *	!sub (value: Point2) : boolean;
+	 *	!sub (value: Point2) : Point2;
 	 */
 	/**
 	 *	Subtracts the coordinates of the given Vec2 from the point.
-	 *	!sub (value: Vec2) : boolean;
+	 *	!sub (value: Vec2) : Point2;
 	 */
 	/**
 	 *	Subtracts the given delta values from the point.
 	 *	@param upscaled - When `true` the specified values are assumed to have already been upscaled.
-	 *	!sub (dx: number, dy: number, upscaled?: boolean) : boolean;
+	 *	!sub (dx: number, dy: number, upscaled?: boolean) : Point2;
 	 */
 	sub: function (dx, dy, upscaled=false)
 	{

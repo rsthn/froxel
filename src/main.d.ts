@@ -108,7 +108,192 @@ export namespace Log
 	function resume () : void;
 
 }
+export class Vec2
+{
+	/**
+	 * 	Coordinates of the vector.
+	 */
+	x: number;
+	y: number;
 
+	/**
+	 *	Constructs the vector from another Vec2.
+	 */
+	constructor (value: Vec2);
+
+	/**
+	 *	Constructs the vector with the specified coordinates.
+	 */
+	constructor (x?: number, y?: number);
+
+	/**
+	 * 	Clones the vector coordinates into a new Vec2 object.
+	 */
+	clone() : Vec2;
+
+	/**
+	 *	Sets the coordinates of the vector from a Vec2 object.
+	 */
+	set (value: Vec2) : Vec2;
+
+	/**
+	 *	Sets the coordinates of the vector.
+	 */
+	set (x: number, y: number) : Vec2;
+
+	/**
+	 * 	Sets the X-coordinate of the vector.
+	 */
+	setX (x: number) : Vec2;
+
+	/**
+	 * 	Sets the Y-coordinate of the vector.
+	 */
+	setY (y: number) : Vec2;
+
+	/**
+	 * 	Sets the coordinates of the vector to zero.
+	 */
+	zero() : Vec2;
+
+	/**
+	 * 	Returns true if the vector coordinates are both zero.
+	 */
+	isZero() : boolean;
+
+	/**
+	 *	Returns true if the coordinates of the vector have the same values as the given Vec2.
+	 */
+	equals (value: Vec2) : boolean;
+
+	/**
+	 *	Returns true if the coordinates of the vector have the same values as the given ones.
+	 */
+	equals (x: number, y: number) : boolean;
+
+	/**
+	 * 	Negates the vector, that is changing the sign of each component in the vector.
+	 */
+	neg() : Vec2;
+
+	/**
+	 * 	Inverts the vector by changing each component to its reciprocal.
+	 */
+	inv() : Vec2;
+
+	/**
+	 * 	Changes the components of the vector to their absolute value.
+	 */
+	abs() : Vec2;
+
+	/**
+	 *	Adds the coordinates of the given Vec2 to the vector.
+	 */
+	translate (value: Vec2) : Vec2;
+
+	/**
+	 *	Adds the given delta values to the vector.
+	 */
+	translate (dx: number, dy: number) : Vec2;
+
+	/**
+	 *	Adds the coordinates of the given Vec2 to the vector.
+	 */
+	add (value: Vec2) : Vec2;
+
+	/**
+	 *	Adds the given delta values to the vector.
+	 */
+	add (dx: number, dy: number) : Vec2;
+
+	/**
+	 *	Subtracts the coordinates of the given Vec2 from the vector.
+	 */
+	sub (value: Vec2) : Vec2;
+
+	/**
+	 *	Subtracts the given delta values from the vector.
+	 */
+	sub (dx: number, dy: number) : Vec2;
+
+	/**
+	 * 	Scales each components of the vector by the respective component of the given one.
+	 */
+	scale (k: number) : Vec2;
+
+	/**
+	 * 	Scales both components of the vector by the given factor.
+	 */
+	scale (k: number) : Vec2;
+
+	/**
+	 * 	Scales each components of the vector by the given factors.
+	 */
+	scale (fx: number, fy: number) : Vec2;
+
+	/**
+	 * 	Sets the components to their integer parts.
+	 */
+	floor() : Vec2;
+
+	/**
+	 * 	Sets the components to their fractional parts.
+	 */
+	fract() : Vec2;
+
+	/**
+	 * 	Returns the dot product of the vectors.
+	 */
+	dot (value: Vec2) : number;
+
+	/**
+	 * 	Returns the dot product of the vector and the given values.
+	 */
+	dot (x: number, y: number) : number;
+
+	/**
+	 * 	Returns the magnitude of the vector.
+	 */
+	magnitude() : number;
+
+	/**
+	 * 	Normalizes the vector by dividing each component by the vector magnitude to obtain a unit vector.
+	 */
+	normalize() : Vec2;
+
+	/**
+	 * 	Sets the vector to its major-axis, that is the component with the maximum absolute value.
+	 */
+	majorAxis() : Vec2;
+
+	/**
+	 * 	Sets the vector to its minor-axis, that is the component with the minimum absolute value.
+	 */
+	minorAxis() : Vec2;
+
+	/**
+	 * 	Sets the vector to its sign-vector representation.
+	 */
+	sign() : Vec2;
+
+}
+
+export namespace Vec2
+{
+	export namespace Pool
+	{
+		/**
+		 *	Allocates a vector from another Vec2.
+		 */
+		function alloc (value: Vec2) : Vec2;
+
+		/**
+		 *	Allocates a vector with the specified coordinates.
+		 */
+		function alloc (x?: number, y?: number) : Vec2;
+
+	}
+}
 export class Point2
 {
 	/**
@@ -197,34 +382,34 @@ export class Point2
 	/**
 	 *	Adds the coordinates of the given Point2 to the point.
 	 */
-	add (value: Point2) : boolean;
+	add (value: Point2) : Point2;
 
 	/**
 	 *	Adds the coordinates of the given Vec2 to the point.
 	 */
-	add (value: Vec2) : boolean;
+	add (value: Vec2) : Point2;
 
 	/**
 	 *	Adds the given delta values to the point.
 	 *	@param upscaled - When `true` the specified values are assumed to have already been upscaled.
 	 */
-	add (dx: number, dy: number, upscaled?: boolean) : boolean;
+	add (dx: number, dy: number, upscaled?: boolean) : Point2;
 
 	/**
 	 *	Subtracts the coordinates of the given Point2 from the point.
 	 */
-	sub (value: Point2) : boolean;
+	sub (value: Point2) : Point2;
 
 	/**
 	 *	Subtracts the coordinates of the given Vec2 from the point.
 	 */
-	sub (value: Vec2) : boolean;
+	sub (value: Vec2) : Point2;
 
 	/**
 	 *	Subtracts the given delta values from the point.
 	 *	@param upscaled - When `true` the specified values are assumed to have already been upscaled.
 	 */
-	sub (dx: number, dy: number, upscaled?: boolean) : boolean;
+	sub (dx: number, dy: number, upscaled?: boolean) : Point2;
 
 }
 
@@ -709,7 +894,75 @@ export class Timer
 
 }
 
-
+enum KeyCodes
+{
+	BACKSPACE,
+	TAB,
+	ENTER,
+	ESC,
+	SPACE,
+	PGUP,
+	PGDN,
+	END,
+	HOME,
+	INS,
+	DEL,
+	LEFT,
+	UP,
+	RIGHT,
+	DOWN,
+	NUM_PLUS,
+	NUM_MINUS,
+	NUM_ASTERISK,
+	NUM_SLASH,
+	NUM_DOT,
+	NUM_0,
+	NUM_1,
+	NUM_2,
+	NUM_3,
+	NUM_4,
+	NUM_5,
+	NUM_6,
+	NUM_7,
+	NUM_8,
+	NUM_9,
+	D0,
+	D1,
+	D2,
+	D3,
+	D4,
+	D5,
+	D6,
+	D7,
+	D8,
+	D9,
+	A,
+	B,
+	C,
+	D,
+	E,
+	F,
+	G,
+	H,
+	I,
+	J,
+	K,
+	L,
+	M,
+	N,
+	O,
+	P,
+	Q,
+	R,
+	S,
+	T,
+	U,
+	V,
+	W,
+	X,
+	Y,
+	Z,
+}
 
 export class Perf
 {
@@ -762,4 +1015,91 @@ export namespace Perf
 		ALL,
 	}
 
+}
+
+
+
+
+
+export namespace Recycler
+{
+	/**
+	 * 	Attaches recycling methods (`allocate`, `alloc` and `free`) to the specified class. Class should implement method `init` to initialize the instance (and return itself)
+	 * 	and `__dtor` to destroy it.
+	 *
+	 * 	@param {*} maxPoolSize - Maximum number of instance to hold in the recycler.
+	 * 	@param {*} minPoolSize - Minimum number of instances to pre-allocate. Defaults to 0.375*`maxPoolSize` if not specified.
+	 */
+	function attachTo (targetClass: any, maxPoolSize?: number, minPoolSize?: number) : any;
+
+	/**
+	 * 	Shows stats about all recycling facilities (or just the specified one) using `console.debug`.
+	 * 	@param name - Name of the class to show.
+	 */
+	function showStats (name?: string) : void;
+
+	/**
+	 * 	Create a new class extending the specified target class, this new class is a recycling facility and is placed under property `Pool` of the target class. This
+	 * 	method can be used instead of the usual `attachTo` when the target class construct/deconstruct methods need to remain untouched.
+	 *
+	 * 	@param {*} maxPoolSize - Maximum number of instance to hold in the recycler.
+	 * 	@param {*} minPoolSize - Minimum number of instances to pre-allocate. Defaults to 0.375*`maxPoolSize` if not specified.
+	 */
+	function createPool (targetClass: any, maxPoolSize?: number, minPoolSize?: number) : any;
+
+}
+export class Linkable
+{
+	/**
+	 * 	Pointer to the previous item in the chain.
+	 */
+	readonly prev: Linkable;
+
+	/**
+	 * 	Pointer to the next item in the chain.
+	 */
+	readonly next: Linkable;
+
+	/**
+	 * 	Wrapped value.
+	 */
+	value: any;
+
+	/**
+	 * 	Initializes the linkable item and wraps the given value. Sets the `prev` and `next` pointers to null.
+	 */
+	constructor (value?: any);
+
+	/**
+	 * 	Sets the previous/next connection pointers to null. Returns `this`.
+	 */
+	clear() : Linkable;
+
+	/**
+	 * 	Links the item such that it will be located after the given reference.
+	 */
+	linkAfter (ref: Linkable) : Linkable;
+
+	/**
+	 * 	Links the item such that it will be located before the given reference.
+	 */
+	linkBefore (ref: Linkable) : Linkable;
+
+	/**
+	 * 	Unlinks the item by linking the `prev` and `next` together (when available) and returns `this`.
+	 */
+	unlink() : Linkable;
+
+}
+
+export namespace Linkable
+{
+	export namespace Pool
+	{
+		/**
+		 * 	Allocates a linkable item and wraps the given value. Sets the `prev` and `next` pointers to null.
+		 */
+		function alloc (value?: any) : Linkable;
+
+	}
 }
