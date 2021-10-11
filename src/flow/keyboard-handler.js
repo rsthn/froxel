@@ -18,9 +18,9 @@ import PriorityQueue from '../utils/priority-queue.js';
 import Boot from './boot.js';
 import System from '../system/system.js';
 
-/**
-**
-*/
+//![import "../utils/priority-queue"]
+//![import "./boot"]
+//![import "../system/system"]
 
 export default Boot.Module.create
 ({

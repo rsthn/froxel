@@ -18,29 +18,36 @@ import { Class } from '@rsthn/rin';
 import Recycler from './recycler.js';
 import Callback from './callback.js';
 
+//![import "./recycler"]
+//![import "./callback"]
+
 /*
 **	The handler class allows zero or more callbacks to be attached, such that when the `exec` method of the handler is invoked, all attached
 **	callbacks will also be executed.
 */
 
+//!class Handler
+
 const Handler = Class.extend
 ({
 	className: 'Handler',
 
-	/*
-	**	Handler host element.
-	*/
+	/**
+	 * 	Handler host element.
+	 * 	!host: Object;
+	 */
 	host: null,
 
-	/*
-	**	Top and bottom of the linked list.
-	*/
+	/**
+	 * 	Top and bottom of the linked list.
+	 */
 	top: null,
 	bottom: null,
 
-	/*
-	**	Initializes the instance.
-	*/
+	/**
+	 * 	Initializes the Handler instance.
+	 * 	!constructor (host?: Object);
+	 */
 	__ctor: function (host=null)
 	{
 		this.host = host;
@@ -59,9 +66,10 @@ const Handler = Class.extend
 		this.remove();
 	},
 
-	/*
-	**	Adds the specified callback to the handler.
-	*/
+	/**
+	 * 	Adds the specified callback to the handler.
+	 * 	!add (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+	 */
 	add: function(callback, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
 	{
 		let node = Callback.isInstance(callback) ? callback : Callback.Pool.alloc(callback, context, arg1, arg2, arg3, arg4);
@@ -79,9 +87,10 @@ const Handler = Class.extend
 		return node;
 	},
 
-	/*
-	**	Unlinks a callback from the handler.
-	*/
+	/**
+	 * 	Unlinks a callback from the handler.
+	 * 	!unlink (node: Callback) : Handler;
+	 */
 	unlink: function (node)
 	{
 		if (node.prev) node.prev.next = node.next;
@@ -99,9 +108,10 @@ const Handler = Class.extend
 		dispose(node);
 	},
 
-	/*
-	**	Removes all callbacks matching the specified arguments.
-	*/
+	/**
+	 * 	Removes all callbacks matching the specified arguments.
+	 * 	!remove (callback?: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Handler;
+	 */
 	remove: function(callback=null, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
 	{
 		if (callback !== null && Callback.isInstance(callback))
@@ -125,9 +135,10 @@ const Handler = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns the first callback matching the specified arguments.
-	*/
+	/**
+	 * 	Returns the first callback matching the specified arguments.
+	 * 	!find (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+	 */
 	find: function(callback, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
 	{
 		let node = this.top;
@@ -143,9 +154,10 @@ const Handler = Class.extend
 		return null;
 	},
 
-	/*
-	**	Executes all callbacks in the handler.
-	*/
+	/**
+	 * 	Executes all callbacks in the handler.
+	 * 	!exec() : void;
+	 */
 	exec: function()
 	{
 		let node = this.top;
@@ -161,9 +173,10 @@ const Handler = Class.extend
 		}
 	},
 
-	/*
-	**	Executes the first callback matching the specified arguments.
-	*/
+	/**
+	 * 	Executes the first callback matching the specified arguments.
+	 * 	!execf (callback?: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : void;
+	 */
 	execf: function(callback=null, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
 	{
 		let node = this.top;
@@ -184,15 +197,26 @@ const Handler = Class.extend
 		}
 	},
 
-	/*
-	**	Executes the specified callback.
-	*/
+	/**
+	 * 	Executes the specified callback.
+	 * 	!execc (node: Callback) : void;
+	 */
 	execc: function(node)
 	{
 		if (node.exec(this.host) === false)
 			this.unlink(node);
 	}
 });
+
+//!/class
+
+//!namespace Handler
+//!namespace Pool
+
+/**
+ * 	Allocates a new handler instance.
+ * 	!function alloc (host?: Object) : Handler;
+ */
 
 Recycler.createPool(Handler, 16384, 6144);
 export default Handler;

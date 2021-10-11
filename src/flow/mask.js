@@ -18,6 +18,10 @@ import Element from './element.js';
 import System from '../system/system.js';
 import Recycler from '../utils/recycler.js';
 
+//![import "./element"]
+//![import "../system/system"]
+//![import "../utils/recycler"]
+
 /*
 **	Describes an element mask. Used for collision detection.
 */

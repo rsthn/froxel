@@ -18,6 +18,10 @@ import KeyboardHandler from './keyboard-handler.js';
 import PointerHandler from './pointer-handler.js';
 import System from '../system/system.js';
 
+//![import "./keyboard-handler"]
+//![import "./pointer-handler"]
+//![import "../system/system"]
+
 /**
 **
 */

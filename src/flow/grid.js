@@ -18,6 +18,9 @@ import { Class } from '@rsthn/rin';
 import GridElement from './grid-element.js';
 import List from '../utils/list.js';
 
+//![import "./grid-element"]
+//![import "../utils/list"]
+
 /*
 **	Describes an optimized data structure to store 2D spatially indexed elements.
 */

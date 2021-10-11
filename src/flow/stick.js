@@ -19,6 +19,11 @@ import Mask from './mask.js';
 import ScreenControls from './screen-controls.js';
 import KeyCodes from '../system/keycodes.js';
 
+//![import "./group"]
+//![import "./mask"]
+//![import "./screen-controls"]
+//![import "../system/keycodes"]
+
 /*
 **	Stick class provides an easy way to add directional control sticks to the world.
 */

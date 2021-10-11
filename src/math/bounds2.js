@@ -14,10 +14,14 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import Recycler from '../utils/recycler.js';
 import { Class } from '@rsthn/rin';
+import Recycler from '../utils/recycler.js';
 import Point2 from './point2.js';
 import Rect from './rect.js';
+
+//![import "../utils/recycler"]
+//![import "./point2"]
+//![import "./rect"]
 
 /*
 **	Representation of a bounding box in 2D space. The component values are upscaled by a fixed number of bits to allow

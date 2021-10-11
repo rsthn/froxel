@@ -18,8 +18,14 @@ import { Class } from '@rsthn/rin';
 import List from '../utils/list.js';
 import Recycler from '../utils/recycler.js';
 
+//![import "../utils/list"]
+//![import "../utils/recycler"]
+
 import Block from './block.js';
 import Command from './command.js';
+
+//![import "./block"]
+//![import "./command"]
 
 import PARALLEL from './parallel.js';
 import SERIAL from './serial.js';

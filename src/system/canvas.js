@@ -23,6 +23,14 @@ import Shader from './shader.js';
 import globals from './globals.js';
 import Log from './log.js';
 
+//![import "../math/matrix"]
+//![import "./system"]
+//![import "../utils/list"]
+//![import "./shader-program"]
+//![import "./shader"]
+//![import "./globals"]
+//![import "./log"]
+
 /*
 **	Constructs a canvas object. If the Canvas DOM element is not provided a new element will be created and attached to the page.
 **

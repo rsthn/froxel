@@ -17,6 +17,8 @@
 import { Class } from '@rsthn/rin';
 import Sound from './sound.js';
 
+//![import "./sound.js"]
+
 /*
 	track: string (music|sfx)
 	mode: sequential|random

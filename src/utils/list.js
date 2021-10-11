@@ -18,6 +18,9 @@ import { Rin, Class } from '@rsthn/rin';
 import Linkable from './linkable.js';
 import Recycler from './recycler.js';
 
+//![import "./linkable"]
+//![import "./recycler"]
+
 /*
 **	Implementation of a linked list.
 */

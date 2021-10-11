@@ -18,6 +18,9 @@ import { Class } from '@rsthn/rin';
 import Canvas from '../system/canvas.js';
 import Resources from './resources.js';
 
+//![import "../system/canvas"]
+//![import "./resources"]
+
 export default Class.extend
 ({
 	className: "Placeholder",

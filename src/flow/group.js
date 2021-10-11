@@ -19,6 +19,11 @@ import List from '../utils/list.js';
 import Point2 from '../math/point2.js';
 import Recycler from '../utils/recycler.js';
 
+//![import "./element"]
+//![import "../utils/list"]
+//![import "../math/point2"]
+//![import "../utils/recycler"]
+
 const tempPoint = Point2.Pool.alloc();
 
 /*

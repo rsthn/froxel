@@ -19,6 +19,11 @@ import GridElement from './grid-element.js';
 import Element from './element.js';
 import List from '../utils/list.js';
 
+//![import "./container"]
+//![import "./grid-element"]
+//![import "./element"]
+//![import "../utils/list"]
+
 /*
 **	A simple container is a container that uses a linked-list to storage the elements.
 */

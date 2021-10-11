@@ -17,6 +17,8 @@
 import { Class } from '@rsthn/rin';
 import Recycler from '../utils/recycler.js';
 
+//![import "../utils/recycler"]
+
 /*
 **	Representation of a vector in 2D space, that is, a float tuple with components x and y.
 */

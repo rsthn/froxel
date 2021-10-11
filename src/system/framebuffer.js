@@ -18,6 +18,9 @@ import { Class } from '@rsthn/rin';
 import globals from './globals.js';
 import System from './system.js';
 
+//![import "./globals"]
+//![import "./system"]
+
 /*
  *	Describes a GL framebuffer.
  */

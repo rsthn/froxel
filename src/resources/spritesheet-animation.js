@@ -20,6 +20,11 @@ import System from '../system/system.js';
 import List from '../utils/list.js';
 import Recycler from '../utils/recycler.js';
 
+//![import "./spritesheet"]
+//![import "../system/system"]
+//![import "../utils/list"]
+//![import "../utils/recycler"]
+
 /*
 	anim: {
 		def: string, fps: int?,

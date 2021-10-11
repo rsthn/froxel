@@ -17,6 +17,7 @@
 import { Class } from '@rsthn/rin';
 import Recycler from '../utils/recycler.js';
 
+//![import "../utils/recycler"]
 //![import "./vec2"]
 
 /*

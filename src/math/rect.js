@@ -14,8 +14,10 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import Recycler from '../utils/recycler.js';
 import { Class } from '@rsthn/rin';
+import Recycler from '../utils/recycler.js';
+
+//![import "../utils/recycler"]
 
 /*
 **	Represents a 2D rectangle.

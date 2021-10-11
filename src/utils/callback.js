@@ -17,9 +17,13 @@
 import { Class } from '@rsthn/rin';
 import Recycler from './recycler.js';
 
+//![import "./recycler"]
+
 /*
 **	Defines a callback node. Contains a callback function, its context and up to four arguments.
 */
+
+//!class Callback
 
 const Callback = Class.extend
 ({
@@ -45,9 +49,10 @@ const Callback = Class.extend
 	prev: null,
 	next: null,
 
-	/*
-	**	Initializes the instance with the specified arguments.
-	*/
+	/**
+	 * 	Initializes the callback with the specified arguments.
+	 * 	!constructor (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any);
+	 */
 	__ctor: function (callback, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
 	{
 		this.callback = callback;
@@ -110,9 +115,11 @@ const Callback = Class.extend
 		return true;
 	},
 
-	/*
-	**	Executes the callback. Returns `false` if the callback should be removed from the handler.
-	*/
+	/**
+	 * 	Executes the callback. Returns `false` if the callback should be removed from the handler.
+	 * 	@param host - Host object.
+	 * 	!exec (host: Object) : boolean;
+	 */
 	exec: function(host)
 	{
 		if (this.callback !== null)
@@ -121,6 +128,16 @@ const Callback = Class.extend
 		return true;
 	}
 });
+
+//!/class
+
+//!namespace Callback
+//!namespace Pool
+
+/**
+ * 	Allocates a callback with the specified arguments.
+ * 	!function alloc (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+ */
 
 Recycler.createPool(Callback, 16384, 6144);
 export default Callback;

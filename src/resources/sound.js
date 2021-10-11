@@ -17,6 +17,8 @@
 import { Class } from '@rsthn/rin';
 import Resources from './resources.js';
 
+//![import "./resources"]
+
 /*
 	track: string (music|sfx)
 */

@@ -19,6 +19,10 @@ import System from '../system/system.js';
 import Canvas from '../system/canvas.js';
 import Log from '../system/log.js';
 
+//![import "../system/system"]
+//![import "../system/canvas"]
+//![import "../system/log"]
+
 const Resources = { };
 export default Resources;
 

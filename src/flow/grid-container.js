@@ -21,6 +21,13 @@ import Element from './element.js';
 import globals from '../system/globals.js';
 import System from '../system/system.js';
 
+//![import "./container"]
+//![import "./grid"]
+//![import "./grid-element"]
+//![import "./element"]
+//![import "../system/globals"]
+//![import "../system/system"]
+
 /*
 **	A grid container is a container that uses an optimized spatial grid structure to store the elements.
 */

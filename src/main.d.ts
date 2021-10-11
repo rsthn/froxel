@@ -39,75 +39,204 @@ export class Random
 	nextFloat () : number;
 
 }
-export namespace Log
+enum KeyCodes
+{
+	BACKSPACE,
+	TAB,
+	ENTER,
+	ESC,
+	SPACE,
+	PGUP,
+	PGDN,
+	END,
+	HOME,
+	INS,
+	DEL,
+	LEFT,
+	UP,
+	RIGHT,
+	DOWN,
+	NUM_PLUS,
+	NUM_MINUS,
+	NUM_ASTERISK,
+	NUM_SLASH,
+	NUM_DOT,
+	NUM_0,
+	NUM_1,
+	NUM_2,
+	NUM_3,
+	NUM_4,
+	NUM_5,
+	NUM_6,
+	NUM_7,
+	NUM_8,
+	NUM_9,
+	D0,
+	D1,
+	D2,
+	D3,
+	D4,
+	D5,
+	D6,
+	D7,
+	D8,
+	D9,
+	A,
+	B,
+	C,
+	D,
+	E,
+	F,
+	G,
+	H,
+	I,
+	J,
+	K,
+	L,
+	M,
+	N,
+	O,
+	P,
+	Q,
+	R,
+	S,
+	T,
+	U,
+	V,
+	W,
+	X,
+	Y,
+	Z,
+}
+export namespace Recycler
 {
 	/**
-	 * 	Indicates if the log module is enabled.
-	 */
-	let activated: boolean;
-
-	/**
-	 * 	Indicates if the log module is paused.
-	 */
-	let paused: boolean;
-
-	/**
-	 * 	Maximum number of entries to show in the screen.
-	 */
-	let maxsize: number;
-
-	/**
-	 * 	Indicates if output showuld also be passed to `console.debug` as secondary echo.
-	 */
-	let debugEcho: boolean;
-
-	/**
-	 * 	Foreground (text) color.
-	 */
-	let color: string;
-
-	/**
-	 * 	Background color.
-	 */
-	let background: string;
-
-	/**
-	 * 	Debugging variables to show continuously at the top of the log output.
-	 */
-	let vars: object;
-
-	/**
-	 * 	Writes a message to the log buffer, ensure logging has been enabled by calling `enable` first or any messages will be ignored.
-	 */
-	function write (msg: string) : void;
-
-	/**
-	 * 	Clears the current log buffer.
-	 */
-	function clear () : void;
-
-	/**
-	 * 	Enables on-screen logging for cool stuff.
+	 * 	Attaches recycling methods (`allocate`, `alloc` and `free`) to the specified class. Class should implement method `init` to initialize the instance (and return itself)
+	 * 	and `__dtor` to destroy it.
 	 *
-	 * 	@param x - X-coordinate of the top-left corner.
-	 * 	@param y - Y-coordinate of the top-left corner.
-	 * 	@param fontSize - Desired font size in `pt` units.
-	 * 	@param showFps - Set to `true` to show FPS.
-	 * 	@param showIndex - Set to `true to show the message index.
+	 * 	@param {*} maxPoolSize - Maximum number of instance to hold in the recycler.
+	 * 	@param {*} minPoolSize - Minimum number of instances to pre-allocate. Defaults to 0.375*`maxPoolSize` if not specified.
 	 */
-	function enable (x?: number, y?: number, fontSize?: number, showFps?: boolean, showIndex?: boolean) : void;
+	function attachTo (targetClass: any, maxPoolSize?: number, minPoolSize?: number) : any;
 
 	/**
-	 * 	Pauses log rendering.
+	 * 	Shows stats about all recycling facilities (or just the specified one) using `console.debug`.
+	 * 	@param name - Name of the class to show.
 	 */
-	function pause () : void;
+	function showStats (name?: string) : void;
 
 	/**
-	 * 	Resumes log rendering.
+	 * 	Create a new class extending the specified target class, this new class is a recycling facility and is placed under property `Pool` of the target class. This
+	 * 	method can be used instead of the usual `attachTo` when the target class construct/deconstruct methods need to remain untouched.
+	 *
+	 * 	@param {*} maxPoolSize - Maximum number of instance to hold in the recycler.
+	 * 	@param {*} minPoolSize - Minimum number of instances to pre-allocate. Defaults to 0.375*`maxPoolSize` if not specified.
 	 */
-	function resume () : void;
+	function createPool (targetClass: any, maxPoolSize?: number, minPoolSize?: number) : any;
 
 }
+export class Linkable
+{
+	/**
+	 * 	Pointer to the previous item in the chain.
+	 */
+	readonly prev: Linkable;
+
+	/**
+	 * 	Pointer to the next item in the chain.
+	 */
+	readonly next: Linkable;
+
+	/**
+	 * 	Wrapped value.
+	 */
+	value: any;
+
+	/**
+	 * 	Initializes the linkable item and wraps the given value. Sets the `prev` and `next` pointers to null.
+	 */
+	constructor (value?: any);
+
+	/**
+	 * 	Sets the previous/next connection pointers to null. Returns `this`.
+	 */
+	clear() : Linkable;
+
+	/**
+	 * 	Links the item such that it will be located after the given reference.
+	 */
+	linkAfter (ref: Linkable) : Linkable;
+
+	/**
+	 * 	Links the item such that it will be located before the given reference.
+	 */
+	linkBefore (ref: Linkable) : Linkable;
+
+	/**
+	 * 	Unlinks the item by linking the `prev` and `next` together (when available) and returns `this`.
+	 */
+	unlink() : Linkable;
+
+}
+
+export namespace Linkable
+{
+	export namespace Pool
+	{
+		/**
+		 * 	Allocates a linkable item and wraps the given value. Sets the `prev` and `next` pointers to null.
+		 */
+		function alloc (value?: any) : Linkable;
+
+	}
+}
+
+
+export class Timer
+{
+	/**
+	 * 	@param vsync - Indicates if requestAnimationFrame should be used instead of setTimeout.
+	 * 	@param interval - Amount of milliseconds between timer activations.
+	 * 	@param callback - Function to execute on each timer activation.
+	 */
+	constructor (vsync: boolean, interval: number, callback: (dt: number, timer: Timer) => void );
+
+	/**
+	 * 	Starts the timer and triggers `onStarted`.
+	 *
+	 * 	@param immediate - When `true` the callback will be executed immediately.
+	 * 	@param scale - Used to control when to trigger the first timeout, delay is timeInterval*scale.
+	 */
+	start (immediate?: boolean, scale?: number) : void;
+
+	/**
+	 * 	Executes the timer activation after the specified amount of milliseconds.
+	 */
+	runAfter (timeout: number) : void;
+
+	/**
+	 * 	Executes the timer activaton as soon as possible.
+	 */
+	runNow() : void;
+
+	/**
+	 * 	Stops the timer and triggers `onStopped`.
+	 */
+	stop() : void;
+
+	/**
+	 * 	Timer started event handler.
+	 */
+	onStarted() : void;
+
+	/**
+	 * 	Timer stopped event handler.
+	 */
+	onStopped() : void;
+
+}
+
+
 export class Vec2
 {
 	/**
@@ -294,6 +423,86 @@ export namespace Vec2
 
 	}
 }
+
+
+
+
+
+
+
+
+
+export namespace Log
+{
+	/**
+	 * 	Indicates if the log module is enabled.
+	 */
+	let activated: boolean;
+
+	/**
+	 * 	Indicates if the log module is paused.
+	 */
+	let paused: boolean;
+
+	/**
+	 * 	Maximum number of entries to show in the screen.
+	 */
+	let maxsize: number;
+
+	/**
+	 * 	Indicates if output showuld also be passed to `console.debug` as secondary echo.
+	 */
+	let debugEcho: boolean;
+
+	/**
+	 * 	Foreground (text) color.
+	 */
+	let color: string;
+
+	/**
+	 * 	Background color.
+	 */
+	let background: string;
+
+	/**
+	 * 	Debugging variables to show continuously at the top of the log output.
+	 */
+	let vars: object;
+
+	/**
+	 * 	Writes a message to the log buffer, ensure logging has been enabled by calling `enable` first or any messages will be ignored.
+	 */
+	function write (msg: string) : void;
+
+	/**
+	 * 	Clears the current log buffer.
+	 */
+	function clear () : void;
+
+	/**
+	 * 	Enables on-screen logging for cool stuff.
+	 *
+	 * 	@param x - X-coordinate of the top-left corner.
+	 * 	@param y - Y-coordinate of the top-left corner.
+	 * 	@param fontSize - Desired font size in `pt` units.
+	 * 	@param showFps - Set to `true` to show FPS.
+	 * 	@param showIndex - Set to `true to show the message index.
+	 */
+	function enable (x?: number, y?: number, fontSize?: number, showFps?: boolean, showIndex?: boolean) : void;
+
+	/**
+	 * 	Pauses log rendering.
+	 */
+	function pause () : void;
+
+	/**
+	 * 	Resumes log rendering.
+	 */
+	function resume () : void;
+
+}
+
+
 export class Point2
 {
 	/**
@@ -434,6 +643,8 @@ export namespace Point2
 
 	}
 }
+
+
 
 
 
@@ -850,119 +1061,9 @@ declare global
 
 }
 
-export class Timer
-{
-	/**
-	 * 	@param vsync - Indicates if requestAnimationFrame should be used instead of setTimeout.
-	 * 	@param interval - Amount of milliseconds between timer activations.
-	 * 	@param callback - Function to execute on each timer activation.
-	 */
-	constructor (vsync: boolean, interval: number, callback: (dt: number, timer: Timer) => void );
 
-	/**
-	 * 	Starts the timer and triggers `onStarted`.
-	 *
-	 * 	@param immediate - When `true` the callback will be executed immediately.
-	 * 	@param scale - Used to control when to trigger the first timeout, delay is timeInterval*scale.
-	 */
-	start (immediate?: boolean, scale?: number) : void;
 
-	/**
-	 * 	Executes the timer activation after the specified amount of milliseconds.
-	 */
-	runAfter (timeout: number) : void;
 
-	/**
-	 * 	Executes the timer activaton as soon as possible.
-	 */
-	runNow() : void;
-
-	/**
-	 * 	Stops the timer and triggers `onStopped`.
-	 */
-	stop() : void;
-
-	/**
-	 * 	Timer started event handler.
-	 */
-	onStarted() : void;
-
-	/**
-	 * 	Timer stopped event handler.
-	 */
-	onStopped() : void;
-
-}
-
-enum KeyCodes
-{
-	BACKSPACE,
-	TAB,
-	ENTER,
-	ESC,
-	SPACE,
-	PGUP,
-	PGDN,
-	END,
-	HOME,
-	INS,
-	DEL,
-	LEFT,
-	UP,
-	RIGHT,
-	DOWN,
-	NUM_PLUS,
-	NUM_MINUS,
-	NUM_ASTERISK,
-	NUM_SLASH,
-	NUM_DOT,
-	NUM_0,
-	NUM_1,
-	NUM_2,
-	NUM_3,
-	NUM_4,
-	NUM_5,
-	NUM_6,
-	NUM_7,
-	NUM_8,
-	NUM_9,
-	D0,
-	D1,
-	D2,
-	D3,
-	D4,
-	D5,
-	D6,
-	D7,
-	D8,
-	D9,
-	A,
-	B,
-	C,
-	D,
-	E,
-	F,
-	G,
-	H,
-	I,
-	J,
-	K,
-	L,
-	M,
-	N,
-	O,
-	P,
-	Q,
-	R,
-	S,
-	T,
-	U,
-	V,
-	W,
-	X,
-	Y,
-	Z,
-}
 
 export class Perf
 {
@@ -1021,85 +1122,98 @@ export namespace Perf
 
 
 
-export namespace Recycler
+
+
+
+
+
+
+
+
+
+export class Callback
 {
 	/**
-	 * 	Attaches recycling methods (`allocate`, `alloc` and `free`) to the specified class. Class should implement method `init` to initialize the instance (and return itself)
-	 * 	and `__dtor` to destroy it.
-	 *
-	 * 	@param {*} maxPoolSize - Maximum number of instance to hold in the recycler.
-	 * 	@param {*} minPoolSize - Minimum number of instances to pre-allocate. Defaults to 0.375*`maxPoolSize` if not specified.
+	 * 	Initializes the callback with the specified arguments.
 	 */
-	function attachTo (targetClass: any, maxPoolSize?: number, minPoolSize?: number) : any;
+	constructor (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any);
 
 	/**
-	 * 	Shows stats about all recycling facilities (or just the specified one) using `console.debug`.
-	 * 	@param name - Name of the class to show.
+	 * 	Executes the callback. Returns `false` if the callback should be removed from the handler.
+	 * 	@param host - Host object.
 	 */
-	function showStats (name?: string) : void;
-
-	/**
-	 * 	Create a new class extending the specified target class, this new class is a recycling facility and is placed under property `Pool` of the target class. This
-	 * 	method can be used instead of the usual `attachTo` when the target class construct/deconstruct methods need to remain untouched.
-	 *
-	 * 	@param {*} maxPoolSize - Maximum number of instance to hold in the recycler.
-	 * 	@param {*} minPoolSize - Minimum number of instances to pre-allocate. Defaults to 0.375*`maxPoolSize` if not specified.
-	 */
-	function createPool (targetClass: any, maxPoolSize?: number, minPoolSize?: number) : any;
-
-}
-export class Linkable
-{
-	/**
-	 * 	Pointer to the previous item in the chain.
-	 */
-	readonly prev: Linkable;
-
-	/**
-	 * 	Pointer to the next item in the chain.
-	 */
-	readonly next: Linkable;
-
-	/**
-	 * 	Wrapped value.
-	 */
-	value: any;
-
-	/**
-	 * 	Initializes the linkable item and wraps the given value. Sets the `prev` and `next` pointers to null.
-	 */
-	constructor (value?: any);
-
-	/**
-	 * 	Sets the previous/next connection pointers to null. Returns `this`.
-	 */
-	clear() : Linkable;
-
-	/**
-	 * 	Links the item such that it will be located after the given reference.
-	 */
-	linkAfter (ref: Linkable) : Linkable;
-
-	/**
-	 * 	Links the item such that it will be located before the given reference.
-	 */
-	linkBefore (ref: Linkable) : Linkable;
-
-	/**
-	 * 	Unlinks the item by linking the `prev` and `next` together (when available) and returns `this`.
-	 */
-	unlink() : Linkable;
+	exec (host: Object) : boolean;
 
 }
 
-export namespace Linkable
+export namespace Callback
 {
 	export namespace Pool
 	{
 		/**
-		 * 	Allocates a linkable item and wraps the given value. Sets the `prev` and `next` pointers to null.
+		 * 	Allocates a callback with the specified arguments.
 		 */
-		function alloc (value?: any) : Linkable;
+		function alloc (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+
+	}
+}
+export class Handler
+{
+	/**
+	 * 	Handler host element.
+	 */
+	host: Object;
+
+	/**
+	 * 	Initializes the Handler instance.
+	 */
+	constructor (host?: Object);
+
+	/**
+	 * 	Adds the specified callback to the handler.
+	 */
+	add (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+
+	/**
+	 * 	Unlinks a callback from the handler.
+	 */
+	unlink (node: Callback) : Handler;
+
+	/**
+	 * 	Removes all callbacks matching the specified arguments.
+	 */
+	remove (callback?: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Handler;
+
+	/**
+	 * 	Returns the first callback matching the specified arguments.
+	 */
+	find (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+
+	/**
+	 * 	Executes all callbacks in the handler.
+	 */
+	exec() : void;
+
+	/**
+	 * 	Executes the first callback matching the specified arguments.
+	 */
+	execf (callback?: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : void;
+
+	/**
+	 * 	Executes the specified callback.
+	 */
+	execc (node: Callback) : void;
+
+}
+
+export namespace Handler
+{
+	export namespace Pool
+	{
+		/**
+		 * 	Allocates a new handler instance.
+		 */
+		function alloc (host?: Object) : Handler;
 
 	}
 }

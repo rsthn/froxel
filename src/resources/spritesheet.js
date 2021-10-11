@@ -17,6 +17,8 @@
 import { Class } from '@rsthn/rin';
 import Canvas from '../system/canvas.js';
 
+//![import "../system/canvas"]
+
 /*
 	If source is "image":
 		config: {

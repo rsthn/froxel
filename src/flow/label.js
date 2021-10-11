@@ -15,8 +15,10 @@
 */
 
 import Element from './element.js';
-import G from '../system/globals.js';
 import Recycler from '../utils/recycler.js';
+
+//![import "./element"]
+//![import "../utils/recycler"]
 
 /*
 **	Describes an element that can be rendered to the screen.

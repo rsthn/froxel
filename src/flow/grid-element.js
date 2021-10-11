@@ -18,6 +18,9 @@ import { Class } from '@rsthn/rin';
 import Bounds2 from '../math/bounds2.js';
 import Handler from '../utils/handler.js';
 
+//![import "../math/bounds2"]
+//![import "../utils/handler"]
+
 /*
 **	Describes an element that can be added to a grid.
 */

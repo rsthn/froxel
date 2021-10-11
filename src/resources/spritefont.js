@@ -17,6 +17,8 @@
 import { Class } from '@rsthn/rin';
 import Canvas from '../system/canvas.js';
 
+//![import "../system/canvas"]
+
 /*
 	font: {
 		sheetWidth: int?, charWidth: int, charHeight: int, charset: string, widths: [char, width, ...]

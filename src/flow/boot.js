@@ -18,6 +18,8 @@ import { Class } from '@rsthn/rin';
 
 import PriorityQueue from '../utils/priority-queue.js';
 
+//![import "../utils/priority-queue"]
+
 /*
 **	
 */

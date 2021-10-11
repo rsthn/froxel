@@ -18,6 +18,10 @@ import Group from './group.js';
 import Mask from './mask.js';
 import ScreenControls from './screen-controls.js';
 
+//![import "./group.js"]
+//![import "./mask.js"]
+//![import "./screen-controls.js"]
+
 /*
 **	Button class provides an easy way to add push-button support to the world.
 */

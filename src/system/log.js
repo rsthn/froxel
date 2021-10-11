@@ -17,6 +17,9 @@
 import System from './system.js';
 import List from '../utils/list.js';
 
+//![import "./system"]
+//![import "../utils/list"]
+
 //!namespace Log
 
 /**

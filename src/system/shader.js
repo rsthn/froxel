@@ -17,6 +17,8 @@
 import { Class } from '@rsthn/rin';
 import globals from './globals.js';
 
+//![import "./globals"]
+
 /**
  * 	Describes a shader object. The actual shader type is specified at construction.
  */

@@ -18,6 +18,9 @@ import { Class } from '@rsthn/rin';
 import Shader from './shader.js';
 import globals from './globals.js';
 
+//![import "./shader"]
+//![import "./globals"]
+
 /**
  * 	Describes a shader program.
  */

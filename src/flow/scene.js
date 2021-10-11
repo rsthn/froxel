@@ -23,6 +23,14 @@ import List from '../utils/list.js';
 import Handler from '../utils/handler.js';
 import globals from '../system/globals.js';
 
+//![import "./container"]
+//![import "./viewport"]
+//![import "./group"]
+//![import "../math/bounds2"]
+//![import "../utils/list"]
+//![import "../utils/handler"]
+//![import "../system/globals"]
+
 /*
 **	A scene is a set of containers, viewports and groups. Rendering is done in their specific index-based order.
 */

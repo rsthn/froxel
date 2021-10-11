@@ -21,6 +21,13 @@ import Timer from './timer.js';
 import Canvas from './canvas.js';
 import globals from './globals.js';
 
+//![import "./keycodes"]
+//![import "../utils/list"]
+//![import "../utils/linkable"]
+//![import "./timer"]
+//![import "./canvas"]
+//![import "./globals"]
+
 /*
 **	System object.
 */
