@@ -25,31 +25,37 @@ import Recycler from './recycler.js';
 **	Implementation of a linked list.
 */
 
+//!class List
+
 const List = Class.extend
 ({
-	/*
-	**	Name of the class (for inheritance purposes).
-	*/
+	/**
+	 * 	Name of the class (for inheritance purposes).
+	 */
 	className: "List",
 
-	/*
-	**	Pointer to the first item in the list.
-	*/
-	top: null, /* Linkable */
+	/**
+	 * 	Pointer to the first node in the list.
+	 * 	!top: Linkable;
+	 */
+	top: null,
 
-	/*
-	**	Pointer to the last item in the list.
-	*/
-	bottom: null, /* Linkable */
+	/**
+	 * 	Pointer to the last node in the list.
+	 * 	!bottom: Linkable;
+	 */
+	bottom: null,
 
-	/*
-	**	Number of items in the list.
-	*/
+	/**
+	 * 	Number of values in the list.
+	 * 	!length: number;
+	 */
 	length: 0,
 
-	/*
-	**	Initializes the instance.
-	*/
+	/**
+	 * 	Initializes the instance to an empty list.
+	 * 	!constructor();
+	 */
 	__ctor: function ()
 	{
 		this.top = null;
@@ -57,18 +63,19 @@ const List = Class.extend
 		this.length = 0;
 	},
 
-	/*
-	**	Traverses the list and destroys all nodes. The actual values are maintained. To destroy the
-	**	list contents call clear() instead.
-	*/
+	/**
+	 * 	Traverses the list and destroys all nodes. The actual values are maintained. To destroy the
+	 * 	list contents call clear() instead.
+	 */
 	__dtor: function ()
 	{
 		this.reset();
 	},
 
-	/*
-	**	Clones all contents and returns a new list.
-	*/
+	/**
+	 * 	Clones all contents and returns a new list.
+	 * 	!clone() : List;
+	 */
 	clone: function()
 	{
 		let list = List.Pool.alloc();
@@ -79,17 +86,18 @@ const List = Class.extend
 		return list;
 	},
 
-	/*
-	**	Traverses the list and destroys all nodes and values.
-	*/
-	clear: function () /*List*/
+	/**
+	 * 	Traverses the list and destroys all nodes and values.
+	 * 	!clear() : List;
+	 */
+	clear: function ()
 	{
-		let item, nextItem;
+		let i, ni;
 
-		for (item = this.top; item != null; item = nextItem)
+		for (i = this.top; i; i = ni)
 		{
-			nextItem = item.next;
-			dispose(item.free().value);
+			ni = i.next;
+			dispose(i.free().value);
 		}
 
 		this.top = this.bottom = null;
@@ -98,17 +106,18 @@ const List = Class.extend
 		return this;
 	},
 
-	/*
-	**	Traverses the list and destroys all nodes. Values are preserved.
-	*/
+	/**
+	 * 	Traverses the list, destroys all nodes **but** values are preserved.
+	 * 	!reset() : List;
+	 */
 	reset: function ()
 	{
-		let item, nextItem;
+		let i, ni;
 
-		for (item = this.top; item != null; item = nextItem)
+		for (i = this.top; i != null; i = ni)
 		{
-			nextItem = item.next;
-			item.free();
+			ni = i.next;
+			i.free();
 		}
 
 		this.top = this.bottom = null;
@@ -117,173 +126,179 @@ const List = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns the first item in the list.
-	*/
+	/**
+	 * 	Returns the first value in the list.
+	 * 	!first() : any;
+	 */
 	first: function ()
 	{
 		return this.top !== null ? this.top.value : null;
 
 	},
-	/*
-	**	Returns the last item in the list.
-	*/
+	/**
+	 * 	Returns the last value in the list.
+	 * 	!last() : any;
+	 */
 	last: function ()
 	{
 		return this.bottom !== null ? this.bottom.value : null;
 	},
 
-	/*
-	**	Returns an item given its index.
-	*/
-	getAt: function (index) /*(value)*/
+	/**
+	 * 	Returns a value given its index.
+	 * 	!getAt (index: number) : any;
+	 */
+	getAt: function (index)
 	{
-		let item = null;
-
-		for (item = this.top; item && index--; item = item.next);
-
-		return item != null ? item.value : null;
+		let i = null;
+		for (i = this.top; i && index-- > 0; i = i.next);
+		return i != null ? i.value : null;
 	},
 
-	/*
-	**	Returns the node at the given index.
-	*/
-	getNodeAt: function (index) /*Linkable*/
+	/**
+	 * 	Returns the node at the given index.
+	 * 	!getNodeAt (index: number) : Linkable;
+	 */
+	getNodeAt: function (index)
 	{
-		let item = null;
-
-		for (item = this.top; item && index--; item = item.next);
-
-		return item;
+		let i = null;
+		for (i = this.top; i && index--; i = i.next);
+		return i;
 	},
 
-	/*
-	**	Returns the node of an item given another element to compare, uses identical comparison to match the item.
-	*/
-	sgetNode: function (value) /*Linkable*/
+	/**
+	 * 	Returns the node of a value given another value to compare, uses identical comparison (===) to match the value.
+	 * 	!sgetNode (value: any) : Linkable;
+	 */
+	sgetNode: function (value)
 	{
-		for (let item = this.top; item; item = item.next)
-			if (item.value === value) return item;
+		for (let i = this.top; i; i = i.next)
+			if (i.value === value) return i;
 
 		return null;
 	},
 
-	/*
-	**	Removes the given item from the list and returns the item.
-	*/
-	remove: function (/*Linkable*/item) /*any*/
+	/**
+	 * 	Removes the given value from the list and returns it.
+	 * 	!remove<T> (value: T) : T;
+	 */
+	remove: function (i)
 	{
-		if (item != null && !('isInstanceOf' in item && item.isInstanceOf(Linkable)))
-			item = this.sgetNode(item);
+		if (i != null && !('isInstanceOf' in i && i.isInstanceOf(Linkable)))
+			i = this.sgetNode(i);
 
-		if (!item) return null;
+		if (!i) return null;
 
-		if (!item.prev) this.top = item.next;
-		if (!item.next) this.bottom = item.prev;
+		if (!i.prev) this.top = i.next;
+		if (!i.next) this.bottom = i.prev;
 
 		this.length--;
-
-		return item.free().value;
+		return i.free().value;
 	},
 
-	/*
-	**	Adds an item before the given reference.
-	*/
-	insertBefore: function (/*Linkable*/ref, /*any*/value) /*List*/
+	/**
+	 * 	Adds a value before the given reference node.
+	 * 	!insertBefore<T> (ref: Linkable, value: T) : T;
+	 */
+	insertBefore: function (ref, value)
 	{
 		if (!ref) return this;
 
-		let item = Linkable.Pool.alloc(value);
+		let i = Linkable.Pool.alloc(value);
+		i.linkBefore (ref);
 
-		item.linkBefore (ref);
-
-		if (ref == this.top) this.top = item;
+		if (ref == this.top) this.top = i;
 		this.length++;
 
 		return value;
 	},
 
-	/*
-	**	Adds an item after the given reference.
-	*/
-	insertAfter: function (/*Linkable*/ref, /*any*/value) /*List*/
+	/**
+	 * 	Adds a value after the given reference node.
+	 * 	!insertAfter<T> (ref: Linkable, value: T) : T;
+	 */
+	insertAfter: function (ref, value)
 	{
 		if (!ref) return this;
 
-		let item = Linkable.Pool.alloc(value);
+		let i = Linkable.Pool.alloc(value);
+		i.linkAfter (ref);
 
-		item.linkAfter (ref);
-
-		if (ref == this.bottom) this.bottom = item;
+		if (ref == this.bottom) this.bottom = i;
 		this.length++;
 
 		return value;
 	},
 
-	/*
-	**	Adds an item to the top of the list.
-	*/
-	unshift: function (value) /* List */
+	/**
+	 * 	Adds a value to the top of the list.
+	 * 	!unshift<T> (value: T) : T;
+	 */
+	unshift: function (value)
 	{
-		let item = Linkable.Pool.alloc(value);
+		let i = Linkable.Pool.alloc(value);
 
-		item.linkBefore (this.top);
-		if (!this.bottom) this.bottom = item;
+		i.linkBefore (this.top);
+		if (!this.bottom) this.bottom = i;
 
-		this.top = item;
+		this.top = i;
 		this.length++;
 
 		return value;
 	},
 
-	/*
-	**	Removes an item from the top of the list.
-	*/
-	shift: function () /*any*/
+	/**
+	 * 	Removes a value from the top of the list.
+	 * 	!shift() : any;
+	 */
+	shift: function ()
 	{
-		let item = this.top;
-		if (!item) return null;
+		let i = this.top;
+		if (!i) return null;
 
-		if (!(this.top = item.next)) this.bottom = null;
+		if (!(this.top = i.next)) this.bottom = null;
 		this.length--;
 
-		return item.free().value;
+		return i.free().value;
 	},
 
-	/*
-	**	Adds an item to the bottom of the list.
-	*/
-	push: function (value) /* List */
+	/**
+	 * 	Adds a value to the bottom of the list.
+	 * 	!push<T> (value: T) : T;
+	 */
+	push: function (value)
 	{
-		let item = Linkable.Pool.alloc(value);
+		let i = Linkable.Pool.alloc(value);
 
-		item.linkAfter (this.bottom);
-		if (!this.top) this.top = item;
+		i.linkAfter (this.bottom);
+		if (!this.top) this.top = i;
 
-		this.bottom = item;
+		this.bottom = i;
 		this.length++;
 
 		return value;
 	},
 
-	/*
-	**	Removes an item from the bottom of the list.
-	*/
-	pop: function () /*any*/
+	/**
+	 * 	Removes a value from the bottom of the list.
+	 * 	!pop() : any;
+	 */
+	pop: function ()
 	{
-		let item = this.bottom;
-		if (!item) return null;
+		let i = this.bottom;
+		if (!i) return null;
 
-		if (!(this.bottom = item.prev)) this.top = null;
+		if (!(this.bottom = i.prev)) this.top = null;
 		this.length--;
 
-		return item.free().value;
+		return i.free().value;
 	},
 
-	/*
-	**	Appends all contents of a given list to the list.
-	*/
-	append: function (/*List*/list) /*List*/
+	/**
+	 * 	Appends all contents of the given list to the current one.
+	 * 	!append (list: List) : List;
+	 */
+	append: function (list)
 	{
 		for (let i = list.top; i; i = i.next)
 			this.push(i.value);
@@ -291,9 +306,11 @@ const List = Class.extend
 		return this;
 	},
 
-	/*
-	**	Traverses the list calling the specified function for each item.
-	*/
+	/**
+	 * 	Traverses the list calling the specified function for each value.
+	 * 	@param fn - Callback to execute, return `false` to stop the loop immediately.
+	 * 	!forEach(fn: (value: any, node: Linkable, list: List, context: object) => boolean, context?: object) : boolean;
+	 */
 	forEach: function(fn, context=null)
 	{
 		let ni;
@@ -307,9 +324,11 @@ const List = Class.extend
 		return true;
 	},
 
-	/*
-	**	Traverses the list in reverse order, calling the specified function for each item.
-	*/
+	/**
+	 * 	Traverses the list in reverse order, calling the specified function for each value.
+	 * 	@param fn - Callback to execute, return `false` to stop the loop immediately.
+	 * 	!forEachRev(fn: (value: any, node: Linkable, list: List, context: object) => boolean, context?: object) : boolean;
+	 */
 	forEachRev: function(fn, context=null)
 	{
 		let ni;
@@ -323,33 +342,36 @@ const List = Class.extend
 		return true;
 	},
 
-	/*
-	**	Returns the first item where the filter function returns true.
-	*/
-	find: function (filter, context=null)
+	/**
+	 * 	Returns the first value where the specified function returns `true`.
+	 * 	!find (fn: (value: any, context: object) => boolean, context?: object) : any;
+	 */
+	find: function (fn, context=null)
 	{
 		for (let i = this.top; i; i = i.next)
-			if (filter(i.value, context)) return i.value;
+			if (fn(i.value, context)) return i.value;
 
 		return null;
 	},
 
-	/*
-	**	Returns an array with all items where the filter function returns true.
-	*/
-	filter: function (filter, context=null)
+	/**
+	 * 	Returns an array with all values where the specified function returns `true`.
+	 * 	!filter (fn: (value: any, context: object) => boolean, context?: object) : Array<any>;
+	 */
+	filter: function (fn, context=null)
 	{
 		let list = List.Pool.alloc();
 
 		for (let i = this.top; i; i = i.next)
-			if (filter(i.value, context)) list.push(i.value);
+			if (fn(i.value, context)) list.push(i.value);
 
 		return list;
 	},
 
-	/*
-	**	Returns an array with all the items in the list.
-	*/
+	/**
+	 * 	Returns an array with all the values in the list.
+	 * 	!toArray() : Array<any>;
+	 */
 	toArray: function()
 	{
 		let array = [];
@@ -360,6 +382,16 @@ const List = Class.extend
 		return array;
 	}
 });
+
+//!/class
+
+//!namespace List
+//!namespace Pool
+
+	/**
+	 * 	Allocates an empty list.
+	 * 	alloc() : List;
+	 */
 
 Recycler.createPool (List, 16384, 6144);
 export default List;

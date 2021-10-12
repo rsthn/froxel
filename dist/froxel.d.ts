@@ -39,7 +39,7 @@ export class Random
 	nextFloat () : number;
 
 }
-enum KeyCodes
+export enum KeyCodes
 {
 	BACKSPACE,
 	TAB,
@@ -191,6 +191,143 @@ export namespace Linkable
 	}
 }
 
+export class List
+{
+	/**
+	 * 	Pointer to the first node in the list.
+	 */
+	top: Linkable;
+
+	/**
+	 * 	Pointer to the last node in the list.
+	 */
+	bottom: Linkable;
+
+	/**
+	 * 	Number of values in the list.
+	 */
+	length: number;
+
+	/**
+	 * 	Initializes the instance to an empty list.
+	 */
+	constructor();
+
+	/**
+	 * 	Clones all contents and returns a new list.
+	 */
+	clone() : List;
+
+	/**
+	 * 	Traverses the list and destroys all nodes and values.
+	 */
+	clear() : List;
+
+	/**
+	 * 	Traverses the list, destroys all nodes **but** values are preserved.
+	 */
+	reset() : List;
+
+	/**
+	 * 	Returns the first value in the list.
+	 */
+	first() : any;
+
+	/**
+	 * 	Returns the last value in the list.
+	 */
+	last() : any;
+
+	/**
+	 * 	Returns a value given its index.
+	 */
+	getAt (index: number) : any;
+
+	/**
+	 * 	Returns the node at the given index.
+	 */
+	getNodeAt (index: number) : Linkable;
+
+	/**
+	 * 	Returns the node of a value given another value to compare, uses identical comparison (===) to match the value.
+	 */
+	sgetNode (value: any) : Linkable;
+
+	/**
+	 * 	Removes the given value from the list and returns it.
+	 */
+	remove<T> (value: T) : T;
+
+	/**
+	 * 	Adds a value before the given reference node.
+	 */
+	insertBefore<T> (ref: Linkable, value: T) : T;
+
+	/**
+	 * 	Adds a value after the given reference node.
+	 */
+	insertAfter<T> (ref: Linkable, value: T) : T;
+
+	/**
+	 * 	Adds a value to the top of the list.
+	 */
+	unshift<T> (value: T) : T;
+
+	/**
+	 * 	Removes a value from the top of the list.
+	 */
+	shift() : any;
+
+	/**
+	 * 	Adds a value to the bottom of the list.
+	 */
+	push<T> (value: T) : T;
+
+	/**
+	 * 	Removes a value from the bottom of the list.
+	 */
+	pop() : any;
+
+	/**
+	 * 	Appends all contents of the given list to the current one.
+	 */
+	append (list: List) : List;
+
+	/**
+	 * 	Traverses the list calling the specified function for each value.
+	 * 	@param fn - Callback to execute, return `false` to stop the loop immediately.
+	 */
+	forEach(fn: (value: any, node: Linkable, list: List, context: object) => boolean, context?: object) : boolean;
+
+	/**
+	 * 	Traverses the list in reverse order, calling the specified function for each value.
+	 * 	@param fn - Callback to execute, return `false` to stop the loop immediately.
+	 */
+	forEachRev(fn: (value: any, node: Linkable, list: List, context: object) => boolean, context?: object) : boolean;
+
+	/**
+	 * 	Returns the first value where the specified function returns `true`.
+	 */
+	find (fn: (value: any, context: object) => boolean, context?: object) : any;
+
+	/**
+	 * 	Returns an array with all values where the specified function returns `true`.
+	 */
+	filter (fn: (value: any, context: object) => boolean, context?: object) : Array<any>;
+
+	/**
+	 * 	Returns an array with all the values in the list.
+	 */
+	toArray() : Array<any>;
+
+}
+
+export namespace List
+{
+	export namespace Pool
+	{
+	}
+}
 
 export class Timer
 {
@@ -235,8 +372,6 @@ export class Timer
 	onStopped() : void;
 
 }
-
-
 export class Vec2
 {
 	/**
@@ -425,12 +560,58 @@ export namespace Vec2
 }
 
 
+export class Shader
+{
+	/**
+	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
+	 *
+	 * 	@param id - Identifier of the shader.
+	 * 	@param type - One of the constants from the Shader.Type enum.
+	 */
+	constructor (id: string, type: Shader.Type);
 
+	/**
+	 * 	Appends GLSL code to the shader's source code buffer.
+	 */
+	source (value: string) : Shader;
 
+	/**
+	 * 	Compiles the shader. Errors can be obtained using getError() method.
+	 */
+	compile() : void;
 
+	/**
+	 * 	Returns the error of the last compile operation.
+	 */
+	getError() : string;
 
+}
 
+export namespace Shader
+{
+	enum Type
+	{
+		VERTEX,
+		FRAGMENT,
+		GEOMETRY,
+	}
 
+	/**
+	 * 	Stores a shader with the specified identifier in the global shader map.
+	 */
+	function put (id: string, shader: Shader) : void;
+
+	/**
+	 * 	Returns a Shader given its identifier.
+	 */
+	function get (id: string) : Shader;
+
+	/**
+	 * 	Removes a shader from the global shader map.
+	 */
+	function remove (id: string) : void;
+
+}
 
 export namespace Log
 {
@@ -501,8 +682,6 @@ export namespace Log
 	function resume () : void;
 
 }
-
-
 export class Point2
 {
 	/**
@@ -643,9 +822,243 @@ export namespace Point2
 
 	}
 }
+export class Rect
+{
+	/**
+	 */
+	cx: number;
 
+	/**
+	 */
+	cy: number;
 
+	/**
+	 */
+	x1: number;
 
+	/**
+	 */
+	y1: number;
+
+	/**
+	 */
+	x2: number;
+
+	/**
+	 */
+	y2: number;
+
+	/**
+	 * 	Constructs a rectangle of zero size, centered at (0, 0).
+	 */
+	constructor();
+
+	/**
+	 * 	Constructs a rectangle centered at (0, 0) with the specified size.
+	 */
+	constructor (width: number, height: number);
+
+	/**
+	 * 	Constructs a rectangle with the specified coordinates.
+	 */
+	constructor (x1: number, y1: number, x2: number, y2: number);
+
+	/**
+	 * 	Returns a clone of the rectangle.
+	 */
+	clone() : Rect;
+
+	/**
+	 * 	Sets all coordinates of the rectangle to zero.
+	 */
+	zero() : Rect;
+
+	/**
+	 * 	Sets all coordinates of the rectangle to `null` for subsequent use with `extendWithPoint`.
+	 */
+	reset() : Rect;
+
+	/**
+	 * 	Extends the rectangle to contain the specified vector coordinates.
+	 */
+	extendWithPoint (v: Vec2) : Rect;
+
+	/**
+	 * 	Extends the rectangle to contain the specified point.
+	 */
+	extendWithPoint (x: number, y: number) : Rect;
+
+	/**
+	 * 	Translates the rectangle by the given deltas.
+	 */
+	translate (dx: number, dy: number) : Rect;
+
+	/**
+	 * 	Moves the center of the rectangle to the specified position.
+	 * 	@param normalized - When `true` the arguments `x` and `y` are treated as normalized ranging from 0 to 1 (inclusive).
+	 */
+	centerAt (x: number, y: number, normalized?: false) : Rect;
+
+	/**
+	 * 	Copies the coordinates of the specified rectangle.
+	 */
+	set (r: Rect) : Rect;
+
+	/**
+	 * 	Sets the coordinates of the rectangle.
+	 */
+	set (x1: number, y1: number, x2: number, y2: number) : Rect;
+
+	/**
+	 * 	Returns `true` if the given rectangle coordinates are equal.
+	 */
+	equals (r: Rect) : boolean;
+
+	/**
+	 * 	Returns `true` if the coordinates are equal.
+	 */
+	equals (x1: number, y1: number, x2: number, y2: number) : boolean;
+
+	/**
+	 * 	Returns `true` if the specified rectangle is contained in the current one.
+	 */
+	contains (r: Rect) : boolean;
+
+	/**
+	 * 	Returns `true` if the specified rectangle is contained in the current one.
+	 */
+	contains (x1: number, y1: number, x2: number, y2: number) : boolean;
+
+	/**
+	 * 	Sets the coordinates of the rectangle to the union of it and the given one.
+	 */
+	setAsUnion (r: Rect) : Rect;
+
+	/**
+	 * 	Sets the coordinates of the rectangle to the union of it and the given one.
+	 */
+	setAsUnion (x1: number, y1: number, x2: number, y2: number) : Rect;
+
+	/**
+	 * 	Returns `true` if the rectangles intersect.
+	 */
+	intersects (r: Rect) : boolean;
+
+	/**
+	 * 	Returns `true` if the rectangles intersect.
+	 */
+	intersects (x1: number, y1: number, x2: number, y2: number) : boolean;
+
+	/**
+	 * 	Sets the coordinates of the rectangle to the intersection of it and the given one.
+	 * 	@returns Boolean indicating if the intersection is non-empty.
+	 */
+	setAsIntersection (r: Rect) : boolean;
+
+	/**
+	 * 	Sets the coordinates of the rectangle to the intersection of it and the given one.
+	 * 	@returns Boolean indicating if the intersection is non-empty.
+	 */
+	setAsIntersection (x1: number, y1: number, x2: number, y2: number) : boolean;
+
+	/**
+	 * 	Resizes the rectangle to the given size using its center or top-left corner as reference.
+	 * 	@param normalized - When `true` the `w` and `h` will be treated as normalized ranging from 0 to 1 (inclusive).
+	 * 	@param topLeftRelative - When `true` reference will be top-left corner, set to `false` to use the center.
+	 */
+	resize (w: number, h: number, normalized?: boolean, topLeftRelative?: boolean) : Rect;
+
+	/**
+	 * 	Resizes the rectangle using the specified deltas, relative to its center or top-left corner.
+	 * 	@param topLeftRelative - When `true` reference will be top-left corner, set to `false` to use the center.
+	 */
+	resizeBy (dw: number, dh: number, topLeftRelative?: boolean) : Rect;
+
+	/**
+	 * 	Returns the width of the rectangle.
+	 */
+	width() : number;
+
+	/**
+	 * 	Returns the height of the rectangle.
+	 */
+	height() : number;
+
+	/**
+	 * 	Returns the normalized center X-coordinate of the rectangle.
+	 */
+	ncx() : number;
+
+	/**
+	 * 	Returns the normalized center Y-coordinate of the rectangle.
+	 */
+	ncy() : number;
+
+	/**
+	 * 	Returns `true` if the rectangle is a right rectangle, that is: x1 < x2 and y1 < y2.
+	 */
+	isRight() : boolean;
+
+	/**
+	 * 	Returns `true` if the specified point is contained in the rectangle.
+	 * 	@param tol - Used to specify a tolerance value (default is zero).
+	 */
+	containsPoint (x: number, y: number, tol?: number) : boolean;
+
+	/**
+	 * 	Returns the area of the rectangle.
+	 * 	@param strict - Indicates if the area is returned only if the rectangle is a right rectangle.
+	 */
+	area (strict?: boolean) : number;
+
+	/**
+	 * 	Sets the components of the rectangle to their rounded-down integer parts.
+	 */
+	floor() : Rect;
+
+	/**
+	 * 	Sets the components of the rectangle to their rounded-up integer parts.
+	 */
+	ceil() : Rect;
+
+	/**
+	 * 	Returns the string representation of the rectangle.
+	 */
+	toString() : string;
+
+	/**
+	 * 	Flattens the rectangle.
+	 */
+	flatten() : Array<number>;
+
+	/**
+	 * 	Unflattens the rectangle.
+	 */
+	unflatten(input: Array<number>) : Rect;
+
+}
+
+export namespace Rect
+{
+	export namespace Pool
+	{
+		/**
+		 * 	Allocates a new rectangle of zero size.
+		 */
+		function alloc() : Rect;
+
+		/**
+		 * 	Allocates a new rectangle centered at (0, 0) with the specified size.
+		 */
+		function alloc (width: number, height: number) : Rect;
+
+		/**
+		 * 	Allocates a new rectangle with the specified coordinates.
+		 */
+		function alloc (x1: number, y1: number, x2: number, y2: number) : Rect;
+
+	}
+}
 
 
 export class Viewport
@@ -763,13 +1176,13 @@ export class Viewport
 	 * 	Returns the X coordinate of the viewport's focus point inside the world.
 	 * 	@param absolute - When `true`, the focus point X (without offset) will be returned.
 	 */
-	getX (absolute?: boolean)
+	getX (absolute?: boolean) : number;
 
 	/**
 	 * 	Returns the Y coordinate of the viewport's focus point inside the world.
 	 * 	@param absolute - When `true`, the focus point Y (without offset) will be returned.
 	 */
-	getY (absolute?: boolean)
+	getY (absolute?: boolean) : number;
 
 	/**
 	 * 	Returns the X position of the viewport inside the world relative to the current focus point.
@@ -902,7 +1315,7 @@ declare global
 	/**
 	 * 	Disposes an object by running the first method that is found in the following order: `free`, `dispose` and finally `__dtor`.
 	 */
-	function dispose (obj: object);
+	function dispose (obj: object) : void;
 
 	/**
 	 * 	Global audio context obtained when the system is initialized.
@@ -1126,11 +1539,6 @@ export namespace Perf
 
 
 
-
-
-
-
-
 export class Callback
 {
 	/**
@@ -1216,4 +1624,627 @@ export namespace Handler
 		function alloc (host?: Object) : Handler;
 
 	}
+}
+
+
+
+export class TFunction
+{
+	/**
+	 * 	Contains the time values `t` in the t-function, for each time value there is a corresponding `y` and `f`.
+	 */
+	t: Array<number>;
+
+	/**
+	 * 	Contains the values (y) for each of the time values (t) in the t-function.
+	 */
+	y: Array<number>;
+
+	/**
+	 * 	Contains the easing function (f) for each of the time values (t).
+	 */
+	f: Array< (t:number) => number >;
+
+	/**
+	 * 	Constructs the time function.
+	 * 	@param value - Initial value of the t-function for t=0, defaults to 0.
+	 */
+	constructor (value?: number);
+
+	/**
+	 * 	Resets the t-function to its initial state.
+	 * 	@param value - Initial value of the t-function for t=0. Default is 0.
+	 */
+	reset (value?: number) : TFunction;
+
+	/**
+	 * 	Resets the t-function and copies data from the specified source.
+	 * 	@param src - Source TFunction.
+	 * 	@param t0 - Initial time, if none specified will be assumed to be the min time of the source.
+	 * 	@param t1 - Final time, if none specified will be assumed to the the max time of the source.
+	 * 	@returns A TFunction or `null` if the specified time range could not be resolved.
+	 */
+	copyFrom (src: TFunction, t0: number, t1: number) : TFunction;
+
+	/**
+	 * 	Creates a new t-function with the same values as the current one.
+	 * 	@param t0 - Initial time, if none specified will be assumed to be the min time of the source.
+	 * 	@param t1 - Final time, if none specified will be assumed to the the max time of the source.
+	 */
+	clone (t0: number, t1: number) : TFunction;
+
+	/**
+	 * 	Returns the maximum time value in the t-function plus the given delta.
+	 * 	@param delta - Delta value to add to the result.
+	 */
+	endTime (delta?: number) : number;
+
+	/**
+	 * 	Returns the start time of the t-function plus the given delta.
+	 * 	@param delta - Delta value to add to the result.
+	 */
+	startTime (delta?: number) : number;
+
+	/**
+	 * 	Finds the index of a sampling point whose sampling range contains the given time.
+	 * 	@param time - Time value to search.
+	 * 	@returns Index of the sampling point or `null` if not within range.
+	 */
+	find (time: number) : number|null;
+
+	/**
+	 * 	Sets a sampling point (t,y).
+	 * 	@param t - Time value of the sampling point.
+	 * 	@param y - Y-value for the given t.
+	 * 	@param f - Easing function.
+	 */
+	set (t: number, y: number, f?: (t: number) => number) : TFunction;
+
+	/**
+	 * 	Returns the last Y-value in the t-function.
+	 */
+	get() : number;
+
+	/**
+	 * 	Returns the Y-value in the t-function corresponding to some point in time (t).
+	 * 	@param t - Time (t) value.
+	 */
+	getAt (t: number) : number;
+
+	/**
+	 * 	Returns the approximate definite integral of the t-function for the given time range.
+	 * 	@param t0 - Initial time value, defaults to minimum time of the t-function.
+	 * 	@param t1 - Final time value, defaults to the maximum time of the t-function.
+	 * 	@param c0 - Constant of integration, defaults to 0.
+	 * 	@returns Definite integral of t-function from t0 to t1.
+	 */
+	integral (t0?: number, t1?: number, c0?: number) : number;
+
+	/**
+	 * 	Returns the approximate definite second integral of the t-function for the given time range.
+	 * 	@param t0 - Initial time value, defaults to minimum time of the t-function.
+	 * 	@param t1 - Final time value, defaults to the maximum time of the t-function.
+	 * 	@param c0 - Constant of integration, defaults to 0.
+	 * 	@returns Definite second integral of t-function from t0 to t1.
+	 */
+	integral (t0?: number, t1?: number, c0?: number) : number;
+
+	/**
+	 * 	Transforms the t-function to its integral. For every sampling range in the t-function their Y-value will be set to the integral
+	 * 	of the sampling range plus any previous integrals.
+	 *
+	 * 	@param c0 - Constant of integration. Defaults to 0.
+	 */
+	integrate (c0?: number) : TFunction;
+
+	/**
+	 * 	Transforms the t-function Y-values to the accumulated sum of each Y-value plus the given c0.
+	 * 	@param c0 - Initial value (defaults to 0).
+	 */
+	accumulate(c0?: number) : TFunction;
+
+	/**
+	 * 	Removes all sampling-points located before the given index.
+	 */
+	chopLeft (i: number) : TFunction;
+
+	/**
+	 * 	Removes all sampling-points located after the given index.
+	 */
+	chopRight (i: number) : TFunction;
+
+	/**
+	 * 	Maps the Y-value to other Y-values using the specified mapping function.
+	 * 	@param fn - Receives parameters `y` (y-value), `t` (t-value), and `i` (index).
+	 */
+	map (fn: (y: number, t: number, i: number) => number) : TFunction;
+
+	/**
+	 * 	Returns a string representation of the variable state.
+	 */
+	toString (c0?: number) : string;
+
+}
+
+
+export namespace Easing
+{
+	export namespace Linear
+	{
+		/**
+		 */
+		function IN (t: number) : number;
+
+		/**
+		 */
+		function OUT (t: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number) : number;
+
+	}
+
+	export namespace Back
+	{
+		/**
+		 */
+		function IN (t: number, k?: number) : number;
+
+		/**
+		 */
+		function OUT (t: number, k?: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number, k?: number) : number;
+
+	}
+
+	export namespace Bounce
+	{
+		/**
+		 */
+		function IN (t: number) : number;
+
+		/**
+		 */
+		function OUT (t: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number) : number;
+
+	}
+
+	export namespace Circ
+	{
+		/**
+		 */
+		function IN (t: number) : number;
+
+		/**
+		 */
+		function OUT (t: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number) : number;
+
+	}
+
+	export namespace Cubic
+	{
+		/**
+		 */
+		function IN (t: number) : number;
+
+		/**
+		 */
+		function OUT (t: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number) : number;
+
+	}
+
+	export namespace Expo
+	{
+		/**
+		 */
+		function IN (t: number) : number;
+
+		/**
+		 */
+		function OUT (t: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number) : number;
+
+	}
+
+	export namespace Power
+	{
+		/**
+		 */
+		function IN (t: number, p?: number) : number;
+
+		/**
+		 */
+		function OUT (t: number, p?: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number, p?: number) : number;
+
+	}
+
+	export namespace Quad
+	{
+		/**
+		 */
+		function IN (t: number) : number;
+
+		/**
+		 */
+		function OUT (t: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number) : number;
+
+	}
+
+	export namespace Quartic
+	{
+		/**
+		 */
+		function IN (t: number) : number;
+
+		/**
+		 */
+		function OUT (t: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number) : number;
+
+	}
+
+	export namespace Quintic
+	{
+		/**
+		 */
+		function IN (t: number) : number;
+
+		/**
+		 */
+		function OUT (t: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number) : number;
+
+	}
+
+	export namespace Sine
+	{
+		/**
+		 */
+		function IN (t: number) : number;
+
+		/**
+		 */
+		function OUT (t: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number) : number;
+
+	}
+
+	export namespace Step
+	{
+		/**
+		 */
+		function IN (t: number) : number;
+
+		/**
+		 */
+		function OUT (t: number) : number;
+
+		/**
+		 */
+		function IN_OUT (t: number) : number;
+
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export namespace fxl
+{
+	export namespace sys
+{
+	type Orientation = 'default' | 'landscape' | 'portrait' | 'automatic';
+	type Options =
+	{
+		/**
+		 * 	Tells the system to enable WebGL support.
+		 * 	@default true
+		 */
+		gl?: boolean;
+
+		/**
+		 *	Indicates if on-screen logging should be enabled.
+		 *	@default false
+		 */
+		log?: boolean,
+
+		/**
+		 *	Enables or disables antialised canvas. Set to `false` when pixel-perfect is desired.
+		 *	@default false
+		 */
+		antialias?: boolean;
+
+		/**
+		 *	Background of the system canvas.
+		 *	@default "#000"
+		 */
+		background?: string;
+
+		/**
+		 *	Desired orientaton of the display.
+		 *	@default "automatic"
+		 */
+		orientation?: fxl.sys.Orientation;
+
+		/**
+		 *	Desired display width. When not specified (null) the maximum screen width to maintain the aspect ratio will be used.
+		 *	@default null
+		 */
+		screenWidth?: number;
+
+		/**
+		 *	Desired display height. When not specified (null) the maximum screen height to maintain the aspect ratio will be used.
+		 *	@default null
+		 */
+		screenHeight?: number;
+
+		/**
+		 *	Target frames per second (FPS). Used to determine delay between frames.
+		 *	@default 144
+		 */
+		fps?: number;
+
+		/**
+		 *	Minimum allowed frames per second (FPS). If system FPS drops below this value, the `frameDelta` property of System will be truncated to 1/minFps.
+		 *	@default 10
+		 */
+		minFps?: number;
+
+	}
+
+}
+
+export class sys
+{
+	/**
+	 * 	Indicates if the system module has already been initialized.
+	 */
+	initialized: boolean;
+
+	/**
+	 * 	Screen width (available after calling `init`).
+	 */
+	screenWidth: number;
+
+	/**
+	 * 	Screen height (available after calling `init`).
+	 */
+	screenHeight: number;
+
+	/**
+	 * 	Primary renderer (available after calling `init`).
+	 */
+	renderer: Canvas;
+
+	/**
+	 * 	Logical system time (mirrors the value of System.frameTime).
+	 */
+	time: Number;
+
+	/**
+	 * 	Logical system delta time (mirrors the value of System.frameDelta).
+	 */
+	dt: Number;
+
+	/**
+	 * 	Initializes the system with the specified options.
+	 */
+	init (options: sys.Options) : Promise<any>;
+
+	/**
+	 * 	Initializes the system using the default options.
+	 */
+	init () : Promise<any>;
+
+}
+	
+	
+	
+	
+	export class collider
+{
+	/**
+	 * 	Flag used to exclude from collision checks.
+	 */
+	static readonly FLAG_EXCLUDE: number;
+
+	/**
+	 *	First updater.
+	 */
+	static fupdater: Handler;
+
+	/**
+	 *	Last updater.
+	 */
+	static lupdater: Handler;
+
+	/**
+	 *	Flags used to filter elements.
+	 */
+	static flagsAnd: number;
+	static flagsValue: number;
+
+	/**
+	 *	Current collider state fields.
+	 */
+	static state: {
+
+	/**
+	 * 	Contact area.
+	 */
+	contact: Bounds2;
+
+	/**
+	 * 	Contact flags.
+	 */
+	flags: collider.Contact;
+
+	/**
+	 * 	Final delta value for X-coordinate calculated by `translate`.
+	 */
+	dx: number;
+
+	/**
+	 * 	Final delta value for Y-coordinate calculated by `translate`.
+	 */
+	dy: number;
+
+	}
+	/**
+	 *	Enables the collider system on the specified scene and layer.
+	 * 	@param sceneIndex - Scene to attach the collider updater methods. Uses world.SCENE_MAIN if none specified.
+	 * 	@param layerIndex - Index within the scene of the layer where element masks are stored. Uses world.LAYER_MASK if none specified.
+	 */
+	static enable (sceneIndex?: number, layerIndex?: number) : void;
+
+	/**
+	 *	Disables the collider system.
+	 */
+	static disable() : void;
+
+	/**
+	 * 	Utility object containing actions that are executed later on the next update cycle.
+	 */
+	static later: {
+
+	/**
+	 *	Runs the specified callback.
+	 */
+	run (elem: Element, callback: Function, arg1?: any, arg2?: any, arg3?: any) : void;
+
+	/**
+	 *	Sets the element's visibility flag.
+	 */
+	setVisible (elem: Element, value: boolean) : void;
+
+	/**
+	 *	Sets the element's flags.
+	 */
+	setFlags (elem: Element, value: number) : void;
+
+	/**
+	 *	Clears the element's flags.
+	 */
+	clearFlags (elem: Element, value: number) : void;
+
+	}
+	/**
+	 * 	Adds a contact rule.
+	 * 	@param primaryType - Type of the primary element.
+	 * 	@param secondaryType - Type of the secondary element.
+	 * 	@param callback - Callback to execute when contact is detected.
+	 * 	@param context - Optional value passed as last parameter to the callback.
+	 */
+	static contact (primaryType: number, secondaryType: number, callback: (primary: Mask, secondary: Mask, context?: any) => void, context?: any) : collider;
+
+	/**
+	 * 	Adds a truncation rule.
+	 * 	@param primaryType - Type of the primary element.
+	 * 	@param secondaryType - Type of the secondary element.
+	 * 	@param value - Indicates the status of the truncation rule.
+	 */
+	static truncate (primaryType: number, secondaryType: number, value: boolean) : collider;
+
+	/**
+	 * 	Loads the contact flags in the collider state.
+	 */
+	static getContactFlags (boundsA: Bounds2, boundsB: Bounds2) : number;
+
+	/**
+	 * 	Attempts to move the specified group by the given deltas. Any collisions detected on the mask will trigger the respective actions.
+	 * 	@param mask - Mask element.
+	 * 	@param dx - X delta value.
+	 * 	@param dy - Y delta value.
+	 */
+	static translate (mask: Mask, dx: number, dy: number) : void;
+
+	/**
+	 * 	Attempts to move the specified group by the given deltas. Any collisions detected on the mask will trigger the respective actions.
+	 * 	@param mask - Mask element.
+	 * 	@param group - Group where the mask is stored.
+	 * 	@param dx - X delta value.
+	 * 	@param dy - Y delta value.
+	 */
+	static translate (mask: Mask, group: Group, dx: number, dy: number) : void;
+
+	/**
+	 *	Scans for collisions against the specified mask.
+	 * 	@param mask - Mask element.
+	 */
+	static scan (mask: Mask) : void;
+
+	/**
+	 *	Scans for collisions against the specified mask.
+	 * 	@param mask - Mask element.
+	 * 	@param group - Group where the mask is stored.
+	 */
+	static scan (mask: Mask, group: Group) : void;
+
+}
+
+export namespace collider
+{
+	enum Contact
+	{
+		LEFT,
+		RIGHT,
+		HORIZONTAL,
+		TOP,
+		BOTTOM,
+		VERTICAL,
+	}
+
+}
+	// fxl ends
 }

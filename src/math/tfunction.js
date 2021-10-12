@@ -17,46 +17,49 @@
 import { Class } from '@rsthn/rin';
 
 /**
-**	Describes a function dependent of time (t-function), multiple sampling points (t,y) can be added, this class
-**	provides methods to access any value for a given time, or the integral of a time range.
-*/
+ * 	Describes a function dependent of time (t-function), multiple sampling points (t,y) can be added, this class
+ * 	provides methods to access any value for a given time, or the integral of a time range.
+ */
+
+//!class TFunction
 
 const TFunction = Class.extend
 ({
 	className: 'TFunction',
 
 	/**
-	**	Contains the time values (t) in the t-function, for each time value there is a corresponding y and f.
-	*/
+	 * 	Contains the time values `t` in the t-function, for each time value there is a corresponding `y` and `f`.
+	 * 	!t: Array<number>;
+	 */
 	t: null,
 
 	/**
-	**	Contains the values (y) for each of the time values (t) in the t-function.
-	*/
+	 * 	Contains the values (y) for each of the time values (t) in the t-function.
+	 * 	!y: Array<number>;
+	 */
 	y: null,
 
 	/**
-	**	Contains the easing function (f) for each of the time values (t).
-	*/
+	 * 	Contains the easing function (f) for each of the time values (t).
+	 * 	!f: Array< (t:number) => number >;
+	 */
 	f: null,
 
 	/**
-	**	Constructs the time function with an initial value.
-	**
-	**	@param value:float Initial value of the t-function for t=0, defaults to 0.
-	*/
-	__ctor: function (value)
+	 * 	Constructs the time function.
+	 * 	@param value - Initial value of the t-function for t=0, defaults to 0.
+	 * 	!constructor (value?: number);
+	 */
+	__ctor: function (value=0)
 	{
-		this.reset (value);
+		this.reset(value);
 	},
 
 	/**
-	**	Resets the t-function to its initial state.
-	**
-	**	@param value:float Initial value of the t-function for time=0, if none provided zero will be assumed.
-	**
-	**	@returns TFunction
-	*/
+	 * 	Resets the t-function to its initial state.
+	 * 	@param value - Initial value of the t-function for t=0. Default is 0.
+	 * 	!reset (value?: number) : TFunction;
+	 */
 	reset: function (value=0)
 	{
 		this.t = [0];
@@ -67,14 +70,13 @@ const TFunction = Class.extend
 	},
 
 	/**
-	**	Resets the t-function and copies data from the specified source.
-	**
-	**	@param src:TFunction Source TFunction.
-	**	@param t0:float Initial time, if none specified will be assumed to be the min time of the source.
-	**	@param t1:float Final time, if none specified will be assumed to the the max time of the source.
-	**
-	**	@returns TFunction or null if the specified time range could not be resolved.
-	*/
+	 * 	Resets the t-function and copies data from the specified source.
+	 * 	@param src - Source TFunction.
+	 * 	@param t0 - Initial time, if none specified will be assumed to be the min time of the source.
+	 * 	@param t1 - Final time, if none specified will be assumed to the the max time of the source.
+	 * 	@returns A TFunction or `null` if the specified time range could not be resolved.
+	 * 	!copyFrom (src: TFunction, t0: number, t1: number) : TFunction;
+	 */
 	copyFrom: function (src, t0, t1)
 	{
 		this.t = [];
@@ -133,47 +135,42 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Creates a new t-function with the same values as this.
-	**
-	**	@param t0:float Initial time, if none specified will be assumed to be the min time of the source.
-	**	@param t1:float Final time, if none specified will be assumed to the the max time of the source.
-	**
-	**	@returns TFunction
-	*/
+	 * 	Creates a new t-function with the same values as the current one.
+	 * 	@param t0 - Initial time, if none specified will be assumed to be the min time of the source.
+	 * 	@param t1 - Final time, if none specified will be assumed to the the max time of the source.
+	 * 	!clone (t0: number, t1: number) : TFunction;
+	 */
 	clone: function (t0, t1)
 	{
 		return (new TFunction()).copyFrom(this, t0, t1);
 	},
 
-		/**
-	**	Returns the maximum time value in the t-function plus the given delta.
-	**
-	**	@param delta:float Delta value to add to the result.
-	**	@returns float
-	*/
+	/**
+	 * 	Returns the maximum time value in the t-function plus the given delta.
+	 * 	@param delta - Delta value to add to the result.
+	 * 	!endTime (delta?: number) : number;
+	 */
 	endTime: function (delta=0)
 	{
 		return this.t[this.t.length-1] + delta;
 	},
 
 	/**
-	**	Returns the start time of the t-function plus the given delta.
-	**
-	**	@param delta:float Delta value to add to the result.
-	**	@returns float
-	*/
+	 * 	Returns the start time of the t-function plus the given delta.
+	 * 	@param delta - Delta value to add to the result.
+	 * 	!startTime (delta?: number) : number;
+	 */
 	startTime: function (delta=0)
 	{
 		return this.t[0] + delta;
 	},
 
 	/**
-	**	Finds the index of a sampling point whose sampling range contains the given time.
-	** 
-	**	@param time:float Time value to search.
-	**
-	**	@returns int Index of the sampling point or `null` if not within range.
-	*/
+	 * 	Finds the index of a sampling point whose sampling range contains the given time.
+	 * 	@param time - Time value to search.
+	 * 	@returns Index of the sampling point or `null` if not within range.
+	 * 	!find (time: number) : number|null;
+	 */
 	find: function (time)
 	{
 		if (time < this.t[0])
@@ -191,13 +188,12 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Sets a sampling point (t,y).
-	**
-	**	@param t:float Time value of the sampling point.
-	**	@param y:float Y-value for the given t.
-	**
-	**	@returns bool Indicates if operation was successful.
-	*/
+	 * 	Sets a sampling point (t,y).
+	 * 	@param t - Time value of the sampling point.
+	 * 	@param y - Y-value for the given t.
+	 * 	@param f - Easing function.
+	 * 	!set (t: number, y: number, f?: (t: number) => number) : TFunction;
+	 */
 	set: function (t, y, f=null)
 	{
 		let i = this.find(t);
@@ -220,22 +216,19 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Returns the last Y-value in the t-function.
-	**
-	**	@returns float Y-value.
-	*/
+	 * 	Returns the last Y-value in the t-function.
+	 *	!get() : number;
+	 */
 	get: function ()
 	{
 		return this.y[this.y.length-1];
 	},
 
 	/**
-	**	Returns the Y-value in the t-function corresponding to some point in time (t).
-	**
-	**	@param t:float Time (t) value.
-	**
-	**	@returns float Y-value.
-	*/
+	 * 	Returns the Y-value in the t-function corresponding to some point in time (t).
+	 * 	@param t - Time (t) value.
+	 * 	!getAt (t: number) : number;
+	 */
 	getAt: function (t)
 	{
 		let i0 = this.find(t);
@@ -262,14 +255,13 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Returns the approximate definite integral of the t-function for the given time range.
-	**
-	**	@param t0:float Initial time value.
-	**	@param t1:float Final time value.
-	**	@param c0:float Constant of integration, default is 0.
-	**
-	**	@returns float Definite integral of t-function from t0 to t1.
-	*/
+	 * 	Returns the approximate definite integral of the t-function for the given time range.
+	 * 	@param t0 - Initial time value, defaults to minimum time of the t-function.
+	 * 	@param t1 - Final time value, defaults to the maximum time of the t-function.
+	 * 	@param c0 - Constant of integration, defaults to 0.
+	 * 	@returns Definite integral of t-function from t0 to t1.
+	 * 	!integral (t0?: number, t1?: number, c0?: number) : number;
+	 */
 	integral: function (t0=null, t1=null, c0=0)
 	{
 		if (t0 == null) t0 = this.t[0];
@@ -314,14 +306,13 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Returns the approximate definite second integral of the t-function for the given time range.
-	**
-	**	@param t0:float Initial time value.
-	**	@param t1:float Final time value.
-	**	@param c0:float Constant of integration, default is 0.
-	**
-	**	@returns float Definite second integral of t-function from t0 to t1.
-	*/
+	 * 	Returns the approximate definite second integral of the t-function for the given time range.
+	 * 	@param t0 - Initial time value, defaults to minimum time of the t-function.
+	 * 	@param t1 - Final time value, defaults to the maximum time of the t-function.
+	 * 	@param c0 - Constant of integration, defaults to 0.
+	 * 	@returns Definite second integral of t-function from t0 to t1.
+	 * 	!integral (t0?: number, t1?: number, c0?: number) : number;
+	 */
 	second_integral: function (t0=null, t1=null, c0=0)
 	{
 		if (t0 == null) t0 = this.t[0];
@@ -334,13 +325,12 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Transforms the t-function to its integral. For every sampling range in the t-function their Y-value will be set to the integral
-	**	of the sampling range plus any previous integrals.
-	**
-	**	@param c0:float Constant of integration, if none specified 0 will be assumed.
-	**
-	**	@returns TFunction
-	*/
+	 * 	Transforms the t-function to its integral. For every sampling range in the t-function their Y-value will be set to the integral
+	 * 	of the sampling range plus any previous integrals.
+	 *
+	 * 	@param c0 - Constant of integration. Defaults to 0.
+	 * 	!integrate (c0?: number) : TFunction;
+	 */
 	integrate: function (c0=0)
 	{
 		let y = [];
@@ -355,10 +345,10 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Transforms the t-function Y-values to the accumulated sum of each Y-value plus the given c0.
-	**
-	**	@returns TFunction
-	*/
+	 * 	Transforms the t-function Y-values to the accumulated sum of each Y-value plus the given c0.
+	 * 	@param c0 - Initial value (defaults to 0).
+	 * 	!accumulate(c0?: number) : TFunction;
+	 */
 	accumulate: function (c0=0)
 	{
 		this.y[0] += c0;
@@ -370,10 +360,9 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Removes all sampling-points located before the given index.
-	**
-	**	@returns TFunction
-	*/
+	 * 	Removes all sampling-points located before the given index.
+	 *	!chopLeft (i: number) : TFunction;
+	 */
 	chopLeft: function (i)
 	{
 		this.t.splice(0, i);
@@ -384,10 +373,9 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Removes all sampling-points located after the given index.
-	**
-	**	@returns TFunction
-	*/
+	 * 	Removes all sampling-points located after the given index.
+	 * 	!chopRight (i: number) : TFunction;
+	 */
 	chopRight: function (i)
 	{
 		this.t.splice(i+1, this.t.length-i-1);
@@ -398,11 +386,10 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Maps the Y-value to other Y-values using the specified mapping function. The mapping function will receive four
-	**	parameters: y, t, and i where 'y' is the y-value, 't' the t-value, 'i' the index.
-	**
-	**	@returns TFunction
-	*/
+	 * 	Maps the Y-value to other Y-values using the specified mapping function.
+	 * 	@param fn - Receives parameters `y` (y-value), `t` (t-value), and `i` (index).
+	 * 	!map (fn: (y: number, t: number, i: number) => number) : TFunction;
+	 */
 	map: function (fn)
 	{
 		for (let i = 0; i < this.y.length; i++)
@@ -412,10 +399,9 @@ dt = t1-t; // Force just one step.
 	},
 
 	/**
-	**	Returns a string representation of the variable state.
-	**
-	**	@returns string
-	*/
+	 * 	Returns a string representation of the variable state.
+	 * 	!toString (c0?: number) : string;
+	 */
 	toString: function(c0=0)
 	{
 		let s = '';

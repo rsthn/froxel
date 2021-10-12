@@ -18,10 +18,13 @@ import { Class } from '@rsthn/rin';
 import Recycler from '../utils/recycler.js';
 
 //![import "../utils/recycler"]
+//![import "./vec2"]
 
 /*
 **	Represents a 2D rectangle.
 */
+
+//!class Rect
 
 const Rect = Class.extend
 ({
@@ -31,13 +34,44 @@ const Rect = Class.extend
 	**	Coordinates of the rectangle (cx and cy are for the center). Note that this fields are readonly they should be modified
 	**	through methods only.
 	*/
-	cx: 0, cy: 0,
-	x1: 0, y1: 0,
-	x2: 0, y2: 0,
 
-	/*
-	**	Initializes the rect (takes 0, 2 or 4 parameters).
-	*/
+	/**
+	 * 	!cx: number;
+	 */
+	cx: 0,
+	/**
+	 * 	!cy: number;
+	 */
+	cy: 0,
+	/**
+	 * 	!x1: number;
+	 */
+	x1: 0,
+	/**
+	 * 	!y1: number;
+	 */
+	y1: 0,
+	/**
+	 * 	!x2: number;
+	 */
+	x2: 0,
+	/**
+	 * 	!y2: number;
+	 */
+	y2: 0,
+
+	/**
+	 * 	Constructs a rectangle of zero size, centered at (0, 0).
+	 * 	!constructor();
+	 */
+	/**
+	 * 	Constructs a rectangle centered at (0, 0) with the specified size.
+	 * 	!constructor (width: number, height: number);
+	 */
+	/**
+	 * 	Constructs a rectangle with the specified coordinates.
+	 * 	!constructor (x1: number, y1: number, x2: number, y2: number);
+	 */
 	__ctor: function (x1=null, y1=null, x2=null, y2=null)
 	{
 		if (x1 === null)
@@ -63,14 +97,19 @@ const Rect = Class.extend
 	{
 	},
 
-	/*
-	**	Clones the rect and returns a new object.	 
-	*/
+	/**
+	 * 	Returns a clone of the rectangle.
+	 * 	!clone() : Rect;
+	 */
 	clone: function ()
 	{
 		return Rect.Rool.alloc(this.x1, this.y1, this.x2, this.y2);
 	},
 
+	/**
+	 * 	Sets all coordinates of the rectangle to zero.
+	 * 	!zero() : Rect;
+	 */
 	zero: function ()
 	{
 		this.cx = 0; this.cy = 0;
@@ -80,6 +119,10 @@ const Rect = Class.extend
 		return this;
 	},
 
+	/**
+	 * 	Sets all coordinates of the rectangle to `null` for subsequent use with `extendWithPoint`.
+	 * 	!reset() : Rect;
+	 */
 	reset: function ()
 	{
 		this.cx = null; this.cy = null;
@@ -89,12 +132,14 @@ const Rect = Class.extend
 		return this;
 	},
 
-	/*
-	**	Extends the rectangle to contain the specified point.
-	**	
-	**	Rect extendWithPoint (Vec2 v)
-	**	Rect extendWithPoint (float x, float y)
-	*/
+	/**
+	 * 	Extends the rectangle to contain the specified vector coordinates.
+	 * 	!extendWithPoint (v: Vec2) : Rect;
+	 */
+	/**
+	 * 	Extends the rectangle to contain the specified point.
+	 * 	!extendWithPoint (x: number, y: number) : Rect;
+	 */
 	extendWithPoint: function (x, y=null)
 	{
 		if (y === null)
@@ -115,9 +160,10 @@ const Rect = Class.extend
 		return this;
 	},
 
-	/*
-	**	Translates the rectangle by the given deltas.	 
-	*/
+	/**
+	 * 	Translates the rectangle by the given deltas.
+	 * 	!translate (dx: number, dy: number) : Rect;
+	 */
 	translate: function (dx, dy)
 	{
 		this.x1 += dx; this.y1 += dy;
@@ -127,9 +173,11 @@ const Rect = Class.extend
 		return this;
 	},
 
-	/*
-	**	Moves the center of the rectangle to the specified position.	 
-	*/
+	/**
+	 * 	Moves the center of the rectangle to the specified position.	 
+	 * 	@param normalized - When `true` the arguments `x` and `y` are treated as normalized ranging from 0 to 1 (inclusive).
+	 * 	!centerAt (x: number, y: number, normalized?: false) : Rect;
+	 */
 	centerAt: function (x, y, normalized=false)
 	{
 		if (normalized == true)
@@ -141,12 +189,14 @@ const Rect = Class.extend
 		return this.translate (x - this.cx, y - this.cy);
 	},
 
-	/*
-	**	Sets the coordinates of the rectangle.
-	**
-	**	Rect set (Rect r)
-	**	Rect set (float x1, float y1, float x2, float y2)
-	*/
+	/**
+	 * 	Copies the coordinates of the specified rectangle.
+	 * 	!set (r: Rect) : Rect;
+	 */
+	/**
+	 * 	Sets the coordinates of the rectangle.
+	 * 	!set (x1: number, y1: number, x2: number, y2: number) : Rect;
+	 */
 	set: function (x1, y1=null, x2=null, y2=null)
 	{
 		if (y1 === null)
@@ -167,12 +217,14 @@ const Rect = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns true if the specified rect is equal to the current rect.
-	**
-	**	bool equals (Rect r)
-	**	bool equals (float x1, float y1, float x2, float y2)
-	*/
+	/**
+	 * 	Returns `true` if the given rectangle coordinates are equal.
+	 * 	!equals (r: Rect) : boolean;
+	 */
+	/**
+	 * 	Returns `true` if the coordinates are equal.
+	 * 	!equals (x1: number, y1: number, x2: number, y2: number) : boolean;
+	 */
 	equals: function (x1, y1=null, x2=null, y2=null)
 	{
 		if (y1 === null)
@@ -185,12 +237,14 @@ const Rect = Class.extend
 		return x1 == this.x1 && x2 == this.x2 && y1 == this.y1 && y2 == this.y2;
 	},
 
-	/*
-	**	Returns a bool indicating if the specified rectangle object is contained by the current rectangle.
-	**
-	**	bool contains (Rect r)
-	**	bool contains (float x1, float y1, float x2, float y2)
-	*/
+	/**
+	 * 	Returns `true` if the specified rectangle is contained in the current one.
+	 * 	!contains (r: Rect) : boolean;
+	 */
+	/**
+	 * 	Returns `true` if the specified rectangle is contained in the current one.
+	 * 	!contains (x1: number, y1: number, x2: number, y2: number) : boolean;
+	 */
 	contains: function (x1, y1=null, x2=null, y2=null)
 	{
 		if (y1 === null)
@@ -203,12 +257,14 @@ const Rect = Class.extend
 		return (x1 == Math.max(this.x1, x1)) && (y1 == Math.max(this.y1, y1)) && (x2 == Math.min(this.x2, x2)) && (y2 == Math.min(this.y2, y2));
 	},
 
-	/*
-	**	Returns a bool indicating if the specified rectangle object is contained by the current rectangle.
-	**
-	**	Rect setAsUnion (Rect r)
-	**	Rect setAsUnion (float x1, float y1, float x2, float y2)
-	*/
+	/**
+	 * 	Sets the coordinates of the rectangle to the union of it and the given one.
+	 * 	!setAsUnion (r: Rect) : Rect;
+	 */
+	/**
+	 * 	Sets the coordinates of the rectangle to the union of it and the given one.
+	 * 	!setAsUnion (x1: number, y1: number, x2: number, y2: number) : Rect;
+	 */
 	setAsUnion: function (x1, y1=null, x2=null, y2=null)
 	{
 		if (y1 === null)
@@ -226,12 +282,14 @@ const Rect = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns a bool indicating if the rectangles intersect or not.
-	**
-	**	bool intersects (Rect r)
-	**	bool intersects (float x1, float y1, float x2, float y2)
-	*/
+	/**
+	 * 	Returns `true` if the rectangles intersect.
+	 * 	!intersects (r: Rect) : boolean;
+	 */
+	/**
+	 * 	Returns `true` if the rectangles intersect.
+	 * 	!intersects (x1: number, y1: number, x2: number, y2: number) : boolean;
+	 */
 	intersects: function (x1, y1=null, x2=null, y2=null)
 	{
 		if (y1 === null)
@@ -249,13 +307,16 @@ const Rect = Class.extend
 		return Math.max(0, _y2-_y1) * Math.max(0, _x2-_x1) > 0;
 	},
 
-	/*
-	**	Sets the rect to the intersection box formed by the current rect and the given one. The resulting bounding box contains any point
-	**	that's contained simultaneously in both rects.
-	**
-	**	bool setAsIntersection (Rect r)
-	**	bool setAsIntersection (float x1, float y1, float x2, float y2)
-	*/
+	/**
+	 * 	Sets the coordinates of the rectangle to the intersection of it and the given one.
+	 * 	@returns Boolean indicating if the intersection is non-empty.
+	 * 	!setAsIntersection (r: Rect) : boolean;
+	 */
+	/**
+	 * 	Sets the coordinates of the rectangle to the intersection of it and the given one.
+	 * 	@returns Boolean indicating if the intersection is non-empty.
+	 * 	!setAsIntersection (x1: number, y1: number, x2: number, y2: number) : boolean;
+	 */
 	setAsIntersection: function (x1, y1=null, x2=null, y2=null)
 	{
 		if (y1 === null)
@@ -273,9 +334,12 @@ const Rect = Class.extend
 		return Math.max(0, this.y2-this.y1) * Math.max(0, this.x2-this.x1) > 0;
 	},
 
-	/*
-	**	Resizes the rect to the given size using center or top-left as reference.	 
-	*/
+	/**
+	 * 	Resizes the rectangle to the given size using its center or top-left corner as reference.
+	 * 	@param normalized - When `true` the `w` and `h` will be treated as normalized ranging from 0 to 1 (inclusive).
+	 * 	@param topLeftRelative - When `true` reference will be top-left corner, set to `false` to use the center.
+	 * 	!resize (w: number, h: number, normalized?: boolean, topLeftRelative?: boolean) : Rect;
+	 */
 	resize: function (w, h, normalized=false, topLeftRelative=false)
 	{
 		if (normalized == true)
@@ -300,9 +364,11 @@ const Rect = Class.extend
 		return this;
 	},
 
-	/*
-	**	Resizes the rect using the specified deltas (relative to center or top-left).
-	*/
+	/**
+	 * 	Resizes the rectangle using the specified deltas, relative to its center or top-left corner.
+	 * 	@param topLeftRelative - When `true` reference will be top-left corner, set to `false` to use the center.
+	 * 	!resizeBy (dw: number, dh: number, topLeftRelative?: boolean) : Rect;
+	 */
 	resizeBy: function (dw, dh, topLeftRelative=false)
 	{
 		if (topLeftRelative == true)
@@ -321,65 +387,75 @@ const Rect = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns the width of the rectangle.	 
-	*/
+	/**
+	 * 	Returns the width of the rectangle.
+	 * 	!width() : number;
+	 */
 	width: function ()
 	{
 		return this.x2 - this.x1;
 	},
 
-	/*
-	**	Returns the height of the rectangle.	 
-	*/
+	/**
+	 * 	Returns the height of the rectangle.	 
+	 * 	!height() : number;
+	 */
 	height: function ()
 	{
 		return this.y2 - this.y1;
 	},
 
-	/*
-	**	Returns the normalized center-X of the rect.
-	*/
+	/**
+	 * 	Returns the normalized center X-coordinate of the rectangle.
+	 * 	!ncx() : number;
+	 */
 	ncx: function ()
 	{
 		return (this.cx - this.x1) / (this.x2 - this.x1);
 	},
 
-	/*
-	**	Returns the normalized center-Y of the rect.
-	*/
+	/**
+	 * 	Returns the normalized center Y-coordinate of the rectangle.
+	 * 	!ncy() : number;
+	 */
 	ncy: function ()
 	{
 		return (this.cy - this.y1) / (this.y2 - this.y1);
 	},
 
-	/*
-	**	Returns true if the rect is a right rectangle (x1 < x2 and y1 < y2).
-	*/
+	/**
+	 * 	Returns `true` if the rectangle is a right rectangle, that is: x1 < x2 and y1 < y2.
+	 * 	!isRight() : boolean;
+	 */
 	isRight: function ()
 	{
 		return this.x1 <= this.x2 && this.y1 <= this.y2;
 	},
 
-	/*
-	**	Returns true if the specified point is within the rectangle. The tol parameter is used to specify a tolerance value in pixels.
-	*/
+	/**
+	 * 	Returns `true` if the specified point is contained in the rectangle.
+	 * 	@param tol - Used to specify a tolerance value (default is zero).
+	 * 	!containsPoint (x: number, y: number, tol?: number) : boolean;
+	 */
 	containsPoint: function (x, y, tol=0)
 	{
 		return (this.x1-tol <= x && x <= this.x2+tol) && (this.y1-tol <= y && y <= this.y2+tol);
 	},
 
-	/*
-	**	Returns the area of the rectangle. Strict mode specifies if area is returned only if the rectangle is a right rectangle. 	 
-	*/
+	/**
+	 * 	Returns the area of the rectangle.
+	 * 	@param strict - Indicates if the area is returned only if the rectangle is a right rectangle. 	 
+	 * 	!area (strict?: boolean) : number;
+	 */
 	area: function (strict)
 	{
 		return strict ? (this.isRight() ? (this.y2-this.y1)*(this.x2-this.x1) : 0) : ((this.y2-this.y1)*(this.x2-this.x1));
 	},
 
-	/*
-	**	Sets the components to their lower-integer parts.
-	*/
+	/**
+	 * 	Sets the components of the rectangle to their rounded-down integer parts.
+	 * 	!floor() : Rect;
+	 */
 	floor: function()
 	{
 		this.x1 = Math.floor(this.x1);
@@ -391,9 +467,10 @@ const Rect = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the components to their upper-integer parts.
-	*/
+	/**
+	 * 	Sets the components of the rectangle to their rounded-up integer parts.
+	 * 	!ceil() : Rect;
+	 */
 	ceil: function()
 	{
 		this.x1 = Math.ceil(this.x1);
@@ -405,25 +482,52 @@ const Rect = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns the string representation of the rect coordinates.
-	*/
+	/**
+	 * 	Returns the string representation of the rectangle.
+	 * 	!toString() : string;
+	 */
 	toString: function ()
 	{
 		return "(" + this.x1.toFixed(2) + ", " + this.y1.toFixed(2) + ", " + this.x2.toFixed(2) + ", " + this.y2.toFixed(2) + ")";
 	},
 
+	/**
+	 * 	Flattens the rectangle.
+	 * 	!flatten() : Array<number>;
+	 */
 	flatten: function ()
 	{
 		return [this.x1, this.y1, this.x2, this.y2];
 	},
 
+	/**
+	 * 	Unflattens the rectangle.
+	 * 	!unflatten(input: Array<number>) : Rect;
+	 */
 	unflatten: function (o)
 	{
 		this.set (o[0], o[1], o[2], o[3]);
 		return this;
 	}
 });
+
+//!/class
+
+//!namespace Rect
+//!namespace Pool
+
+	/**
+	 * 	Allocates a new rectangle of zero size.
+	 * 	!function alloc() : Rect;
+	 */
+	/**
+	 * 	Allocates a new rectangle centered at (0, 0) with the specified size.
+	 * 	!function alloc (width: number, height: number) : Rect;
+	 */
+	/**
+	 * 	Allocates a new rectangle with the specified coordinates.
+	 * 	!function alloc (x1: number, y1: number, x2: number, y2: number) : Rect;
+	 */
 
 Recycler.createPool (Rect, 4096, 2048);
 export default Rect;

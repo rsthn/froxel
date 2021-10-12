@@ -135,26 +135,25 @@ Perf.prototype.report = function (flags=255)
 //!/class
 
 //!namespace Perf
-
 //!enum Flags
-	//!SAMPLES
-	//!MIN
-	//!MAX
-	//!AVG
-	//!EXPECTED
-	//!STDDEV
-	//!AVG_STDDEV
-	//!ALL
 
 Perf.Flags = {
 	SAMPLES: 1,
+	//!SAMPLES
 	MIN: 2,
+	//!MIN
 	MAX: 4,
+	//!MAX
 	AVG: 8,
+	//!AVG
 	EXPECTED: 16,
+	//!EXPECTED
 	STDDEV: 32,
+	//!STDDEV
 	AVG_STDDEV: 64,
+	//!AVG_STDDEV
 	ALL: 255,
+	//!ALL
 };
 
 //!/enum

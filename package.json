@@ -5,7 +5,9 @@
 
 	"type": "module",
 	"main": "src/main.js",
-	"browser": "dist/froxel.js",
+
+	"types": "./dist/froxel.d.ts",
+	"browser": "./dist/froxel.js",
 
     "bin": {
         "froxel": "bin/cli.js"
@@ -16,7 +18,7 @@
         "requirements": "yarn global add --ignore-optional parcel",
         "deploy": "yarn build && yarn tsdoc && node ./scripts/deploy.js",
         "commit": "node ./scripts/commit.js",
-		"tsdoc": "node ./scripts/tsdoc.js ./src/main.js ./src/main.d.ts",
+		"tsdoc": "node ./scripts/tsdoc.js ./src/main.js ./dist/froxel.d.ts",
         "build:browser": "parcel build --no-cache --target browser",
         "build": "yarn build:browser"
     },

@@ -9,21 +9,13 @@ import world from './world.js';
 **	The collider system is responsible of detecting collisions and performing the respective actions.
 */
 
+//!class collider
+
 const collider =
 {
 	/**
-	 * 	Contact flag bits.
-	 */
-	CONTACT_LEFT: 1,
-	CONTACT_RIGHT: 2,
-	CONTACT_HORIZONTAL: 1|2,
-
-	CONTACT_TOP: 4,
-	CONTACT_BOTTOM: 8,
-	CONTACT_VERTICAL: 4|8,
-
-	/**
-	 *	Collider element flags.
+	 * 	Flag used to exclude from collision checks.
+	 *	!static readonly FLAG_EXCLUDE: number;
 	 */
 	FLAG_EXCLUDE: GridElement.allocFlag(),
 
@@ -49,35 +41,52 @@ const collider =
 
 	/**
 	 *	First updater.
+	 *	!static fupdater: Handler;
 	 */
 	fupdater: null,
 
 	/**
 	 *	Last updater.
+	 *	!static lupdater: Handler;
 	 */
 	lupdater: null,
 
 	/**
 	 *	Flags used to filter elements.
+	 *	!static flagsAnd: number;
+	 *	!static flagsValue: number;
 	 */
 	flagsAnd: 0,
 	flagsValue: 0,
 
 	/**
 	 *	Current collider state fields.
+	 *	!static state: {
 	 */
 	state:
 	{
 		/**
-		 * 	Contact flags and contact area.
+		 * 	Contact area.
+		 *	!contact: Bounds2;
 		 */
 		contact: Bounds2.Pool.alloc(),
+
+		/**
+		 * 	Contact flags.
+		 * 	!flags: collider.Contact;
+		 */
 		flags: 0,
 
 		/**
-		 * 	Final delta values calculated by `translate`.
+		 * 	Final delta value for X-coordinate calculated by `translate`.
+		 *	!dx: number;
 		 */
 		dx: 0,
+
+		/**
+		 * 	Final delta value for Y-coordinate calculated by `translate`.
+		 *	!dy: number;
+		 */
 		dy: 0,
 
 		bounds: Bounds2.Pool.alloc(),
@@ -101,12 +110,13 @@ const collider =
 		t_dx: 0,
 		t_dy: 0,
 	},
+	//:}
 
 	/**
 	 *	Enables the collider system on the specified scene and layer.
-	 *
 	 * 	@param sceneIndex - Scene to attach the collider updater methods. Uses world.SCENE_MAIN if none specified.
 	 * 	@param layerIndex - Index within the scene of the layer where element masks are stored. Uses world.LAYER_MASK if none specified.
+	 * 	!static enable (sceneIndex?: number, layerIndex?: number) : void;
 	 */
 	enable: function(sceneIndex=null, layerIndex=null)
 	{
@@ -124,6 +134,7 @@ const collider =
 
 	/**
 	 *	Disables the collider system.
+	 *	!static disable() : void;
 	 */
 	disable: function()
 	{
@@ -145,17 +156,13 @@ const collider =
 
 	/**
 	 * 	Utility object containing actions that are executed later on the next update cycle.
+	 * 	!static later: {
 	 */
 	later:
 	{
 		/**
 		 *	Runs the specified callback.
-		 *
-		 * 	@param elem
-		 * 	@param callback
-		 * 	@param arg1
-		 * 	@param arg2
-		 * 	@param arg3
+		 *	!run (elem: Element, callback: Function, arg1?: any, arg2?: any, arg3?: any) : void;
 		 */
 		run: function (elem, callback, arg1, arg2, arg3)
 		{
@@ -164,9 +171,7 @@ const collider =
 
 		/**
 		 *	Sets the element's visibility flag.
-		 *
-		 * 	@param elem
-		 * 	@param value
+		 * 	!setVisible (elem: Element, value: boolean) : void;
 		 */
 		setVisible: function (elem, value)
 		{
@@ -175,9 +180,7 @@ const collider =
 
 		/**
 		 *	Sets the element's flags.
-		 *
-		 * 	@param elem
-		 * 	@param value
+		 *	!setFlags (elem: Element, value: number) : void;
 		 */
 		setFlags: function (elem, value)
 		{
@@ -186,9 +189,7 @@ const collider =
 
 		/**
 		 *	Clears the element's flags.
-		 *
-		 * 	@param elem
-		 * 	@param value
+		 * 	!clearFlags (elem: Element, value: number) : void;
 		 */
 		clearFlags: function (elem, value)
 		{
@@ -221,15 +222,15 @@ const collider =
 			return false;
 		}
 	},
+	//!}
 
 	/**
 	 * 	Adds a contact rule.
-	 *
-	 * 	@param {Number} primaryType - Type of the primary element.
-	 * 	@param {Number} secondaryType - Type of the secondary element.
-	 * 	@param {(elemA:Mask, elemB:Mask) => void} callback - Callback to execute when contact is detected.
-	 * 	@param {*} context - Optional value passed as last parameter to the callback.
-	 * 	@returns {fxl.collider}
+	 * 	@param primaryType - Type of the primary element.
+	 * 	@param secondaryType - Type of the secondary element.
+	 * 	@param callback - Callback to execute when contact is detected.
+	 * 	@param context - Optional value passed as last parameter to the callback.
+	 * 	!static contact (primaryType: number, secondaryType: number, callback: (primary: Mask, secondary: Mask, context?: any) => void, context?: any) : collider;
 	 */
 	contact: function (primaryType, secondaryType, callback, context=null)
 	{
@@ -242,12 +243,18 @@ const collider =
 
 	/**
 	 * 	Adds a truncation rule.
-	 *
-	 * 	@param {Number} primaryType - Type of the primary element.
-	 * 	@param {Number} secondaryType - Type of the secondary element.
-	 * 	@param {(elemA:Mask, elemB:Mask) => boolean} callback - Returns boolean indicating if the truncation rule should be applied.
-	 * 	@param {*} context - Optional value passed as last parameter to the callback.
-	 * 	@returns {fxl.collider}
+	 * 	@param primaryType - Type of the primary element.
+	 * 	@param secondaryType - Type of the secondary element.
+	 * 	@param callback - Returns boolean indicating if the truncation rule should be applied.
+	 * 	@param context - Optional value passed as last parameter to the callback.
+	 * 	:static truncate (primaryType: number, secondaryType: number, callback?: (primary: Mask, secondary: Mask, context?: any) => void, context?: any) : collider;
+	 */
+	/**
+	 * 	Adds a truncation rule.
+	 * 	@param primaryType - Type of the primary element.
+	 * 	@param secondaryType - Type of the secondary element.
+	 * 	@param value - Indicates the status of the truncation rule.
+	 * 	!static truncate (primaryType: number, secondaryType: number, value: boolean) : collider;
 	 */
 	truncate: function (primaryType, secondaryType, callback=null, context=null)
 	{
@@ -260,10 +267,7 @@ const collider =
 
 	/**
 	 * 	Loads the contact flags in the collider state.
-	 *
-	 * 	@param {Bounds2} boundsA 
-	 * 	@param {Bounds2} boundsB 
-	 * 	@returns {number}
+	 *	!static getContactFlags (boundsA: Bounds2, boundsB: Bounds2) : number;
 	 */
 	getContactFlags: function (boundsA, boundsB)
 	{
@@ -275,25 +279,25 @@ const collider =
 
 		if (contact.x1 == boundsB.x1)
 		{
-			this.state.flags |= collider.CONTACT_LEFT; // LEFT
+			this.state.flags |= collider.Contact.LEFT; // LEFT
 			this.state.numFlags++;
 		}
 
 		if (contact.x2 == boundsB.x2)
 		{
-			this.state.flags |= collider.CONTACT_RIGHT; // RIGHT
+			this.state.flags |= collider.Contact.RIGHT; // RIGHT
 			this.state.numFlags++;
 		}
 
 		if (contact.y1 == boundsB.y1)
 		{
-			this.state.flags |= collider.CONTACT_TOP; // TOP
+			this.state.flags |= collider.Contact.TOP; // TOP
 			this.state.numFlags++;
 		}
 
 		if (contact.y2 == boundsB.y2)
 		{
-			this.state.flags |= collider.CONTACT_BOTTOM; // BOTTOM
+			this.state.flags |= collider.Contact.BOTTOM; // BOTTOM
 			this.state.numFlags++;
 		}
 
@@ -470,11 +474,18 @@ const collider =
 
 	/**
 	 * 	Attempts to move the specified group by the given deltas. Any collisions detected on the mask will trigger the respective actions.
-	 *
+	 * 	@param mask - Mask element.
+	 * 	@param dx - X delta value.
+	 * 	@param dy - Y delta value.
+	 * 	!static translate (mask: Mask, dx: number, dy: number) : void;
+	 */
+	/**
+	 * 	Attempts to move the specified group by the given deltas. Any collisions detected on the mask will trigger the respective actions.
 	 * 	@param mask - Mask element.
 	 * 	@param group - Group where the mask is stored.
 	 * 	@param dx - X delta value.
 	 * 	@param dy - Y delta value.
+	 * 	!static translate (mask: Mask, group: Group, dx: number, dy: number) : void;
 	 */
 	translate: function (mask, group=null, dx=0, dy=0)
 	{
@@ -607,9 +618,14 @@ const collider =
 
 	/**
 	 *	Scans for collisions against the specified mask.
-	 *
+	 * 	@param mask - Mask element.
+	 * 	!static scan (mask: Mask) : void;
+	 */
+	/**
+	 *	Scans for collisions against the specified mask.
 	 * 	@param mask - Mask element.
 	 * 	@param group - Group where the mask is stored.
+	 * 	!static scan (mask: Mask, group: Group) : void;
 	 */
 	scan: function (mask, group=null)
 	{
@@ -643,5 +659,32 @@ const collider =
 		collisionItems.free();
 	}
 };
+
+/**
+ * 	Contact flag bits.
+ */
+
+//!/class
+
+//!namespace collider
+//!enum Contact
+
+collider.Contact = {
+	//!LEFT
+	LEFT: 1,
+	//!RIGHT
+	RIGHT: 2,
+	//!HORIZONTAL
+	HORIZONTAL: 1|2,
+	//!TOP
+	TOP: 4,
+	//!BOTTOM
+	BOTTOM: 8,
+	//!VERTICAL
+	VERTICAL: 4|8,
+};
+
+//!/enum
+//!/namespace
 
 export default collider;

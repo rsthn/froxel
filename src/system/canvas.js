@@ -251,7 +251,7 @@ Canvas.prototype.initGl = function ()
 	 */
 	this.glDefaultProgram = new ShaderProgram('def');
 
-	(new Shader ('def-vert', Shader.VERTEX_SHADER))
+	(new Shader ('def-vert', Shader.Type.VERTEX))
 	.source(
 		`#version 300 es
 		precision highp float;
@@ -279,7 +279,7 @@ Canvas.prototype.initGl = function ()
 	`)
 	.compile();
 
-	(new Shader ('def-frag', Shader.FRAGMENT_SHADER))
+	(new Shader ('def-frag', Shader.Type.FRAGMENT))
 	.source(
 		`#version 300 es
 		precision highp float;
@@ -305,7 +305,7 @@ Canvas.prototype.initGl = function ()
 	 */
 	this.glBlitProgram = new ShaderProgram('blit');
 
-	(new Shader ('blit-vert', Shader.VERTEX_SHADER))
+	(new Shader ('blit-vert', Shader.Type.VERTEX))
 	.source(
 		`#version 300 es
 		precision highp float;
@@ -327,7 +327,7 @@ Canvas.prototype.initGl = function ()
 	`)
 	.compile();
 
-	(new Shader ('blit-frag', Shader.FRAGMENT_SHADER))
+	(new Shader ('blit-frag', Shader.Type.FRAGMENT))
 	.source(
 		`#version 300 es
 		precision highp float;

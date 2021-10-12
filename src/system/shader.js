@@ -23,6 +23,8 @@ import globals from './globals.js';
  * 	Describes a shader object. The actual shader type is specified at construction.
  */
 
+//!class Shader
+
 const Shader = Class.extend
 ({
 	/**
@@ -46,10 +48,12 @@ const Shader = Class.extend
 	shaderId: null,
 
 	/**
-	 *	Constructs a shader, attach GLSL code by using the `source` method.
+	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
 	 *
-	 * 	@param {string} id - Identifier of the shader.
-	 * 	@param {number} type - One of the constants GEOMETRY_SHADER, VERTEX_SHADER or FRAGMENT_SHADER from this class.
+	 * 	@param id - Identifier of the shader.
+	 * 	@param type - One of the constants from the Shader.Type enum.
+	 * 
+	 * 	!constructor (id: string, type: Shader.Type);
 	 */
 	__ctor: function (id, type)
 	{
@@ -76,7 +80,7 @@ const Shader = Class.extend
 
 	/**
 	 * 	Appends GLSL code to the shader's source code buffer.
-	 * 	@param {string} value
+	 * 	!source (value: string) : Shader;
 	 */
 	source: function (value)
 	{
@@ -86,13 +90,14 @@ const Shader = Class.extend
 
 	/**
 	 * 	Compiles the shader. Errors can be obtained using getError() method.
+	 * 	!compile() : void;
 	 */
 	compile: function ()
 	{
 		let gl = globals.gl;
 		if (!gl) return;
 
-		this.shaderId = gl.createShader (this.type === Shader.VERTEX_SHADER ? gl.VERTEX_SHADER : (this.type === Shader.FRAGMENT_SHADER ? gl.FRAGMENT_SHADER : gl.GEOMETRY_SHADER));
+		this.shaderId = gl.createShader (this.type === Shader.Type.VERTEX ? gl.VERTEX_SHADER : (this.type === Shader.Type.FRAGMENT ? gl.FRAGMENT_SHADER : gl.GEOMETRY_SHADER));
 
 		gl.shaderSource(this.shaderId, this.sourceCode);
 		gl.compileShader(this.shaderId);
@@ -100,6 +105,7 @@ const Shader = Class.extend
 
 	/**
 	 * 	Returns the error of the last compile operation.
+	 * 	!getError() : string;
 	 */
 	getError: function ()
 	{
@@ -113,12 +119,26 @@ const Shader = Class.extend
 	}
 });
 
+//!/class
+
+//!namespace Shader
+
 /**
  * 	Shader types.
  */
-Shader.VERTEX_SHADER = 0;
-Shader.FRAGMENT_SHADER = 1;
-Shader.GEOMETRY_SHADER = 2;
+
+//!enum Type
+
+Shader.Type = {
+	VERTEX: 0,
+	//!VERTEX
+	FRAGMENT: 1,
+	//!FRAGMENT
+	GEOMETRY: 2,
+	//!GEOMETRY
+};
+
+//!/enum
 
 /**
  * 	Static methods.
@@ -126,16 +146,28 @@ Shader.GEOMETRY_SHADER = 2;
 
 Shader.shaders = { };
 
+/**
+ * 	Stores a shader with the specified identifier in the global shader map.
+ * 	!function put (id: string, shader: Shader) : void;
+ */
 Shader.put = function (id, shader)
 {
 	this.shaders[id] = shader;
 };
 
+/**
+ * 	Returns a Shader given its identifier.
+ * 	!function get (id: string) : Shader;
+ */
 Shader.get = function (id)
 {
 	return this.shaders[id];
 };
 
+/**
+ * 	Removes a shader from the global shader map.
+ * 	!function remove (id: string) : void;
+ */
 Shader.remove = function (id)
 {
 	delete this.shaders[id];

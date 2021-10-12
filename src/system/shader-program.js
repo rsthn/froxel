@@ -205,7 +205,7 @@ const ShaderProgram = Class.extend
 
 		for (let shader of this.shaders)
 		{
-			e += '\n>> ' + (shader.type === Shader.VERTEX_SHADER ? 'vertex' : 'fragment').toUpperCase() + ':\n' + shader.getError();
+			e += '\n>> ' + (shader.type === Shader.Type.VERTEX ? 'vertex' : 'fragment').toUpperCase() + ':\n' + shader.getError();
 		}
 
 		return e;

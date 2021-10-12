@@ -87,7 +87,7 @@ global.px = function(value)
 /**
  * 	Disposes an object by running the first method that is found in the following order: `free`, `dispose` and finally `__dtor`.
  *
- *	!function dispose (obj: object);
+ *	!function dispose (obj: object) : void;
  */
 global.dispose = function (obj)
 {

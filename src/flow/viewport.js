@@ -439,7 +439,7 @@ const Viewport = Class.extend
 	 * 	Returns the X coordinate of the viewport's focus point inside the world.
 	 * 	@param absolute - When `true`, the focus point X (without offset) will be returned.
 	 * 	
-	 * 	!getX (absolute?: boolean)
+	 * 	!getX (absolute?: boolean) : number;
 	 */
 	getX: function (absolute=false)
 	{
@@ -450,7 +450,7 @@ const Viewport = Class.extend
 	 * 	Returns the Y coordinate of the viewport's focus point inside the world.
 	 * 	@param absolute - When `true`, the focus point Y (without offset) will be returned.
 	 * 	
-	 * 	!getY (absolute?: boolean)
+	 * 	!getY (absolute?: boolean) : number;
 	 */
 	getY: function (absolute=false)
 	{
