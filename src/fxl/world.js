@@ -171,8 +171,7 @@ const world =
 		this._viewports[index] = new Viewport(
 			0, 0,
 			system.screenWidth, system.screenHeight,
-			this.activeScene.maxWidth, this.activeScene.maxHeight,
-			0, 0
+			this.activeScene.maxWidth, this.activeScene.maxHeight
 		);
 
 		this.activeScene.setViewport(index, this._viewports[index]);

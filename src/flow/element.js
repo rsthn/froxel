@@ -21,61 +21,69 @@ import Recycler from '../utils/recycler.js';
 //![import "./grid-element"]
 //![import "../system/globals"]
 //![import "../utils/recycler"]
+//![import "./idrawable"]
 
 /*
 **	Describes an element that can be rendered to the screen.
 */
 
+//!class Element extends GridElement
+
 const Element = GridElement.extend
 ({
 	className: 'Element',
 
-	/*
-	**	Parent group to whom this element is related.
-	*/
+	/**
+	 * 	Parent group to whom this element is related.
+	 * 	!group: Group;
+	 */
 	group: null,
 
-	/*
-	**	Drawable object, should have methods draw(g,x,y), getDrawable(), and properties width, and height.
-	*/
+	/**
+	 * 	Drawable object to render to the display.
+	 * 	!img: IDrawable;
+	 */
 	img: null,
 
-	/*
-	**	Indicates if the bounds of the element should be drawn (for debugging purposes).
-	*/
+	/**
+	 * 	Indicates if the bounds of the element should be drawn (for debugging purposes).
+	 * 	!debugBounds: boolean;
+	 */
 	debugBounds: false,
 
-	/*
-	**	Basic depth (z-value) of the element (used for depth micro-adjustments).
-	*/
+	/**
+	 * 	Basic depth (z-value) of the element (used for depth micro-adjustments).
+	 */
 	_zvalue: 0,
 
-	/*
-	**	Actual depth (z-value) of the element, calculated by the container.
-	*/
+	/**
+	 * 	Actual depth (z-value) of the element, calculated by the container.
+	 */
 	__zvalue: 0,
 
-	/*
-	**	Alpha value of the element.
-	*/
+	/**
+	 * 	Alpha value of the element.
+	 */
 	_alpha: 1.0,
 
-	/*
-	**	Element shader program.
-	*/
+	/**
+	 * 	Element shader program.
+	 */
 	_shaderProgram: null,
 
-	/*
-	**	Function used to set the uniforms of the shader.
-	*/
+	/**
+	 * 	Function used to set the uniforms of the shader.
+	 */
 	_uniformSetter: null,
 
-	/*
-	**	Constructs a drawable element at the specified position with the given image.
-	**
-	**	x, y, width, height, img
-	**	x, y, img
-	*/
+	/**
+	 * 	Constructs a drawable element at the specified position with the given drawable.
+	 * 	!constructor (x: number, y: number, width: number, height: number, img?: IDrawable);
+	 */
+	/**
+	 * 	Constructs a drawable element at the specified position with the given drawable.
+	 * 	!constructor (x: number, y: number, img?: IDrawable);
+	 */
 	__ctor: function(x, y, width=null, height=null, img=null)
 	{
 		if (width === null)
@@ -224,6 +232,19 @@ const Element = GridElement.extend
 	}
 });
 
+//!/class
+
+//!namespace Element
+//!namespace Pool
+
+	/**
+	 * 	Allocates a drawable element at the specified position with the given drawable.
+	 * 	!function alloc (x: number, y: number, width: number, height: number, img?: IDrawable) : Element;
+	 */
+	/**
+	 * 	Allocates a drawable element at the specified position with the given drawable.
+	 * 	!function alloc (x: number, y: number, img?: IDrawable) : Element;
+	 */
 
 Recycler.createPool(Element);
 export default Element;

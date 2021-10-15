@@ -25,6 +25,8 @@ import Handler from '../utils/handler.js';
 **	Describes an element that can be added to a grid.
 */
 
+//!class GridElement
+
 const GridElement = Class.extend
 ({
 	/*
@@ -32,44 +34,49 @@ const GridElement = Class.extend
 	*/
 	className: 'GridElement',
 
-	/*
-	**	Identifier of the element (string).
-	*/
+	/**
+	 * 	Identifier of the element (string).
+	 * 	!id: string;
+	 */
 	id: null,
 
-	/*
-	**	Bounds of the element.
-	*/
+	/**
+	 * 	Bounds of the element.
+	 * 	!bounds: Bounds2;
+	 */
 	bounds: null,
 
-	/*
-	**	Flags of the element (see constants of this class).
-	*/
+	/**
+	 * 	Flags of the element (see constants of this class).
+	 * 	!flags: number;
+	 */
 	flags: 0,
 
-	/*
-	**	Generic data of the element, used to store some value or object.
-	*/
+	/**
+	 * 	Generic data of the element, used to store some value or object.
+	 * 	!data: object;
+	 */
 	data: null,
 
-	/*
-	**	The container where the element is stored.
-	*/
+	/**
+	 * 	The container where the element is stored.
+	 */
 	container: null,
 
-	/*
-	**	Removal callback node added by Grid.
-	*/
+	/**
+	 * 	Removal callback node added by Grid.
+	 */
 	_grid_remove_node: null,
 
-	/*
-	**	Remover runs when the `remove` method of the element is called or when the element is destroyed.
-	*/
+	/**
+	 * 	Remover runs when the `remove` method of the element is called or when the element is destroyed.
+	 */
 	remover: null,
 
-	/*
-	**	Constructs the instance.
-	*/
+	/**
+	 * 	Constructs the instance at the specified position and with the specified size.
+	 * 	!constructor (x: number, y: number, width: number, height: number);
+	 */
 	__ctor: function (x, y, width, height)
 	{
 		this.bounds = Bounds2.Pool.alloc();
@@ -83,9 +90,9 @@ const GridElement = Class.extend
 		this.remover = Handler.Pool.alloc(this);
 	},
 
-	/*
-	**	Removes the element from its container and destroys it.
-	*/
+	/**
+	 * 	Removes the element from its container and destroys it.
+	 */
 	__dtor: function()
 	{
 		this.alive(false);
@@ -102,36 +109,40 @@ const GridElement = Class.extend
 		this.bounds.free();
 	},
 
-	/*
-	**	Sets the identifier of the element.
-	*/
+	/**
+	 * 	Sets the identifier of the element.
+	 * 	!setId (value: string) : GridElement;
+	 */
 	setId: function (value)
 	{
 		this.id = value;
 		return this;
 	},
 
-	/*
-	**	Sets bits of the element flags.
-	*/
+	/**
+	 * 	Sets bits of the element flags.
+	 * 	!setFlags (value: number) : GridElement;
+	 */
 	setFlags: function (value)
 	{
 		this.flags |= value;
 		return this;
 	},
 
-	/*
-	**	Clears bits from the element flags.
-	*/
+	/**
+	 * 	Clears bits from the element flags.
+	 * 	!clearFlags (value: number) : GridElement;
+	 */
 	clearFlags: function (value)
 	{
 		this.flags &= ~value;
 		return this;
 	},
 
-	/*
-	**	Returns true if masking (bitwise AND) the flags by the specified flag bits results in the given value.
-	*/
+	/**
+	 * 	Returns true if masking (bitwise AND) the flags by the specified flag bits results in the given value.
+	 * 	!getFlags (andMask: number, value?: number) : boolean;
+	 */
 	getFlags: function (andMask, value=null)
 	{
 		if (value === null)
@@ -140,26 +151,33 @@ const GridElement = Class.extend
 		return (this.flags & andMask) === value;
 	},
 
-	/*
-	**	Sets the generic data of the element.
-	*/
+	/**
+	 * 	Sets the generic data of the element.
+	 * 	!setData (data: object) : GridElement;
+	 */
 	setData: function (data)
 	{
 		this.data = data;
 		return this;
 	},
 
-	/*
-	**	Returns the generic data of the element.
-	*/
+	/**
+	 * 	Returns the generic data of the element.
+	 * 	!getData() : object;
+	 */
 	getData: function()
 	{
 		return this.data;
 	},
 
-	/*
-	**	Sets or gets the visible flag.
-	*/
+	/**
+	 * 	Sets the visible flag.
+	 * 	!visible (value: boolean) : GridElement;
+	 */
+	/**
+	 * 	Returns the visible flag.
+	 * 	!visible() : boolean;
+	 */
 	visible: function (value=null)
 	{
 		if (value === null)
@@ -171,9 +189,14 @@ const GridElement = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets or gets the alive flag.
-	*/
+	/**
+	 * 	Sets the alive flag.
+	 * 	!alive (value: boolean) : GridElement;
+	 */
+	/**
+	 * 	Returns the alive flag.
+	 * 	!alive() : boolean;
+	 */
 	alive: function (value=null)
 	{
 		if (value === null)
@@ -185,9 +208,14 @@ const GridElement = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets or gets the dirty flag.
-	*/
+	/**
+	 * 	Sets the dirty flag.
+	 * 	!alive (value: boolean) : GridElement;
+	 */
+	/**
+	 * 	Returns the dirty flag.
+	 * 	!alive() : boolean;
+	 */
 	dirty: function (value=null)
 	{
 		if (value === null)
@@ -199,9 +227,14 @@ const GridElement = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the status of the depth-flag-enable flag, or sets its value.
-	*/
+	/**
+	 * 	Sets the depth-flag-enabled flag.
+	 * 	!depthFlagEnabled (value: boolean) : GridElement;
+	 */
+	/**
+	 * 	Returns the depth-flag-enabled flag.
+	 * 	!depthFlagEnabled() : boolean;
+	 */
 	depthFlagEnabled: function (value=null)
 	{
 		if (value === null)
@@ -213,9 +246,14 @@ const GridElement = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets or gets the depth-test flag. Note that the actually use the depth-test, you can have to enable the depth-flag using `depthFlagEnabled`.
-	*/
+	/**
+	 * 	Sets the depth-flag flag. To actually use the depth-test, you have to enable the depth-flag using `depthFlagEnabled`.
+	 * 	!depthFlagEnabled (value: boolean) : GridElement;
+	 */
+	/**
+	 * 	Returns the depth-flag flag.
+	 * 	!depthFlagEnabled() : boolean;
+	 */
 	depthFlag: function (value=null)
 	{
 		if (value === null)
@@ -227,18 +265,20 @@ const GridElement = Class.extend
 		return this;
 	},
 
-	/*
-	**	Removes the element from the container and returns itself.
-	*/
+	/**
+	 * 	Removes the element from the container and returns itself.
+	 * 	!remove() : GridElement;
+	 */
 	remove: function()
 	{
 		this.remover.exec();
 		return this;
 	},
 
-	/*
-	**	Syncs the actual location of the specified element with its storage location (if alive and dirty).
-	*/
+	/**
+	 * 	Syncs the actual location of the specified element with its storage location (if alive and dirty).
+	 * 	!sync() : GridElement;
+	 */
 	sync: function()
 	{
 		if (this.container === null || !this.getFlags(GridElement.ALIVE | GridElement.DIRTY))
@@ -248,9 +288,10 @@ const GridElement = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the width and height of the element.
-	*/
+	/**
+	 * 	Sets the width and height of the element.
+	 * 	!resize (width: number, height: number) : GridElement;
+	 */
 	resize: function (width, height)
 	{
 		this.flags |= GridElement.DIRTY;
@@ -258,17 +299,20 @@ const GridElement = Class.extend
 		return this;
 	},
 
-	/*
-	**	Resizes the element by the specified deltas.
-	*/
+	/**
+	 * 	Resizes the element by the specified deltas.
+	 * 	!resizeBy (deltaWidth: number, deltaHeight: number) : GridElement;
+	 */
 	resizeBy: function (dWidth, dHeight)
 	{
 		return this.resize(this.bounds.width() + dWidth, this.bounds.height() + dHeight);
 	},
 
-	/*
-	**	Moves the element by the specified deltas.
-	*/
+	/**
+	 * 	Moves the element by the specified deltas.
+	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * 	!translate (dx: number, dy: number, upscaled?: boolean) : GridElement;
+	 */
 	translate: function (dx, dy, upscaled=false)
 	{
 		this.flags |= GridElement.DIRTY;
@@ -276,9 +320,10 @@ const GridElement = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the position of the element.
-	*/
+	/**
+	 * 	Sets the position of the element.
+	 * 	!setPosition (x: number, y: number) : GridElement;
+	 */
 	setPosition: function (x, y)
 	{
 		return this.translate (upscale(x)-this.bounds.ux1, upscale(y)-this.bounds.uy1, true);
@@ -297,9 +342,10 @@ GridElement.DEPTH_FLAG			= 	0x0010;
 GridElement.USERDEF		=	0x0100; /* Bits 8 to 30 : 23 flags  */
 GridElement.LAST_FLAG	=	0x0080;
 
-/*
-**	Class-level function to allocate a new flag.
-*/
+/**
+ * 	Class-level function to allocate a new flag.
+ * 	!static allocFlag() : number;
+ */
 GridElement.allocFlag = function()
 {
 	let flag = GridElement.LAST_FLAG;

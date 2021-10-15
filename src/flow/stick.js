@@ -273,7 +273,7 @@ export default Group.extend
 	},
 
 	/*
-	**	Called when the EVT_POINTER_DOWN event starts within the bounding box of the button.
+	**	Called when the PointerEventType.POINTER_DOWN event starts within the bounding box of the button.
 	*/
 	pointerActivate: function (pointer)
 	{
@@ -284,7 +284,7 @@ export default Group.extend
 	},
 
 	/*
-	**	Called when the EVT_POINTER_UP event is fired with the "_ref" attribute pointing to this object.
+	**	Called when the PointerEventType.POINTER_UP event is fired with the "_ref" attribute pointing to this object.
 	*/
 	pointerDeactivate: function (pointer)
 	{

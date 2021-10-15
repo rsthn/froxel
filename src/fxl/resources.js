@@ -3,15 +3,18 @@ import Resources from '../resources/resources.js';
 
 import r from './r.js';
 
-/*
-**	Resource manager allows to specify resource descriptors to load them.
-*/
+/**
+ * 	Resource manager allows to specify resource descriptors to load them.
+ */
+
+//!class res
 
 const res =
 {
-	/*
-	**	Loads all registered resources that have not been loaded yet. Returns a promise.
-	*/
+	/**
+	 * 	Loads all registered resources that have not been loaded yet.
+	 * 	!static load (progressCallback?: (level: number) => void) : Promise<void>;
+	 */
 	load: function(progressCallback=null)
 	{
 		return new Promise (function (resolve, reject)
@@ -27,25 +30,30 @@ const res =
 		});
 	},
 
-	/*
-	**	Returns a resource given its identifier.
-	*/
+	/**
+	 * 	Returns a resource given its identifier.
+	 * 	@param id - Resource identifier.
+	 * 	!static get (id: string) : object;
+	 */
 	get: function (id)
 	{
 		return r[id];
 	},
 
-	/*
-	**	Checks if the ID exists in the fxl `r` map, throws an error if it does.
-	*/
+	/**
+	 * 	Checks if the ID exists in the fxl `r` map, throws an error if it does.
+	 */
 	__resIdMustNotExist: function (id)
 	{
 		if (id in r) throw new Error ('Resource identifier `' + id + '` is already in use');
 	},
 
-	/*
-	**	Registers a solid-color placeholder resource.
-	*/
+	/**
+	 * 	Registers a solid-color placeholder resource.
+	 * 	@param id - Resource identifier.
+	 * 
+	 * 	!static placeholder (id: string, color: string, width: number, height: number) : object;
+	 */
 	placeholder: function (id, color, width, height)
 	{
 		this.__resIdMustNotExist(id);
@@ -53,9 +61,12 @@ const res =
 		return r[id] = { type: 'object', wrapper: 'Placeholder', color: color, width: width, height: height };
 	},
 
-	/*
-	**	Registers an image resource.
-	*/
+	/**
+	 * 	Registers an image resource.
+	 * 	@param id - Resource identifier.
+	 * 
+	 * 	!static image (id: string, path: string, opts?: object) : object;
+	 */
 	image: function (id, path, opts=null)
 	{
 		this.__resIdMustNotExist(id);
@@ -63,9 +74,13 @@ const res =
 		return r[id] = { type: 'image', wrapper: 'Drawable', src: path, pixelated: null, ...opts };
 	},
 
-	/*
-	**	Registers an spritesheet resource.
-	*/
+	/**
+	 * 	Registers an spritesheet resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 * 
+	 * 	!static spritesheet (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, optsA?: object, optsB?: object) : object;
+	 */
 	spritesheet: function (id, path, frameWidth, frameHeight, numFrames=0, optsA=null, optsB=null)
 	{
 		this.__resIdMustNotExist(id);
@@ -78,9 +93,13 @@ const res =
 		};
 	},
 
-	/*
-	**	Registers a spritesheet animation resource.
-	*/
+	/**
+	 * 	Registers a spritesheet animation resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 * 
+	 * 	!static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : object;
+	 */
 	animation: function (id, path, frameWidth, frameHeight, numFrames=null, configOptions=null, resOptions=null)
 	{
 		this.__resIdMustNotExist(id);
@@ -127,9 +146,13 @@ const res =
 		};
 	},
 
-	/*
-	**	Registers a spritefont animation resource.
-	*/
+	/**
+	 * 	Registers a spritefont animation resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 * 
+	 * 	!static spritefont (id: string, path: string, charWidth: number, charHeight: number, charset: string, optsA?: object, optsB?: object) : object;
+	 */
 	spritefont: function (id, path, charWidth, charHeight, charset, optsA=null, optsB=null)
 	{
 		this.__resIdMustNotExist(id);
@@ -142,9 +165,13 @@ const res =
 		};
 	},
 
-	/*
-	**	Registers a JSON data resource.
-	*/
+	/**
+	 * 	Registers a JSON data resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 * 
+	 * 	!static json (id: string, path: string, opts?: object) : object;
+	 */
 	json: function (id, path, opts=null)
 	{
 		this.__resIdMustNotExist(id);
@@ -152,9 +179,13 @@ const res =
 		return r[id] = { type: 'json', src: path, ...opts };
 	},
 
-	/*
-	**	Registers a binary data resource.
-	*/
+	/**
+	 * 	Registers a binary data resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 * 
+	 * 	!static data (id: string, path: string, opts?: object) : object;
+	 */
 	data: function (id, path, opts=null)
 	{
 		this.__resIdMustNotExist(id);
@@ -162,9 +193,13 @@ const res =
 		return r[id] = { type: 'data', src: path, ...opts };
 	},
 
-	/*
-	**	Registers a text data resource.
-	*/
+	/**
+	 * 	Registers a text data resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 * 
+	 * 	!static text (id: string, path: string, opts?: object) : object;
+	 */
 	text: function (id, path, opts=null)
 	{
 		this.__resIdMustNotExist(id);
@@ -172,9 +207,13 @@ const res =
 		return r[id] = { type: 'text', src: path, ...opts };
 	},
 
-	/*
-	**	Registers an sound effect audio resource.
-	*/
+	/**
+	 * 	Registers an sound effect audio resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 * 
+	 * 	!static sfx (id: string, path: string, opts?: object) : object;
+	 */
 	sfx: function (id, path, opts=null)
 	{
 		this.__resIdMustNotExist(id);
@@ -182,9 +221,13 @@ const res =
 		return r[id] = { type: 'audio', wrapper: 'Sound', src: path, track: 'sfx', ...opts };
 	},
 
-	/*
-	**	Registers an music audio resource.
-	*/
+	/**
+	 * 	Registers an music audio resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
+	 * 
+	 * 	!static music (id: string, path: string, opts?: object) : object;
+	 */
 	music: function (id, path, opts=null)
 	{
 		this.__resIdMustNotExist(id);

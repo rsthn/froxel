@@ -326,6 +326,11 @@ export namespace List
 {
 	export namespace Pool
 	{
+		/**
+		 * 	Allocates an empty list.
+		 */
+		function alloc() : List;
+
 	}
 }
 
@@ -558,6 +563,146 @@ export namespace Vec2
 
 	}
 }
+export class Matrix
+{
+	/**
+	 * 	Actual elements of the matrix.
+	 */
+	data: Float32Array
+
+	/**
+	 * 	Constructs a new matrix copying the elements from the specified matrix.
+	 */
+	constructor(value: Matrix);
+
+	/**
+	 * 	Constructs a new matrix with the values from the specified array.
+	 */
+	constructor(value: Float32Array);
+
+	/**
+	 * 	Constructs a new matrix with the identity matrix values.
+	 */
+	constructor();
+
+	/**
+	 * 	Fills the matrix with zeroes.
+	 */
+	zero() : Matrix;
+
+	/**
+	 * 	Fills the matrix with the specified value.
+	 */
+	fill (value: number) : Matrix;
+
+	/**
+	 * 	Copies the specified matrix elements into the current one.
+	 */
+	set (value: Matrix) : Matrix;
+
+	/**
+	 * 	Sets the matrix elements from the specified array.
+	 */
+	set (value: Float32Array) : Matrix;
+
+	/**
+	 * 	Sets the elements of the matrix to be the identity matrix.
+	 */
+	identity() : Matrix;
+
+	/**
+	 * 	Multiplies all elements in the matrix by a given scalar.
+	 */
+	scalef (scalar: number) : Matrix;
+
+	/**
+	 * 	Returns a clone of the matrix.
+	 */
+	clone() : Matrix;
+
+	/**
+	 * 	Appends the given matrix to the current one using matrix multiplication (self * matrix).
+	 */
+	append (matrix: Matrix) : Matrix;
+
+	/**
+	 * 	Creates a translation matrix and appends it.
+	 */
+	translate (x: number, y: number) : Matrix;
+
+	/**
+	 * 	Creates a rotation matrix for the given angle (in radians) and appends it.
+	 */
+	rotate (angle: number) : Matrix;
+
+	/**
+	 * 	Creates a scaling matrix and appends it.
+	 */
+	scale (sx: number, sy: number) : Matrix;
+
+	/**
+	 * 	Applies the matrix to the specified vector (matrix-vector multiplication) and returns a new Vec2.
+	 */
+	applyTo (vect: Vec2) : Vec2;
+
+	/**
+	 * 	Applies the matrix to the specified coordinates (matrix-vector multiplication) and returns a new Vec2.
+	 */
+	applyTo (x: number, y: number) : Vec2;
+
+	/**
+	 * 	Transposes the matrix.
+	 */
+	transpose() : Matrix;
+
+	/**
+	 * 	Returns the determinant of the matrix.
+	 */
+	det() : number;
+
+	/**
+	 * 	Returns a new matrix with the adjoint of the current matrix.
+	 */
+	adj() : Matrix;
+
+	/**
+	 * 	Returns a new matrix with the inverse of the current matrix.
+	 */
+	inverse() : Matrix;
+
+	/**
+	 * 	Returns a string representation of the matrix.
+	 */
+	toString() : string;
+
+	/**
+	 * 	Sets the components of the specified array as the identity matrix.
+	 */
+	static loadIdentity (target: Float32Array) : void;
+
+}
+
+export namespace Matrix
+{
+	export namespace Pool
+	{
+		/**
+		 * 	Allocates a new matrix copying the components from the specified matrix.
+		 */
+		function alloc (value: Matrix): Matrix;
+
+		/**
+		 * 	Allocates a new matrix with the values from the specified array.
+		 */
+		function alloc (value: Float32Array): Matrix;
+
+		/**
+		 * 	Allocates a new matrix with the identity matrix values.
+		 */
+		function alloc (): Matrix;
+
+	}
+}
 
 
 export class Shader
@@ -610,6 +755,408 @@ export namespace Shader
 	 * 	Removes a shader from the global shader map.
 	 */
 	function remove (id: string) : void;
+
+}
+
+
+
+export namespace Canvas
+{
+	type Options =
+	{
+		/**
+		 * 	Actual HTML5 Canvas element, if `null` a new one will be created.
+		 */
+		elem: HTMLCanvasElement;
+
+		/**
+		 * 	WebGL enable flag.
+		 */
+		gl: boolean;
+
+		/**
+		 * 	Background of the canvas element.
+		 */
+		background: string;
+
+		/**
+		 * 	Width of the canvas.
+		 */
+		width: number;
+
+		/**
+		 * 	Height of the canvas.
+		 */
+		height: number;
+
+		/**
+		 * 	Indicates if the canvas element should be hidden from view (not attached to the document body).
+		 */
+		hidden: boolean;
+
+		/**
+		 * 	Set to `true` to ensure the canvas is positioned absolutly to (0, 0).
+		 */
+		absolute: boolean;
+
+		/**
+		 * 	Used to control the antialias property of the canvas.
+		 */
+		antialias: boolean;
+
+	}
+
+}
+
+export class Canvas
+{
+	/**
+	 * 	Constructs a canvas object. If the Canvas DOM element is not provided a new element will be created and attached to the page.
+	 */
+	constructor (options: Canvas.Options);
+
+	/**
+	 * 	Prepares an image to use it on the canvas. Used only when GL mode is active.
+	 */
+	prepareImage (image: HTMLImageElement) : boolean;
+
+	/**
+	 * 	Sets the default background color of the canvas. Does not cause a canvas clear.
+	 */
+	setBackground (color: string) : void;
+
+	/**
+	 * 	Sets the canvas size.
+	 */
+	resize (width: number, height: number) : Canvas;
+
+	/**
+	 * 	Sets the global canvas scale.
+	 */
+	globalScale (value: number) : Canvas;
+
+	/**
+	 * 	Sets the flipped status of the canvas, that is, if the canvas coordinates are flipped (i.e. `xy` is now `yx`).
+	 */
+	flipped (value: boolean) : Canvas;
+
+	/**
+	 * 	Saves the clip state of the canvas. Works only in GL mode.
+	 */
+	pushClip() : Canvas;
+
+	/**
+	 * 	Restores the clip state of the canvas. Works only in GL mode.
+	 */
+	popClip() : Canvas;
+
+	/**
+	 * 	Returns the image on the canvas as a string in DATA-URI format.
+	 */
+	toDataUrl (mime: string, params?: object) : string;
+
+	/**
+	 * 	Returns the image as a Base-64 encoded PNG string.
+	 */
+	toPngBase64() : string;
+
+	/**
+	 * 	Sets the fill style.
+	 */
+	fillStyle (value: string) : Canvas;
+
+	/**
+	 * 	Returns the current fill style.
+	 */
+	fillStyle () : string;
+
+	/**
+	 * 	Sets the stroke style.
+	 */
+	strokeStyle (value: string) : Canvas;
+
+	/**
+	 * 	Returns the current strroke style.
+	 */
+	strokeStyle () : string;
+
+	/**
+	 * 	Sets the line cap style (Possible values are `butt`, `round`, or `square`. `butt` is default).
+	 */
+	lineCap (value: string) : Canvas;
+
+	/**
+	 * 	Returns the current line cap style.
+	 */
+	lineCap() : string;
+
+	/**
+	 * 	Executes the `draw` function on a new canvas of the specified width and height. Renders it into an image and runs the completed callback with the ready HTMLImageElement object.
+	 */
+	static renderImage (width: number, height: number, draw: (g: Canvas) => void, completed: (img: HTMLImageElement) => void) : void;
+
+}
+
+export namespace System
+{
+	type DisplayOrientation = 'default'|'landscape'|'portrait'|'automatic';
+	type Options =
+	{
+		/**
+		 *	Background of the system canvas. Should be a full 7-digit HEX RGB color.
+		 *	@default "#000000"
+		 */
+		background?: string;
+
+		/**
+		 * 	Set to `false` to disable WebGL mode.
+		 * 	@default true
+		 */
+		gl?: boolean;
+
+		/**
+		 *	Set to `true` t o enable on-screen logging.
+		 *	@default false
+		 */
+		log?: boolean,
+
+		/**
+		 *	When `true` the renderer will not clear the buffer on each frame draw, thus allowing overdrawing on the previous frame.
+		 *	@default false
+		 */
+		overdraw?: boolean,
+
+		/**
+		 *	Enables or disables antialised canvas. Set to `false` when pixel-perfect is desired.
+		 *	@default false
+		 */
+		antialias?: boolean;
+
+		/**
+		 *	Desired orientaton of the display.
+		 *	@default "automatic"
+		 */
+		orientation?: System.DisplayOrientation;
+
+		/**
+		 *	Desired display width. When not specified (null) the maximum screen width to maintain the aspect ratio will be used.
+		 *	@default null
+		 */
+		screenWidth?: number;
+
+		/**
+		 *	Desired display height. When not specified (null) the maximum screen height to maintain the aspect ratio will be used.
+		 *	@default null
+		 */
+		screenHeight?: number;
+
+		/**
+		 *	Target frames per second (FPS). Used to determine delay between frames.
+		 *	@default 144
+		 */
+		fps?: number;
+
+		/**
+		 *	Minimum allowed frames per second (FPS). If system FPS drops below this value, the `frameDelta` property of System will be truncated to 1/minFps.
+		 *	@default 10
+		 */
+		minFps?: number;
+
+		/**
+		 *	Selects which rendering mechanism to use either requestAnimationFrame when `true` or setTimeout when `false`.
+		 *	@default true
+		 */
+		vsync?: boolean;
+
+		/**
+		 *	Extra scale factor used to resize images. Use only when you want to render higher resolution images possibly for a very high DPI display.
+		 *	@default 1
+		 */
+		extraScaleFactor?: number;
+
+		/**
+		 *	Indicates which method to use to find the target resolution, using `fullscreen` object when `true`, or the `window` object when `false`.
+		 *	@default false
+		 */
+		fullscreen?: boolean;
+
+	}
+
+}
+
+export class System
+{
+	/**
+	 * 	Screen width, available only after the system has been initialized.
+	 */
+	static readonly screenWidth: number;
+
+	/**
+	 * 	Screen height, available only after the system has been initialized.
+	 */
+	static readonly screenHeight: number;
+
+	/**
+	 * 	Current display orientation.
+	 */
+	static readonly orientation: System.DisplayOrientation;
+
+	/**
+	 * 	Initial transformation matrix. Should be used (if needed) instead of `loadIdentity` since the System does some transformations first.
+	 */
+	static readonly initialMatrix: Matrix;
+
+	/**
+	 * 	Primary renderer.
+	 */
+	static readonly renderer: Canvas;
+
+	/**
+	 * 	Secondary display buffer (always 2D). Has the same initial transformation matrix as the primary display buffer.
+	 */
+	static readonly displayBuffer2: Canvas;
+
+	/**
+	 * 	Terciary display buffer (always 2D). Is assured to have 1:1 with the screen size, initial transformation matrix not applied.
+	 */
+	static readonly displayBuffer3: Canvas;
+
+	/**
+	 * 	The frame delta is multiplied by this value before each system cycle (defaults to 1).
+	 */
+	static timeScale: number;
+
+	/**
+	 * 	Frame interval in milliseconds.
+	 */
+	static readonly frameInterval: number;
+
+	/**
+	 * 	Fixed frame interval in milliseconds, when set to non-zero value the frame delta will always be set to this value.
+	 */
+	static fixedFrameInterval: number;
+
+	/**
+	 * 	Maximum frame interval in milliseconds, if the `frameDelta` exceeds this, it will be truncated to this value. Controlled by the `minFps` value
+	 * 	of the system initialization options.
+	 */
+	static readonly maxFrameInterval: number;
+
+	/**
+	 * 	Last frame delta in seconds.
+	 */
+	static readonly frameDelta: number;
+
+	/**
+	 * 	Logical system time in seconds. Updated on each cycle by the calculated `frameDelta`.
+	 */
+	static readonly frameTime: number;
+
+	/**
+	 * 	Current frame number.
+	 */
+	static readonly frameNumber: number;
+
+	/**
+	 * 	Initializes the system with the specified configuration options.
+	 */
+	static init (options: System.Options) : void;
+
+	/**
+	 * 	Returns the current logical time in seconds (same as reading `System.frameTime`).
+	 */
+	static time() : number;
+
+	/**
+	 * 	Starts the system and enables rendering and updates.
+	 */
+	static start() : void;
+
+	/**
+	 * 	Stops the system by disabling both rendering and updates.
+	 */
+	static stop() : void;
+
+	/**
+	 * 	Pauses the system by disabling updates, but rendering will be continued.
+	 */
+	static pause() : void;
+
+	/**
+	 * 	Resumes the system after previously being paused with `pause` method.
+	 */
+	static resume() : void;
+
+	/**
+	 * 	Event triggered when the canvas was resized by the system. Can be overriden.
+	 */
+	static onCanvasResized (screenWidth: number, screenHeight: number) : void;
+
+	/**
+	 * 	Adds the specified update handler to the system.
+	 */
+	updateQueueAdd (handler: { update: (dt: number) => void }) : Linkable;
+
+	/**
+	 * 	Removes the specified update handler from the system.
+	 */
+	updateQueueRemove (handler: { update: (dt: number) => void }) : void;
+
+	/**
+	 * 	Removes the specified update handler node from the system.
+	 */
+	updateQueueRemove (node: Linkable) : void;
+
+	/**
+	 * 	Adds the specified draw handler to the system.
+	 */
+	drawQueueAdd (handler: { draw: (g: Canvas) => void }) : Linkable;
+
+	/**
+	 * 	Removes the specified draw handler from the system.
+	 */
+	drawQueueRemove (handler: { draw: (g: Canvas) => void }) : void;
+
+	/**
+	 * 	Removes the specified draw handler node from the system.
+	 */
+	drawQueueRemove (node: Linkable) : void;
+
+	/**
+	 * 	Adds the specified handler to the update and draw queues.
+	 */
+	queueAdd (handler: { update: (dt: number) => void, draw: (g: Canvas) => void }) : void;
+
+	/**
+	 *	Removes the specified handler from the update and draw queues.
+	 */
+	queueRemove (handler: { update: (dt: number) => void, draw: (g: Canvas) => void }) : void;
+
+	/**
+	 * 	Interpolates numeric values between two objects (`src` and `dst`) using the specified `duration` and `easing` function. Note that all four parameters `src`, `dst`,
+	 * 	`duration` and `easing` must be objects having the same number of values.
+	 */
+	interpolate (src: object, dst: object, duration: object, easing: object, callback: (data: object, isFinished: boolean) => void) : void;
+
+}
+
+export namespace System
+{
+	enum KeyboardEventType
+	{
+		KEY_DOWN,
+		KEY_UP,
+	}
+
+	enum PointerEventType
+	{
+		POINTER_DOWN,
+		POINTER_UP,
+		POINTER_MOVE,
+		POINTER_DRAG_START,
+		POINTER_DRAG_MOVE,
+		POINTER_DRAG_STOP,
+	}
 
 }
 
@@ -826,27 +1373,27 @@ export class Rect
 {
 	/**
 	 */
-	cx: number;
+	readonly cx: number;
 
 	/**
 	 */
-	cy: number;
+	readonly cy: number;
 
 	/**
 	 */
-	x1: number;
+	readonly x1: number;
 
 	/**
 	 */
-	y1: number;
+	readonly y1: number;
 
 	/**
 	 */
-	x2: number;
+	readonly x2: number;
 
 	/**
 	 */
-	y2: number;
+	readonly y2: number;
 
 	/**
 	 * 	Constructs a rectangle of zero size, centered at (0, 0).
@@ -1056,6 +1603,45 @@ export namespace Rect
 		 * 	Allocates a new rectangle with the specified coordinates.
 		 */
 		function alloc (x1: number, y1: number, x2: number, y2: number) : Rect;
+
+	}
+}
+export class Bounds2
+{
+	/**
+	 */
+	readonly cx: number;
+
+	/**
+	 */
+	readonly cy: number;
+
+	/**
+	 */
+	readonly x1: number;
+
+	/**
+	 */
+	readonly y1: number;
+
+	/**
+	 */
+	readonly x2: number;
+
+	/**
+	 */
+	readonly y2: number;
+
+}
+
+export namespace Rect
+{
+	export namespace Pool
+	{
+		/**
+		 * 	Allocates a new object of zero size.
+		 */
+		function alloc() : Bounds2;
 
 	}
 }
@@ -1963,6 +2549,316 @@ export namespace Easing
 }
 
 
+export class GridElement
+{
+	/**
+	 * 	Identifier of the element (string).
+	 */
+	id: string;
+
+	/**
+	 * 	Bounds of the element.
+	 */
+	bounds: Bounds2;
+
+	/**
+	 * 	Flags of the element (see constants of this class).
+	 */
+	flags: number;
+
+	/**
+	 * 	Generic data of the element, used to store some value or object.
+	 */
+	data: object;
+
+	/**
+	 * 	Constructs the instance at the specified position and with the specified size.
+	 */
+	constructor (x: number, y: number, width: number, height: number);
+
+	/**
+	 * 	Sets the identifier of the element.
+	 */
+	setId (value: string) : GridElement;
+
+	/**
+	 * 	Sets bits of the element flags.
+	 */
+	setFlags (value: number) : GridElement;
+
+	/**
+	 * 	Clears bits from the element flags.
+	 */
+	clearFlags (value: number) : GridElement;
+
+	/**
+	 * 	Returns true if masking (bitwise AND) the flags by the specified flag bits results in the given value.
+	 */
+	getFlags (andMask: number, value?: number) : boolean;
+
+	/**
+	 * 	Sets the generic data of the element.
+	 */
+	setData (data: object) : GridElement;
+
+	/**
+	 * 	Returns the generic data of the element.
+	 */
+	getData() : object;
+
+	/**
+	 * 	Sets the visible flag.
+	 */
+	visible (value: boolean) : GridElement;
+
+	/**
+	 * 	Returns the visible flag.
+	 */
+	visible() : boolean;
+
+	/**
+	 * 	Sets the alive flag.
+	 */
+	alive (value: boolean) : GridElement;
+
+	/**
+	 * 	Returns the alive flag.
+	 */
+	alive() : boolean;
+
+	/**
+	 * 	Sets the dirty flag.
+	 */
+	alive (value: boolean) : GridElement;
+
+	/**
+	 * 	Returns the dirty flag.
+	 */
+	alive() : boolean;
+
+	/**
+	 * 	Sets the depth-flag-enabled flag.
+	 */
+	depthFlagEnabled (value: boolean) : GridElement;
+
+	/**
+	 * 	Returns the depth-flag-enabled flag.
+	 */
+	depthFlagEnabled() : boolean;
+
+	/**
+	 * 	Sets the depth-flag flag. To actually use the depth-test, you have to enable the depth-flag using `depthFlagEnabled`.
+	 */
+	depthFlagEnabled (value: boolean) : GridElement;
+
+	/**
+	 * 	Returns the depth-flag flag.
+	 */
+	depthFlagEnabled() : boolean;
+
+	/**
+	 * 	Removes the element from the container and returns itself.
+	 */
+	remove() : GridElement;
+
+	/**
+	 * 	Syncs the actual location of the specified element with its storage location (if alive and dirty).
+	 */
+	sync() : GridElement;
+
+	/**
+	 * 	Sets the width and height of the element.
+	 */
+	resize (width: number, height: number) : GridElement;
+
+	/**
+	 * 	Resizes the element by the specified deltas.
+	 */
+	resizeBy (deltaWidth: number, deltaHeight: number) : GridElement;
+
+	/**
+	 * 	Moves the element by the specified deltas.
+	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 */
+	translate (dx: number, dy: number, upscaled?: boolean) : GridElement;
+
+	/**
+	 * 	Sets the position of the element.
+	 */
+	setPosition (x: number, y: number) : GridElement;
+
+	/**
+	 * 	Class-level function to allocate a new flag.
+	 */
+	static allocFlag() : number;
+
+}
+
+export class IDrawable
+{
+	/**
+	 * 	Width of the drawable.
+	 */
+	width: number;
+
+	/**
+	 * 	Height of the drawable.
+	 */
+	height: number;
+
+	/**
+	 * 	Returns the actual independent drawable object.
+	 */
+	getDrawable(): IDrawable;
+
+	/**
+	 * 	Draws the drawable on the given canvas.
+	 */
+	draw(g: Canvas, x: number, y: number): void;
+
+}
+export class Element extends GridElement
+{
+	/**
+	 * 	Parent group to whom this element is related.
+	 */
+	group: Group;
+
+	/**
+	 * 	Drawable object to render to the display.
+	 */
+	img: IDrawable;
+
+	/**
+	 * 	Indicates if the bounds of the element should be drawn (for debugging purposes).
+	 */
+	debugBounds: boolean;
+
+	/**
+	 * 	Constructs a drawable element at the specified position with the given drawable.
+	 */
+	constructor (x: number, y: number, width: number, height: number, img?: IDrawable);
+
+	/**
+	 * 	Constructs a drawable element at the specified position with the given drawable.
+	 */
+	constructor (x: number, y: number, img?: IDrawable);
+
+}
+
+export namespace Element
+{
+	export namespace Pool
+	{
+		/**
+		 * 	Allocates a drawable element at the specified position with the given drawable.
+		 */
+		function alloc (x: number, y: number, width: number, height: number, img?: IDrawable) : Element;
+
+		/**
+		 * 	Allocates a drawable element at the specified position with the given drawable.
+		 */
+		function alloc (x: number, y: number, img?: IDrawable) : Element;
+
+	}
+}
+
+
+
+export class Group extends Element
+{
+	/**
+	 * 	Virtual zero reference point.
+	 */
+	readonly ref: Point2;
+
+	/**
+	 * 	Constructs an empty Group element.
+	 */
+	constructor (id?: string);
+
+	/**
+	 * 	Adds the group itself and all children to the scene's destruction queue. If any element has no container, it will be destroyed immediately.
+	 */
+	destroyLater() : void;
+
+	/**
+	 * 	Removes and destroys all child elements.
+	 */
+	clear() : Group;
+
+	/**
+	 * 	Removes all child elements but does not destroy them.
+	 */
+	reset() : Group;
+
+	/**
+	 * 	Adds a child element to the group. If the element has its `id` property set, it will be added to the group as a
+	 * 	property, which can be accessed directly using the element identifier or using the `getChild` method.
+	 */
+	addChild (elem: Element) : Element;
+
+	/**
+	 * 	Return the child element matching the specified identifier.
+	 */
+	child (id: string) : Element;
+
+	/**
+	 * 	Removes an element from the container and returns it.
+	 */
+	removeChild (elem: Element) : Element;
+
+	/**
+	 * 	Local group translation, moves only the group by the specified deltas. Child element remain in position.
+	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 */
+	ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
+
+	/**
+	 * 	Moves the group and all children by the specified deltas.
+	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 */
+	ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
+
+	/**
+	 * 	Returns a temporal Point2, describing the extra offset introduced by the group when translating a child element by the specified deltas.
+	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 */
+	getOffsets (dx: number, dy: number, upscaled?: boolean) : Point2;
+
+	/**
+	 * 	Sets bits of the element flags in the group and all children.
+	 */
+	setFlags (value: number) : Group;
+
+	/**
+	 * 	Clears bits from the group and all children flags.
+	 */
+	clearFlags (value: number) : Group;
+
+	/**
+	 * 	Sets the visible flag of the group and all children.
+	 */
+	visible (value: boolean) : Group;
+
+	/**
+	 * 	Returns the visible flag of the group.
+	 */
+	visible () : boolean;
+
+}
+
+export namespace Group
+{
+	export namespace Pool
+	{
+		/**
+		 * 	Allocates an empty Group element.
+		 */
+		function alloc (id?: string) : Group;
+
+	}
+}
 
 
 
@@ -1970,10 +2866,36 @@ export namespace Easing
 
 
 
+export class Mask extends Element
+{
+	/**
+	 * 	Type of the mask (user defined).
+	 */
+	type: number;
 
+	/**
+	 * 	Constructs the Mask element.
+	 */
+	constructor (type: number, x: number, y: number, width: number, height: number);
 
+	/**
+	 * 	Draws the element on the specified canvas.
+	 */
+	draw (g: Canvas) : void;
 
+}
 
+export namespace Mask
+{
+	export namespace Pool
+	{
+		/**
+		 * 	Allocates a new Mask element.
+		 */
+		function alloc (type: number, x: number, y: number, width: number, height: number) : Mask;
+
+	}
+}
 
 
 
@@ -1982,115 +2904,114 @@ export namespace Easing
 
 export namespace fxl
 {
-	export namespace sys
-{
-	type Orientation = 'default' | 'landscape' | 'portrait' | 'automatic';
-	type Options =
-	{
-		/**
-		 * 	Tells the system to enable WebGL support.
-		 * 	@default true
-		 */
-		gl?: boolean;
-
-		/**
-		 *	Indicates if on-screen logging should be enabled.
-		 *	@default false
-		 */
-		log?: boolean,
-
-		/**
-		 *	Enables or disables antialised canvas. Set to `false` when pixel-perfect is desired.
-		 *	@default false
-		 */
-		antialias?: boolean;
-
-		/**
-		 *	Background of the system canvas.
-		 *	@default "#000"
-		 */
-		background?: string;
-
-		/**
-		 *	Desired orientaton of the display.
-		 *	@default "automatic"
-		 */
-		orientation?: fxl.sys.Orientation;
-
-		/**
-		 *	Desired display width. When not specified (null) the maximum screen width to maintain the aspect ratio will be used.
-		 *	@default null
-		 */
-		screenWidth?: number;
-
-		/**
-		 *	Desired display height. When not specified (null) the maximum screen height to maintain the aspect ratio will be used.
-		 *	@default null
-		 */
-		screenHeight?: number;
-
-		/**
-		 *	Target frames per second (FPS). Used to determine delay between frames.
-		 *	@default 144
-		 */
-		fps?: number;
-
-		/**
-		 *	Minimum allowed frames per second (FPS). If system FPS drops below this value, the `frameDelta` property of System will be truncated to 1/minFps.
-		 *	@default 10
-		 */
-		minFps?: number;
-
-	}
-
-}
-
-export class sys
+	export class sys
 {
 	/**
 	 * 	Indicates if the system module has already been initialized.
 	 */
-	initialized: boolean;
+	static readonly initialized: boolean;
 
 	/**
 	 * 	Screen width (available after calling `init`).
 	 */
-	screenWidth: number;
+	static readonly screenWidth: number;
 
 	/**
 	 * 	Screen height (available after calling `init`).
 	 */
-	screenHeight: number;
+	static readonly screenHeight: number;
 
 	/**
 	 * 	Primary renderer (available after calling `init`).
 	 */
-	renderer: Canvas;
+	static readonly renderer: Canvas;
 
 	/**
 	 * 	Logical system time (mirrors the value of System.frameTime).
 	 */
-	time: Number;
+	static readonly time: Number;
 
 	/**
 	 * 	Logical system delta time (mirrors the value of System.frameDelta).
 	 */
-	dt: Number;
+	static readonly dt: Number;
 
 	/**
 	 * 	Initializes the system with the specified options.
 	 */
-	init (options: sys.Options) : Promise<any>;
+	static init (options: System.Options) : Promise<void>;
 
 	/**
 	 * 	Initializes the system using the default options.
 	 */
-	init () : Promise<any>;
+	static init () : Promise<void>;
 
 }
 	
 	
-	
+	export class res
+{
+	/**
+	 * 	Loads all registered resources that have not been loaded yet.
+	 */
+	static load (progressCallback?: (level: number) => void) : Promise<void>;
+
+	/**
+	 * 	Returns a resource given its identifier.
+	 */
+	static get (id: string) : object;
+
+	/**
+	 * 	Registers a solid-color placeholder resource.
+	 */
+	static placeholder (id: string, color: string, width: number, height: number) : object;
+
+	/**
+	 * 	Registers an image resource.
+	 */
+	static image (id: string, path: string, opts?: object) : object;
+
+	/**
+	 * 	Registers an spritesheet resource.
+	 */
+	static spritesheet (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, optsA?: object, optsB?: object) : object;
+
+	/**
+	 * 	Registers a spritesheet animation resource.
+	 */
+	static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : object;
+
+	/**
+	 * 	Registers a spritefont animation resource.
+	 */
+	static spritefont (id: string, path: string, charWidth: number, charHeight: number, charset: string, optsA?: object, optsB?: object) : object;
+
+	/**
+	 * 	Registers a JSON data resource.
+	 */
+	static json (id: string, path: string, opts?: object) : object;
+
+	/**
+	 * 	Registers a binary data resource.
+	 */
+	static data (id: string, path: string, opts?: object) : object;
+
+	/**
+	 * 	Registers a text data resource.
+	 */
+	static text (id: string, path: string, opts?: object) : object;
+
+	/**
+	 * 	Registers an sound effect audio resource.
+	 */
+	static sfx (id: string, path: string, opts?: object) : object;
+
+	/**
+	 * 	Registers an music audio resource.
+	 */
+	static music (id: string, path: string, opts?: object) : object;
+
+}
 	
 	export class collider
 {
@@ -2248,3 +3169,4 @@ export namespace collider
 }
 	// fxl ends
 }
+export default fxl;

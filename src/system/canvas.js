@@ -31,17 +31,67 @@ import Log from './log.js';
 //![import "./globals"]
 //![import "./log"]
 
-/*
-**	Constructs a canvas object. If the Canvas DOM element is not provided a new element will be created and attached to the page.
-**
-**	>> Canvas Canvas (Object options=null);
-*/
+//!namespace Canvas
+
+	//!type Options =
+
+		/**
+		 * 	Actual HTML5 Canvas element, if `null` a new one will be created.
+		 * 	!elem: HTMLCanvasElement;
+		 */
+		
+		/**
+		 * 	WebGL enable flag.
+		 * 	!gl: boolean;
+		 */
+
+		/**
+		 * 	Background of the canvas element.
+		 * 	!background: string;
+		 */
+
+		/**
+		 * 	Width of the canvas.
+		 * 	!width: number;
+		 */
+
+		/**
+		 * 	Height of the canvas.
+		 * 	!height: number;
+		 */
+
+		/**
+		 * 	Indicates if the canvas element should be hidden from view (not attached to the document body).
+		 * 	!hidden: boolean;
+		 */
+
+		/**
+		 * 	Set to `true` to ensure the canvas is positioned absolutly to (0, 0).
+		 * 	!absolute: boolean;
+		 */
+
+		/**
+		 * 	Used to control the antialias property of the canvas.
+		 * 	!antialias: boolean;
+		 */
+
+	//!/type
+
+//!/namespace
+
+//!class Canvas
+
+/**
+ * 	Constructs a canvas object. If the Canvas DOM element is not provided a new element will be created and attached to the page.
+ * 	!constructor (options: Canvas.Options);
+ */
+
 const Canvas = function (options=null)
 {
 	let opts = {
 		elem: null,
 		gl: false,
-		background: '#000',
+		background: '#000000',
 		width: 0,
 		height: 0,
 		hidden: true,
@@ -233,9 +283,9 @@ Canvas.passThruCanvas =
 	}
 };
 
-/*
-**	Initializes the OpenGL ES context.
-*/
+/**
+ * 	Initializes the OpenGL ES context.
+ */
 Canvas.prototype.initGl = function ()
 {
 	let gl = this.gl;
@@ -510,9 +560,10 @@ Canvas.prototype.initGl = function ()
 };
 
 
-/*
-**	Prepares an image to use it on the canvas. Used only when GL mode is active.
-*/
+/**
+ * 	Prepares an image to use it on the canvas. Used only when GL mode is active.
+ * 	!prepareImage (image: HTMLImageElement) : boolean;
+ */
 Canvas.prototype.prepareImage = function (image)
 {
 	let gl = this.gl;
@@ -534,12 +585,9 @@ Canvas.prototype.prepareImage = function (image)
 	return true;
 };
 
-/*
-**	Applies the current config to the canvas (usually called after a reset on the canvas).
-**
-**	>> void applyConfig();
-*/
-
+/**
+ * 	Applies the current config to the canvas (usually called after a reset on the canvas).
+ */
 Canvas.prototype.applyConfig = function ()
 {
 	if (this.antialias == false)
@@ -558,13 +606,9 @@ Canvas.prototype.applyConfig = function ()
 	}
 };
 
-
-/*
-**	Disposes the resources used by the canvas. The DOMElement will also be removed from the document.
-**
-**	>> void dispose();
-*/
-
+/**
+ * 	Disposes the resources used by the canvas. The HTMLCanvasElement will also be removed from the document.
+ */
 Canvas.prototype.dispose = function ()
 {
 	if (this.elem.parentNode)
@@ -580,13 +624,10 @@ Canvas.prototype.dispose = function ()
 	this.elem = null;
 };
 
-
-/*
-**	Sets the default background color of the canvas. Does not cause a canvas clear.
-**
-**	>> void setBackground (string color);
-*/
-
+/**
+ * 	Sets the default background color of the canvas. Does not cause a canvas clear.
+ * 	!setBackground (color: string) : void;
+ */
 Canvas.prototype.setBackground = function (color)
 {
 	this.elem.style.background = color;
@@ -605,13 +646,10 @@ Canvas.prototype.setBackground = function (color)
 	}
 };
 
-
-/*
-**	Sets the canvas size.
-**
-**	>> Canvas resize (float width, float height);
-*/
-
+/**
+ * 	Sets the canvas size.
+ * 	!resize (width: number, height: number) : Canvas;
+ */
 Canvas.prototype.resize = function (width, height)
 {
 	let rect = this.elem.getBoundingClientRect();
@@ -650,13 +688,10 @@ Canvas.prototype.resize = function (width, height)
 	return this;
 };
 
-
-/*
-**	Sets the global canvas scale.
-**
-**	>> Canvas globalScale (float value);
-*/
-
+/**
+ * 	Sets the global canvas scale.
+ * 	!globalScale (value: number) : Canvas;
+ */
 Canvas.prototype.globalScale = function (value)
 {
 	this._globalScale = value;
@@ -673,14 +708,10 @@ Canvas.prototype.globalScale = function (value)
 	return this;
 };
 
-
-/*
-**	Gets or sets the flipped status of the canvas. Indicates if the canvas was flipped (i.e. xy is now yx).
-**
-**	>> Canvas flipped (bool value);
-**	>> Canvas flipped (bool value);
-*/
-
+/**
+ * 	Sets the flipped status of the canvas, that is, if the canvas coordinates are flipped (i.e. `xy` is now `yx`).
+ * 	!flipped (value: boolean) : Canvas;
+ */
 Canvas.prototype.flipped = function (value)
 {
 	if (value)
@@ -698,25 +729,19 @@ Canvas.prototype.flipped = function (value)
 	return this;
 };
 
-
-/*
-**	Saves the clip state of the canvas. Works only in GL mode.
-**
-**	>> Canvas pushClip();
-*/
-
+/**
+ * 	Saves the clip state of the canvas. Works only in GL mode.
+ * 	!pushClip() : Canvas;
+ */
 Canvas.prototype.pushClip = function ()
 {
 	return this;
 };
 
-
-/*
-**	Restores the clip state of the canvas. Works only in GL mode.
-**
-**	>> Canvas popClip();
-*/
-
+/**
+ * 	Restores the clip state of the canvas. Works only in GL mode.
+ * 	!popClip() : Canvas;
+ */
 Canvas.prototype.popClip = function ()
 {
 	if (this.gl != null)
@@ -725,38 +750,27 @@ Canvas.prototype.popClip = function ()
 	return this;
 };
 
-
-/*
-**	Returns the image on the canvas as a string in DATA-URI format.
-**
-**	>> string toDataUrl (string mime);
-*/
-
+/**
+ * 	Returns the image on the canvas as a string in DATA-URI format.
+ * 	!toDataUrl (mime: string, params?: object) : string;
+ */
 Canvas.prototype.toDataUrl = function (mime='image/png', params=null)
 {
 	return this.elem.toDataURL (mime, params);
 };
 
-
-/*
-**	Returns the image as a Base-64 encoded PNG string.
-**
-**	>> string toPng64();
-*/
-
-Canvas.prototype.toPng64 = function ()
+/**
+ * 	Returns the image as a Base-64 encoded PNG string.
+ * 	!toPngBase64() : string;
+ */
+Canvas.prototype.toPngBase64 = function ()
 {
 	return this.elem.toDataURL("image/png").substr(22);
 };
 
-
-/*
-**	Sets or returns an attribute of the canvas context.
-**
-**	>> Canvas _contextAttribute (string name);
-**	>> Canvas _contextAttribute (string name, string value);
-*/
-
+/**
+ * 	Sets or returns an attribute of the canvas context.
+ */
 Canvas.prototype._contextAttribute = function (name, value=null)
 {
 	if (!this.context) return;
@@ -770,43 +784,46 @@ Canvas.prototype._contextAttribute = function (name, value=null)
 	return this.context[name];
 };
 
-
-/*
-**	Sets or returns the current fill style (default black).
-**
-**	>> Canvas fillStyle (string value);
-*/
-
+/**
+ * 	Sets the fill style.
+ * 	!fillStyle (value: string) : Canvas;
+ */
+/**
+ * 	Returns the current fill style.
+ * 	!fillStyle () : string;
+ */
 Canvas.prototype.fillStyle = function (value)
 {
 	return this._contextAttribute ("fillStyle", value);
 };
 
-
-/*
-**	Sets or returns the current stroke style (default black).
-**
-**	>> Canvas strokeStyle (string value);
-*/
-
+/**
+ * 	Sets the stroke style.
+ * 	!strokeStyle (value: string) : Canvas;
+ */
+/**
+ * 	Returns the current strroke style.
+ * 	!strokeStyle () : string;
+ */
 Canvas.prototype.strokeStyle = function (value)
 {
 	return this._contextAttribute ("strokeStyle", value);
 };
 
-
-/*
-**	Sets or returns the current line cap style (butt, round, square. butt is default).
-**
-**	>> Canvas lineCap (string value);
-**	>> string lineCap ();
-*/
-
+/**
+ * 	Sets the line cap style (Possible values are `butt`, `round`, or `square`. `butt` is default).
+ * 	!lineCap (value: string) : Canvas;
+ */
+/**
+ * 	Returns the current line cap style.
+ * 	!lineCap() : string;
+ */
 Canvas.prototype.lineCap = function (value)
 {
 	return this._contextAttribute ("lineCap", value);
 };
 
+// violet
 
 /*
 **	Sets or returns the current line join style (bevel, round, miter. miter is default).
@@ -1906,10 +1923,10 @@ Canvas.prototype.drawImageResource = function (image, x=0, y=0, width=null, heig
 	return this.drawImage (image.data, 0, 0, image.data.width, image.data.height, x, y, width, height);
 };
 
-/*
-**	Executes the draw function on a new canvas of the specified width and height, renders it into an image and runs the
-**	completed callback with the ready image object.
-*/
+/**
+ * 	Executes the `draw` function on a new canvas of the specified width and height. Renders it into an image and runs the completed callback with the ready HTMLImageElement object.
+ * 	!static renderImage (width: number, height: number, draw: (g: Canvas) => void, completed: (img: HTMLImageElement) => void) : void;
+ */
 Canvas.renderImage = function (width, height, draw, completed)
 {
 	let g = new Canvas({ width: width, height: height });

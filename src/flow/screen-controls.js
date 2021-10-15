@@ -122,7 +122,7 @@ const ScreenControls =
 
 		switch (action)
 		{
-			case System.EVT_POINTER_DOWN:
+			case System.PointerEventType.POINTER_DOWN:
 
 				if (p._ref != null)
 				{
@@ -139,11 +139,11 @@ const ScreenControls =
 
 				break;
 
-			case System.EVT_POINTER_DRAG_START:
+			case System.PointerEventType.POINTER_DRAG_START:
 				if (p._ref != null) _continue = false;
 				break;
 
-			case System.EVT_POINTER_DRAG_MOVE:
+			case System.PointerEventType.POINTER_DRAG_MOVE:
 				if (this.hoverEnabled)
 				{
 					if (p._refh != null)
@@ -201,7 +201,7 @@ const ScreenControls =
 
 				break;
 
-			case System.EVT_POINTER_MOVE:
+			case System.PointerEventType.POINTER_MOVE:
 				if (this.hoverEnabled)
 				{
 					if (p._refh != null)
@@ -242,11 +242,11 @@ const ScreenControls =
 
 				break;
 
-			case System.EVT_POINTER_DRAG_STOP:
+			case System.PointerEventType.POINTER_DRAG_STOP:
 				if (p._ref != null) _continue = false;
 				break;
 
-			case System.EVT_POINTER_UP:
+			case System.PointerEventType.POINTER_UP:
 				if (p._ref != null)
 				{
 					tmp = p._ref; p._ref = null;
@@ -265,7 +265,7 @@ const ScreenControls =
 	{
 		switch (action)
 		{
-			case System.EVT_KEY_DOWN:
+			case System.KeyboardEventType.KEY_DOWN:
 
 				for (let i = 0; i < this.list.length; i++)
 				{
@@ -277,7 +277,7 @@ const ScreenControls =
 
 				break;
 
-			case System.EVT_KEY_UP:
+			case System.KeyboardEventType.KEY_UP:
 
 				for (let i = 0; i < this.list.length; i++)
 				{

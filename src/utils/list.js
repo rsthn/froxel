@@ -390,7 +390,7 @@ const List = Class.extend
 
 	/**
 	 * 	Allocates an empty list.
-	 * 	alloc() : List;
+	 * 	!function alloc() : List;
 	 */
 
 Recycler.createPool (List, 16384, 6144);

@@ -30,6 +30,8 @@ const tempPoint = Point2.Pool.alloc();
 **	Groups one or more elements into a single one.
 */
 
+//!class Group extends Element
+
 const Group = Element.extend
 ({
 	className: 'Group',
@@ -39,14 +41,16 @@ const Group = Element.extend
 	*/
 	children: null,
 
-	/*
-	**	Virtual zero reference point.
-	*/
+	/**
+	 * 	Virtual zero reference point.
+	 * 	!readonly ref: Point2;
+	 */
 	ref: null,
 
-	/*
-	**	Constructs an empty group element.
-	*/
+	/**
+	 * 	Constructs an empty Group element.
+	 * 	!constructor (id?: string);
+	 */
 	__ctor: function (id=null)
 	{
 		this._super.Element.__ctor(0, 0, 0, 0);
@@ -58,9 +62,9 @@ const Group = Element.extend
 		this.setId(id);
 	},
 
-	/*
-	**	Destroys the group and all children.
-	*/
+	/**
+	 * 	Destroys the group and all children.
+	 */
 	__dtor: function()
 	{
 		this.clear();
@@ -70,9 +74,10 @@ const Group = Element.extend
 		this._super.Element.__dtor();
 	},
 
-	/*
-	**	Adds all children to the scene's destruction queue. If any element has no container, it will be destroyed immediately.
-	*/
+	/**
+	 * 	Adds the group itself and all children to the scene's destruction queue. If any element has no container, it will be destroyed immediately.
+	 * 	!destroyLater() : void;
+	 */
 	destroyLater: function()
 	{
 		if (!this.alive()) return;
@@ -89,9 +94,10 @@ const Group = Element.extend
 		this._super.Element.destroyLater();
 	},
 
-	/*
-	**	Removes and destroys all child elements.
-	*/
+	/**
+	 * 	Removes and destroys all child elements.
+	 * 	!clear() : Group;
+	 */
 	clear: function()
 	{
 		let i;
@@ -106,9 +112,10 @@ const Group = Element.extend
 		return this;
 	},
 
-	/*
-	**	Removes all child elements.
-	*/
+	/**
+	 * 	Removes all child elements but does not destroy them.
+	 * 	!reset() : Group;
+	 */
 	reset: function()
 	{
 		let i;
@@ -122,13 +129,12 @@ const Group = Element.extend
 		return this;
 	},
 
-	/*
-	**	Adds a child element to the group.
-	**
-	**	Element addChild (string id, Element elem)
-	**	Element addChild (Element elem)
-	*/
-	addChild: function (elem=null)
+	/**
+	 * 	Adds a child element to the group. If the element has its `id` property set, it will be added to the group as a
+	 * 	property, which can be accessed directly using the element identifier or using the `getChild` method.
+	 * 	!addChild (elem: Element) : Element;
+	 */
+	addChild: function (elem)
 	{
 		if (!elem) return elem;
 
@@ -150,9 +156,18 @@ const Group = Element.extend
 		return elem;
 	},
 
-	/*
-	**	Callback to remove an element from the container (called by Handler).
-	*/
+	/**
+	 * 	Return the child element matching the specified identifier.
+	 * 	!child (id: string) : Element;
+	 */
+	getChild: function (id)
+	{
+		return this[id] || null;
+	},
+
+	/**
+	 * 	Callback to remove an element from the container (called by Handler).
+	 */
 	_remove: function (elem, self, node)
 	{
 		self.children.remove(node);
@@ -164,9 +179,10 @@ const Group = Element.extend
 		return false;
 	},
 
-	/*
-	**	Removes an element from the container and returns it.
-	*/
+	/**
+	 * 	Removes an element from the container and returns it.
+	 * 	!removeChild (elem: Element) : Element;
+	 */
 	removeChild: function (elem)
 	{
 		if (!elem || elem.group !== this)
@@ -176,9 +192,9 @@ const Group = Element.extend
 		return elem;
 	},
 
-	/*
-	**	Syncs the actual location of the specified element with its storage location. Returns true if successful.
-	*/
+	/**
+	 * 	Syncs the actual location of the specified element with its storage location. Returns `true` if successful.
+	 */
 	sync: function()
 	{
 		for (let i = this.children.top; i; i = i.next)
@@ -187,17 +203,21 @@ const Group = Element.extend
 		return this._super.Element.sync();
 	},
 
-	/*
-	**	Local translation, moves only the group by the specified deltas.
-	*/
+	/**
+	 * 	Local group translation, moves only the group by the specified deltas. Child element remain in position.
+	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * 	!ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
+	 */
 	ltranslate: function (dx, dy, upscaled=false)
 	{
 		return this._super.Element.translate(dx, dy, upscaled);
 	},
 
-	/*
-	**	Moves the group and all children by the specified deltas.
-	*/
+	/**
+	 * 	Moves the group and all children by the specified deltas.
+	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * 	!ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
+	 */
 	translate: function (dx, dy, upscaled=false)
 	{
 		let _dx = this.bounds.x1;
@@ -215,9 +235,11 @@ const Group = Element.extend
 		return this;
 	},
 
-	/*
-	**	Returns the extra offset introduced by the group when translating a child element by the specified deltas.
-	*/
+	/**
+	 * 	Returns a temporal Point2, describing the extra offset introduced by the group when translating a child element by the specified deltas.
+	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * 	!getOffsets (dx: number, dy: number, upscaled?: boolean) : Point2;
+	 */
 	getOffsets: function (dx, dy, upscaled=false)
 	{
 		tempPoint.set(this.bounds.ux1, this.bounds.uy1, true);
@@ -238,9 +260,10 @@ const Group = Element.extend
 		return tempPoint;
 	},
 
-	/*
-	**	Sets bits of the element flags in the group and all children.
-	*/
+	/**
+	 * 	Sets bits of the element flags in the group and all children.
+	 * 	!setFlags (value: number) : Group;
+	 */
 	setFlags: function (value)
 	{
 		for (let i = this.children.top; i; i = i.next)
@@ -249,9 +272,10 @@ const Group = Element.extend
 		return this._super.Element.setFlags(value);
 	},
 
-	/*
-	**	Clears bits from the group and all children flags.
-	*/
+	/**
+	 * 	Clears bits from the group and all children flags.
+	 * 	!clearFlags (value: number) : Group;
+	 */
 	clearFlags: function (value)
 	{
 		for (let i = this.children.top; i; i = i.next)
@@ -260,9 +284,14 @@ const Group = Element.extend
 		return this._super.Element.clearFlags(value);
 	},
 
-	/*
-	**	Sets or gets the visible flag of the group and all children.
-	*/
+	/**
+	 * 	Sets the visible flag of the group and all children.
+	 * 	!visible (value: boolean) : Group;
+	 */
+	/**
+	 * 	Returns the visible flag of the group.
+	 * 	!visible () : boolean;
+	 */
 	visible: function (value=null)
 	{
 		if (value === null)
@@ -274,14 +303,23 @@ const Group = Element.extend
 		return this._super.Element.visible(value);
 	},
 
-	/*
-	**	Override render method to do nothing.
-	*/
+	/**
+	 * 	Override render method to do nothing.
+	 */
 	render: function(g)
 	{
 	}
 });
 
+//!/class
+
+//!namespace Group
+//!namespace Pool
+
+	/**
+	 * 	Allocates an empty Group element.
+	 * 	!function alloc (id?: string) : Group;
+	 */
 
 Recycler.createPool(Group);
 export default Group;

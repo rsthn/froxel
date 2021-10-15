@@ -28,24 +28,50 @@ import Rect from './rect.js';
 **	sub-pixel translations (internally), but the public values will always be integers.
 */
 
+//!class Bounds2
+
 const Bounds2 = Class.extend
 ({
 	className: 'Bounds2',
 
-	/*
-	**	Coordinates of the bounds (cx and cy are for the center). Note that this fields are read only and should be modified
-	**	through methods only.
-	*/
-	cx: 0, cy: 0,
-	x1: 0, y1: 0,
-	x2: 0, y2: 0,
+	/**
+	 * 	Coordinates of the bounds (cx and cy are for the center). Note that this fields are read only and should be
+	 * 	modified through methods only.
+	 */
 
-	/*
-	**	Upscaled coordinates.
-	*/
+	/**
+	 * 	!readonly cx: number;
+	 */
+	cx: 0,
+	/**
+	 * 	!readonly cy: number;
+	 */
+	cy: 0,
+	/**
+	 * 	!readonly x1: number;
+	 */
+	x1: 0,
+	/**
+	 * 	!readonly y1: number;
+	 */
+	y1: 0,
+	/**
+	 * 	!readonly x2: number;
+	 */
+	x2: 0,
+	/**
+	 * 	!readonly y2: number;
+	 */
+	y2: 0,
+
+	/**
+	 * 	Upscaled coordinates.
+	 */
 	ucx: 0, ucy: 0,
 	ux1: 0, uy1: 0,
 	ux2: 0, uy2: 0,
+
+	//violet
 
 	/*
 	**	Initializes the instance.
@@ -631,6 +657,16 @@ const Bounds2 = Class.extend
 		return this.downscale();
 	}
 });
+
+//!/class
+
+//!namespace Rect
+//!namespace Pool
+
+	/**
+	 * 	Allocates a new object of zero size.
+	 * 	!function alloc() : Bounds2;
+	 */
 
 Recycler.createPool (Bounds2, 8192, 3072);
 export default Bounds2;

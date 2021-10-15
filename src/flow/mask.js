@@ -26,18 +26,22 @@ import Recycler from '../utils/recycler.js';
 **	Describes an element mask. Used for collision detection.
 */
 
+//!class Mask extends Element
+
 const Mask = Element.extend
 ({
 	className: 'Mask',
 
-	/*
-	**	Type of the mask (user defined).
-	*/
+	/**
+	 * 	Type of the mask (user defined).
+	 * 	!type: number;
+	 */
 	type: 0,
 
-	/*
-	**	Constructs a mask at the specified position.
-	*/
+	/**
+	 * 	Constructs the Mask element.
+	 * 	!constructor (type: number, x: number, y: number, width: number, height: number);
+	 */
 	__ctor: function(type, x, y, width, height)
 	{
 		this._super.Element.__ctor(x, y, width, height);
@@ -45,9 +49,10 @@ const Mask = Element.extend
 		this.type = type;
 	},
 
-	/*
-	**	Draws the element on the specified canvas.
-	*/
+	/**
+	 * 	Draws the element on the specified canvas.
+	 * 	!draw (g: Canvas) : void;
+	 */
 	draw: function(g)
 	{
 		let g2 = System.displayBuffer2;
@@ -61,6 +66,16 @@ const Mask = Element.extend
 		g2.popMatrix();
 	}
 });
+
+//!/class
+
+//!namespace Mask
+//!namespace Pool
+
+	/**
+	 * 	Allocates a new Mask element.
+	 * 	!function alloc (type: number, x: number, y: number, width: number, height: number) : Mask;
+	 */
 
 Recycler.createPool(Mask);
 export default Mask;

@@ -30,33 +30,33 @@ const Rect = Class.extend
 ({
 	className: 'Rect',
 
-	/*
-	**	Coordinates of the rectangle (cx and cy are for the center). Note that this fields are readonly they should be modified
-	**	through methods only.
-	*/
+	/**
+	 * 	Coordinates of the rectangle (cx and cy are for the center). Note that this fields are readonly they should be
+	 * 	modified through methods only.
+	 */
 
 	/**
-	 * 	!cx: number;
+	 * 	!readonly cx: number;
 	 */
 	cx: 0,
 	/**
-	 * 	!cy: number;
+	 * 	!readonly cy: number;
 	 */
 	cy: 0,
 	/**
-	 * 	!x1: number;
+	 * 	!readonly x1: number;
 	 */
 	x1: 0,
 	/**
-	 * 	!y1: number;
+	 * 	!readonly y1: number;
 	 */
 	y1: 0,
 	/**
-	 * 	!x2: number;
+	 * 	!readonly x2: number;
 	 */
 	x2: 0,
 	/**
-	 * 	!y2: number;
+	 * 	!readonly y2: number;
 	 */
 	y2: 0,
 

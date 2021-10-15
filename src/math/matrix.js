@@ -24,18 +24,34 @@ import Vec2 from './vec2.js';
 const temp = new Float32Array(9).fill(0);
 const temp2 = new Float32Array(9).fill(0);
 
-/*
-**	Represents a 3x3 matrix. Provides an interface to manipulate 3x3 matrices.
-*/
+/**
+ * 	Represents a 3x3 matrix. Provides an interface to manipulate 3x3 matrices.
+ */
+
+//!class Matrix
+
 const Matrix = Class.extend
 ({
 	className: 'Matrix',
 
+	/**
+	 * 	Actual elements of the matrix.
+	 * 	!data: Float32Array
+	 */
 	data: null,
 
-	/*
-	**	Constructor.
-	*/
+	/**
+	 * 	Constructs a new matrix copying the elements from the specified matrix.
+	 * 	!constructor(value: Matrix);
+	 */
+	/**
+	 * 	Constructs a new matrix with the values from the specified array.
+	 * 	!constructor(value: Float32Array);
+	 */
+	/**
+	 * 	Constructs a new matrix with the identity matrix values.
+	 * 	!constructor();
+	 */
 	__ctor: function(value=null)
 	{
 		if (this.data === null)
@@ -47,27 +63,34 @@ const Matrix = Class.extend
 			this.identity();
 	},
 
-	/*
-	**	Fills the matrix with zeroes.
-	*/
+	/**
+	 * 	Fills the matrix with zeroes.
+	 * 	!zero() : Matrix;
+	 */
 	zero: function()
 	{
 		this.data.fill(0);
 		return this;
 	},
 
-	/*
-	**	Fills the matrix with the specified value.
-	*/
+	/**
+	 * 	Fills the matrix with the specified value.
+	 * 	!fill (value: number) : Matrix;
+	 */
 	fill: function (value)
 	{
 		this.data.fill(value);
 		return this;
 	},
 
-	/*
-	**	Sets all matrix elements to a given value.
-	*/
+	/**
+	 * 	Copies the specified matrix elements into the current one.
+	 * 	!set (value: Matrix) : Matrix;
+	 */
+	/**
+	 * 	Sets the matrix elements from the specified array.
+	 * 	!set (value: Float32Array) : Matrix;
+	 */
 	set: function (value)
 	{
 		if (Matrix.isInstance(value))
@@ -82,9 +105,10 @@ const Matrix = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the components of the matrix to the identity matrix.
-	*/
+	/**
+	 * 	Sets the elements of the matrix to be the identity matrix.
+	 * 	!identity() : Matrix;
+	 */
 	identity: function (target=null)
 	{
 		if (target === null)
@@ -96,26 +120,29 @@ const Matrix = Class.extend
 		return this;
 	},
 
-	/*
-	**	Multiplies all elements in the matrix by a given scalar.
-	*/
-	scalef: function (f)
+	/**
+	 * 	Multiplies all elements in the matrix by a given scalar.
+	 * 	!scalef (scalar: number) : Matrix;
+	 */
+	scalef: function (scalar)
 	{
-		for (let i = 0; i < 9; i++) this.data[i] *= f;
+		for (let i = 0; i < 9; i++) this.data[i] *= scalar;
 		return this;
 	},
 
-	/*
-	**	Returns a new matrix with the same values as this one.
-	*/
+	/**
+	 * 	Returns a clone of the matrix.
+	 * 	!clone() : Matrix;
+	 */
 	clone: function ()
 	{
 		return Matrix.Pool.alloc(this);
 	},
 
-	/*
-	**	Appends two matrices (the current one and the given one) by using matrix multiplication.
-	*/
+	/**
+	 * 	Appends the given matrix to the current one using matrix multiplication (self * matrix).
+	 * 	!append (matrix: Matrix) : Matrix;
+	 */
 	append: function (matr)
 	{
 		if (matr instanceof Matrix)
@@ -136,9 +163,10 @@ const Matrix = Class.extend
 		return this;
 	},
 
-	/*
-	**	Creates a translation matrix and appends it to the current matrix.
-	*/
+	/**
+	 * 	Creates a translation matrix and appends it.
+	 * 	!translate (x: number, y: number) : Matrix;
+	 */
 	translate: function (x, y)
 	{
 		if (x == 0 && y == 0)
@@ -153,9 +181,10 @@ const Matrix = Class.extend
 		return this;
 	},
 
-	/*
-	**	Creates a rotation matrix for the given angle (in radians) and appends it to the current matrix.
-	*/
+	/**
+	 * 	Creates a rotation matrix for the given angle (in radians) and appends it.
+	 * 	!rotate (angle: number) : Matrix;
+	 */
 	rotate: function (angle)
 	{
 		if (angle == 0)
@@ -174,9 +203,10 @@ const Matrix = Class.extend
 		return this.append(temp2);
 	},
 
-	/*
-	**	Creates a scale transformation matrix and appends it to the current matrix.
-	*/
+	/**
+	 * 	Creates a scaling matrix and appends it.
+	 * 	!scale (sx: number, sy: number) : Matrix;
+	 */
 	scale: function (sx, sy)
 	{
 		if (sx == 1 && sy == 1)
@@ -190,12 +220,14 @@ const Matrix = Class.extend
 		return this.append(temp2);
 	},
 
-	/*
-	**	Applies the matrix to a vector to transform it and returns a new vector.
-	**
-	**	Vec2 applyTo (Vec2 v)
-	**	Vec2 applyTo (float x, float y)
-	*/
+	/**
+	 * 	Applies the matrix to the specified vector (matrix-vector multiplication) and returns a new Vec2.
+	 * 	!applyTo (vect: Vec2) : Vec2;
+	 */
+	/**
+	 * 	Applies the matrix to the specified coordinates (matrix-vector multiplication) and returns a new Vec2.
+	 * 	!applyTo (x: number, y: number) : Vec2;
+	 */
 	applyTo: function (x, y=null)
 	{
 		if (y === null)
@@ -211,9 +243,10 @@ const Matrix = Class.extend
 		return Vec2.Pool.alloc(nx, ny);
 	},
 
-	/*
-	**	Returns the transpose of the matrix.
-	*/
+	/**
+	 * 	Transposes the matrix.
+	 * 	!transpose() : Matrix;
+	 */
 	transpose: function ()
 	{
 		temp.fill(0);
@@ -227,9 +260,10 @@ const Matrix = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns the determinant of the matrix.
-	*/
+	/**
+	 * 	Returns the determinant of the matrix.
+	 * 	!det() : number;
+	 */
 	det: function ()
 	{
 		return	this.data[0] * (this.data[4]*this.data[8] - this.data[5]*this.data[7]) -
@@ -238,9 +272,10 @@ const Matrix = Class.extend
 				;
 	},
 
-	/*
-	**	Returns the adjoint of the matrix as a new matrix.
-	*/
+	/**
+	 * 	Returns a new matrix with the adjoint of the current matrix.
+	 * 	!adj() : Matrix;
+	 */
 	adj: function () // violet:verify and fix
 	{
 		/*let t = this.transpose();
@@ -263,9 +298,10 @@ const Matrix = Class.extend
 		throw new Error('NOT IMPLEMENTED');
 	},
 
-	/*
-	**	Returns the inverse of the matrix as a new matrix.
-	*/
+	/**
+	 * 	Returns a new matrix with the inverse of the current matrix.
+	 * 	!inverse() : Matrix;
+	 */
 	inverse: function ()
 	{
 		let det = this.det();
@@ -274,24 +310,43 @@ const Matrix = Class.extend
 		return this.adj().scalef(1/det);
 	},
 
-	/*
-	**	Returns a string representation of the matrix.
-	*/
+	/**
+	 * 	Returns a string representation of the matrix.
+	 * 	!toString() : string;
+	 */
 	toString: function ()
 	{
 		return `[${this.data[0]}, ${this.data[3]}, ${this.data[6]}]\n[${this.data[1]}, ${this.data[4]}, ${this.data[7]}]\n[${this.data[2]}, ${this.data[5]}, ${this.data[8]}]\n`;
 	}
 });
 
-/*
-**	Sets the components of the specified Float32Array[9] to the identity matrix.
-*/
+/**
+ * 	Sets the components of the specified array as the identity matrix.
+ * 	!static loadIdentity (target: Float32Array) : void;
+ */
 Matrix.loadIdentity = function (target)
 {
 	target.fill(0);
 	target[0] = target[4] = target[8] = 1;
 };
 
+//!/class
+
+//!namespace Matrix
+//!namespace Pool
+
+	/**
+	 * 	Allocates a new matrix copying the components from the specified matrix.
+	 * 	!function alloc (value: Matrix): Matrix;
+	 */
+	/**
+	 * 	Allocates a new matrix with the values from the specified array.
+	 * 	!function alloc (value: Float32Array): Matrix;
+	 */
+	/**
+	 * 	Allocates a new matrix with the identity matrix values.
+	 * 	!function alloc (): Matrix;
+	 */
 
 Recycler.createPool (Matrix, 4096, 1024);
 export default Matrix;

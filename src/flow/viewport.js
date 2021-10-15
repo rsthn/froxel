@@ -169,6 +169,7 @@ const Viewport = Class.extend
 
 		this.focusBounds = Bounds2.Pool.alloc();
 		this.screenBounds = Bounds2.Pool.alloc();
+		this.container = Bounds2.Pool.alloc();
 		this.offset = Point2.Pool.alloc();
 
 		this.flags = Viewport.ENABLED;
@@ -188,6 +189,7 @@ const Viewport = Class.extend
 		this.bounds.free();
 		this.focusBounds.free();
 		this.screenBounds.free();
+		this.container.free();
 		this.tmpPoint.free();
 
 		if (this.padding !== null)

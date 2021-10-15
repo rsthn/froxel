@@ -126,10 +126,10 @@ const Linkable = Class.extend
 //!namespace Linkable
 //!namespace Pool
 
-/**
- * 	Allocates a linkable item and wraps the given value. Sets the `prev` and `next` pointers to null.
- * 	!function alloc (value?: any) : Linkable;
- */
+	/**
+	 * 	Allocates a linkable item and wraps the given value. Sets the `prev` and `next` pointers to null.
+	 * 	!function alloc (value?: any) : Linkable;
+	 */
 
 Recycler.createPool (Linkable, 16384, 6144);
 export default Linkable;
