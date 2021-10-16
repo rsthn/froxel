@@ -20,10 +20,10 @@ import Recycler from '../utils/recycler.js';
 //![import "../utils/recycler"]
 //![import "./vec2"]
 
-/*
-**	Representation of a point in 2D space. The coordinate values are upscaled by a fixed number of bits to allow
-**	sub-pixel translations (internally), but the public values will always be integers.
-*/
+//:/**
+//: * 	Representation of a point in 2D space. The coordinate values are upscaled by a fixed number of bits to allow
+//: * 	sub-pixel translations (internally), but the public values will always be integers.
+//: */
 
 //!class Point2
 

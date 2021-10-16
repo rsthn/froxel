@@ -20,42 +20,51 @@ import Recycler from '../utils/recycler.js';
 //![import "./element"]
 //![import "../utils/recycler"]
 
-/*
-**	Describes an element that can be rendered to the screen.
-*/
+//:/**
+//: * 	Describes an element that can be rendered to the screen.
+//: */
+
+//!class Label extends Element
 
 const Label = Element.extend
 ({
 	className: 'Label',
 
-	/*
-	**	Text to show and spritefont resource.
-	*/
+	/**
+	 * 	Text to render.
+	 * 	!text: string;
+	 */
 	text: null,
+
+	/**
+	 * 	Spritefont resource.
+	 * 	!font: object;
+	 */
 	font: null,
 
-	/*
-	**	Last text value and its dimensions.
-	*/
+	/**
+	 * 	Last text value and its dimensions.
+	 */
 	_ltext: null,
 	_twidth: null,
 	_theight: null,
 
-	/*
-	**	Alignment properties of the label.
-	*/
-	_align: -1, /* -1=LEFT, 0=Center, 1=Right */
-	_valign: -1, /* -1=TOP, 0=Middle, 1=Bottom */
+	/**
+	 * 	Alignment properties of the label.
+	 */
+	_align: -1, /* -1=LEFT, 0=CENTER, 1=RIGHT */
+	_valign: -1, /* -1=TOP, 0=MIDDLE, 1=BOTTOM */
 
-	/*
-	**	Position offset for the text. Calculated based on alignment properties.
-	*/
+	/**	
+	 * Position offset for the text. Calculated based on alignment properties.
+	 */
 	_offsx: null,
 	_offsy: null,
 
-	/*
-	**	Constructs a label element at the specified position with the given text.
-	*/
+	/**
+	 * 	Constructs a label element at the specified position with the given text.
+	 * 	!constructor (x: number, y: number, font: object, text: string);
+	 */
 	__ctor: function(x, y, font, text)
 	{
 		this._super.Element.__ctor(x, y, 4, 4);
@@ -64,9 +73,11 @@ const Label = Element.extend
 		this.font = font;
 	},
 
-	/*
-	**	Sets the horizontal alignment value of the label.
-	*/
+	/**
+	 * 	Sets the horizontal alignment value of the label.
+	 * 	@param value - Use -1 for LEFT, 0 for CENTER, and 1 for RIGHT.
+	 * 	!align (value: number) : Label;
+	 */
 	align: function(value)
 	{
 		this._align = value;
@@ -74,9 +85,11 @@ const Label = Element.extend
 		return this;
 	},
 
-	/*
-	**	Sets the vertical alignment value of the label.
-	*/
+	/**
+	 * 	Sets the vertical alignment value of the label.
+	 * 	@param value - Use -1 for TOP, 0 for MIDDLE, and 1 for BOTTOM.
+	 * 	!valign (value: number) : Label;
+	 */
 	valign: function(value)
 	{
 		this._valign = value;
@@ -85,7 +98,7 @@ const Label = Element.extend
 	},
 
 	/**
-	 *	Renders the element to the graphics surface.
+	 * 	Renders the element to the graphics surface.
 	 */
 	render: function(g)
 	{
@@ -111,6 +124,16 @@ const Label = Element.extend
 		this.font.drawText (g, this.bounds.x1 + this._offsx, this.bounds.y1 + this._offsy, this.text);
 	}
 });
+
+//!/class
+
+//!namespace Label
+//!namespace Pool
+
+	/**
+	 * 	Allocates a label element at the specified position with the given text.
+	 * 	!function alloc (x: number, y: number, font: object, text: string) : Label;
+	 */
 
 
 Recycler.createPool(Label);

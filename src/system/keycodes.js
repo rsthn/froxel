@@ -14,6 +14,10 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//:/**
+//: * 	List of key codes supported by the system.
+//: */
+
 //!enum KeyCodes
 
 export default

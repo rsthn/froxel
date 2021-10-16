@@ -16,10 +16,10 @@
 
 import { Class } from '@rsthn/rin';
 
-/**
- * 	Describes a function dependent of time (t-function), multiple sampling points (t,y) can be added, this class
- * 	provides methods to access any value for a given time, or the integral of a time range.
- */
+//:/**
+//: * 	Describes a function dependent of time (t-function), multiple sampling points (t,y) can be added, this class
+//: * 	provides methods to access any value for a given time, or the integral of a time range.
+//: */
 
 //!class TFunction
 

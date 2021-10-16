@@ -21,10 +21,9 @@ import Callback from './callback.js';
 //![import "./recycler"]
 //![import "./callback"]
 
-/*
-**	The handler class allows zero or more callbacks to be attached, such that when the `exec` method of the handler is invoked, all attached
-**	callbacks will also be executed.
-*/
+//:/**
+//: * 	The handler class allows zero or more callbacks to be attached, such that when the `exec` method of the handler is invoked, all attached callbacks will also be executed.
+//: */
 
 //!class Handler
 

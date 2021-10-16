@@ -21,9 +21,9 @@ import Handler from '../utils/handler.js';
 //![import "../math/bounds2"]
 //![import "../utils/handler"]
 
-/*
-**	Describes an element that can be added to a grid.
-*/
+//:/**
+//: * 	Describes an element that can be added to a grid.
+//: */
 
 //!class GridElement
 

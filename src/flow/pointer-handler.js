@@ -22,6 +22,25 @@ import System from '../system/system.js';
 //![import "./boot"]
 //![import "../system/system"]
 
+//!namespace PointerHandler
+
+	//!interface EventHandler
+
+		/**
+		 * 	Handler for pointer events.
+		 * 	!onPointerEvent (action: System.PointerEventType, pointer: object, pointers: object) : boolean;
+		 */
+
+	//!/interface
+
+//!/namespace
+
+//:/**
+//: * 	Used to attach pointer event handlers to the system.
+//: */
+
+//!class PointerHandler
+
 export default Boot.Module.create
 ({
 	handlers: null,
@@ -39,6 +58,10 @@ export default Boot.Module.create
 		};
 	},
 
+	/**
+	 * 	Registers a new pointer event handler.
+	 * 	!register (handler: PointerHandler.EventHandler) : PointerHandler.EventHandler;
+	 */
 	register: function (handler)
 	{
 		try {
@@ -54,6 +77,10 @@ export default Boot.Module.create
 		return handler;
 	},
 
+	/**
+	 * 	Removes a pointer event handler.
+	 * 	!unregister (handler: PointerHandler.EventHandler) : void;
+	 */
 	unregister: function (handler)
 	{
 		try {

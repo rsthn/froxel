@@ -37,9 +37,12 @@ import RANGE from './range.js';
 import RAND from './rand.js';
 import RANDT from './randt.js';
 
-/**
-**	Class to animate properties using commands.
-*/
+//:/**
+//: * 	Class to animate properties using commands.
+//: */
+
+//!class Anim
+
 const Anim = Class.extend
 ({
 	className: 'Anim',

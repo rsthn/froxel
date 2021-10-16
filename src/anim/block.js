@@ -18,6 +18,8 @@ import { Class } from '@rsthn/rin';
 import List from '../utils/list.js';
 import Recycler from '../utils/recycler.js';
 
+//!class Block
+
 const Block = Class.extend
 ({
 	className: 'Anim:Block',
@@ -28,6 +30,10 @@ const Block = Class.extend
 	current: false,
 	time: 0,
 
+	/**
+	 * 	Initializes the block to its initial state.
+	 * 	!init() : Block;
+	 */
 	init: function()
 	{
 		this.commands = List.Pool.alloc();
@@ -41,17 +47,29 @@ const Block = Class.extend
 		this.commands.free();
 	},
 
+	/**
+	 * 	Adds a command to the block.
+	 * 	!add (cmd: Command) : Command;
+	 */
 	add: function(cmd)
 	{
 		this.commands.push(cmd);
 		return cmd;
 	},
 
+	/**
+	 * 	Clones the block.
+	 * 	!clone() : Block;
+	 */
 	clone: function()
 	{
 		throw new Error('Method `clone` not implemented in Anim:Block');
 	},
 
+	/**
+	 * 	Clears the block by removing all commands and resetting it to initial state.
+	 * 	!clear() : Block;
+	 */
 	clear: function()
 	{
 		this.commands.clear();
@@ -60,6 +78,10 @@ const Block = Class.extend
 		return this;
 	},
 
+	/**
+	 * 	Resets the block to its initial state. Does not remove commands.
+	 * 	!reset(time: number) : Block;
+	 */
 	reset: function(time)
 	{
 		this.first = true;
@@ -69,12 +91,20 @@ const Block = Class.extend
 		return this;
 	},
 
+	/**
+	 * 	Sets the block to use the first command in the next call to `update`.
+	 * 	!restart() : Block;
+	 */
 	restart: function()
 	{
 		this.first = true;
 		return this;
 	},
 
+	/**
+	 * 	Returns `true` if all commands in the block have been executed to completion.
+	 * 	!isFinished() : boolean;
+	 */
 	isFinished: function()
 	{
 		if (this.first === true)
@@ -86,6 +116,10 @@ const Block = Class.extend
 		return this.current === null;
 	},
 
+	/**
+	 * 	Executes the next command in the block. Returns `true` when block execution is complete.
+	 * 	!update (anim: Anim) : boolean;
+	 */
 	update: function (anim)
 	{
 		while (!this.isFinished())
@@ -99,6 +133,16 @@ const Block = Class.extend
 		return true;
 	}
 });
+
+/**
+ * 	Allocates a new block.
+ * 	!static alloc () : Block;
+ */
+
+/**
+ * 	Allocates a new block and initializes it.
+ * 	!static calloc () : Block;
+ */
 
 Recycler.attachTo(Block, 8192);
 export default Block;

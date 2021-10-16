@@ -19,6 +19,10 @@ const recyclingFacilities = { };
 const Recycler = { };
 export default Recycler;
 
+//:/**
+//: * 	Provides functions to attach recycling functionality to any class for object pooling.
+//: */
+
 //!namespace Recycler
 
 /**

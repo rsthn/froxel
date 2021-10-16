@@ -24,9 +24,9 @@ import Vec2 from './vec2.js';
 const temp = new Float32Array(9).fill(0);
 const temp2 = new Float32Array(9).fill(0);
 
-/**
- * 	Represents a 3x3 matrix. Provides an interface to manipulate 3x3 matrices.
- */
+//:/**
+//: * 	Represents a 3x3 matrix. Provides an interface to manipulate 3x3 matrices.
+//: */
 
 //!class Matrix
 

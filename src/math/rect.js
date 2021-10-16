@@ -20,9 +20,9 @@ import Recycler from '../utils/recycler.js';
 //![import "../utils/recycler"]
 //![import "./vec2"]
 
-/*
-**	Represents a 2D rectangle.
-*/
+//:/**
+//: * 	Represents a 2D rectangle.
+//: */
 
 //!class Rect
 

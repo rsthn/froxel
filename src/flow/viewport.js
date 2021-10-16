@@ -14,10 +14,6 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-**	Viewport class controls the current visible rectangle of a container.
-*/
-
 import { Class } from '@rsthn/rin';
 import Bounds2 from '../math/bounds2.js';
 import Point2 from '../math/point2.js';
@@ -26,6 +22,10 @@ import Point2 from '../math/point2.js';
 //![import "../math/bounds2"]
 //![import "../math/rect"]
 //![import "../system/canvas"]
+
+//:/**
+//: * 	Viewport class controls the current visible rectangle of a container.
+//: */
 
 //!class Viewport
 

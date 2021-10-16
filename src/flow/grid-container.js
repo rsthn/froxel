@@ -28,70 +28,83 @@ import System from '../system/system.js';
 //![import "../system/globals"]
 //![import "../system/system"]
 
-/*
-**	A grid container is a container that uses an optimized spatial grid structure to store the elements.
-*/
+//:/**
+//: * 	A grid container is a container that uses an optimized spatial grid structure to store the elements.
+//: */
+
+//!class GridContainer extends Container
 
 export default Container.extend
 ({
 	className: 'GridContainer',
 
-	/*
-	**	Grid containing the elements.
-	*/
+	/**
+	 * 	Grid containing the elements.
+	 * 	!readonly grid: Grid;
+	 */
 	grid: null,
 
-	/*
-	**	Indicates if the container bound should be drawn.
-	*/
+	/**
+	 * 	Indicates if the container bound should be drawn.
+	 * 	!debugBounds: boolean;
+	 */
 	debugBounds: false,
 
-	/*
-	**	Constructs the grid container with the specified size and divisor.
-	*/
+	/**
+	 * 	Constructs the grid container with the default size (32768x32768) and divisor (64).
+	 * 	!constructor ();
+	 */
+	/**
+	 * 	Constructs the grid container with the specified size and divisor.
+	 * 	!constructor (width: number, height: number, divisor: number);
+	 */
 	__ctor: function (width=32768, height=32768, divisor=64)
 	{
 		this._super.Container.__ctor (width, height);
 		this.grid = new Grid (width, height, divisor);
 	},
 
-	/*
-	**	Destroys the container and all contained elements.
-	*/
+	/**
+	 * 	Destroys the container and all contained elements.
+	 */
 	__dtor: function()
 	{
 		this.clear();
 		this._super.Container.__dtor();
 	},
 
-	/*
-	**	Syncs the actual location of the specified element with its storage location. Returns true if successful.
-	*/
+	/**
+	 * 	Syncs the actual location of the specified element with its storage location. Returns true if successful.
+	 * 	!override sync (elem: Element) : boolean;
+	 */
 	sync: function (elem)
 	{
 		this.syncZ(elem);
 		return this.grid.sync(elem);
 	},
 
-	/*
-	**	Clears the container to empty. All contained elements will be destroyed.
-	*/
+	/**
+	 * 	Clears the container to empty. All contained elements will be destroyed.
+	 * 	!override clear() : void;
+	 */
 	clear: function()
 	{
 		this.grid.clear();
 	},
 
-	/*
-	**	Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
-	*/
+	/**
+	 * 	Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
+	 * 	!override reset() : void;
+	 */
 	reset: function()
 	{
 		this.grid.reset();
 	},
 
-	/*
-	**	Adds an element to the container. Returns boolean indicating if successful.
-	*/
+	/**
+	 * 	Adds an element to the container. Returns boolean indicating if successful.
+	 * 	!override add (elem: Element) : boolean;
+	 */
 	add: function (elem)
 	{
 		if (!Element.isInstance(elem))
@@ -107,9 +120,10 @@ export default Container.extend
 		return true;
 	},
 
-	/*
-	**	Removes an element from the container and returns it.
-	*/
+	/**
+	 * 	Removes an element from the container and returns it.
+	 * 	!override remove (elem: Element) : Element;
+	 */
 	remove: function (elem)
 	{
 		this.grid.remove(elem);
@@ -117,10 +131,11 @@ export default Container.extend
 		return elem;
 	},
 
-	/*
-	**	Draws the contained elements. Does not take the active viewport into account.
-	*/
-	_draw: function()
+	/**
+	 * 	Actually draws the contained elements.
+	 * 	!override render() : void;
+	 */
+	render: function()
 	{
 		this.grid.forEachInRegion(this.viewportBounds, GridElement.ALIVE | GridElement.VISIBLE, GridElement.ALIVE | GridElement.VISIBLE, this.drawElement, this);
 
@@ -165,34 +180,38 @@ export default Container.extend
 		g.popMatrix();
 	},
 
-	/*
-	**	Executes the specified callback function for each element that intersects the given bounds and has the specified flags set. The process
-	**	is immediately stopped if the callback returns `false`.
-	*/
+	/**
+	 * 	Executes the specified callback for each element that intersects the given bounds and has the specified flags set. The process is
+	 * 	immediately stopped if the callback returns `false`.
+	 * 	!forEachInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number, callback: (elem: Element, context?: object) => boolean, context?: object) : void;
+	 */
 	forEachInRegion: function (bounds, flagsAndMask, flagsValue, callback, context)
 	{
 		this.grid.forEachInRegion (bounds, flagsAndMask, flagsValue, callback, context);
 	},
 
-	/*
-	**	Collects all elements that intersect the given bounds and have the specified flags set. Returns a new List, remember to call free() after using it.
-	*/
+	/**
+	 * 	Collects all elements that intersect the given bounds and have the specified flags set. Returns a new List, remember to call `free` after using it.
+	 * 	!selectInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : List;
+	 */
 	selectInRegion: function (bounds, flagsAndMask, flagsValue)
 	{
 		return this.grid.selectInRegion (bounds, flagsAndMask, flagsValue);
 	},
 
-	/*
-	**	Counts all elements that intersect the given bounds and have the specified flags set.
-	*/
+	/**
+	 * 	Counts all elements that intersect the given bounds and have the specified flags set.
+	 * 	!countInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : number;
+	 */
 	countInRegion: function (bounds, flagsAndMask, flagsValue)
 	{
 		return this.grid.countInRegion (bounds, flagsAndMask, flagsValue);
 	},
 
-	/*
-	**	Returns the first element that intersect the given bounds and have the specified flags set.
-	*/
+	/**
+	 * 	Returns the first element that intersect the given bounds and have the specified flags set.
+	 * 	!selectFirst (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : Element;
+	 */
 	selectFirst: function (bounds, flagsAndMask, flagsValue)
 	{
 		return this.grid.selectFirst (bounds, flagsAndMask, flagsValue);

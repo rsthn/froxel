@@ -21,15 +21,30 @@ import globals from './globals.js';
 //![import "./shader"]
 //![import "./globals"]
 
-/**
- * 	Describes a shader program.
- */
+//:/**
+//: * 	Describes a shader program.
+//: */
+
+//!class ShaderProgram
 
 const ShaderProgram = Class.extend
 ({
 	/**
 	 * 	Locations of the generic uniforms.
+	 * 
+	 *	!readonly uniform_location_matrix: number;
+	 *	!readonly uniform_transform_matrix: number;
+	 *	!readonly uniform_texture_matrix: number;
+	 *	!readonly uniform_resolution: number;
+	 *	!readonly uniform_texture_size: number;
+	 *	!readonly uniform_base_color: number;
+	 *	!readonly uniform_time: number;
+	 *	!readonly uniform_depth: number;
+	 *	!readonly uniform_scale: number;
+	 *	!readonly uniform_alpha: number;
+	 *	!readonly uniform_texture_0: number;
 	 */
+
 	uniform_location_matrix: 0, /* mat3 */
 	uniform_transform_matrix: 0, /* mat3 */
 	uniform_texture_matrix: 0, /* mat3 */
@@ -47,27 +62,31 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Locations of the generic attributes.
+	 * 	!readonly attrib_location: number;
 	 */
 	attrib_location: 0x00, /* vec2 */
 
 	/**
 	 * 	Identifier of the program.
+	 * 	!readonly id: string;
 	 */
 	id: null,
 
 	/**
 	 * 	Shaders attached to the program.
+	 * 	!readonly shaders: Array<Shader>;
 	 */
 	shaders: null,
 
 	/**
-	 *	Shader program GL identifier.
+	 * 	Shader program GL identifier.
+	 * 	!readonly programId: number;
 	 */
 	programId: null,
 
 	/**
-	 *	Constructs an empty shader program, attach shaders by using the `attach` method.
-	 * 	@param {string} id - Identifier of the shader.
+	 *	Constructs an empty shader program with the specified identifier. Attach shaders by using the `attach` method.
+	 * 	!constructor (id: string);
 	 */
 	__ctor: function (id)
 	{
@@ -93,8 +112,7 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Attaches a shader to the shader program.
-	 * 	@param {Shader|string} shader
-	 * 	@returns {ShaderProgram}
+	 * 	!attach (shader: Shader|string) : ShaderProgram;
 	 */
 	attach: function (shader)
 	{
@@ -110,7 +128,7 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Binds the attribute locations to their predefined values.
-	 * 	@param {WebGL2Context} gl
+	 * 	!bindLocations (gl: WebGL2Context) : void;
 	 */
 	bindLocations: function (gl)
 	{
@@ -119,7 +137,7 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Loads the locations of the predefined uniforms and attributes.
-	 * 	@param {WebGL2Context} gl
+	 * 	!loadLocations (gl: WebGL2Context) : void;
 	 */
 	loadLocations: function (gl)
 	{
@@ -139,8 +157,8 @@ const ShaderProgram = Class.extend
 	},
 
 	/**
-	 * 	Links the shaders into the shader program. Completion can be obtained by calling getStatus().
-	 * 	@returns {ShaderProgram}
+	 * 	Links the shaders into the shader program. Completion can be obtained by calling `getStatus`.
+	 * 	!link() : ShaderProgram;
 	 */
 	link: function ()
 	{
@@ -161,6 +179,7 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Enables the shader program to be used in the subsequent drawing operations.
+	 * 	!use() : void;
 	 */
 	use: function ()
 	{
@@ -172,7 +191,7 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Returns the link status of the program.
-	 * 	@returns {boolean}
+	 * 	!getStatus() : boolean;
 	 */
 	getStatus: function ()
 	{
@@ -184,6 +203,7 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Returns the error of the last link operation.
+	 * 	!getError() : string;
 	 */
 	getError: function ()
 	{
@@ -198,6 +218,7 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Returns the errors found in the program and all shaders.
+	 * 	!getAllErrors()) : string;
 	 */
 	getAllErrors: function ()
 	{
@@ -213,21 +234,32 @@ const ShaderProgram = Class.extend
 });
 
 /**
- * 	Static methods.
+ * 	Global shader program list.
  */
-
 ShaderProgram.programs = { };
 
+/**
+ * 	Puts a shader program in the global program list under the specified identifier.
+ * 	!static put (id: string, shaderProgram: ShaderProgram) : void;
+ */
 ShaderProgram.put = function (id, shaderProgram)
 {
 	this.programs[id] = shaderProgram;
 };
 
+/**
+ * 	Returns a shader program from the global program list given its identifier.
+ * 	!static get (id: string) : ShaderProgram;
+ */
 ShaderProgram.get = function (id)
 {
 	return this.programs[id];
 };
 
+/**
+ * 	Removes a shader program from the global program list.
+ * 	!static remove (id: string) : void;
+ */
 ShaderProgram.remove = function (id)
 {
 	delete this.programs[id];

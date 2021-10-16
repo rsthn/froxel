@@ -39,6 +39,9 @@ export class Random
 	nextFloat () : number;
 
 }
+/**
+ * 	List of key codes supported by the system.
+ */
 export enum KeyCodes
 {
 	BACKSPACE,
@@ -108,6 +111,9 @@ export enum KeyCodes
 	Y,
 	Z,
 }
+/**
+ * 	Provides functions to attach recycling functionality to any class for object pooling.
+ */
 export namespace Recycler
 {
 	/**
@@ -135,6 +141,9 @@ export namespace Recycler
 	function createPool (targetClass: any, maxPoolSize?: number, minPoolSize?: number) : any;
 
 }
+/**
+ * 	Generic class for linkable items such as required by List. The responsibility of this class is to wrap a value into a linkable object.
+ */
 export class Linkable
 {
 	/**
@@ -191,6 +200,9 @@ export namespace Linkable
 	}
 }
 
+/**
+ * 	Implementation of a generic linked list.
+ */
 export class List
 {
 	/**
@@ -377,6 +389,9 @@ export class Timer
 	onStopped() : void;
 
 }
+/**
+ * 	Representation of a vector in 2D space, that is, a float tuple with components x and y.
+ */
 export class Vec2
 {
 	/**
@@ -563,6 +578,9 @@ export namespace Vec2
 
 	}
 }
+/**
+ * 	Represents a 3x3 matrix. Provides an interface to manipulate 3x3 matrices.
+ */
 export class Matrix
 {
 	/**
@@ -705,13 +723,28 @@ export namespace Matrix
 }
 
 
+/**
+ * 	Describes a shader object. The actual shader type is specified at construction.
+ */
 export class Shader
 {
 	/**
+	 * 	Identifier of the shader.
+	 */
+	readonly id: string;
+
+	/**
+	 * 	Type of the shader.
+	 */
+	readonly type: Shader.Type;
+
+	/**
+	 * 	Shader GL identifier.
+	 */
+	readonly shaderId: number;
+
+	/**
 	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
-	 *
-	 * 	@param id - Identifier of the shader.
-	 * 	@param type - One of the constants from the Shader.Type enum.
 	 */
 	constructor (id: string, type: Shader.Type);
 
@@ -734,6 +767,9 @@ export class Shader
 
 export namespace Shader
 {
+	/**
+	 * 	Shader types.
+	 */
 	enum Type
 	{
 		VERTEX,
@@ -741,20 +777,107 @@ export namespace Shader
 		GEOMETRY,
 	}
 
+}
+
+/**
+ * 	Describes a shader program.
+ */
+export class ShaderProgram
+{
 	/**
-	 * 	Stores a shader with the specified identifier in the global shader map.
+	 * 	Locations of the generic uniforms.
 	 */
-	function put (id: string, shader: Shader) : void;
+	readonly uniform_location_matrix: number;
+	readonly uniform_transform_matrix: number;
+	readonly uniform_texture_matrix: number;
+	readonly uniform_resolution: number;
+	readonly uniform_texture_size: number;
+	readonly uniform_base_color: number;
+	readonly uniform_time: number;
+	readonly uniform_depth: number;
+	readonly uniform_scale: number;
+	readonly uniform_alpha: number;
+	readonly uniform_texture_0: number;
 
 	/**
-	 * 	Returns a Shader given its identifier.
+	 * 	Locations of the generic attributes.
 	 */
-	function get (id: string) : Shader;
+	readonly attrib_location: number;
 
 	/**
-	 * 	Removes a shader from the global shader map.
+	 * 	Identifier of the program.
 	 */
-	function remove (id: string) : void;
+	readonly id: string;
+
+	/**
+	 * 	Shaders attached to the program.
+	 */
+	readonly shaders: Array<Shader>;
+
+	/**
+	 * 	Shader program GL identifier.
+	 */
+	readonly programId: number;
+
+	/**
+	 *	Constructs an empty shader program with the specified identifier. Attach shaders by using the `attach` method.
+	 */
+	constructor (id: string);
+
+	/**
+	 * 	Attaches a shader to the shader program.
+	 */
+	attach (shader: Shader|string) : ShaderProgram;
+
+	/**
+	 * 	Binds the attribute locations to their predefined values.
+	 */
+	bindLocations (gl: WebGL2Context) : void;
+
+	/**
+	 * 	Loads the locations of the predefined uniforms and attributes.
+	 */
+	loadLocations (gl: WebGL2Context) : void;
+
+	/**
+	 * 	Links the shaders into the shader program. Completion can be obtained by calling `getStatus`.
+	 */
+	link() : ShaderProgram;
+
+	/**
+	 * 	Enables the shader program to be used in the subsequent drawing operations.
+	 */
+	use() : void;
+
+	/**
+	 * 	Returns the link status of the program.
+	 */
+	getStatus() : boolean;
+
+	/**
+	 * 	Returns the error of the last link operation.
+	 */
+	getError() : string;
+
+	/**
+	 * 	Returns the errors found in the program and all shaders.
+	 */
+	getAllErrors()) : string;
+
+	/**
+	 * 	Puts a shader program in the global program list under the specified identifier.
+	 */
+	static put (id: string, shaderProgram: ShaderProgram) : void;
+
+	/**
+	 * 	Returns a shader program from the global program list given its identifier.
+	 */
+	static get (id: string) : ShaderProgram;
+
+	/**
+	 * 	Removes a shader program from the global program list.
+	 */
+	static remove (id: string) : void;
 
 }
 
@@ -1160,6 +1283,9 @@ export namespace System
 
 }
 
+/**
+ * 	Logging module to show logs on the system display buffer.
+ */
 export namespace Log
 {
 	/**
@@ -1229,6 +1355,10 @@ export namespace Log
 	function resume () : void;
 
 }
+/**
+ * 	Representation of a point in 2D space. The coordinate values are upscaled by a fixed number of bits to allow
+ * 	sub-pixel translations (internally), but the public values will always be integers.
+ */
 export class Point2
 {
 	/**
@@ -1369,6 +1499,9 @@ export namespace Point2
 
 	}
 }
+/**
+ * 	Represents a 2D rectangle.
+ */
 export class Rect
 {
 	/**
@@ -1606,6 +1739,10 @@ export namespace Rect
 
 	}
 }
+/**
+ * 	Representation of a bounding box in 2D space. The component values are upscaled by a fixed number of bits to allow sub-pixel
+ * 	translations (internally), but the public values will always be integers.
+ */
 export class Bounds2
 {
 	/**
@@ -1647,6 +1784,9 @@ export namespace Rect
 }
 
 
+/**
+ * 	Viewport class controls the current visible rectangle of a container.
+ */
 export class Viewport
 {
 	/**
@@ -1860,6 +2000,9 @@ export class Viewport
 	toScreenSpace (x: number, y: number, floor?: boolean) : Point2;
 
 }
+/**
+ * 	Global functions and definitions.
+ */
 export namespace globals
 {
 	/**
@@ -2124,7 +2267,58 @@ export namespace Perf
 
 
 
+export class PriorityQueue
+{
+	/**
+	 * 	Constructs an priority queue.
+	 */
+	constructor();
 
+	/**
+	 * 	Adds an object to the priority queue.
+	 */
+	add (obj: { priority: number }) : object;
+
+	/**
+	 * 	Marks an object to be removed from the priority queue. Use `cleanup` to actually remove them.
+	 */
+	remove (obj: object) : object;
+
+	/**
+	 * 	Runs a cleanup of the queue by removing any objects marked to be removed.
+	 */
+	cleanup() : void;
+
+	/**
+	 * 	Runs the specified callback for each object in the queue. Executed in order of priority (from low number to high number).
+	 * 	@param callback - Return `false` to stop the forEach execution immediately.
+	 */
+	forEach (callback: (obj: object) => boolean) : void;
+
+	/**
+	 * 	Runs the specified callback for each object in the queue. Executed in reverse order of priority (from high number to low number).
+	 * 	@param callback - Return `false` to stop the forEachRev execution immediately.
+	 */
+	forEachRev (callback: (obj: object) => boolean) : void;
+
+	/**
+	 * 	Runs the specified callback for each object in the queue. Executed in order of priority (from low number to high number). When
+	 * 	the cycle finishes the given `finishedCallback` will be executed.
+	 * 	@param callback - Return `false` to stop the forEachAsync execution immediately. Must manually execute `next` when finished.
+	 */
+	forEachAsync (callback: (obj: object, next: Function) => boolean) : void;
+
+	/**
+	 * 	Runs the specified callback for each object in the queue. Executed in reverse order of priority (from high number to low number). When
+	 * 	the cycle finishes the given `finishedCallback` will be executed.
+	 * 	@param callback - Return `false` to stop the forEachRevAsync execution immediately. Must manually execute `next` when finished.
+	 */
+	forEachRevAsync (callback: (obj: object, next: Function) => boolean) : void;
+
+}
+/**
+ * 	Defines a callback node. Contains a callback function, its context and up to four arguments.
+ */
 export class Callback
 {
 	/**
@@ -2151,6 +2345,9 @@ export namespace Callback
 
 	}
 }
+/**
+ * 	The handler class allows zero or more callbacks to be attached, such that when the `exec` method of the handler is invoked, all attached callbacks will also be executed.
+ */
 export class Handler
 {
 	/**
@@ -2214,6 +2411,10 @@ export namespace Handler
 
 
 
+/**
+ * 	Describes a function dependent of time (t-function), multiple sampling points (t,y) can be added, this class
+ * 	provides methods to access any value for a given time, or the integral of a time range.
+ */
 export class TFunction
 {
 	/**
@@ -2547,8 +2748,97 @@ export namespace Easing
 
 	}
 }
+export class Block
+{
+	/**
+	 * 	Initializes the block to its initial state.
+	 */
+	init() : Block;
 
+	/**
+	 * 	Adds a command to the block.
+	 */
+	add (cmd: Command) : Command;
 
+	/**
+	 * 	Clones the block.
+	 */
+	clone() : Block;
+
+	/**
+	 * 	Clears the block by removing all commands and resetting it to initial state.
+	 */
+	clear() : Block;
+
+	/**
+	 * 	Resets the block to its initial state. Does not remove commands.
+	 */
+	reset(time: number) : Block;
+
+	/**
+	 * 	Sets the block to use the first command in the next call to `update`.
+	 */
+	restart() : Block;
+
+	/**
+	 * 	Returns `true` if all commands in the block have been executed to completion.
+	 */
+	isFinished() : boolean;
+
+	/**
+	 * 	Executes the next command in the block. Returns `true` when block execution is complete.
+	 */
+	update (anim: Anim) : boolean;
+
+	/**
+	 * 	Allocates a new block.
+	 */
+	static alloc () : Block;
+
+	/**
+	 * 	Allocates a new block and initializes it.
+	 */
+	static calloc () : Block;
+
+}
+export class Command
+{
+	/**
+	 * 	Initializes the command.
+	 */
+	init (op: object) : Command;
+
+	/**
+	 * 	Executed when the command properties are ready, to initialize the operation code.
+	 */
+	ready() : void;
+
+	/**
+	 * 	Updates the command execution.
+	 */
+	update (anim: Anim, block: Block) : boolean;
+
+	/**
+	 * 	Allocates a new command.
+	 */
+	static alloc () : Command;
+
+	/**
+	 * 	Allocates a new command and initializes it.
+	 */
+	static calloc () : Command;
+
+}
+/**
+ * 	Class to animate properties using commands.
+ */
+export class Anim
+{
+}
+
+/**
+ * 	Describes an element that can be added to a grid.
+ */
 export class GridElement
 {
 	/**
@@ -2693,7 +2983,204 @@ export class GridElement
 	static allocFlag() : number;
 
 }
+/**
+ * 	Describes an optimized data structure to store 2D spatially indexed elements.
+ */
+export class Grid
+{
+	/**
+	 * 	Number of elements active in the grid.
+	 */
+	readonly count: number;
 
+	/**
+	 * 	Indicates if the grid should match regions with exact precision by comparing region to element bounds intersection.
+	 */
+	verifyIntersection: boolean;
+
+	/**
+	 * 	Constructs a grid with the specified maximum width and height. The final effective coordinate range will be -(width/2) to (width/2)for X,
+	 * 	and -(height/2) to (height/2) for Y.
+	 *
+	 * 	Note that the width, height and divisors kx and ky will be converted to their closest base-2 value. This is done to ensure shifts can be used
+	 * 	to quickly divide the input coordinates.
+	 */
+	constructor (width: number, height: number, kx: number, ky?: number);
+
+	/**
+	 * 	Destroys all lists and elements in the grid.
+	 */
+	clear() : void;
+
+	/**
+	 * 	Destroys all lists in the grid. Elements will not be destroyed.
+	 */
+	reset() : void;
+
+	/**
+	 * 	Adds an element to the grid. Returns `true` if successful, or `false` if the element is outside of the grid bounds.
+	 */
+	add (elem: GridElement) : boolean;
+
+	/**
+	 * 	Removes the element from the grid and returns it.
+	 */
+	remove (elem: GridElement) : GridElement;
+
+	/**
+	 * 	Updates the storage location of the specified element. Returns `true` if successful, or `false` if the element is outside of the grid bounds (in
+	 * 	which case the element will be removed), or if the element does not belong to this grid.
+	 */
+	sync (elem: GridElement) : boolean;
+
+	/**
+	 * 	Executes the specified callback function for each element that intersects the given bounds and has the specified flags set. The process is immediately
+	 * 	stopped if the callback returns `false`.
+	 */
+	forEachInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number, callback: (elem: GridElement, context?: object) => boolean, context?: object) : void;
+
+	/**
+	 * 	Collects all elements that intersect the given bounds and have the specified flags set. Returns a new List, remember to call `free` after using it.
+	 */
+	selectInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : List;
+
+	/**
+	 * 	Counts all elements that intersect the given bounds and have the specified flags set.
+	 */
+	countInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : number;
+
+	/**
+	 * 	Returns the first element that intersect the given bounds and have the specified flags set.
+	 */
+	selectFirst (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : GridElement;
+
+}
+/**
+ * 	A container is responsible to store elements for their subsequent rendering. The actual storage mechanism used can vary and must be implemented by derived
+ * 	classes (see `GridContainer` and `SimpleContainer`).
+ */
+export class Container
+{
+	/**
+	 * 	Viewport bounds currently active. Set by the Scene class before calling `draw`.
+	 */
+	viewportBounds: Bounds2;
+
+	/**
+	 * 	Width of the container.
+	 */
+	width: number;
+
+	/**
+	 * 	Height of the container.
+	 */
+	height: number;
+
+	/**
+	 * 	Depth (z-value) of the container.
+	 */
+	zvalue: number;
+
+	/**
+	 * 	Scene object to which this container belongs.
+	 */
+	scene: Scene;
+
+	/**
+	 * 	Flags of the object (see constants at the bottom of this file).
+	 */
+	flags: number;
+
+	/**
+	 * 	Currently active display buffer for rendering operations (used by drawElement).
+	 */
+	g: Canvas;
+
+	/**
+	 * 	Total number of elements in the container.
+	 */
+	readonly elementCount: number;
+
+	/**
+	 * 	Total number of elements drawn on the last draw operation.
+	 */
+	readonly drawCount: number;
+
+	/**
+	 * 	Returns the value of the `visible` flag.
+	 */
+	visible() : boolean;
+
+	/**
+	 * 	Sets the value of the `visible` flag.
+	 */
+	visible(value: boolean) : Container;
+
+	/**
+	 * 	Returns the value of the `depthFlag` flag.
+	 */
+	depthFlag() : boolean;
+
+	/**
+	 * 	Sets the value of the `depthFlag` flag.
+	 */
+	depthFlag(value: boolean) : Container;
+
+	/**
+	 * 	Sets the active viewport bounds.
+	 */
+	setViewportBounds (bounds: Bounds2) : Container;
+
+	/**
+	 * 	Draws the specified element.
+	 */
+	drawElement (elem: Element, self: Container) : boolean;
+
+	/**
+	 * 	Updates the Z-value of the specified element. Should be called after adding an element and after/before every sync.
+	 */
+	syncZ (elem: Element) : void;
+
+	/**
+	 * 	Syncs the actual location of the specified element with its storage location. Returns true if successful.
+	 */
+	sync (elem: Element) : boolean;
+
+	/**
+	 * 	Clears the container to empty. All contained elements will be destroyed.
+	 */
+	clear() : void;
+
+	/**
+	 * 	Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
+	 */
+	reset() : void;
+
+	/**
+	 * 	Adds an element to the container. Returns boolean indicating if successful.
+	 */
+	add (elem: Element) : boolean;
+
+	/**
+	 * 	Removes an element from the container and returns it.
+	 */
+	remove (elem: Element) : Element;
+
+	/**
+	 * 	Prepares the canvas with depth flag configuration and Z-value to draw the contained elements.
+	 */
+	draw (g: Canvas) : void;
+
+	/**
+	 * 	Actually draws the contained elements.
+	 */
+	render() : void;
+
+}
+
+/**
+ * 	Describes an object that can be drawn to a Canvas.
+ */
 export class IDrawable
 {
 	/**
@@ -2717,6 +3204,9 @@ export class IDrawable
 	draw(g: Canvas, x: number, y: number): void;
 
 }
+/**
+ * 	Describes an element that can be rendered to the screen.
+ */
 export class Element extends GridElement
 {
 	/**
@@ -2765,6 +3255,9 @@ export namespace Element
 
 
 
+/**
+ * 	Groups one or more elements into a single one.
+ */
 export class Group extends Element
 {
 	/**
@@ -2863,9 +3356,301 @@ export namespace Group
 
 
 
+/**
+ * 	A scene is a set of containers, viewports and groups. Rendering is done in their specific index-based order.
+ */
+export class Scene
+{
+	/**
+	 * 	Minimum dimensions of the scene (smallest container size).
+	 */
+	readonly minWidth: number;
+	readonly minHeight: number;
+
+	/**
+	 * 	Maximum dimensions of the scene (largest container size).
+	 */
+	readonly maxWidth: number;
+	readonly maxHeight: number;
+
+	/**
+	 * 	Active viewport bounds, used to select items in a visible region.
+	 */
+	readonly viewportBounds: Bounds2;
+
+	/**
+	 * 	First updater. Runs before any other update calls.
+	 */
+	readonly fupdater: Handler;
+
+	/**
+	 * 	General updater. Runs after the first updater and before synchronizer.
+	 */
+	readonly updater: Handler;
+
+	/**
+	 * 	Synchronizer. Run after general updater, and before viewport synchronization.
+	 */
+	readonly synchronizer: Handler;
+
+	/**
+	 * 	Last updater. Runs after all other update calls.
+	 */
+	readonly lupdater: Handler;
+
+	/**
+	 * 	Destroyer runs when the scene is destroyed.
+	 */
+	readonly destroyer: Handler;
+
+	/**
+	 * 	Current delta time. Set upon entering the `update` method. Reflects the same value as System.frameDelta.
+	 */
+	readonly dt: number;
+
+	/**
+	 * 	Total number of elements drawn on the last draw operation.
+	 */
+	readonly drawCount: number;
+
+	/**
+	 * 	Constructs an empty scene.
+	 */
+	constructor();
+
+	/**
+	 * 	Returns the value of the `visible` flag.
+	 */
+	visible() : boolean;
+
+	/**
+	 * 	Sets the value of the `visible` flag.
+	 */
+	visible(value: boolean) : Container;
+
+	/**
+	 * 	Sets a container at the specified index.
+	 */
+	setContainer (index: number, container: Container) : Scene;
+
+	/**
+	 * 	Returns the container at the specified index.
+	 */
+	getContainer (index: number) : Container;
+
+	/**
+	 * 	Sets a viewport at the specified index.
+	 */
+	setViewport (index: number, viewport: Viewport) : Scene;
+
+	/**
+	 * 	Returns the viewport at the specified index.
+	 */
+	getViewport (index: number) : Viewport;
+
+	/**
+	 * 	Adds the given element to the disposal queue. To be destroyed on the next call to `disposeQueued`.
+	 */
+	disposeLater (elem: Element) : void;
+
+	/**
+	 * 	Disposes all elements in the disposal queue.
+	 */
+	disposeQueued() : void;
+
+	/**
+	 * 	Adds a group to the scene.
+	 */
+	addGroup (group: Group) : boolean;
+
+	/**
+	 * 	Removes a group from the scene.
+	 */
+	removeGroup (group: Group) : Group;
+
+	/**
+	 * 	Syncs the actual location of the specified element with its storage location. Returns `true` if successful.
+	 */
+	sync (group: Group) : boolean;
+
+	/**
+	 * 	Draws the scene, by executing the `draw` method on each container. The entire scene will be drawn once for each viewport, and
+	 * 	the visible region rules of each viewport will be applied.
+	 */
+	draw (g: Canvas) : void;
+
+	/**
+	 * 	Draws the scene containers and passes the specified viewport bounds to the container.
+	 */
+	drawContainers (g: Canvas, viewportBounds: Bounds2) : void;
+
+	/**
+	 * 	Runs a scene update cycle.
+	 */
+	update (dt: number) : void;
+
+}
+
+/**
+ * 	An updater is used to update one or more elements and synchronize their position with their container.
+ */
+export class Updater
+{
+	/**
+	 * 	Scene where the updater is attached.
+	 */
+	readonly scene: Scene;
+
+	/**
+	 * 	Constructs the updater linked to the specified scene.
+	 */
+	constructor (scene: Scene, update: (elem: Element, dt: number, context: object) => boolean, context?: object);
+
+	/**
+	 * 	Adds an element to the updater.
+	 */
+	add (elem: Element) : boolean;
+
+	/**
+	 * 	Removes an element from the updater.
+	 */
+	remove (elem: Element) : Element;
+
+	/**
+	 * 	Runs an update cycle.
+	 */
+	update (dt: number) : void;
+
+}
+
+/**
+ * 	A simple container is a container that uses a linked-list to storage the elements.
+ */
+export class SimpleContainer extends Container
+{
+	/**
+	 * 	List containing the elements.
+	 */
+	readonly list: List;
+
+	/**
+	 * 	Constructs the container with the specified size.
+	 */
+	constructor (width: number, height: number);
+
+	/**
+	 * 	Syncs the actual location of the specified element with its storage location. Returns true if successful.
+	 */
+	override sync (elem: Element) : boolean;
+
+	/**
+	 * 	Clears the container to empty. All contained elements will be destroyed.
+	 */
+	override clear() : void;
+
+	/**
+	 * 	Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
+	 */
+	override reset() : void;
+
+	/**
+	 * 	Adds an element to the container. Returns boolean indicating if successful.
+	 */
+	override add (elem: Element) : boolean;
+
+	/**
+	 * 	Removes an element from the container and returns it.
+	 */
+	override remove (elem: Element) : Element;
+
+	/**
+	 * 	Actually draws the contained elements. Does not take the active viewport into account (hence simple container).
+	 */
+	override render() : void;
+
+}
+/**
+ * 	A grid container is a container that uses an optimized spatial grid structure to store the elements.
+ */
+export class GridContainer extends Container
+{
+	/**
+	 * 	Grid containing the elements.
+	 */
+	readonly grid: Grid;
+
+	/**
+	 * 	Indicates if the container bound should be drawn.
+	 */
+	debugBounds: boolean;
+
+	/**
+	 * 	Constructs the grid container with the default size (32768x32768) and divisor (64).
+	 */
+	constructor ();
+
+	/**
+	 * 	Constructs the grid container with the specified size and divisor.
+	 */
+	constructor (width: number, height: number, divisor: number);
+
+	/**
+	 * 	Syncs the actual location of the specified element with its storage location. Returns true if successful.
+	 */
+	override sync (elem: Element) : boolean;
+
+	/**
+	 * 	Clears the container to empty. All contained elements will be destroyed.
+	 */
+	override clear() : void;
+
+	/**
+	 * 	Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
+	 */
+	override reset() : void;
+
+	/**
+	 * 	Adds an element to the container. Returns boolean indicating if successful.
+	 */
+	override add (elem: Element) : boolean;
+
+	/**
+	 * 	Removes an element from the container and returns it.
+	 */
+	override remove (elem: Element) : Element;
+
+	/**
+	 * 	Actually draws the contained elements.
+	 */
+	override render() : void;
+
+	/**
+	 * 	Executes the specified callback for each element that intersects the given bounds and has the specified flags set. The process is
+	 * 	immediately stopped if the callback returns `false`.
+	 */
+	forEachInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number, callback: (elem: Element, context?: object) => boolean, context?: object) : void;
+
+	/**
+	 * 	Collects all elements that intersect the given bounds and have the specified flags set. Returns a new List, remember to call `free` after using it.
+	 */
+	selectInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : List;
+
+	/**
+	 * 	Counts all elements that intersect the given bounds and have the specified flags set.
+	 */
+	countInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : number;
+
+	/**
+	 * 	Returns the first element that intersect the given bounds and have the specified flags set.
+	 */
+	selectFirst (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : Element;
+
+}
 
 
-
+/**
+ * 	Describes an element mask. Used for collision detection.
+ */
 export class Mask extends Element
 {
 	/**
@@ -2896,9 +3681,109 @@ export namespace Mask
 
 	}
 }
+/**
+ * 	Describes an element that can be rendered to the screen.
+ */
+export class Label extends Element
+{
+	/**
+	 * 	Text to render.
+	 */
+	text: string;
 
+	/**
+	 * 	Spritefont resource.
+	 */
+	font: object;
 
+	/**
+	 * 	Constructs a label element at the specified position with the given text.
+	 */
+	constructor (x: number, y: number, font: object, text: string);
 
+	/**
+	 * 	Sets the horizontal alignment value of the label.
+	 * 	@param value - Use -1 for LEFT, 0 for CENTER, and 1 for RIGHT.
+	 */
+	align (value: number) : Label;
+
+	/**
+	 * 	Sets the vertical alignment value of the label.
+	 * 	@param value - Use -1 for TOP, 0 for MIDDLE, and 1 for BOTTOM.
+	 */
+	valign (value: number) : Label;
+
+}
+
+export namespace Label
+{
+	export namespace Pool
+	{
+		/**
+		 * 	Allocates a label element at the specified position with the given text.
+		 */
+		function alloc (x: number, y: number, font: object, text: string) : Label;
+
+	}
+}
+export namespace KeyboardHandler
+{
+	interface EventHandler
+	{
+		/**
+		 * 	Handler for keyboard events.
+		 */
+		onKeyboardEvent (action: System.KeyboardEventType, keyCode: number, keyState: object) : boolean;
+
+	}
+
+}
+
+/**
+ * 	Used to attach keyboard event handlers to the system.
+ */
+export class KeyboardHandler
+{
+	/**
+	 * 	Registers a new keyboard event handler.
+	 */
+	register (handler: KeyboardHandler.EventHandler) : KeyboardHandler.EventHandler;
+
+	/**
+	 * 	Removes a keyboard event handler.
+	 */
+	unregister (handler: KeyboardHandler.EventHandler) : void;
+
+}
+export namespace PointerHandler
+{
+	interface EventHandler
+	{
+		/**
+		 * 	Handler for pointer events.
+		 */
+		onPointerEvent (action: System.PointerEventType, pointer: object, pointers: object) : boolean;
+
+	}
+
+}
+
+/**
+ * 	Used to attach pointer event handlers to the system.
+ */
+export class PointerHandler
+{
+	/**
+	 * 	Registers a new pointer event handler.
+	 */
+	register (handler: PointerHandler.EventHandler) : PointerHandler.EventHandler;
+
+	/**
+	 * 	Removes a pointer event handler.
+	 */
+	unregister (handler: PointerHandler.EventHandler) : void;
+
+}
 
 
 
@@ -2958,56 +3843,75 @@ export namespace fxl
 
 	/**
 	 * 	Returns a resource given its identifier.
+	 * 	@param id - Resource identifier.
 	 */
 	static get (id: string) : object;
 
 	/**
 	 * 	Registers a solid-color placeholder resource.
+	 * 	@param id - Resource identifier.
 	 */
 	static placeholder (id: string, color: string, width: number, height: number) : object;
 
 	/**
 	 * 	Registers an image resource.
+	 * 	@param id - Resource identifier.
 	 */
 	static image (id: string, path: string, opts?: object) : object;
 
 	/**
 	 * 	Registers an spritesheet resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
 	 */
 	static spritesheet (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, optsA?: object, optsB?: object) : object;
 
 	/**
 	 * 	Registers a spritesheet animation resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
 	 */
 	static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : object;
 
 	/**
 	 * 	Registers a spritefont animation resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
 	 */
 	static spritefont (id: string, path: string, charWidth: number, charHeight: number, charset: string, optsA?: object, optsB?: object) : object;
 
 	/**
 	 * 	Registers a JSON data resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
 	 */
 	static json (id: string, path: string, opts?: object) : object;
 
 	/**
 	 * 	Registers a binary data resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
 	 */
 	static data (id: string, path: string, opts?: object) : object;
 
 	/**
 	 * 	Registers a text data resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
 	 */
 	static text (id: string, path: string, opts?: object) : object;
 
 	/**
 	 * 	Registers an sound effect audio resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
 	 */
 	static sfx (id: string, path: string, opts?: object) : object;
 
 	/**
 	 * 	Registers an music audio resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file.
 	 */
 	static music (id: string, path: string, opts?: object) : object;
 

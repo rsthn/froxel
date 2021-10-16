@@ -22,9 +22,9 @@ import Recycler from '../utils/recycler.js';
 //![import "../system/system"]
 //![import "../utils/recycler"]
 
-/*
-**	Describes an element mask. Used for collision detection.
-*/
+//:/**
+//: * 	Describes an element mask. Used for collision detection.
+//: */
 
 //!class Mask extends Element
 

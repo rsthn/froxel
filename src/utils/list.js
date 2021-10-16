@@ -21,9 +21,9 @@ import Recycler from './recycler.js';
 //![import "./linkable"]
 //![import "./recycler"]
 
-/*
-**	Implementation of a linked list.
-*/
+//:/**
+//: * 	Implementation of a generic linked list.
+//: */
 
 //!class List
 

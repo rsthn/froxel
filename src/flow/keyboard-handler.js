@@ -22,6 +22,25 @@ import System from '../system/system.js';
 //![import "./boot"]
 //![import "../system/system"]
 
+//!namespace KeyboardHandler
+
+	//!interface EventHandler
+
+		/**
+		 * 	Handler for keyboard events.
+		 * 	!onKeyboardEvent (action: System.KeyboardEventType, keyCode: number, keyState: object) : boolean;
+		 */
+
+	//!/interface
+
+//!/namespace
+
+//:/**
+//: * 	Used to attach keyboard event handlers to the system.
+//: */
+
+//!class KeyboardHandler
+
 export default Boot.Module.create
 ({
 	handlers: null,
@@ -39,6 +58,10 @@ export default Boot.Module.create
 		};
 	},
 
+	/**
+	 * 	Registers a new keyboard event handler.
+	 * 	!register (handler: KeyboardHandler.EventHandler) : KeyboardHandler.EventHandler;
+	 */
 	register: function (handler)
 	{
 		try {
@@ -54,6 +77,10 @@ export default Boot.Module.create
 		return handler;
 	},
 
+	/**
+	 * 	Removes a keyboard event handler.
+	 * 	!unregister (handler: KeyboardHandler.EventHandler) : void;
+	 */
 	unregister: function (handler)
 	{
 		try {

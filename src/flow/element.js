@@ -23,9 +23,9 @@ import Recycler from '../utils/recycler.js';
 //![import "../utils/recycler"]
 //![import "./idrawable"]
 
-/*
-**	Describes an element that can be rendered to the screen.
-*/
+//:/**
+//: * 	Describes an element that can be rendered to the screen.
+//: */
 
 //!class Element extends GridElement
 

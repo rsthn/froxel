@@ -21,56 +21,62 @@ import List from '../utils/list.js';
 //![import "./grid-element"]
 //![import "../utils/list"]
 
-/*
-**	Describes an optimized data structure to store 2D spatially indexed elements.
-*/
+//:/**
+//: * 	Describes an optimized data structure to store 2D spatially indexed elements.
+//: */
+
+//!class Grid
 
 const Grid = Class.extend
 ({
-	/*
-	**	Name of the class (for inheritance purposes).
-	*/
+	/**
+	 * 	Name of the class (for inheritance purposes).
+	 */
 	className: 'Grid',
 
-	/*
-	**	Actual grid of data, stored linearly. Contains several entries each of which can be either null or a List containing grid elements.
-	*/
+	/**
+	 * 	Actual grid of data, stored linearly. Contains several entries each of which can be either null or a List containing grid elements.
+	 */
 	grid: null,
 
-	/*
-	**	Number of elements active in the grid.
-	*/
+	/**
+	 * 	Number of elements active in the grid.
+	 * 	!readonly count: number;
+	 */
 	count: 0,
 
-	/*
-	**	The X and Y offsets to be added to all input coordinates. Used to ensure that a negative coordinate always ends up positive,
-	**	calculated using the width and height of the grid.
-	*/
+	/**
+	 * 	The X and Y offsets to be added to all input coordinates. Used to ensure that a negative coordinate always ends up positive, calculated
+	 * 	using the width and height of the grid.
+	 */
 	offsx: 0, offsy: 0,
 
-	/*
-	**	Divisors for the X and Y coordinates respectively. All input coordinates (after offseting) will be divided by these values to map
-	**	them to a grid entry (list) where the element can be added.
-	*/
+	/**
+	 * 	Divisors for the X and Y coordinates respectively. All input coordinates (after offseting) will be divided by these values to map them
+	 * 	to a grid entry (list) where the element can be added.
+	 */
 	kx: 0, ky: 0,
 
-	/*
-	**	Stride to calculate an index with a Y-coordinate.
-	*/
+	/**
+	 * 	Stride to calculate an index with a Y-coordinate.
+	 */
 	stride: 0,
 
-	/*
-	**	Indicates if the grid should match regions with exact precision by comparing region to element bounds intersection.
-	*/
+	/**
+	 * 	Indicates if the grid should match regions with exact precision by comparing region to element bounds intersection.
+	 * 	!verifyIntersection: boolean;
+	 */
 	verifyIntersection: true,
 
-	/*
-	**	Constructs a grid with the specified maximum width and height. The final effective coordinate range will be -(width/2) to (width/2) for X
-	**	and -(height/2) to (height/2) for Y.
-	**
-	**	Note that the width, height and divisors (kx and ky) will be converted to their closest base-2 value. This is done to ensure shifts can be
-	**	used to quickly divide the input coordinates.
-	*/
+	/**
+	 * 	Constructs a grid with the specified maximum width and height. The final effective coordinate range will be -(width/2) to (width/2)for X,
+	 * 	and -(height/2) to (height/2) for Y.
+	 * 
+	 * 	Note that the width, height and divisors kx and ky will be converted to their closest base-2 value. This is done to ensure shifts can be used
+	 * 	to quickly divide the input coordinates.
+	 * 
+	 * 	!constructor (width: number, height: number, kx: number, ky?: number);
+	 */
 	__ctor: function (width, height, kx, ky=null)
 	{
 		width = 1 << Math.ceil(Math.log2(width));
@@ -92,18 +98,19 @@ const Grid = Class.extend
 		this.stride = w;
 	},
 
-	/*
-	**	Destroys all lists and elements in the grid.
-	*/
+	/**
+	 * 	Destroys all lists and elements in the grid.
+	 */
 	__dtor: function()
 	{
 		this.clear();
 		this.grid = null;
 	},
 
-	/*
-	**	Destroys all lists and elements in the grid.
-	*/
+	/**
+	 * 	Destroys all lists and elements in the grid.
+	 * 	!clear() : void;
+	 */
 	clear: function()
 	{
 		for (let i = 0; i < this.grid.length; i++)
@@ -128,9 +135,10 @@ const Grid = Class.extend
 		this.count = 0;
 	},
 
-	/*
-	**	Destroys all lists in the grid. Elements will be preserved.
-	*/
+	/**
+	 * 	Destroys all lists in the grid. Elements will not be destroyed.
+	 * 	!reset() : void;
+	 */
 	reset: function()
 	{
 		for (let i = 0; i < this.grid.length; i++)
@@ -153,9 +161,10 @@ const Grid = Class.extend
 		this.count = 0;
 	},
 
-	/*
-	**	Adds an element to the grid, the argument must be an instance of GridElement. Returns true if successful, or false if the element is outside of the grid bounds.
-	*/
+	/**
+	 * 	Adds an element to the grid. Returns `true` if successful, or `false` if the element is outside of the grid bounds.
+	 * 	!add (elem: GridElement) : boolean;
+	 */
 	add: function (elem)
 	{
 		if (!GridElement.isInstance(elem))
@@ -176,9 +185,9 @@ const Grid = Class.extend
 		return true;
 	},
 
-	/*
-	**	Callback to remove an element from the grid (called by Handler).
-	*/
+	/**
+	 * 	Callback to remove an element from the grid (called by Handler).
+	 */
 	_remove: function (elem, self, index, node)
 	{
 		self.grid[index].remove(node);
@@ -188,19 +197,21 @@ const Grid = Class.extend
 		return false;
 	},
 
-	/*
-	**	Removes the element from the grid and returns it.
-	*/
+	/**
+	 * 	Removes the element from the grid and returns it.
+	 * 	!remove (elem: GridElement) : GridElement;
+	 */
 	remove: function (elem)
 	{
 		elem.remover.execc(this._grid_remove_node);
 		return elem;
 	},
 
-	/*
-	**	Updates the storage location of the specified element. Returns true if successful, or false if the element is outside of the grid bounds (in which
-	**	case the element will be removed), or if the element does not belong to this grid.
-	*/
+	/**
+	 * 	Updates the storage location of the specified element. Returns `true` if successful, or `false` if the element is outside of the grid bounds (in
+	 * 	which case the element will be removed), or if the element does not belong to this grid.
+	 * 	!sync (elem: GridElement) : boolean;
+	 */
 	sync: function (elem)
 	{
 		elem.clearFlags(GridElement.DIRTY);
@@ -230,10 +241,11 @@ const Grid = Class.extend
 		return true;
 	},
 
-	/*
-	**	Executes the specified callback function for each element that intersects the given bounds and has the specified flags set. The process
-	**	is immediately stopped if the callback returns `false`.
-	*/
+	/**
+	 * 	Executes the specified callback function for each element that intersects the given bounds and has the specified flags set. The process is immediately
+	 * 	stopped if the callback returns `false`.
+	 * 	!forEachInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number, callback: (elem: GridElement, context?: object) => boolean, context?: object) : void;
+	 */
 	forEachInRegion: function (bounds, flagsAndMask, flagsValue, callback, context)
 	{
 		let j0 = ((bounds.y1+this.offsy) - (1<<this.ky-1) >> this.ky) * this.stride;
@@ -271,9 +283,10 @@ const Grid = Class.extend
 		}
 	},
 
-	/*
-	**	Collects all elements that intersect the given bounds and have the specified flags set. Returns a new List, remember to call free() after using it.
-	*/
+	/**
+	 * 	Collects all elements that intersect the given bounds and have the specified flags set. Returns a new List, remember to call `free` after using it.
+	 * 	!selectInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : List;
+	 */
 	selectInRegion: function (bounds, flagsAndMask, flagsValue)
 	{
 		let j0 = ((bounds.y1+this.offsy) - (1<<this.ky-1) >> this.ky) * this.stride;
@@ -314,9 +327,10 @@ const Grid = Class.extend
 		return list;
 	},
 
-	/*
-	**	Counts all elements that intersect the given bounds and have the specified flags set.
-	*/
+	/**
+	 * 	Counts all elements that intersect the given bounds and have the specified flags set.
+	 * 	!countInRegion (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : number;
+	 */
 	countInRegion: function (bounds, flagsAndMask, flagsValue)
 	{
 		let j0 = ((bounds.y1+this.offsy) - (1<<this.ky-1) >> this.ky) * this.stride;
@@ -357,9 +371,10 @@ const Grid = Class.extend
 		return m;
 	},
 
-	/*
-	**	Returns the first element that intersect the given bounds and have the specified flags set.
-	*/
+	/**
+	 * 	Returns the first element that intersect the given bounds and have the specified flags set.
+	 * 	!selectFirst (bounds: Bounds2|Rect, flagsAndMask: number, flagsValue: number) : GridElement;
+	 */
 	selectFirst: function (bounds, flagsAndMask, flagsValue)
 	{
 		let j0 = ((bounds.y1+this.offsy) - (1<<this.ky-1) >> this.ky) * this.stride;

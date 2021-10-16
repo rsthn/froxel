@@ -19,9 +19,9 @@ import Recycler from './recycler.js';
 
 //![import "./recycler"]
 
-/*
-**	Defines a callback node. Contains a callback function, its context and up to four arguments.
-*/
+//:/**
+//: * 	Defines a callback node. Contains a callback function, its context and up to four arguments.
+//: */
 
 //!class Callback
 

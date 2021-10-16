@@ -20,11 +20,11 @@ import List from '../utils/list.js';
 //![import "./system"]
 //![import "../utils/list"]
 
-//!namespace Log
+//:/**
+//: * 	Logging module to show logs on the system display buffer.
+//: */
 
-/**
-**	Logging module to show logs on the system display buffer.
-*/
+//!namespace Log
 
 const Log =
 {

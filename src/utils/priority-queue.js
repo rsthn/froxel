@@ -16,6 +16,8 @@
 
 import { Class } from '@rsthn/rin';
 
+//!class PriorityQueue
+
 export default Class.extend
 ({
 	className: 'PriorityQueue',
@@ -24,12 +26,20 @@ export default Class.extend
 	queueKeys: null,
 	order: null,
 
+	/**
+	 * 	Constructs an priority queue.
+	 * 	!constructor();
+	 */
 	__ctor: function()
 	{
 		this.queue = { };
 		this.queueKeys = [];
 	},
 
+	/**
+	 * 	Adds an object to the priority queue.
+	 * 	!add (obj: { priority: number }) : object;
+	 */
 	add: function (object)
 	{
 		if (object == null)
@@ -52,6 +62,10 @@ export default Class.extend
 		return object;
 	},
 
+	/**
+	 * 	Marks an object to be removed from the priority queue. Use `cleanup` to actually remove them.
+	 * 	!remove (obj: object) : object;
+	 */
 	remove: function (object)
 	{
 		if (object == null)
@@ -72,6 +86,10 @@ export default Class.extend
 		return object;
 	},
 
+	/**
+	 * 	Runs a cleanup of the queue by removing any objects marked to be removed.
+	 * 	!cleanup() : void;
+	 */
 	cleanup: function()
 	{
 		for (let i = 0; i < this.queueKeys.length; i++)
@@ -91,6 +109,11 @@ export default Class.extend
 		}
 	},
 
+	/**
+	 * 	Runs the specified callback for each object in the queue. Executed in order of priority (from low number to high number).
+	 * 	@param callback - Return `false` to stop the forEach execution immediately.
+	 * 	!forEach (callback: (obj: object) => boolean) : void;
+	 */
 	forEach: function (callback)
 	{
 		let is_dirty = false;
@@ -116,6 +139,11 @@ export default Class.extend
 		if (is_dirty) this.cleanup();
 	},
 
+	/**
+	 * 	Runs the specified callback for each object in the queue. Executed in reverse order of priority (from high number to low number).
+	 * 	@param callback - Return `false` to stop the forEachRev execution immediately.
+	 * 	!forEachRev (callback: (obj: object) => boolean) : void;
+	 */
 	forEachRev: function (callback)
 	{
 		let is_dirty = false;
@@ -141,6 +169,12 @@ export default Class.extend
 		if (is_dirty) this.cleanup();
 	},
 
+	/**
+	 * 	Runs the specified callback for each object in the queue. Executed in order of priority (from low number to high number). When
+	 * 	the cycle finishes the given `finishedCallback` will be executed.
+	 * 	@param callback - Return `false` to stop the forEachAsync execution immediately. Must manually execute `next` when finished.
+	 * 	!forEachAsync (callback: (obj: object, next: Function) => boolean) : void;
+	 */
 	forEachAsync: function (callback, finishedCallback=null)
 	{
 		let _ = this;
@@ -194,6 +228,12 @@ export default Class.extend
 		next_i();
 	},
 
+	/**
+	 * 	Runs the specified callback for each object in the queue. Executed in reverse order of priority (from high number to low number). When
+	 * 	the cycle finishes the given `finishedCallback` will be executed.
+	 * 	@param callback - Return `false` to stop the forEachRevAsync execution immediately. Must manually execute `next` when finished.
+	 * 	!forEachRevAsync (callback: (obj: object, next: Function) => boolean) : void;
+	 */
 	forEachRevAsync: function (callback)
 	{
 		alert('NOT IMPLEMENTED: forEachRevAsync');

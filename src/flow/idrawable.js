@@ -14,6 +14,10 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//:/**
+//: * 	Describes an object that can be drawn to a Canvas.
+//: */
+
 //!class IDrawable
 
 	/**

@@ -19,9 +19,9 @@ import globals from './globals.js';
 
 //![import "./globals"]
 
-/**
- * 	Describes a shader object. The actual shader type is specified at construction.
- */
+//:/**
+//: * 	Describes a shader object. The actual shader type is specified at construction.
+//: */
 
 //!class Shader
 
@@ -29,11 +29,13 @@ const Shader = Class.extend
 ({
 	/**
 	 * 	Identifier of the shader.
+	 * 	!readonly id: string;
 	 */
 	id: null,
 
 	/**
 	 * 	Type of the shader.
+	 * 	!readonly type: Shader.Type;
 	 */
 	type: 0,
 
@@ -43,16 +45,13 @@ const Shader = Class.extend
 	sourceCode: null,
 
 	/**
-	 *	Shader GL identifier.
+	 * 	Shader GL identifier.
+	 * 	!readonly shaderId: number;
 	 */
 	shaderId: null,
 
 	/**
 	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
-	 *
-	 * 	@param id - Identifier of the shader.
-	 * 	@param type - One of the constants from the Shader.Type enum.
-	 * 
 	 * 	!constructor (id: string, type: Shader.Type);
 	 */
 	__ctor: function (id, type)
@@ -121,11 +120,43 @@ const Shader = Class.extend
 
 //!/class
 
-//!namespace Shader
+/**
+ * 	Global shader list.
+ */
+Shader.shaders = { };
 
 /**
- * 	Shader types.
+ * 	Stores a shader with the specified identifier in the global shader list.
+ * 	!static put (id: string, shader: Shader) : void;
  */
+Shader.put = function (id, shader)
+{
+	this.shaders[id] = shader;
+};
+
+/**
+ * 	Returns a Shader from the global shader list given its identifier.
+ * 	!static get (id: string) : Shader;
+ */
+Shader.get = function (id)
+{
+	return this.shaders[id];
+};
+
+/**
+ * 	Removes a shader from the global shader list.
+ * 	!static remove (id: string) : void;
+ */
+Shader.remove = function (id)
+{
+	delete this.shaders[id];
+};
+
+//!namespace Shader
+
+//:/**
+//: * 	Shader types.
+//: */
 
 //!enum Type
 
@@ -139,38 +170,5 @@ Shader.Type = {
 };
 
 //!/enum
-
-/**
- * 	Static methods.
- */
-
-Shader.shaders = { };
-
-/**
- * 	Stores a shader with the specified identifier in the global shader map.
- * 	!function put (id: string, shader: Shader) : void;
- */
-Shader.put = function (id, shader)
-{
-	this.shaders[id] = shader;
-};
-
-/**
- * 	Returns a Shader given its identifier.
- * 	!function get (id: string) : Shader;
- */
-Shader.get = function (id)
-{
-	return this.shaders[id];
-};
-
-/**
- * 	Removes a shader from the global shader map.
- * 	!function remove (id: string) : void;
- */
-Shader.remove = function (id)
-{
-	delete this.shaders[id];
-};
 
 export default Shader;

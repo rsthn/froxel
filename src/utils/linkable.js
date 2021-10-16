@@ -19,10 +19,9 @@ import Recycler from './recycler.js';
 
 //![import "./recycler"]
 
-/*
-**	Generic class for linkable items such as required by linked lists. The responsibility of this class is
-**	to wrap a value into a linkable object.
-*/
+//:/**
+//: * 	Generic class for linkable items such as required by List. The responsibility of this class is to wrap a value into a linkable object.
+//: */
 
 //!class Linkable
 

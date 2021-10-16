@@ -21,33 +21,37 @@ import Element from './element.js';
 //![import "../utils/list"]
 //![import "./element"]
 
-/*
-**	An updater is used to update one or more elements and synchronize their position with their container.
-*/
+//:/**
+//: * 	An updater is used to update one or more elements and synchronize their position with their container.
+//: */
+
+//!class Updater
 
 const Updater = Class.extend
 ({
 	className: 'Updater',
 
-	/*
-	**	Scene where the updater is attached.
-	*/
+	/**
+	 * 	Scene where the updater is attached.
+	 * 	!readonly scene: Scene;
+	 */
 	scene: null,
 
-	/*
-	**	List of elements.
-	*/
+	/**
+	 * 	List of elements.
+	 */
 	list: null,
 
-	/*
-	**	Callback passed when constructing the updater.
-	*/
+	/**
+	 * 	Callback passed when constructing the updater.
+	 */
 	__update: null,
 	__context: null,
 
-	/*
-	**	Constructs the updater.
-	*/
+	/**
+	 * 	Constructs the updater linked to the specified scene.
+	 * 	!constructor (scene: Scene, update: (elem: Element, dt: number, context: object) => boolean, context?: object);
+	 */
 	__ctor: function (scene, update=null, context=null)
 	{
 		this.list = List.Pool.alloc();
@@ -61,9 +65,9 @@ const Updater = Class.extend
 		this.scene.destroyer.add(this._destroy, this);
 	},
 
-	/*
-	**	Destroys the instance. All elements will just be removed.
-	*/
+	/**
+	 * 	Destroys the instance. All elements will just be removed.
+	 */
 	__dtor: function()
 	{
 		let i;
@@ -84,9 +88,10 @@ const Updater = Class.extend
 		dispose(self);
 	},
 
-	/*
-	**	Adds an element to the updater.
-	*/
+	/**
+	 * 	Adds an element to the updater.
+	 * 	!add (elem: Element) : boolean;
+	 */
 	add: function (elem)
 	{
 		if (!Element.isInstance(elem))
@@ -98,45 +103,47 @@ const Updater = Class.extend
 		return true;
 	},
 
-	/*
-	**	Callback to remove an element from the updater (called by Handler).
-	*/
+	/**
+	 * 	Callback to remove an element from the updater (called by Handler).
+	 */
 	_remove: function (elem, self, node)
 	{
 		self.list.remove(node);
 		return false;
 	},
 
-	/*
-	**	Removes an element from the updater.
-	*/
+	/**
+	 * 	Removes an element from the updater.
+	 * 	!remove (elem: Element) : Element;
+	 */
 	remove: function (elem)
 	{
 		elem.remover.execf(this._remove, this);
 		return elem;
 	},
 
-	/*
-	**	Callback for the synchronizer.
-	*/
+	/**
+	 * 	Callback for the synchronizer.
+	 */
 	_sync: function (scene, self)
 	{
 		for (let i = self.list.top; i; i = i.next)
 			i.value.sync();
 	},
 
-	/*
-	**	Callback for the updater.
-	*/
+	/**
+	 * 	Callback for the updater.
+	 */
 	_update: function (scene, self)
 	{
 		self.update(scene.dt);
 	},
 
-	/*
-	**	Runs an update cycle.
-	*/
-	update: function (dt) /* @override */
+	/**
+	 * 	Runs an update cycle.
+	 * 	!update (dt: number) : void;
+	 */
+	update: function (dt)
 	{
 		if (this.__update !== null)
 		{

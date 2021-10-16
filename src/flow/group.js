@@ -26,9 +26,9 @@ import Recycler from '../utils/recycler.js';
 
 const tempPoint = Point2.Pool.alloc();
 
-/*
-**	Groups one or more elements into a single one.
-*/
+//:/**
+//: * 	Groups one or more elements into a single one.
+//: */
 
 //!class Group extends Element
 

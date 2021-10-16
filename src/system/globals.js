@@ -21,9 +21,9 @@ import Log from './log.js';
 //![import "./log"]
 //![import "../flow/viewport"]
 
-/*
-**	Global functions and definitions.
-*/
+//:/**
+//: * 	Global functions and definitions.
+//: */
 
 //!namespace globals
 

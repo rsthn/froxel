@@ -14,9 +14,9 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-**	Do some polyfill when running headless.
-*/
+/**
+ * 	Do some polyfill when running headless.
+ */
 
 import sizeOf from 'image-size';
 import fs from 'fs';

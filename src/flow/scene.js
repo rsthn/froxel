@@ -31,102 +31,118 @@ import globals from '../system/globals.js';
 //![import "../utils/handler"]
 //![import "../system/globals"]
 
-/*
-**	A scene is a set of containers, viewports and groups. Rendering is done in their specific index-based order.
-*/
+//:/**
+//: * 	A scene is a set of containers, viewports and groups. Rendering is done in their specific index-based order.
+//: */
+
+//!class Scene
 
 const Scene = Class.extend
 ({
 	className: 'Scene',
 
-	/*
-	**	Minimum dimensions of the scene (smallest container size).
-	*/
-	minWidth: null, minHeight: null,
+	/**
+	 * 	Minimum dimensions of the scene (smallest container size).
+	 * 	!readonly minWidth: number;
+	 * 	!readonly minHeight: number;
+	 */
+	minWidth: null,
+	minHeight: null,
 
-	/*
-	**	Maximum dimensions of the scene (largest container size).
-	*/
+	/**
+	 * 	Maximum dimensions of the scene (largest container size).
+	 * 	!readonly maxWidth: number;
+	 * 	!readonly maxHeight: number;
+	 */
 	maxWidth: null, maxHeight: null,
 
-	/*
-	**	List of containers.
-	*/
+	/**
+	 * 	List of containers.
+	 */
 	containers: null,
 
-	/*
-	**	List of viewports.
-	*/
+	/**
+	 * 	List of viewports.
+	 */
 	viewports: null,
 
-	/*
-	**	Active viewport bounds, used to select items in a visible region.
-	*/
+	/**
+	 * 	Active viewport bounds, used to select items in a visible region.
+	 * 	!readonly viewportBounds: Bounds2;
+	 */
 	viewportBounds: null,
 
-	/*
-	**	List of groups.
-	*/
+	/**
+	 * 	List of Group elements.
+	 */
 	groupList: null,
 
-	/*
-	**	Named groups.
-	*/
+	/**
+	 * 	Named Group elements.
+	 */
 	groups: null,
 
-	/*
-	**	Disposal queue.
-	*/
+	/**
+	 * 	Disposal queue.
+	 */
 	disposalQueue: null,
 
-	/*
-	**	First updater. Runs before any other update calls.
-	*/
+	/**
+	 * 	First updater. Runs before any other update calls.
+	 * 	!readonly fupdater: Handler;
+	 */
 	fupdater: null,
 
-	/*
-	**	General updater. Runs after the first updater and before synchronizer.
-	*/
+	/**
+	 * 	General updater. Runs after the first updater and before synchronizer.
+	 * 	!readonly updater: Handler;
+	 */
 	updater: null,
 
-	/*
-	**	Synchronizer. Run after general updater, and before viewport synchronization.
-	*/
+	/**
+	 * 	Synchronizer. Run after general updater, and before viewport synchronization.
+	 * 	!readonly synchronizer: Handler;
+	 */
 	synchronizer: null,
 
-	/*
-	**	Last updater. Runs after all other update calls.
-	*/
+	/**
+	 * 	Last updater. Runs after all other update calls.
+	 * 	!readonly lupdater: Handler;
+	 */
 	lupdater: null,
 
-	/*
-	**	Destroyer runs when the scene is destroyed.
-	*/
+	/**
+	 * 	Destroyer runs when the scene is destroyed.
+	 * 	!readonly destroyer: Handler;
+	 */
 	destroyer: null,
 
-	/*
-	**	Current delta time. Set upon entering the `update` method. Reflects the same value as System.frameDelta.
-	*/
+	/**
+	 * 	Current delta time. Set upon entering the `update` method. Reflects the same value as System.frameDelta.
+	 * 	!readonly dt: number;
+	 */
 	dt: 0,
 
-	/*
-	**	Flags of the object (see constants at the bottom of this file).
-	*/
+	/**
+	 * 	Flags of the object (see constants at the bottom of this file).
+	 */
 	flags: 0,
 
-	/*
-	**	Total number of elements drawn on the last draw operation.
-	*/
+	/**
+	 * 	Total number of elements drawn on the last draw operation.
+	 * 	!readonly drawCount: number;
+	 */
 	drawCount: 0,
 
-	/*
-	**	Scene object pointing to itself.
-	*/
+	/**
+	 * 	Scene object pointing to itself.
+	 */
 	scene: null,
 
-	/*
-	**	Constructs an empty scene.
-	*/
+	/**
+	 * 	Constructs an empty scene.
+	 * 	!constructor();
+	 */
 	__ctor: function()
 	{
 		this.containers = [];
@@ -149,9 +165,9 @@ const Scene = Class.extend
 		this.scene = this;
 	},
 
-	/*
-	**	Destroys the instance along with all containers, viewports and groups.
-	*/
+	/**
+	 * 	Destroys the instance along with all containers, viewports and groups.
+	 */
 	__dtor: function()
 	{
 		this.disposeQueued();
@@ -196,9 +212,14 @@ const Scene = Class.extend
 		this.groupList.free();
 	},
 
-	/*
-	**	Sets or gets the visible flag.
-	*/
+	/**
+	 * 	Returns the value of the `visible` flag.
+	 * 	!visible() : boolean;
+	 */
+	/**
+	 * 	Sets the value of the `visible` flag.
+	 * 	!visible(value: boolean) : Container;
+	 */
 	visible: function (value=null)
 	{
 		if (value === null)
@@ -210,9 +231,10 @@ const Scene = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets a container at the specified index.
-	*/
+	/**
+	 * 	Sets a container at the specified index.
+	 * 	!setContainer (index: number, container: Container) : Scene;
+	 */
 	setContainer: function (index, container)
 	{
 		if (index < 0) return this;
@@ -239,17 +261,19 @@ const Scene = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns the container at the specified index.
-	*/
+	/**
+	 * 	Returns the container at the specified index.
+	 * 	!getContainer (index: number) : Container;
+	 */
 	getContainer: function (index)
 	{
 		return index < 0 || index >= this.containers.length ? null : this.containers[index];
 	},
 
-	/*
-	**	Sets a viewport at the specified index.
-	*/
+	/**
+	 * 	Sets a viewport at the specified index.
+	 * 	!setViewport (index: number, viewport: Viewport) : Scene;
+	 */
 	setViewport: function (index, viewport)
 	{
 		if (index < 0) return this;
@@ -261,17 +285,19 @@ const Scene = Class.extend
 		return this;
 	},
 
-	/*
-	**	Returns the viewport at the specified index.
-	*/
+	/**
+	 * 	Returns the viewport at the specified index.
+	 * 	!getViewport (index: number) : Viewport;
+	 */
 	getViewport: function (index)
 	{
 		return index < 0 || index >= this.viewports.length ? null : this.viewports[index];
 	},
 
-	/*
-	**	Adds the given element to the disposal queue. To be destroyed on the next call to `disposeQueued`.
-	*/
+	/**
+	 * 	Adds the given element to the disposal queue. To be destroyed on the next call to `disposeQueued`.
+	 * 	!disposeLater (elem: Element) : void;
+	 */
 	disposeLater: function (elem)
 	{
 		if (!elem.alive()) return;
@@ -280,9 +306,10 @@ const Scene = Class.extend
 		elem.alive(false);
 	},
 
-	/*
-	**	Disposes all elements in the disposal queue.
-	*/
+	/**
+	 * 	Disposes all elements in the disposal queue.
+	 * 	!disposeQueued() : void;
+	 */
 	disposeQueued: function ()
 	{
 		let elem;
@@ -291,9 +318,10 @@ const Scene = Class.extend
 			dispose(elem);
 	},
 
-	/*
-	**	Adds a group to the scene.
-	*/
+	/**
+	 * 	Adds a group to the scene.
+	 * 	!addGroup (group: Group) : boolean;
+	 */
 	addGroup: function (group)
 	{
 		if (!Group.isInstance(group))
@@ -310,9 +338,9 @@ const Scene = Class.extend
 		return true;
 	},
 
-	/*
-	**	Callback to remove a group from the scene (called by Handler).
-	*/
+	/**
+	 * 	Callback to remove a group from the scene (called by Handler).
+	 */
 	_removeGroup: function (group, self, node)
 	{
 		group.container = null;
@@ -324,27 +352,30 @@ const Scene = Class.extend
 		return false;
 	},
 
-	/*
-	**	Removes a group from the scene.
-	*/
+	/**
+	 * 	Removes a group from the scene.
+	 * 	!removeGroup (group: Group) : Group;
+	 */
 	removeGroup: function (group)
 	{
 		group.remover.execf(this._remove, this);
 		return group;
 	},
 
-	/*
-	**	Syncs the actual location of the specified element with its storage location. Returns true if successful.
-	*/
+	/**
+	 * 	Syncs the actual location of the specified element with its storage location. Returns `true` if successful.
+	 * 	!sync (group: Group) : boolean;
+	 */
 	sync: function (group)
 	{
 		return true;
 	},
 
-	/*
-	**	Draws the scene, by executing the `draw` method on each container. The entire scene will be drawn once for each viewport
-	**	added, and the visible region rules of each viewport will be applied.
-	*/
+	/**
+	 * 	Draws the scene, by executing the `draw` method on each container. The entire scene will be drawn once for each viewport, and
+	 * 	the visible region rules of each viewport will be applied.
+	 * 	!draw (g: Canvas) : void;
+	 */
 	draw: function (g)
 	{
 		if (!this.visible()) return;
@@ -378,9 +409,10 @@ const Scene = Class.extend
 		}
 	},
 
-	/*
-	**	Draws the scene containers and passes the specified viewport bounds to the container.
-	*/
+	/**
+	 * 	Draws the scene containers and passes the specified viewport bounds to the container.
+	 * 	!drawContainers (g: Canvas, viewportBounds: Bounds2) : void;
+	 */
 	drawContainers: function (g, viewportBounds)
 	{
 		try
@@ -404,9 +436,9 @@ const Scene = Class.extend
 		}
 	},
 
-	/*
-	**	Updates the scene viewports.
-	*/
+	/**
+	 * 	Updates the scene viewports.
+	 */
 	updateViewports: function ()
 	{
 		for (let i = 0; i < this.viewports.length; i++)
@@ -418,9 +450,10 @@ const Scene = Class.extend
 		}
 	},
 
-	/*
-	**	Runs a scene update cycle.
-	*/
+	/**
+	 * 	Runs a scene update cycle.
+	 * 	!update (dt: number) : void;
+	 */
 	update: function (dt)
 	{
 		this.dt = dt;
@@ -436,9 +469,9 @@ const Scene = Class.extend
 });
 
 
-/*
-**	Constants.
-*/
+/**
+ * 	Constants.
+ */
 Scene.VISIBLE = 0x001;
 
 export default Scene;
