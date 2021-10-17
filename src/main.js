@@ -37,8 +37,8 @@ import _Timer from './system/timer.js'; export const Timer = _Timer;
 //![import "system/random"]
 import _Random from './system/random.js'; export const Random = _Random;
 
-//![import "system/keycodes"]
-import _KeyCodes from './system/keycodes.js'; export const KeyCodes = _KeyCodes;
+//![import "system/keycode"]
+import _KeyCode from './system/keycode.js'; export const KeyCode = _KeyCode;
 
 //![import "system/canvas"]
 import _Canvas from './system/canvas.js'; export const Canvas = _Canvas;
@@ -62,6 +62,7 @@ import _Framebuffer from './system/framebuffer.js'; export const Framebuffer = _
 // *********************************************
 // resources
 
+//![import "resources/wrappers"]
 import * as _Wrappers from './resources/wrappers.js'; export const Wrappers = _Wrappers;
 
 //![import "resources/resources"]

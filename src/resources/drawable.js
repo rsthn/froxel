@@ -53,8 +53,8 @@ export default Class.extend
 });
 
 /**
-**	Creates a descriptor for an image resource.
-*/
+ * 	Creates a descriptor for an image resource.
+ */
 Resources.Image = function (src, opts=null)
 {
 	return { type: "image", wrapper: "Drawable", src: src, pixelated: null, ...opts };

@@ -22,46 +22,69 @@ import ScreenControls from './screen-controls.js';
 //![import "./mask.js"]
 //![import "./screen-controls.js"]
 
-/*
-**	Button class provides an easy way to add push-button support to the world.
-*/
+/**
+ * 	Button class provides an easy way to add push-button support to the world.
+ */
+
+//!class Button extends Group
 
 export default Group.extend
 ({
-	/*
-	**	Indicates if once focus is obtained it is locked until the user releases it.
-	*/
+	/**
+	 * 	Indicates if once focus is obtained it is locked until the user releases it.
+	 * 	@default false
+	 *	!focusLock: boolean;
+	 */
 	focusLock: false,
 
-	/*
-	**	Indicates if keyboard events are enabled on this object.
-	*/
+	/**
+	 * 	Indicates if keyboard events are enabled on this object.
+	 * 	@default true
+	 *	!keyboardEvents: boolean;
+	 */
 	keyboardEvents: true,
 
-	/*
-	**	Current and previous pressed status of the button.
-	*/
-	isPressed: false, wasPressed: false,
+	/**
+	 * 	Current pressed status of the button.
+	 *	!isPressed: boolean;
+	 */
+	isPressed: false,
 
-	/*
-	**	Images for the unpressed and pressed statuses.
-	*/
+	/**
+	 * 	Previous pressed status of the button.
+	 *	!wasPressed: boolean;
+	 */
+	wasPressed: false,
+
+	/**
+	 * 	Image to draw when the button is unpressed.
+	 *	!unpressedImg: IDrawable;
+	 */
 	unpressedImg: null,
+
+	/**
+	 * 	Image to draw when the button is pressed.
+	 *	!pressedImg: IDrawable;
+	 */
 	pressedImg: null,
 
-	/*
-	**	Key related to the button. Used only when non-null.
-	*/
+	/**
+	 * 	Key code related to the button. Used only if not `null`.
+	 * 	@default null
+	 *	!keyCode: System.KeyCode;
+	 */
 	keyCode: null,
 
-	/*
-	**	Hitbox element.
-	*/
+	/**
+	 * 	Hitbox element.
+	 * 	!readonly hitbox: Mask;
+	 */
 	hitbox: 0,
 
-	/*
-	**	Creates the button with the specified parameters. Automatically adds it to the screen controls.
-	*/
+	/**
+	 * 	Creates the button with the specified parameters. Automatically adds it to the screen controls.
+	 * 	!constructor (container: Container, x: number, y: number, unpressedImg: IDrawable, pressedImg?: IDrawable);
+	 */
 	__ctor: function (container, x, y, unpressedImg, pressedImg=null)
 	{
 		this._super.Group.__ctor();
@@ -78,18 +101,19 @@ export default Group.extend
 		ScreenControls.add(this);
 	},
 
-	/*
-	**	Removes the button from the screen controls and destroys it.
-	*/
+	/**
+	 * 	Removes the button from the screen controls and destroys it.
+	 */
 	__dtor: function ()
 	{
 		this._super.Group.__dtor();
 		ScreenControls.remove(this);
 	},
 
-	/*
-	**	Changes the pressed/unpressed images of the button.
-	*/
+	/**
+	 * 	Changes the pressed/unpressed images of the button.
+	 * 	!setImage (unpressedImg: IDrawable, pressedImg?: IDrawable);
+	 */
 	setImage: function (unpressedImg, pressedImg=null)
 	{
 		this.unpressedImg = unpressedImg;
@@ -97,26 +121,29 @@ export default Group.extend
 		return this;
 	},
 
-	/*
-	**	Changes the key code of the button.
-	*/
+	/**
+	 * 	Changes the key code of the button.
+	 * 	!setKeyCode (value: System.KeyCode) : Button;
+	 */
 	setKeyCode: function (value)
 	{
 		this.keyCode = value;
 		return this;
 	},
 
-	/*
-	**	Resets the button to its initial state.
-	*/
+	/**
+	 * 	Resets the button to its initial state.
+	 * 	!reset() : void;
+	 */
 	reset: function ()
 	{
 		this.onChange (this.isPressed = false, this.wasPressed = false);
 	},
 
-	/*
-	**	Renders the element to the graphics surface.
-	*/
+	/**
+	 * 	Renders the element to the graphics surface.
+	 * 	!override render (g: Canvas) : void;
+	 */
 	render: function (g)
 	{
 		if (this.isPressed)
@@ -125,16 +152,18 @@ export default Group.extend
 			this.unpressedImg.draw (g, this.bounds.x1, this.bounds.y1);
 	},
 
-	/*
-	**	Button pointer update event. Not required for the button control.
-	*/
-	pointerUpdate: function (pointerX, pointerY)
+	/**
+	 * 	Button pointer update event. Not required for the button control.
+	 * 	!pointerUpdate (pointerX: number, pointerY: number, pointer: object) : void;
+	 */
+	pointerUpdate: function (pointerX, pointerY, pointer)
 	{
 	},
 
-	/*
-	**	Sets the pressed state of the button.
-	*/
+	/**
+	 * 	Sets the pressed state of the button.
+	 * 	!setStatus (value: boolean) : Button;
+	 */
 	setStatus: function (value)
 	{
 		if ((this.isPressed && value) || (!this.isPressed && !value))
@@ -146,9 +175,10 @@ export default Group.extend
 		return this;
 	},
 
-	/*
-	**	Moves the isPressed value of the button to wasPressed, and updates isPressed with the specified value. If none provided, isPressed is unchanged.
-	*/
+	/**
+	 * 	Moves the `isPressed` value of the button to `wasPressed`, and updates `isPressed` with the given value. If none provided, `isPressed` is unchanged.
+	 *	!updateStatus (value?: boolean) : Button;
+	 */
 	updateStatus: function (value=null)
 	{
 		this.wasPressed = this.isPressed;
@@ -156,25 +186,28 @@ export default Group.extend
 		return this;
 	},
 
-	/*
-	**	Called when the PointerEventType.POINTER_DOWN event starts within the bounding box of the button.
-	*/
+	/**
+	 * 	Called when the PointerEventType.POINTER_DOWN event starts within the bounding box of the button.
+	 * 	!pointerActivate (pointer: object) : void;
+	 */
 	pointerActivate: function (pointer)
 	{
 		this.setStatus(true);
 	},
 
-	/*
-	**	Called when the PointerEventType.POINTER_UP event is fired with the "_ref" attribute pointing to this object.
-	*/
+	/**
+	 * 	Called when the PointerEventType.POINTER_UP event is fired with the "_ref" attribute pointing to this object.
+	 *	!pointerDeactivate (pointer: object) : void;
+	 */
 	pointerDeactivate: function (pointer)
 	{
 		this.setStatus(false);
 	},
 
-	/*
-	**	Returns true if the button contains the specified point.
-	*/
+	/**
+	 * 	Returns `true` if the button contains the specified point.
+	 * 	!containsPoint (x: number, y: number) : boolean;
+	 */
 	containsPoint: function(x, y)
 	{
 		if (!this.visible())
@@ -183,10 +216,11 @@ export default Group.extend
 		return this.hitbox.bounds.containsPoint(x, y);
 	},
 
-	/*
-	**	Executed after any change in the status of the button. Be careful when overriding this, because when so, the onTap method will not work.
-	*/
-	onChange: function (isPressed, wasPressed) /* @override */
+	/**
+	 * 	Executed after any change in the status of the button. Be careful when overriding this, because when so, the `onTap` method will not work.
+	 * 	!onChange (isPressed: boolean, wasPressed: boolean) : void;
+	 */
+	onChange: function (isPressed, wasPressed)
 	{
 		if (isPressed != wasPressed)
 		{
@@ -200,9 +234,10 @@ export default Group.extend
 	},
 
 	/**
-	**	Key-down event, handles the keys that control the direction of the stick.
-	*/
-	keyDown: function (keyCode)
+	 * 	Key down event, handles the keys that control the button.
+	 * 	!keyDown (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	 */
+	keyDown: function (keyCode, keyArgs)
 	{
 		if (keyCode === this.keyCode)
 		{
@@ -212,8 +247,9 @@ export default Group.extend
 	},
 
 	/**
-	**	Key-up event, handles the keys that control the direction of the stick.
-	*/
+	 * 	Key up event, handles the keys that control the button.
+	 * 	!keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	 */
 	keyUp: function (keyCode, keyArgs)
 	{
 		if (keyCode === this.keyCode)
@@ -223,24 +259,27 @@ export default Group.extend
 		}
 	},
 
-	/*
-	**	Executed when the button is pressed. Works only if the onChange method was not overriden.
-	*/
-	onButtonDown: function () /* @override */
+	/**
+	 * 	Executed when the button is pressed. Works only if the `onChange` method was not overriden.
+	 * 	!onButtonDown: () => void;
+	 */
+	onButtonDown: function ()
 	{
 	},
 
-	/*
-	**	Executed when the button is released. Works only if the onChange method was not overriden.
-	*/
-	onButtonUp: function () /* @override */
+	/**
+	 * 	Executed when the button is released. Works only if the onChange method was not overriden.
+	 * 	!onButtonUp: () => void;
+	 */
+	onButtonUp: function ()
 	{
 	},
 
-	/*
-	**	Executed when the button is tapped (pressed and then released). Works only if the onChange method was not overriden.
-	*/
-	onTap: function () /* @override */
+	/**
+	 * 	Executed when the button is tapped (pressed and then released). Works only if the onChange method was not overriden.
+	 * 	!onTap: () => void;
+	 */
+	onTap: function ()
 	{
 	}
 });

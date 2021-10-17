@@ -31,25 +31,35 @@ import * as Wrappers from './wrappers.js';
 let reported = false;
 
 /**
-**	Provides functionality to load and manipulate resources (images, audio, etc).
-*/
+ * 	Provides functionality to load and manipulate resources (images, audio, etc).
+ */
+
+//!class Resources
+
 Object.assign(Resources,
 {
 	/**
-	**	Indicates if integer scaling is enabled when calling resizeImage(), when enabled, applies only to up-scaling, and images will always be up-scaled
-	**	to integer factors only and the drawImageEx will take care of drawing it slighly resized to the target canvas. If disabled the images will be
-	**	down or up-scaled using the half/double method and will eventually end up having the specified target size.
-	*/
+	 * 	Indicates if integer scaling is enabled. When `true` calling `resizeImage` will cause images to be up-scaled to integer factors, and the `drawImageEx` will take
+	 * 	care of drawing it slighly resized to the target size. If `false` images will be down or up-scaled using the half/double method and will eventually end up having
+	 * 	the exact target size.
+	 * 
+	 * 	@default true
+	 * 	!static integerScaling: boolean;
+	 */
 	integerScaling: true,
 
 	/**
-	**	Default for the 'pixelated' parameter of image resources.
-	*/
+	 * 	Default value for the `pixelated` parameter of image resources.
+	 * 
+	 * 	@default false
+	 * 	!static pixelated: boolean;
+	 */
 	pixelated: false,
 
 	/**
-	**	Initializes all wrappers and loads the specified options object.
-	*/
+	 * 	Initializes all wrappers and loads the specified options object.
+	 * 	!static init (options?: object) : void;
+	 */
 	init: function (opts=null)
 	{
 		if (opts)
@@ -57,20 +67,23 @@ Object.assign(Resources,
 	},
 
 	/**
-	**	Loads a list of resources. The list parameter is a map with elements as shown in the example below,
-	**	the callback can be optionally specified and it will be called with the index of the element being
-	**	loaded and the total number of elements to load.
-	**
-	**	{ type: "image", wrapper: "", src: "assets/ui/btn-left.png", width: 64, [ height: 64 ], scale: 1, pixelated: false, original: false }
-	**	{ type: "images", wrapper: "", src: "assets/ui/##.png", count: 16, width: 64, [ height: 64 ], pixelated: false }
-	**	{ type: "audio", wrapper: "", src: "assets/ui/tap.wav", track: "sfx|music" }
-	**	{ type: "audios", wrapper: "", src: "assets/ui/snd-##.wav", count: 4 }
-	**	{ type: "json", wrapper: "", src: "assets/config.json" }
-	**	{ type: "data", wrapper: "", src: "assets/config.dat" }
-	**	{ type: "text", wrapper: "", src: "assets/config.frag" }
-	**	{ type: "object", wrapper: "" }
+	 * 	Loads a list of resources. The list parameter is actually a dictionary with objects as shown in the example below.
+	 *
+	 * 	{ type: "image", wrapper: "", src: "assets/ui/btn-left.png", width: 64, [ height: 64 ], scale: 1, pixelated: false, original: false }
+	 * 	{ type: "images", wrapper: "", src: "assets/ui/##.png", count: 16, width: 64, [ height: 64 ], pixelated: false }
+	 * 	{ type: "audio", wrapper: "", src: "assets/ui/tap.wav", track: "sfx|music" }
+	 * 	{ type: "audios", wrapper: "", src: "assets/ui/snd-##.wav", count: 4 }
+	 * 	{ type: "json", wrapper: "", src: "assets/config.json" }
+	 * 	{ type: "data", wrapper: "", src: "assets/config.dat" }
+	 * 	{ type: "text", wrapper: "", src: "assets/config.frag" }
+	 * 	{ type: "object", wrapper: "" }
+	 * 
+	 * 	@param list - Map of resources to load.
+	 * 	@param progressCallback - Executed once for every resource loaded.
+	 * 	@param completeCallback - Executed when all resources have been loaded.
+	 * 	!static load (list: { [id: string] : object }, progressCallback: (index: number, count: number, ratio: number) => void, completeCallback: (list: { [id: string] : object }) => void) : void;
 	*/
-	load: function (list, callback, completeCallback, keyList, index)
+	load: function (list, progressCallback, completeCallback, keyList, index)
 	{
 		if (!keyList)
 		{
@@ -88,11 +101,14 @@ Object.assign(Resources,
 		while (index < keyList.length && ('__loaded' in list[keyList[index]]))
 			index++;
 
-		if (callback) callback (index, keyList.length, index / keyList.length);
+		if (progressCallback)
+			progressCallback (index, keyList.length, index / keyList.length);
 
 		if (index == keyList.length)
 		{
-			if (completeCallback) completeCallback(list);
+			if (completeCallback)
+				completeCallback(list);
+
 			return;
 		}
 
@@ -151,7 +167,7 @@ Object.assign(Resources,
 					System.renderer.prepareImage(r.data);
 					Resources.onLoaded (list, keyList[index]);
 
-					Resources.load (list, callback, completeCallback, keyList, index+1);
+					Resources.load (list, progressCallback, completeCallback, keyList, index+1);
 				};
 
 				r.data.onerror = function () {
@@ -189,7 +205,7 @@ Object.assign(Resources,
 					if (r._i == r.count)
 					{
 						Resources.onLoaded (list, keyList[index]);
-						Resources.load (list, callback, completeCallback, keyList, index + 1);
+						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
 						return;
 					}
 
@@ -283,7 +299,7 @@ Object.assign(Resources,
 					global.plugins.NativeAudio.preloadSimple(r.data, r.src,
 						function() {
 							Resources.onLoaded (list, keyList[index]);
-							Resources.load (list, callback, completeCallback, keyList, index + 1);		
+							Resources.load (list, progressCallback, completeCallback, keyList, index + 1);		
 						},
 						function(e) {
 							console.error("Error: Unable to load (sfx): " + r.resName + "\n" + e);
@@ -306,7 +322,7 @@ Object.assign(Resources,
 					.then (audioBuffer => {
 						r.data = audioBuffer;
 						Resources.onLoaded (list, keyList[index]);
-						Resources.load (list, callback, completeCallback, keyList, index + 1);		
+						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);		
 					})
 					.catch (err => {
 						console.error("Error: Unable to load: " + r.resName);
@@ -326,7 +342,7 @@ Object.assign(Resources,
 				r.data.oncanplaythrough = function ()
 				{
 					Resources.onLoaded (list, keyList[index]);
-					Resources.load (list, callback, completeCallback, keyList, index + 1);
+					Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
 				};
 
 				r.data.onerror = function ()
@@ -365,7 +381,7 @@ Object.assign(Resources,
 					if (r._i == r.count)
 					{
 						Resources.onLoaded (list, keyList[index]);
-						Resources.load (list, callback, completeCallback, keyList, index + 1);
+						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
 						return;
 					}
 
@@ -439,7 +455,7 @@ Object.assign(Resources,
 					r.data = json;
 
 					Resources.onLoaded (list, keyList[index]);
-					Resources.load (list, callback, completeCallback, keyList, index + 1);
+					Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
 				})
 				.catch(function(err)
 				{
@@ -455,7 +471,7 @@ Object.assign(Resources,
 					r.data = arraybuffer;
 
 					Resources.onLoaded (list, keyList[index]);
-					Resources.load (list, callback, completeCallback, keyList, index + 1);
+					Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
 				})
 				.catch(function(err)
 				{
@@ -471,7 +487,7 @@ Object.assign(Resources,
 					r.data = String.fromCharCode.apply(null, new Uint8Array(arrayBuffer));
 
 					Resources.onLoaded (list, keyList[index]);
-					Resources.load (list, callback, completeCallback, keyList, index + 1);
+					Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
 				})
 				.catch(function(err)
 				{
@@ -484,14 +500,15 @@ Object.assign(Resources,
 				r.data = { };
 
 				Resources.onLoaded (list, keyList[index]);
-				Resources.load (list, callback, completeCallback, keyList, index + 1);
+				Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
 				break;
 		}
 	},
 
 	/**
-	**	Unloads the specified list of resources.
-	*/
+	 * 	Unloads the specified list of resources.
+	 * 	!static unload (list: { [id: string] : object }) : void;
+	 */
 	unload: function (list)
 	{
 		throw new Error('IMPLEMENTED UNLOAD!');
@@ -544,8 +561,8 @@ Object.assign(Resources,
 	},
 
 	/**
-	**	Executes post-load actions on a resource.
-	*/
+	 * 	Executes post-load actions on a resource.
+	 */
 	onLoaded: function (list, index)
 	{
 		var r = list[index];
@@ -556,8 +573,9 @@ Object.assign(Resources,
 	},
 
 	/**
-	**	Resizes the given image to the specified size.
-	*/
+	 * 	Resizes the given image to the specified size.
+	 * 	!static resizeImage (image: HTMLImageElement, targetWidth: number, targetHeight: number, pixelated?: boolean, discardOriginal?: boolean) : HTMLImageElement;
+	 */
 	resizeImage: function (image, dw, dh, pixelated, discardOriginal)
 	{
 		var sw = image.data.width;
@@ -644,8 +662,9 @@ Object.assign(Resources,
 	},
 
 	/**
-	**	Flips an image horizontally.
-	*/
+	 * 	Flips an image horizontally.
+	 * 	!static flipImageHorz (image: HTMLImageElement) : HTMLImageElement;
+	 */
 	flipImageHorz: function (image)
 	{
 		var temp = new Canvas ({ hidden: true }).resize (image.data.width, image.data.height);
@@ -659,8 +678,9 @@ Object.assign(Resources,
 	},
 
 	/**
-	**	Forces the browser to show a download dialog.
-	*/
+	 * 	Forces the browser to show a download dialog.
+	 * 	!static showDownload (filename: string, dataUrl: string) : void;
+	 */
 	showDownload: function (filename, dataUrl)
 	{
 		var link = document.createElement("a");
@@ -676,8 +696,9 @@ Object.assign(Resources,
 	},
 
 	/**
-	**	Forces the browser to show a file selection dialog.
-	*/
+	 * 	Forces the browser to show a file selection dialog.
+	 * 	!static showFilePicker (allowMultiple, accept, callback)
+	 */
 	showFilePicker: function (allowMultiple, accept, callback)
 	{
 		var input = document.createElement("input");
@@ -704,8 +725,9 @@ Object.assign(Resources,
 	},
 
 	/**
-	**	Loads a URL using FileReader and returns as a dataURL.
-	*/
+	 * 	Loads a file using FileReader and returns the result as a dataURL.
+	 * 	!static loadAsDataURL (file: File, callback: (dataUrl: string) => void) : void;
+	 */
 	loadAsDataURL: function (file, callback)
 	{
 		var reader = new FileReader();
@@ -718,8 +740,9 @@ Object.assign(Resources,
 	},
 
 	/**
-	**	Loads a URL using FileReader and returns as text.
-	*/
+	 * 	Loads a file using FileReader and returns the result as text.
+	 * 	!static loadAsText (file: File, callback: (text: string) => void) : void;
+	 */
 	loadAsText: function (file, callback)
 	{
 		var reader = new FileReader();
@@ -732,8 +755,9 @@ Object.assign(Resources,
 	},
 
 	/**
-	**	Loads a URL using FileReader and returns as an array buffer.
-	*/
+	 * 	Loads a file using FileReader and returns the result as an array buffer.
+	 * 	!static loadAsArrayBuffer (file: File, callback: (buff: ArrayBuffer) => void) : void;
+	 */
 	loadAsArrayBuffer: function (file, callback)
 	{
 		var reader = new FileReader();
@@ -746,8 +770,9 @@ Object.assign(Resources,
 	},
 
 	/**
-	**	Loads an array of URLs using FileReader and returns them as data url.
-	*/
+	 * 	Loads an array of File objects using FileReader and returns them as data URLs.
+	 * 	!static loadAllAsDataURL (fileList: Array<File>, callback: (urlList: Array<String>) => void) : void;
+	 */
 	loadAllAsDataURL: function (fileList, callback)
 	{
 		var result = [];

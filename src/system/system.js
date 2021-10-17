@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import KeyCodes from './keycodes.js';
+import KeyCode from './keycode.js';
 import List from '../utils/list.js';
 import Linkable from '../utils/linkable.js';
 import Timer from './timer.js';
@@ -22,7 +22,7 @@ import Canvas from './canvas.js';
 import Log from './log.js';
 import globals from './globals.js';
 
-//![import "./keycodes"]
+//![import "./keycode"]
 //![import "../utils/list"]
 //![import "../utils/linkable"]
 //![import "./timer"]
@@ -396,7 +396,7 @@ const System =
 			}
 
 			// CTRL+TAB should always be handled by the browser.
-			if (self.keyState.ctrl && evt.keyCode == KeyCodes.TAB)
+			if (self.keyState.ctrl && evt.keyCode == KeyCode.TAB)
 			{
 				self.keyState[evt.keyCode] = false;
 				return true;

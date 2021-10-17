@@ -670,8 +670,8 @@ Object.assign(Sound,
 });
 
 /**
-**	Creates a descriptor for an audio resource.
-*/
+ * 	Creates a descriptor for an audio resource.
+ */
 Resources.Audio = function (src, opts=null)
 {
 	return { type: "audio", wrapper: "Sound", src: src, ...opts };

@@ -40,9 +40,9 @@ export class Random
 
 }
 /**
- * 	List of key codes supported by the system.
+ * 	Enumeration of key codes supported by the system.
  */
-export enum KeyCodes
+export enum KeyCode
 {
 	BACKSPACE,
 	TAB,
@@ -2267,6 +2267,7 @@ export namespace Perf
 
 
 
+
 export class PriorityQueue
 {
 	/**
@@ -2835,7 +2836,48 @@ export class Command
 export class Anim
 {
 }
+export class Boot
+{
+	/**
+	 * 	Registers a new boot module.
+	 */
+	static register (module: Boot.Module) : Boot.Module;
 
+	/**
+	 * 	Removes a boot module.
+	 */
+	static unregister (module: Boot.Module) : void;
+
+	/**
+	 * 	Executes the startup sequence.
+	 */
+	static startup (finishedCallback?: () => void) : void;
+
+	/**
+	 * 	Executes the shutdown sequence.
+	 */
+	static shutdown (finishedCallback?: () => void) : void;
+
+}
+
+export namespace Boot
+{
+	interface Module
+	{
+		/**
+		 * 	Priority of the module (from 0 to 100), lower number means higher priority.
+		 */
+		priority: number;
+
+		/**
+		 * 	Should return `false` if the method is async. When async ensure to call `next` once the operation is complete.
+		 */
+		onStartup: function (next: () => void) : boolean;
+
+		/**
+		 * 	Should return `false` if the method is async. When async ensure to call `next` once the operation is complete.
+		 */
+		onShutdown: function (next: () => void) : boolean;
 /**
  * 	Describes an element that can be added to a grid.
  */
@@ -3785,8 +3827,278 @@ export class PointerHandler
 
 }
 
+export class Button extends Group
+{
+	/**
+	 * 	Indicates if once focus is obtained it is locked until the user releases it.
+	 * 	@default false
+	 */
+	focusLock: boolean;
 
+	/**
+	 * 	Indicates if keyboard events are enabled on this object.
+	 * 	@default true
+	 */
+	keyboardEvents: boolean;
 
+	/**
+	 * 	Current pressed status of the button.
+	 */
+	isPressed: boolean;
+
+	/**
+	 * 	Previous pressed status of the button.
+	 */
+	wasPressed: boolean;
+
+	/**
+	 * 	Image to draw when the button is unpressed.
+	 */
+	unpressedImg: IDrawable;
+
+	/**
+	 * 	Image to draw when the button is pressed.
+	 */
+	pressedImg: IDrawable;
+
+	/**
+	 * 	Key code related to the button. Used only if not `null`.
+	 * 	@default null
+	 */
+	keyCode: System.KeyCode;
+
+	/**
+	 * 	Hitbox element.
+	 */
+	readonly hitbox: Mask;
+
+	/**
+	 * 	Creates the button with the specified parameters. Automatically adds it to the screen controls.
+	 */
+	constructor (container: Container, x: number, y: number, unpressedImg: IDrawable, pressedImg?: IDrawable);
+
+	/**
+	 * 	Changes the pressed/unpressed images of the button.
+	 */
+	setImage (unpressedImg: IDrawable, pressedImg?: IDrawable);
+
+	/**
+	 * 	Changes the key code of the button.
+	 */
+	setKeyCode (value: System.KeyCode) : Button;
+
+	/**
+	 * 	Resets the button to its initial state.
+	 */
+	reset() : void;
+
+	/**
+	 * 	Renders the element to the graphics surface.
+	 */
+	override render (g: Canvas) : void;
+
+	/**
+	 * 	Button pointer update event. Not required for the button control.
+	 */
+	pointerUpdate (pointerX: number, pointerY: number, pointer: object) : void;
+
+	/**
+	 * 	Sets the pressed state of the button.
+	 */
+	setStatus (value: boolean) : Button;
+
+	/**
+	 * 	Moves the `isPressed` value of the button to `wasPressed`, and updates `isPressed` with the given value. If none provided, `isPressed` is unchanged.
+	 */
+	updateStatus (value?: boolean) : Button;
+
+	/**
+	 * 	Called when the PointerEventType.POINTER_DOWN event starts within the bounding box of the button.
+	 */
+	pointerActivate (pointer: object) : void;
+
+	/**
+	 * 	Called when the PointerEventType.POINTER_UP event is fired with the "_ref" attribute pointing to this object.
+	 */
+	pointerDeactivate (pointer: object) : void;
+
+	/**
+	 * 	Returns `true` if the button contains the specified point.
+	 */
+	containsPoint (x: number, y: number) : boolean;
+
+	/**
+	 * 	Executed after any change in the status of the button. Be careful when overriding this, because when so, the `onTap` method will not work.
+	 */
+	onChange (isPressed: boolean, wasPressed: boolean) : void;
+
+	/**
+	 * 	Key down event, handles the keys that control the button.
+	 */
+	keyDown (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+
+	/**
+	 * 	Key up event, handles the keys that control the button.
+	 */
+	keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+
+	/**
+	 * 	Executed when the button is pressed. Works only if the `onChange` method was not overriden.
+	 */
+	onButtonDown: () => void;
+
+	/**
+	 * 	Executed when the button is released. Works only if the onChange method was not overriden.
+	 */
+	onButtonUp: () => void;
+
+	/**
+	 * 	Executed when the button is tapped (pressed and then released). Works only if the onChange method was not overriden.
+	 */
+	onTap: () => void;
+
+}
+export class Stick extends Group
+{
+	/**
+	 * 	Indicates if once focus is obtained it is locked until the user releases it.
+	 * 	@default false
+	 */
+	focusLock: boolean;
+
+	/**
+	 * 	Indicates if keyboard events are enabled on this object.
+	 * 	@default true
+	 */
+	keyboardEvents: boolean;
+
+	/**
+	 * 	Current pressed status of the stick.
+	 */
+	isPressed: boolean;
+
+	/**
+	 * 	Previous pressed status of the stick.
+	 */
+	wasPressed: boolean;
+
+	/**
+	 * 	Image to draw when the stick is unpressed (outer circle).
+	 */
+	unpressedImg: IDrawable;
+
+	/**
+	 * 	Image to draw when the stick is pressed (outer circle).
+	 */
+	pressedImg: IDrawable;
+
+	/**
+	 * 	Image to draw when the stick is unpressed (inner circle).
+	 */
+	unpressedImg: IDrawable;
+
+	/**
+	 * 	Image to draw when the stick is pressed (inner circle).
+	 */
+	pressedImg: IDrawable;
+
+	/**
+	 * 	Number of steps for the angle. Used to snap the stick movement to discrete steps.
+	 */
+	angleSteps: number;
+
+	/**
+	 * 	Number of steps for the radius of the stick. Used to snap the stick movement to discrete steps.
+	 */
+	radiusSteps: number;
+
+	/**
+	 * 	Creates the stick with the specified parameters. Automatically adds it to the screen controls.
+	 */
+	constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: IDrawable, unpressedImgInner: IDrawable, pressedImg?: IDrawable, pressedImgInner?: IDrawable);
+
+	/**
+	 * 	Changes the pressed/unpressed images of the outer stick.
+	 */
+	setImage (unpressedImg: IDrawable, pressedImg?: IDrawable) : Stick;
+
+	/**
+	 * 	Changes the pressed/unpressed images of the inner stick.
+	 */
+	setImageInner (unpressedImg: IDrawable, pressedImg?: IDrawable) : Stick;
+
+	/**
+	 * 	Sets the number of angle-steps for the stick.
+	 */
+	setAngleSteps (n: number) : Stick;
+
+	/**
+	 * 	Sets the number of radius-steps for the stick.
+	 */
+	setRadiusSteps (n: number) : Stick;
+
+	/**
+	 * 	Sets the dead zone values (normalized).
+	 */
+	setDeadZone (deadZoneX: number, deadZoneY: number) : Stick;
+
+	/**
+	 * 	Resets the button to its initial state.
+	 */
+	reset() : void;
+
+	/**
+	 * 	Renders the element to the graphics surface.
+	 */
+	render (g: Canvas) : void;
+
+	/**
+	 * 	Button pointer update event. Not required for the button control.
+	 */
+	pointerUpdate (pointerX: number, pointerY: number, pointer: object) : void;
+
+	/**
+	 * 	Called when the PointerEventType.POINTER_DOWN event starts within the bounding box of the stick.
+	 */
+	pointerActivate (pointer: object) : void;
+
+	/**
+	 * 	Called when the PointerEventType.POINTER_UP event is fired with the "_ref" attribute pointing to this object.
+	 */
+	pointerDeactivate (pointer: object) : void;
+
+	/**
+	 * 	Returns `true` if the stick contains the specified point.
+	 */
+	containsPoint (x: number, y: number) : boolean;
+
+	/**
+	 * 	Sets the direction of the stick, the provided deltas should be normalized in the (Unknown: -1,) range.
+	 */
+	setDirection (dx: number, dy: number, deadZoneX?: number, deadZoneY?: number) : boolean;
+
+	/**
+	 * 	Saves the current state of the stick in the f* variables (fdirx, fdiry, etc). When the `lastValid` parameter is true, the values will
+	 * 	be saved on each field only if the current value is not zero.
+	 */
+	freezeState (lastValid?: boolean) : Stick;
+
+	/**
+	 * 	Key down event, handles the keys that control the direction of the stick.
+	 */
+	keyDown (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+
+	/**
+	 * 	Key up event, handles the keys that control the direction of the stick.
+	 */
+	keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+
+	/**
+	 * 	Executed after any change in the direction of the stick.
+	 */
+	onChange: (dirx: number, diry: number, magnitude: number, angle: number) => void;
+
+}
 export namespace fxl
 {
 	export class sys

@@ -1,5 +1,5 @@
 /*
-**	system/keycodes.js
+**	system/keycode.js
 **
 **	Copyright (c) 2016-2021, RedStar Technologies, All rights reserved.
 **	https://rsthn.com/
@@ -15,10 +15,10 @@
 */
 
 //:/**
-//: * 	List of key codes supported by the system.
+//: * 	Enumeration of key codes supported by the system.
 //: */
 
-//!enum KeyCodes
+//!enum KeyCode
 
 export default
 {

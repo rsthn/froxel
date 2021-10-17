@@ -17,55 +17,94 @@
 import Group from './group.js';
 import Mask from './mask.js';
 import ScreenControls from './screen-controls.js';
-import KeyCodes from '../system/keycodes.js';
+import KeyCode from '../system/keycode.js';
 
 //![import "./group"]
 //![import "./mask"]
 //![import "./screen-controls"]
-//![import "../system/keycodes"]
+//![import "../system/keycode"]
 
 /**
  * 	Stick class provides an easy way to add directional control sticks to the world.
  */
 
+//!class Stick extends Group
+
 export default Group.extend
 ({
-	/*
-	**	Indicates if once focus is obtained it is locked until the user releases it.
-	*/
-	focusLock: true,
+	/**
+	 * 	Indicates if once focus is obtained it is locked until the user releases it.
+	 * 	@default false
+	 *	!focusLock: boolean;
+	 */
+	focusLock: false,
 
-	/*
-	**	Indicates if keyboard events are enabled on this object.
-	*/
+	/**
+	 * 	Indicates if keyboard events are enabled on this object.
+	 * 	@default true
+	 *	!keyboardEvents: boolean;
+	 */
 	keyboardEvents: true,
 
-	/*
-	**	Current and last status of the button (0 for unpressed, 1 for pressed).
-	*/
-	status: 0, lstatus: 0,
+	/**
+	 * 	Current pressed status of the stick.
+	 *	!isPressed: boolean;
+	 */
+	isPressed: false,
 
-	/*
-	**	Images for the unpressed and pressed statuses for the outer stick.
-	*/
-	unpressedImg: null,
-	pressedImg: null,
+	/**
+	 * 	Previous pressed status of the stick.
+	 *	!wasPressed: boolean;
+	 */
+	wasPressed: false,
 
-	/*
-	**	Images for the unpressed and pressed statuses for the inner stick.
-	*/
+		/**
+		 * 	Image to draw when the stick is unpressed (outer circle).
+		 *	!unpressedImg: IDrawable;
+		 */
+		unpressedImg: null,
+
+		/**
+		 * 	Image to draw when the stick is pressed (outer circle).
+		 *	!pressedImg: IDrawable;
+		 */
+		pressedImg: null,
+
+	/**
+	 * 	Image to draw when the stick is unpressed (inner circle).
+	 *	!unpressedImg: IDrawable;
+	 */
 	unpressedImgInner: null,
+
+	/**
+	 * 	Image to draw when the stick is pressed (inner circle).
+	 *	!pressedImg: IDrawable;
+	 */
 	pressedImgInner: null,
 
-	/*
-	**	Number of steps for the angle and radius of the stick. Used to snap the stick movement to discrete steps.
-	*/
-	angleSteps: 0, radiusSteps: 0,
+		/**
+		 * 	Number of steps for the angle. Used to snap the stick movement to discrete steps.
+		 * 	!angleSteps: number;
+		 */
+		angleSteps: 0,
+
+		/**
+		 * 	Number of steps for the radius of the stick. Used to snap the stick movement to discrete steps.
+		 * 	!radiusSteps: number;
+		 */
+		radiusSteps: 0,
 
 	/*
 	**	Direction (X and Y), magnitude and angle of the stick vector. The dirx and diry are normalized.
 	*/
-	rdirx: 0, rdiry: 0, dirx: 0, diry: 0, magnitude: 0, angle: 0,
+	rdirx: 0,
+	rdiry: 0,
+
+	dirx: 0,
+	diry: 0,
+
+	magnitude: 0,
+	angle: 0,
 
 	/*
 	**	Frozen stick state. Set by calling `freezeState`.
@@ -92,9 +131,10 @@ export default Group.extend
 	*/
 	hitbox: 0,
 
-	/*
-	**	Creates the stick with the specified parameters. Automatically adds it to the screen controls.
-	*/
+	/**
+	 * 	Creates the stick with the specified parameters. Automatically adds it to the screen controls.
+	 * 	!constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: IDrawable, unpressedImgInner: IDrawable, pressedImg?: IDrawable, pressedImgInner?: IDrawable);
+	 */
 	__ctor: function (container, x, y, maxRadius, unpressedImg, unpressedImgInner, pressedImg=null, pressedImgInner=null)
 	{
 		this._super.Group.__ctor();
@@ -119,18 +159,19 @@ export default Group.extend
 		ScreenControls.add(this);
 	},
 
-	/*
-	**	Removes the button from the screen controls and destroys it.
-	*/
+	/**
+	 * 	Removes the button from the screen controls and destroys it.
+	 */
 	__dtor: function ()
 	{
 		this._super.Group.__dtor();
 		ScreenControls.remove(this);
 	},
 
-	/*
-	**	Changes the pressed/unpressed images of the outer stick.
-	*/
+	/**
+	 * 	Changes the pressed/unpressed images of the outer stick.
+	 * 	!setImage (unpressedImg: IDrawable, pressedImg?: IDrawable) : Stick;
+	 */
 	setImage: function (unpressedImg, pressedImg=null)
 	{
 		this.unpressedImg = unpressedImg;
@@ -138,9 +179,10 @@ export default Group.extend
 		return this;
 	},
 
-	/*
-	**	Changes the pressed/unpressed images of the inner stick.
-	*/
+	/**
+	 * 	Changes the pressed/unpressed images of the inner stick.
+	 * 	!setImageInner (unpressedImg: IDrawable, pressedImg?: IDrawable) : Stick;
+	 */
 	setImageInner: function (unpressedImg, pressedImg=null)
 	{
 		this.unpressedImgInner = unpressedImg;
@@ -148,27 +190,30 @@ export default Group.extend
 		return this;
 	},
 
-	/*
-	**	Sets the number of angle-steps for the stick.
-	*/
+	/**
+	 * 	Sets the number of angle-steps for the stick.
+	 * 	!setAngleSteps (n: number) : Stick;
+	 */
 	setAngleSteps: function (n)
 	{
 		this.angleSteps = n;
 		return this;
 	},
 
-	/*
-	**	Sets the number of radius-steps for the stick.
-	*/
+	/**
+	 * 	Sets the number of radius-steps for the stick.
+	 * 	!setRadiusSteps (n: number) : Stick;
+	 */
 	setRadiusSteps: function (n)
 	{
 		this.radiusSteps = n;
 		return this;
 	},
 
-	/*
-	**	Sets the dead zone values (normalized).
-	*/
+	/**
+	 * 	Sets the dead zone values (normalized).
+	 * 	!setDeadZone (deadZoneX: number, deadZoneY: number) : Stick;
+	 */
 	setDeadZone: function (deadZoneX, deadZoneY)
 	{
 		this.deadZoneX = deadZoneX;
@@ -177,9 +222,10 @@ export default Group.extend
 		return this;
 	},
 
-	/*
-	**	Resets the button to its initial state.
-	*/
+	/**
+	 * 	Resets the button to its initial state.
+	 * 	!reset() : void;
+	 */
 	reset: function ()
 	{
 		this.dispx = 0;
@@ -195,12 +241,13 @@ export default Group.extend
 		this.onChange(this.dirx, this.diry, this.magnitude, this.angle);
 	},
 
-	/*
-	**	Renders the element to the graphics surface.
-	*/
+	/**
+	 * 	Renders the element to the graphics surface.
+	 * 	!render (g: Canvas) : void;
+	 */
 	render: function (g)
 	{
-		if (this.status)
+		if (this.isPressed)
 		{
 			this.pressedImg.draw (g, this.bounds.x1, this.bounds.y1);
 			this.pressedImgInner.draw (g, this.bounds.x1 + this.dispx, this.bounds.y1 + this.dispy);
@@ -212,9 +259,10 @@ export default Group.extend
 		}
 	},
 
-	/*
-	**	Button pointer update event. Not required for the button control.
-	*/
+	/**
+	 * 	Button pointer update event. Not required for the button control.
+	 * 	!pointerUpdate (pointerX: number, pointerY: number, pointer: object) : void;
+	 */
 	pointerUpdate: function (pointerX, pointerY)
 	{
 		let dx = pointerX - this.bounds.cx;
@@ -272,31 +320,34 @@ export default Group.extend
 		this.onChange(this.dirx, this.diry, this.magnitude, this.angle);
 	},
 
-	/*
-	**	Called when the PointerEventType.POINTER_DOWN event starts within the bounding box of the button.
-	*/
+	/**
+	 * 	Called when the PointerEventType.POINTER_DOWN event starts within the bounding box of the stick.
+	 * 	!pointerActivate (pointer: object) : void;
+	 */
 	pointerActivate: function (pointer)
 	{
-		this.lstatus = this.status;
-		this.status = 1;
+		this.wasPressed = this.isPressed;
+		this.isPressed = 1;
 
 		this.pointerUpdate(pointer.x, pointer.y);
 	},
 
-	/*
-	**	Called when the PointerEventType.POINTER_UP event is fired with the "_ref" attribute pointing to this object.
-	*/
+	/**
+	 * 	Called when the PointerEventType.POINTER_UP event is fired with the "_ref" attribute pointing to this object.
+	 *	!pointerDeactivate (pointer: object) : void;
+	 */
 	pointerDeactivate: function (pointer)
 	{
-		this.lstatus = this.status;
-		this.status = 0;
+		this.wasPressed = this.isPressed;
+		this.isPressed = 0;
 
 		this.reset();
 	},
 
-	/*
-	**	Returns true if the button contains the specified point.
-	*/
+	/**
+	 * 	Returns `true` if the stick contains the specified point.
+	 * 	!containsPoint (x: number, y: number) : boolean;
+	 */
 	containsPoint: function(x, y)
 	{
 		if (!this.visible())
@@ -307,23 +358,25 @@ export default Group.extend
 
 	/**
 	 * 	Sets the direction of the stick, the provided deltas should be normalized in the [-1, 1] range.
+	 * 	!setDirection (dx: number, dy: number, deadZoneX?: number, deadZoneY?: number) : boolean;
 	 */
 	setDirection: function (dx, dy, deadZoneX=0.10, deadZoneY=0.10)
 	{
 		if (Math.abs(dx) < deadZoneX) dx = 0;
 		if (Math.abs(dy) < deadZoneY) dy = 0;
 
-		this.lstatus = this.status;
-		this.status = dx == 0 && dy == 0 ? 0 : 1;
+		this.wasPressed = this.isPressed;
+		this.isPressed = dx == 0 && dy == 0 ? 0 : 1;
 
 		this.pointerUpdate (this.bounds.cx + dx*this.maxRadius, this.bounds.cy + dy*this.maxRadius);
 		return false;
 	},
 
-	/*
-	**	Saves the current state of the stick in the f* variables (fdirx, fdiry, etc). When the `lastValid` parameter is true, the values will be saved
-	**	on each field only if the current value is not zero.
-	*/
+	/**
+	 * 	Saves the current state of the stick in the f* variables (fdirx, fdiry, etc). When the `lastValid` parameter is true, the values will
+	 * 	be saved on each field only if the current value is not zero.
+	 * 	!freezeState (lastValid?: boolean) : Stick;
+	 */
 	freezeState: function (lastValid=false)
 	{
 		this.frdirx = lastValid ? (this.rdirx != 0 ? this.rdirx : this.frdirx) : this.rdirx;
@@ -337,25 +390,26 @@ export default Group.extend
 	},
 
 	/**
-	**	Key-down event, handles the keys that control the direction of the stick.
-	*/
+	 * 	Key down event, handles the keys that control the direction of the stick.
+	 * 	!keyDown (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	 */
 	keyDown: function (keyCode, keyArgs)
 	{
 		let dx = 0;
 		let dy = 0;
 
-		if (keyArgs[KeyCodes.UP] === true) dy = -this.maxRadius;
-		if (keyArgs[KeyCodes.LEFT] === true) dx = -this.maxRadius;
-		if (keyArgs[KeyCodes.DOWN] === true) dy = this.maxRadius;
-		if (keyArgs[KeyCodes.RIGHT] === true) dx = this.maxRadius;
+		if (keyArgs[KeyCode.UP] === true) dy = -this.maxRadius;
+		if (keyArgs[KeyCode.LEFT] === true) dx = -this.maxRadius;
+		if (keyArgs[KeyCode.DOWN] === true) dy = this.maxRadius;
+		if (keyArgs[KeyCode.RIGHT] === true) dx = this.maxRadius;
 
-		if (keyCode === KeyCodes.UP || keyCode === KeyCodes.LEFT || keyCode === KeyCodes.DOWN || keyCode === KeyCodes.RIGHT)
+		if (keyCode === KeyCode.UP || keyCode === KeyCode.LEFT || keyCode === KeyCode.DOWN || keyCode === KeyCode.RIGHT)
 		{
 			dx = this.bounds.cx + dx;
 			dy = this.bounds.cy + dy;
 
-			this.lstatus = this.status;
-			this.status = 1;
+			this.wasPressed = this.isPressed;
+			this.isPressed = 1;
 
 			this.pointerUpdate (dx, dy);
 			return false;
@@ -363,26 +417,27 @@ export default Group.extend
 	},
 
 	/**
-	**	Key-up event, handles the keys that control the direction of the stick.
-	*/
+	 * 	Key up event, handles the keys that control the direction of the stick.
+	 * 	!keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	 */
 	keyUp: function (keyCode, keyArgs)
 	{
 		let dx = 0;
 		let dy = 0;
 
-		if (keyArgs[KeyCodes.UP] === true) dy = -this.maxRadius;
-		if (keyArgs[KeyCodes.LEFT] === true) dx = -this.maxRadius;
-		if (keyArgs[KeyCodes.DOWN] === true) dy = this.maxRadius;
-		if (keyArgs[KeyCodes.RIGHT] === true) dx = this.maxRadius;
+		if (keyArgs[KeyCode.UP] === true) dy = -this.maxRadius;
+		if (keyArgs[KeyCode.LEFT] === true) dx = -this.maxRadius;
+		if (keyArgs[KeyCode.DOWN] === true) dy = this.maxRadius;
+		if (keyArgs[KeyCode.RIGHT] === true) dx = this.maxRadius;
 
-		if (keyCode === KeyCodes.UP || keyCode === KeyCodes.LEFT || keyCode === KeyCodes.DOWN || keyCode === KeyCodes.RIGHT)
+		if (keyCode === KeyCode.UP || keyCode === KeyCode.LEFT || keyCode === KeyCode.DOWN || keyCode === KeyCode.RIGHT)
 		{
 			this.pointerUpdate (this.bounds.cx + dx, this.bounds.cy + dy);
 
 			if (dx === 0 && dy === 0)
 			{
-				this.lstatus = this.status;
-				this.status = 0;
+				this.wasPressed = this.isPressed;
+				this.isPressed = 0;
 			}
 
 			return false;
@@ -390,9 +445,10 @@ export default Group.extend
 	},
 
 	/**
-	**	Executed after any change in the direction of the stick.
-	*/
-	onChange: function (dirx, diry, magnitude, angle) /* @override */
+	 * 	Executed after any change in the direction of the stick.
+	 * 	!onChange: (dirx: number, diry: number, magnitude: number, angle: number) => void;
+	 */
+	onChange: function (dirx, diry, magnitude, angle)
 	{
 	}
 });
