@@ -120,7 +120,7 @@ const Canvas = function (options=null)
 	}
 	else
 	{
-		this.elem = elem;
+		this.elem = opts.elem;
 	}
 
 	if (!this.elem.getContext) return;

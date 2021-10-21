@@ -46,7 +46,7 @@ const Container = Class.extend
 	height: 0,
 
 	/**
-	 * 	Depth (z-value) of the container.
+	 * 	Depth (z-value) of the container, calculated by the scene.
 	 * 	!zvalue: number;
 	 */
 	zvalue: 0,
@@ -168,7 +168,8 @@ const Container = Class.extend
 	 */
 	syncZ: function (elem)
 	{
-		elem.__zvalue = this.zvalue + elem._zvalue + elem.bounds.y2;
+		elem.__zvalue = this.zvalue + ((elem._zvalue + elem.bounds.y2) & ((1 << 18) - 1));
+		//elem.__zvalue = this.zvalue + (1 << 18) - ((elem._zvalue + elem.bounds.y2 + (1 << 18)) & ((1 << 18) - 1));
 	},
 
 	/**

@@ -14,8 +14,7 @@ import Mask from '../flow/mask.js';
 import system from './system.js';
 
 /**
- *	World system allows to manage scenes
- containers, viewports and display elements.
+ * 	World system allows to manage scenes containers, viewports and display elements.
  */
 
 const world =
@@ -119,7 +118,7 @@ const world =
 			global.dispose(this._scenes[index]);
 		}
 
-		this._scenes[index] = new Scene();
+		this._scenes[index] = new Scene(index);
 		System.queueAdd(this._scenes[index]);
 
 		this.selectScene(index);

@@ -54,7 +54,8 @@ const Scene = Class.extend
 	 * 	!readonly maxWidth: number;
 	 * 	!readonly maxHeight: number;
 	 */
-	maxWidth: null, maxHeight: null,
+	maxWidth: null,
+	maxHeight: null,
 
 	/**
 	 * 	List of containers.
@@ -140,12 +141,27 @@ const Scene = Class.extend
 	scene: null,
 
 	/**
-	 * 	Constructs an empty scene.
-	 * 	!constructor();
+	 * 	Base depth (z-value) of the scene.
+	 * 	!readonly zvalue: number;
 	 */
-	__ctor: function()
+	zvalue: null,
+
+	/**
+	 * 	Constructs an empty scene with the specified index.
+	 * 	@param index - Index for the scene. Used to calculate the base z-value of the scene. Valid range is from 0 to 3.
+	 * 	!constructor (index: number);
+	 */
+	__ctor: function(index)
 	{
 		this.containers = [];
+
+		/**
+		 * 	Z-value is a 24-bit value constructed as:
+		 *		2-bits: Scene Index
+		 *		4-bits: Container Index
+		 *		18-bits: Element z-value
+		 */
+		this.zvalue = (index & 3) << (18+4);
 
 		this.viewports = [];
 		this.viewportBounds = Bounds2.Pool.alloc();
@@ -233,11 +249,13 @@ const Scene = Class.extend
 
 	/**
 	 * 	Sets a container at the specified index.
+	 * 	@param index - Index of the container, valid range is from 0 to 15.
 	 * 	!setContainer (index: number, container: Container) : Scene;
 	 */
 	setContainer: function (index, container)
 	{
 		if (index < 0) return this;
+		index &= 15;
 
 		if (container === null)
 		{
@@ -255,7 +273,7 @@ const Scene = Class.extend
 		if (this.maxHeight === null || container.height > this.maxHeight) this.maxHeight = container.height;
 
 		container.scene = this;
-		container.zvalue = index*1048576;
+		container.zvalue = this.zvalue + (index << 18);
 
 		this.containers[index] = container;
 		return this;
