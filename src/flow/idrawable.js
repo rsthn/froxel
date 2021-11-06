@@ -37,5 +37,5 @@
 
 	/**
 	 * 	Draws the drawable on the given canvas.
-	 * 	!draw(g: Canvas, x: number, y: number): void;
+	 * 	!draw(g: Canvas, x: number, y: number, width: number, height: number): void;
 	 */

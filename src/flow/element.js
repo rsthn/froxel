@@ -17,6 +17,7 @@
 import GridElement from './grid-element.js';
 import G from '../system/globals.js';
 import Recycler from '../utils/recycler.js';
+import System from '../system/system.js';
 
 //![import "./grid-element"]
 //![import "../system/globals"]
@@ -108,9 +109,9 @@ const Element = GridElement.extend
 		this._shaderProgram = null;
 	},
 
-	/*
-	**	Destroys the element.
-	*/
+	/**
+	 * 	Destroys the element.
+	 */
 	__dtor: function()
 	{
 		if (this.img !== null)
@@ -122,9 +123,9 @@ const Element = GridElement.extend
 		this._super.GridElement.__dtor();
 	},
 
-	/*
-	**	Destroys the element later by adding it to the scene's destruction queue. If the element has no container, it will be destroyed immediately.
-	*/
+	/**
+	 * 	Destroys the element later by adding it to the scene's destruction queue. If the element has no container, it will be destroyed immediately.
+	 */
 	destroyLater: function()
 	{
 		if (!this.alive()) return;
@@ -228,7 +229,7 @@ const Element = GridElement.extend
 	 */
 	render: function(g) /* @override */
 	{
-		this.img.draw (g, this.bounds.x1, this.bounds.y1);
+		this.img.draw (g, this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height());
 	}
 });
 

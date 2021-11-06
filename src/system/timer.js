@@ -28,6 +28,7 @@ const Timer = function (vsync, interval, callback)
 	this.callback = callback;
 	this.interval = interval;
 	this.vsync = vsync;
+	this.handle = null;
 
 	this.isRunning = false;
 	this.startTime = 0;
@@ -104,9 +105,15 @@ Timer.prototype.start = function (immediate=false, scale=1.0)
 Timer.prototype.runAfter = function (timeout)
 {
 	if (process.browser && this.vsync)
+	{
 		requestAnimationFrame(this._onTimeout_b);
-	else
-		setTimeout(this._onTimeout, 0);
+		return;
+	}
+
+	if (this.handle)
+		clearTimeout(this.handle);
+
+	this.handle = setTimeout(this._onTimeout, timeout);
 };
 
 /**
@@ -116,7 +123,10 @@ Timer.prototype.runAfter = function (timeout)
  */
 Timer.prototype.runNow = function ()
 {
-	setTimeout(this._onTimeout, 0);
+	if (this.handle)
+		clearTimeout(this.handle);
+
+	this.handle = setTimeout(this._onTimeout, 0);
 };
 
 /**
@@ -127,6 +137,12 @@ Timer.prototype.runNow = function ()
 Timer.prototype.stop = function ()
 {
 	if (!this.isRunning) return;
+
+	if (this.handle)
+	{
+		clearTimeout(this.handle);
+		this.handle = null;
+	}
 
 	this.isRunning = false;
 	this.onStopped();
