@@ -21,6 +21,8 @@
 
 import * as _Rin from '@rsthn/rin';
 export const Class = _Rin.Class;
+export const Schema = _Rin.Schema;
+export const Template = _Rin.Template;
 
 // *********************************************
 // system

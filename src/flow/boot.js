@@ -90,7 +90,7 @@ Boot.Module = Class.extend
 
 	/**
 	 * 	Should return `false` if the method is async. When async ensure to call `next` once the operation is complete.
-	 * 	!onStartup: function (next: () => void) : boolean;
+	 * 	!onStartup (next: () => void) : boolean;
 	 */
 	onStartup: function (next)
 	{
@@ -98,11 +98,14 @@ Boot.Module = Class.extend
 
 	/**
 	 * 	Should return `false` if the method is async. When async ensure to call `next` once the operation is complete.
-	 * 	!onShutdown: function (next: () => void) : boolean;
+	 * 	!onShutdown (next: () => void) : boolean;
 	 */
 	onShutdown: function (next)
 	{
 	}
 });
+
+//!/interface
+//!/namespace
 
 export default Boot;

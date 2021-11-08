@@ -218,7 +218,7 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Returns the errors found in the program and all shaders.
-	 * 	!getAllErrors()) : string;
+	 * 	!getAllErrors() : string;
 	 */
 	getAllErrors: function ()
 	{

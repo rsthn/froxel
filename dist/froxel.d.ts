@@ -862,7 +862,7 @@ export class ShaderProgram
 	/**
 	 * 	Returns the errors found in the program and all shaders.
 	 */
-	getAllErrors()) : string;
+	getAllErrors() : string;
 
 	/**
 	 * 	Puts a shader program in the global program list under the specified identifier.
@@ -2872,12 +2872,16 @@ export namespace Boot
 		/**
 		 * 	Should return `false` if the method is async. When async ensure to call `next` once the operation is complete.
 		 */
-		onStartup: function (next: () => void) : boolean;
+		onStartup (next: () => void) : boolean;
 
 		/**
 		 * 	Should return `false` if the method is async. When async ensure to call `next` once the operation is complete.
 		 */
-		onShutdown: function (next: () => void) : boolean;
+		onShutdown (next: () => void) : boolean;
+
+	}
+
+}
 /**
  * 	Describes an element that can be added to a grid.
  */
@@ -3119,7 +3123,7 @@ export class Container
 	height: number;
 
 	/**
-	 * 	Depth (z-value) of the container.
+	 * 	Depth (z-value) of the container, calculated by the scene.
 	 */
 	zvalue: number;
 
@@ -3243,7 +3247,7 @@ export class IDrawable
 	/**
 	 * 	Draws the drawable on the given canvas.
 	 */
-	draw(g: Canvas, x: number, y: number): void;
+	draw(g: Canvas, x: number, y: number, width: number, height: number): void;
 
 }
 /**
@@ -3456,9 +3460,20 @@ export class Scene
 	readonly drawCount: number;
 
 	/**
-	 * 	Constructs an empty scene.
+	 * 	Base depth (z-value) of the scene.
 	 */
-	constructor();
+	readonly zvalue: number;
+
+	/**
+	 * 	Constructs an empty scene with the specified index.
+	 * 	@param index - Index for the scene. Used to calculate the base z-value of the scene. Valid range is from 0 to 3.
+	 */
+	constructor (index: number);
+
+	/**
+	 * 	Clears the scene leaving only viewports.
+	 */
+	clear() : void;
 
 	/**
 	 * 	Returns the value of the `visible` flag.
@@ -3472,6 +3487,7 @@ export class Scene
 
 	/**
 	 * 	Sets a container at the specified index.
+	 * 	@param index - Index of the container, valid range is from 0 to 15.
 	 */
 	setContainer (index: number, container: Container) : Scene;
 

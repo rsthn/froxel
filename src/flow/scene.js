@@ -229,6 +229,30 @@ const Scene = Class.extend
 	},
 
 	/**
+	 * 	Clears the scene leaving only viewports.
+	 * 	!clear() : void;
+	 */
+	clear: function()
+	{
+		this.disposeQueued();
+
+		let i;
+
+		while ((i = this.groupList.shift()) !== null)
+		{
+			i.remover.remove(this._remove, this);
+			i.container = null;
+			dispose(i);
+		}
+
+		for (i = 0; i < this.containers.length; i++)
+		{
+			if (this.containers[i])
+				this.containers[i].clear();
+		}
+	},
+
+	/**
 	 * 	Returns the value of the `visible` flag.
 	 * 	!visible() : boolean;
 	 */
