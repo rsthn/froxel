@@ -217,7 +217,7 @@ const System =
 	keyState: { time: 0, shift: false, ctrl: false, alt: false, keyCode: 0 },
 
 	/**
-	 * 	Current status of all pointers. The related object is known as the Pointer State, and has the following fields: id, isActive, isDragging, sx, sy, x, y, dx, dy, button
+	 * 	Current status of all pointers. The related object is known as the Pointer State, and has the following fields: id, isActive, isDragging, sx, sy, x, y, dx, dy, and button.
 	 */
 	pointerState: { },
 
@@ -579,6 +579,12 @@ const System =
 		// Attach mouse event handlers when pointer-events are not available.
 		else
 		{
+			display0.oncontextmenu = function (evt)
+			{
+				evt.preventDefault();
+				return false;
+			};
+
 			display0.onmousedown = function (evt)
 			{
 				evt.preventDefault();

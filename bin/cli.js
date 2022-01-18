@@ -64,7 +64,7 @@ switch (args[0])
 		const dest = path.join(cdir, args[1]);
 		if (!fs.existsSync(dest)) fs.mkdirSync(dest);
 
-		msg(INFO, 'Copying template ' + args[1] + '...');
+		msg(INFO, 'Copying template ...');
 		fse.copy(path.join(sdir, 'template'), dest, { overwrite: true }, function (err)
 		{
 			if (err) {
@@ -72,7 +72,7 @@ switch (args[0])
 				return;
 			}
 
-			msg(INFO, 'Installing dependencies ' + args[1] + '...');
+			msg(INFO, 'Installing dependencies ...');
 			process.chdir(dest);
 
 			run('yarn').then(r => {

@@ -576,10 +576,10 @@ const Viewport = Class.extend
 			return;
 
 		if (this.focusAxisX)
-			this.focusX (this.focusRect.x1, this.focusRect.x2);
+			this.focusX (this.focusRect.x1 + this.focusOffsX, this.focusRect.x2 + this.focusOffsX);
 
 		if (this.focusAxisY)
-			this.focusY (this.focusRect.y1, this.focusRect.y2);
+			this.focusY (this.focusRect.y1 + this.focusOffsY, this.focusRect.y2 + this.focusOffsY);
 
 		this.updateBounds();
 	},

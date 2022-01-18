@@ -217,7 +217,7 @@ const Element = GridElement.extend
 			g2.pushMatrix();
 			g2.loadMatrix(g.getMatrix());
 
-			g2.fillStyle('rgba(0,255,255,0.5)');
+			g2.fillStyle(this.debugBounds === 1 ? 'rgba(255,255,0,0.5)' : 'rgba(0,255,255,0.5)');
 			g2.fillRect(this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height());
 
 			g2.popMatrix();

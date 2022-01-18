@@ -511,7 +511,10 @@ const collider =
 			return this.commit();
 
 		let truncationRules = this.truncationRules[mask.type];
-		if (!truncationRules) return this.scan(mask, group);
+		if (!truncationRules) {
+			this.commit();
+			return this.scan(mask, group);
+		}
 
 		this.state.offs = group.getOffsets(this.state.dx, this.state.dy);
 		this.state.bounds.set(mask.bounds).translate(this.state.offs.x+this.state.dx, this.state.offs.y+this.state.dy);
