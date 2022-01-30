@@ -82,16 +82,18 @@ export default Class.extend
 			v_scale = r.data[0].width / r.config.frameWidth;
 		}
 
-		this.r_frameWidth = (r.config.frameWidth * r_scale);
-		this.r_frameHeight = (r.config.frameHeight * r_scale);
+		// Physical frame dimensions.
+		this.frameWidth = (r.config.frameWidth * r_scale);
+		this.frameHeight = (r.config.frameHeight * r_scale);
 
+		// Logical frame dimensions.
 		this.width = r.config.frameWidth * v_scale;
 		this.height = r.config.frameHeight * v_scale;
 
 		if (r.type == 'image')
 		{
-			this.numCols = int(r.data.width / this.r_frameWidth);
-			this.numRows = Math.ceil(r.data.height / this.r_frameHeight);
+			this.numCols = int(r.data.width / this.frameWidth);
+			this.numRows = Math.ceil(r.data.height / this.frameHeight);
 
 			this.numFrames = r.config.numFrames || (this.numCols * this.numRows);
 		}
@@ -117,14 +119,14 @@ export default Class.extend
 
 		if (this.numCols != 0)
 		{
-			var j = int(frame / this.numCols) * this.r_frameHeight;
-			var i =  (frame % this.numCols) * this.r_frameWidth;
+			var j = int(frame / this.numCols) * this.frameHeight;
+			var i =  (frame % this.numCols) * this.frameWidth;
 
-			g.drawImage (this.r.data, i, j, this.r_frameWidth, this.r_frameHeight, x, y, width, height);
+			g.drawImage (this.r.data, i, j, this.frameWidth, this.frameHeight, x, y, width, height, null, null, this.width, this.height);
 		}
 		else
 		{
-			g.drawImage (this.r.data[frame].data, 0, 0, this.r_frameWidth, this.r_frameHeight, x, y, width, height);
+			g.drawImage (this.r.data[frame].data, 0, 0, this.frameWidth, this.frameHeight, x, y, width, height, null, null, this.width, this.height);
 		}
 	},
 
@@ -134,7 +136,7 @@ export default Class.extend
 		let frameIndex;
 
 		if (y !== null)
-			frameIndex = y*this.numCols + x;
+			frameIndex = y*this.numCols+x;
 		else
 			frameIndex = x;
 
@@ -149,11 +151,16 @@ export default Class.extend
 				height: this.height,
 
 				frameIndex: frameIndex,
-				r: this,
+				spritesheet: this,
 
 				draw: function (g, x=0, y=0, width=0, height=0)
 				{
-					g.drawFrame (this.r, x, y, this.frameIndex, width, height);
+					g.drawFrame (this.spritesheet, x, y, this.frameIndex, width, height);
+				},
+
+				getImage: function()
+				{
+					return this.spritesheet.r.data;
 				},
 
 				getDrawable: function()
@@ -164,6 +171,11 @@ export default Class.extend
 		}
 
 		return this.drawableCache[frameIndex];
+	},
+
+	getImage: function()
+	{
+		return this.r.data;
 	},
 
 	getDrawable: function()

@@ -37,6 +37,7 @@ const ShaderProgram = Class.extend
 	 *	!readonly uniform_texture_matrix: number;
 	 *	!readonly uniform_resolution: number;
 	 *	!readonly uniform_texture_size: number;
+	 *	!readonly uniform_frame_size: number;
 	 *	!readonly uniform_base_color: number;
 	 *	!readonly uniform_time: number;
 	 *	!readonly uniform_depth: number;
@@ -51,6 +52,7 @@ const ShaderProgram = Class.extend
 
 	uniform_resolution: 0, /* vec2 */
 	uniform_texture_size: 0, /* vec2 */
+	uniform_frame_size: 0, /* vec2 */
 	uniform_base_color: 0, /* vec4 */
 
 	uniform_time: 0, /* float */
@@ -146,6 +148,7 @@ const ShaderProgram = Class.extend
 		this.uniform_texture_matrix = gl.getUniformLocation (this.programId, 'm_texture');
 		this.uniform_resolution = gl.getUniformLocation (this.programId, 'v_resolution');
 		this.uniform_texture_size = gl.getUniformLocation (this.programId, 'v_texture_size');
+		this.uniform_frame_size = gl.getUniformLocation (this.programId, 'v_frame_size');
 		this.uniform_base_color = gl.getUniformLocation (this.programId, 'v_base_color');
 		this.uniform_time = gl.getUniformLocation (this.programId, 'f_time');
 		this.uniform_depth = gl.getUniformLocation (this.programId, 'f_depth');

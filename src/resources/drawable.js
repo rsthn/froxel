@@ -40,10 +40,13 @@ export default Class.extend
 
 	draw: function (g, x=0, y=0, width=null, height=null)
 	{
-		if (width === null)
-			g.drawImageResource (this.r, x, y);
-		else
-			g.drawImageResource (this.r, x, y, width, height);
+		g.drawImage (this.r.data, 0, 0, this.r.data.width, this.r.data.height, x, y, width || this.r.width, height || this.r.height,
+			null, null, this.width, this.height);
+	},
+
+	getImage: function()
+	{
+		return this.r.data;
 	},
 
 	getDrawable: function()

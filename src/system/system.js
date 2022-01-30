@@ -1037,7 +1037,7 @@ const System =
 	 */
 	updateQueueRemove: function (handler)
 	{
-		this.updateQueue.remove (handler instanceof Linkable ? handler : this.updateQueue.sgetNode(handler));
+		this.updateQueue.remove (Linkable.isInstance(handler) ? handler : this.updateQueue.sgetNode(handler));
 	},
 
 	/**
@@ -1060,7 +1060,7 @@ const System =
 	 */
 	drawQueueRemove: function (handler)
 	{
-		this.drawQueue.remove (handler instanceof Linkable ? handler : this.drawQueue.sgetNode(handler));
+		this.drawQueue.remove (Linkable.isInstance(handler) ? handler : this.drawQueue.sgetNode(handler));
 	},
 
 	/**
@@ -1095,7 +1095,9 @@ const System =
 			for (let elem = this.updateQueue.top; elem; elem = next)
 			{
 				next = elem.next;
-				elem.value.update(dt);
+
+				if (elem.value.update(dt) === false)
+					this.updateQueueRemove(elem);
 			}
 		}
 		catch (e)

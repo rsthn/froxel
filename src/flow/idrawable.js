@@ -36,6 +36,11 @@
 	 */
 
 	/**
+	 * 	Returns the underlying Image object, can be used directly with Canvas.drawImage.
+	 * 	!getImage(): Image;
+	 */
+
+	/**
 	 * 	Draws the drawable on the given canvas.
 	 * 	!draw(g: Canvas, x: number, y: number, width: number, height: number): void;
 	 */

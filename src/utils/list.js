@@ -184,7 +184,7 @@ const List = Class.extend
 	 */
 	remove: function (i)
 	{
-		if (i != null && !('isInstanceOf' in i && i.isInstanceOf(Linkable)))
+		if (i != null && !Linkable.isInstance(i))
 			i = this.sgetNode(i);
 
 		if (!i) return null;

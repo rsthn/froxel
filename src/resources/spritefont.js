@@ -118,7 +118,7 @@ export default Class.extend
 			let c = this.charTable[text[i]];
 			if (!c) continue;
 
-			g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight);
+			g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight, null, null, c.charWidth, this.charHeight);
 
 			x += c.charWidth + pX;
 		}
@@ -145,6 +145,11 @@ export default Class.extend
 	measureHeight: function (text)
 	{
 		return this.charHeight - 2*this.paddingY + this.spacingY;
+	},
+
+	getImage: function()
+	{
+		return this.r.data;
 	}
 });
 

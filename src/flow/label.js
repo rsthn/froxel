@@ -43,9 +43,13 @@ const Label = Element.extend
 	font: null,
 
 	/**
-	 * 	Last text value and its dimensions.
+	 * 	Indicates if the `text` property changed.
 	 */
-	_ltext: null,
+	_dirty: false,
+
+	/**
+	 * 	Current text dimensions.
+	 */
 	_twidth: null,
 	_theight: null,
 
@@ -71,6 +75,11 @@ const Label = Element.extend
 
 		this.text = text;
 		this.font = font;
+
+		this._align = -1;
+		this._valign = -1;
+
+		this._dirty = true;
 	},
 
 	/**
@@ -80,6 +89,9 @@ const Label = Element.extend
 	 */
 	align: function(value)
 	{
+		if (this._align === value)
+			return this;
+
 		this._align = value;
 		this._offsx = null;
 		return this;
@@ -92,8 +104,26 @@ const Label = Element.extend
 	 */
 	valign: function(value)
 	{
+		if (this._valign === value)
+			return this;
+
 		this._valign = value;
 		this._offsy = null;
+		return this;
+	},
+
+	/**
+	 * 	Sets the text value of the label.
+	 * 	@param value
+	 * 	!setText (value: string) : Label;
+	 */
+	setText: function(value)
+	{
+		if (this.text === value)
+			return this;
+
+		this.text = value;
+		this._dirty = true;
 		return this;
 	},
 
@@ -102,11 +132,15 @@ const Label = Element.extend
 	 */
 	render: function(g)
 	{
-		if (this.text !== this._ltext)
+		if (this._dirty)
 		{
 			this._twidth = this.font.measureWidth(this.text);
 			this._theight = this.font.measureHeight(this.text);
-			this._ltext = this.text;
+
+			this._offsx = null;
+			this._offsy = null;
+
+			this._dirty = false;
 		}
 
 		if (this._offsx === null) {

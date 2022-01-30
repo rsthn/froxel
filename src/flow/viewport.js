@@ -566,7 +566,7 @@ const Viewport = Class.extend
 	},
 
 	/**
-	 * 	Updates the viewport.
+	 * 	Updates the viewport to focus on the focusRect. Takes into account enabled axes.
 	 *
 	 * 	!update (dt?: number) : void;
 	 */
@@ -580,6 +580,22 @@ const Viewport = Class.extend
 
 		if (this.focusAxisY)
 			this.focusY (this.focusRect.y1 + this.focusOffsY, this.focusRect.y2 + this.focusOffsY);
+
+		this.updateBounds();
+	},
+
+	/**
+	 * 	Updates the viewport to focus on the focusRect ignoring the enabled axes.
+	 *
+	 * 	!updateForced (dt?: number) : void;
+	 */
+	updateForced: function (dt=0)
+	{
+		if (this.focusRect === null)
+			return;
+
+		this.focusX (this.focusRect.x1 + this.focusOffsX, this.focusRect.x2 + this.focusOffsX);
+		this.focusY (this.focusRect.y1 + this.focusOffsY, this.focusRect.y2 + this.focusOffsY);
 
 		this.updateBounds();
 	},

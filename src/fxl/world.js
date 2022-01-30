@@ -40,8 +40,10 @@ const world =
 	/**
 	 *	Default layers for the SCENE_HUD scene.
 	 */
-	LAYER_HUD_BG: 0,
-	LAYER_HUD_FG: 1,
+	LAYER_HUD_BG0: 0,
+	LAYER_HUD_BG1: 1,
+	LAYER_HUD_MAIN: 2,
+	LAYER_HUD_FG0: 3,
 
 	/**
 	 *	Scenes and active scene.
@@ -103,8 +105,10 @@ const world =
 		this.createViewport(0);
 
 		this.createScene(world.SCENE_HUD);
-		this.setContainer(world.LAYER_HUD_BG, new SimpleContainer (system.screenWidth, system.screenHeight));
-		this.setContainer(world.LAYER_HUD_FG, new SimpleContainer (system.screenWidth, system.screenHeight));
+		this.setContainer(world.LAYER_HUD_BG0, new SimpleContainer (system.screenWidth, system.screenHeight));
+		this.setContainer(world.LAYER_HUD_BG1, new SimpleContainer (system.screenWidth, system.screenHeight));
+		this.setContainer(world.LAYER_HUD_MAIN, new SimpleContainer (system.screenWidth, system.screenHeight));
+		this.setContainer(world.LAYER_HUD_FG0, new SimpleContainer (system.screenWidth, system.screenHeight));
 	},
 
 	/**

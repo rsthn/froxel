@@ -184,7 +184,7 @@ export const Animation = Class.extend
 		return this.seq.group.length;
 	},
 
-	draw: function (g, x=0, y=0)
+	draw: function (g, x=0, y=0, width=0, height=0)
 	{
 		if (this.time < 0)
 		{
@@ -205,7 +205,7 @@ export const Animation = Class.extend
 			if (g != null)
 			{
 				for (let i = 0; i < t.length; i++)
-					g.drawFrame (this.anim, x, y, t[i]);
+					g.drawFrame (this.anim, x, y, t[i], width, height);
 			}
 
 			return;
@@ -216,7 +216,7 @@ export const Animation = Class.extend
 		if (g != null)
 		{
 			for (let i = 0; i < t.length; i++)
-				g.drawFrame (this.anim, x, y, t[i]);
+				g.drawFrame (this.anim, x, y, t[i], width, height);
 		}
 
 		if (!this._paused)
@@ -279,6 +279,11 @@ export const Animation = Class.extend
 		}
 	},
 
+	getImage: function()
+	{
+		return this.anim.getImage();
+	},
+
 	getDrawable: function()
 	{
 		return this;
@@ -326,6 +331,12 @@ export const Animation = Class.extend
 
 		this.finished = false;
 		return true;
+	},
+
+	play: function (name)
+	{
+		this.use(name);
+		return this;
 	},
 
 	setQueue: function (list)
@@ -487,6 +498,11 @@ export default Spritesheet.extend
 	getSequence: function (name)
 	{
 		return this.a.seq[name];
+	},
+
+	getImage: function()
+	{
+		return this.r.data;
 	},
 
 	getDrawable: function()

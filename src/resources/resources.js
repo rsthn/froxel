@@ -39,10 +39,9 @@ let reported = false;
 Object.assign(Resources,
 {
 	/**
-	 * 	Indicates if integer scaling is enabled. When `true` calling `resizeImage` will cause images to be up-scaled to integer factors, and the `drawImageEx` will take
-	 * 	care of drawing it slighly resized to the target size. If `false` images will be down or up-scaled using the half/double method and will eventually end up having
-	 * 	the exact target size.
-	 * 
+	 * 	Indicates if integer scaling is enabled. When `true` calling `resizeImage` will cause images to be up-scaled to integer factors. If `false` images will be
+	 * 	down or up-scaled using the half/double method and will eventually end up having the exact target size.
+	 *
 	 * 	@default true
 	 * 	!static integerScaling: boolean;
 	 */
@@ -161,12 +160,15 @@ Object.assign(Resources,
 
 					r.rscale = r.data.width / r.width;
 
-					// Used to prevent a delay when rendering an image for the first time on some browsers.
+					r.data.targetWidth = r.width;
+					r.data.targetHeight = r.height;
+
+					// Pre-draw on an offscreen canvas, used to prevent a delay when rendering an image for the first time on some browsers.
 					System.tempDisplayBuffer.drawImage(r.data, 0, 0);
 
 					System.renderer.prepareImage(r.data);
-					Resources.onLoaded (list, keyList[index]);
 
+					Resources.onLoaded (list, keyList[index]);
 					Resources.load (list, progressCallback, completeCallback, keyList, index+1);
 				};
 
@@ -258,6 +260,9 @@ Object.assign(Resources,
 
 						tmp.rscale = tmp.data.width / tmp.width;
 
+						tmp.data.targetWidth = tmp.width;
+						tmp.data.targetHeight = tmp.height;
+	
 						if (r._i == 1)
 						{
 							r.width = tmp.width;

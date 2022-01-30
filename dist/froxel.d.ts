@@ -792,6 +792,7 @@ export class ShaderProgram
 	readonly uniform_texture_matrix: number;
 	readonly uniform_resolution: number;
 	readonly uniform_texture_size: number;
+	readonly uniform_frame_size: number;
 	readonly uniform_base_color: number;
 	readonly uniform_time: number;
 	readonly uniform_depth: number;
@@ -942,6 +943,11 @@ export class Canvas
 	 * 	Prepares an image to use it on the canvas. Used only when GL mode is active.
 	 */
 	prepareImage (image: HTMLImageElement) : boolean;
+
+	/**
+	 * 	Configures the texture related to specified image to gl.REPEAT.
+	 */
+	setWrapRepeat (image: HTMLImageElement) : HTMLImageElement;
 
 	/**
 	 * 	Sets the default background color of the canvas. Does not cause a canvas clear.
@@ -1941,9 +1947,14 @@ export class Viewport
 	focusY (y0: number, y1?: number, factor?: number) : Viewport;
 
 	/**
-	 * 	Updates the viewport.
+	 * 	Updates the viewport to focus on the focusRect. Takes into account enabled axes.
 	 */
 	update (dt?: number) : void;
+
+	/**
+	 * 	Updates the viewport to focus on the focusRect ignoring the enabled axes.
+	 */
+	updateForced (dt?: number) : void;
 
 	/**
 	 * 	Tracks a specified rectangle by maintaining focus on it (a call to `update` must be made on every frame update).
@@ -3245,6 +3256,11 @@ export class IDrawable
 	getDrawable(): IDrawable;
 
 	/**
+	 * 	Returns the underlying Image object, can be used directly with Canvas.drawImage.
+	 */
+	getImage(): Image;
+
+	/**
 	 * 	Draws the drawable on the given canvas.
 	 */
 	draw(g: Canvas, x: number, y: number, width: number, height: number): void;
@@ -3770,6 +3786,12 @@ export class Label extends Element
 	 * 	@param value - Use -1 for TOP, 0 for MIDDLE, and 1 for BOTTOM.
 	 */
 	valign (value: number) : Label;
+
+	/**
+	 * 	Sets the text value of the label.
+	 * 	@param value
+	 */
+	setText (value: string) : Label;
 
 }
 

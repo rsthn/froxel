@@ -56,7 +56,12 @@ export default Class.extend
 		if (!this.data)
 			return;
 
-		g.drawImageResource (this, x, y, width, height);
+		g.drawImage (this.data, 0, 0, this.data.width, this.data.height, x, y, width || this.width, height || this.height);
+	},
+
+	getImage: function()
+	{
+		return this.data;
 	},
 
 	getDrawable: function()

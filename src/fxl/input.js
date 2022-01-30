@@ -123,14 +123,14 @@ const input =
 	},
 
 	/*
-	**	Creates a gamepad object and attaches it to the active scene in the specified layer (defaults to world.LAYER_HUD_FG).
+	**	Creates a gamepad object and attaches it to the active scene in the specified layer (defaults to world.LAYER_HUD_FG0).
 	*/
 	createGamepad: function (index, layerIndex=null)
 	{
 		if (world.activeScene === null)
 			throw new Error ('input.createGamepad: use world.selectScene first to select the active scene.');
 
-		this._gamepads[index] = new Gamepad (world.activeScene, layerIndex !== null ? layerIndex : world.LAYER_HUD_FG);
+		this._gamepads[index] = new Gamepad (world.activeScene, layerIndex !== null ? layerIndex : world.LAYER_HUD_MAIN);
 
 		return this;
 	},
