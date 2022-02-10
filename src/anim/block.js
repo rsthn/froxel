@@ -80,9 +80,9 @@ const Block = Class.extend
 
 	/**
 	 * 	Resets the block to its initial state. Does not remove commands.
-	 * 	!reset(time: number) : Block;
+	 * 	!reset (time: number) : Block;
 	 */
-	reset: function(time)
+	reset: function (time=0)
 	{
 		this.first = true;
 		this.current = null;

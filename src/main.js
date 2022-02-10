@@ -69,6 +69,7 @@ import * as _Wrappers from './resources/wrappers.js'; export const Wrappers = _W
 
 //![import "resources/resources"]
 import _Resources from './resources/resources.js'; export const Resources = _Resources;
+import _Sound from './resources/sound.js'; export const Sound = _Sound;
 
 
 // *********************************************

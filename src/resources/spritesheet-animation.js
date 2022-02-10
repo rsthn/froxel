@@ -141,6 +141,8 @@ export const Animation = Class.extend
 
 	then: function (callback, context=null)
 	{
+		if (!callback) return this;
+
 		if (this.finishedCallback !== this.thenCallback)
 		{
 			this.finishedCallback = this.thenCallback;
@@ -382,6 +384,10 @@ export default Spritesheet.extend
 	className: 'SpritesheetAnimation',
 
 	defaultDrawable: null,
+	sharedAnim: null,
+
+	r: null,
+	a: null,
 
 	__ctor: function (r)
 	{
@@ -399,6 +405,7 @@ export default Spritesheet.extend
 		if (!t.def) t.def = 'def';
 		if (!t.seq) t.seq = { };
 
+		// Create default sequence if it wasn't defined.
 		if (!t.seq[t.def] && (t.def == 'def' || t.def == 'defloop'))
 		{
 			let p = { loop: (t.def == 'def' ? false : true), group: [ ] };
@@ -488,6 +495,19 @@ export default Spritesheet.extend
 		}
 
 		t.initialized = true;
+	},
+
+	getSharedAnimation: function (initialseq=null)
+	{
+		if (this.sharedAnim === null)
+		{
+			this.sharedAnim = Animation.Pool.alloc(this, initialseq ? this.a.seq[initialseq] : this.a.def, this.a.fps);
+			this.sharedAnim.lockInstance(true);
+
+			return this.sharedAnim;
+		}
+
+		return this.sharedAnim.play(initialseq ? initialseq : this.a.def.name);
 	},
 
 	getAnimation: function (initialseq=null, fps=null)

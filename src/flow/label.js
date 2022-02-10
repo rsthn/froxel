@@ -50,8 +50,8 @@ const Label = Element.extend
 	/**
 	 * 	Current text dimensions.
 	 */
-	_twidth: null,
-	_theight: null,
+	textWidth: null,
+	textHeight: null,
 
 	/**
 	 * 	Alignment properties of the label.
@@ -62,8 +62,8 @@ const Label = Element.extend
 	/**	
 	 * Position offset for the text. Calculated based on alignment properties.
 	 */
-	_offsx: null,
-	_offsy: null,
+	textOffsetX: null,
+	textOffsetY: null,
 
 	/**
 	 * 	Constructs a label element at the specified position with the given text.
@@ -93,7 +93,7 @@ const Label = Element.extend
 			return this;
 
 		this._align = value;
-		this._offsx = null;
+		this.textOffsetX = null;
 		return this;
 	},
 
@@ -108,7 +108,7 @@ const Label = Element.extend
 			return this;
 
 		this._valign = value;
-		this._offsy = null;
+		this.textOffsetY = null;
 		return this;
 	},
 
@@ -128,34 +128,42 @@ const Label = Element.extend
 	},
 
 	/**
-	 * 	Renders the element to the graphics surface.
+	 * 	Updates the text related properties (textWidth, textHeight, textOffsetX and textOffsetY). Automatically
+	 * 	called before the label is drawn. Recalculates only if text changed since last call.
 	 */
-	render: function(g)
+	update: function()
 	{
 		if (this._dirty)
 		{
-			this._twidth = this.font.measureWidth(this.text);
-			this._theight = this.font.measureHeight(this.text);
+			this.textWidth = this.font.measureWidth(this.text);
+			this.textHeight = this.font.measureHeight(this.text);
 
-			this._offsx = null;
-			this._offsy = null;
+			this.textOffsetX = null;
+			this.textOffsetY = null;
 
 			this._dirty = false;
 		}
 
-		if (this._offsx === null) {
-			if (this._align < 0) this._offsx = 0;
-			else if (this._align === 0) this._offsx = -this._twidth >> 1;
-			else this._offsx = -this._twidth;
+		if (this.textOffsetX === null) {
+			if (this._align < 0) this.textOffsetX = 0;
+			else if (this._align === 0) this.textOffsetX = -this.textWidth >> 1;
+			else this.textOffsetX = -this.textWidth;
 		}
 
-		if (this._offsy === null) {
-			if (this._valign < 0) this._offsy = 0;
-			else if (this._valign === 0) this._offsy = -this._theight >> 1;
-			else this._offsy = -this._theight;
+		if (this.textOffsetY === null) {
+			if (this._valign < 0) this.textOffsetY = 0;
+			else if (this._valign === 0) this.textOffsetY = -this.textHeight >> 1;
+			else this.textOffsetY = -this.textHeight;
 		}
+	},
 
-		this.font.drawText (g, this.bounds.x1 + this._offsx, this.bounds.y1 + this._offsy, this.text);
+	/**
+	 * 	Renders the element to the graphics surface.
+	 */
+	render: function(g)
+	{
+		this.update();
+		this.font.drawText (g, this.bounds.x1 + this.textOffsetX, this.bounds.y1 + this.textOffsetY, this.text);
 	}
 });
 

@@ -126,7 +126,8 @@ const collider =
 		this.flagsAnd = GridElement.ALIVE | GridElement.VISIBLE | collider.FLAG_EXCLUDE;
 		this.flagsValue = GridElement.ALIVE | GridElement.VISIBLE;
 
-		this.scene.fupdater.add(this.update, this);
+		this.scene.fupdater.add(this.firstUpdate, this);
+		this.scene.lupdater.add(this.lastUpdate, this);
 
 		this.fupdater = Handler.Pool.alloc(this);
 		this.lupdater = Handler.Pool.alloc(this);
@@ -146,11 +147,18 @@ const collider =
 	},
 
 	/**
-	 * 	Runs an update cycle, the `fupdater` and `lupdater` handlers will be executed.
+	 * 	Runs a first update cycle `fupdater` will be executed.
 	 */
-	update: function(scene, self)
+	firstUpdate: function(scene, self)
 	{
 		self.fupdater.exec();
+	},
+
+	/**
+	 * 	Runs a last update cycle `lupdater` will be executed.
+	 */
+	lastUpdate: function(scene, self)
+	{
 		self.lupdater.exec();
 	},
 
@@ -176,6 +184,15 @@ const collider =
 		setVisible: function (elem, value)
 		{
 			collider.fupdater.add(this._setVisible, elem, value);
+		},
+
+		/**
+		 *	Sets an attribute of an object to a given value.
+		 * 	!setValue (obj: Object, name: string, value: any) : void;
+		 */
+		setValue: function (obj, name, value)
+		{
+			collider.fupdater.add(this._setValue, obj, name, value);
 		},
 
 		/**
@@ -207,6 +224,12 @@ const collider =
 		_setVisible: function (host, elem, value)
 		{
 			elem.visible(value);
+			return false;
+		},
+
+		_setValue: function (host, obj, name, value)
+		{
+			obj[name] = value;
 			return false;
 		},
 

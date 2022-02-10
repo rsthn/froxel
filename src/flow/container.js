@@ -87,7 +87,7 @@ const Container = Class.extend
 	 */
 	/**
 	 * 	Constructs the container with the specified size.
-	 * 	constructor (width: number, height: number);
+	 * 	!constructor (width: number, height: number);
 	 */
 	__ctor: function (width=32768, height=32768)
 	{
@@ -229,7 +229,7 @@ const Container = Class.extend
 
 		g.zvalue = this.zvalue;
 
-		this.drawCount = 0;
+		this.drawCount = -1;
 		this.g = g;
 
 		this.render();

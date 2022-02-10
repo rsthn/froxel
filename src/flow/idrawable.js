@@ -37,7 +37,7 @@
 
 	/**
 	 * 	Returns the underlying Image object, can be used directly with Canvas.drawImage.
-	 * 	!getImage(): Image;
+	 * 	!getImage(): HTMLImageElement|Canvas;
 	 */
 
 	/**

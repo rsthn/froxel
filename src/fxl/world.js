@@ -44,6 +44,7 @@ const world =
 	LAYER_HUD_BG1: 1,
 	LAYER_HUD_MAIN: 2,
 	LAYER_HUD_FG0: 3,
+	LAYER_HUD_FG1: 4,
 
 	/**
 	 *	Scenes and active scene.
@@ -109,6 +110,7 @@ const world =
 		this.setContainer(world.LAYER_HUD_BG1, new SimpleContainer (system.screenWidth, system.screenHeight));
 		this.setContainer(world.LAYER_HUD_MAIN, new SimpleContainer (system.screenWidth, system.screenHeight));
 		this.setContainer(world.LAYER_HUD_FG0, new SimpleContainer (system.screenWidth, system.screenHeight));
+		this.setContainer(world.LAYER_HUD_FG1, new SimpleContainer (system.screenWidth, system.screenHeight));
 	},
 
 	/**

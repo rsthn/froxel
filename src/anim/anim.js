@@ -112,6 +112,8 @@ const Anim = Class.extend
 
 	then: function (callback, context=null)
 	{
+		if (!callback) return this;
+
 		if (this.finishedCallback !== this.thenCallback)
 		{
 			this.finishedCallback = this.thenCallback;
@@ -319,38 +321,45 @@ const Anim = Class.extend
 		return value;
 	},
 
-	/*
-	**	Updates the animation by the specified delta time, ensure the time is specified in the same unit as the duration of the commands.
-	*/
-	update: function (dt)
+	/**
+	 * Updates the animation by the specified delta, which must be in the same unit as the duration of the commands.
+	 * Returns false when the animation has been completed.
+	 *
+	 * @param {number} dt
+	 * @returns {boolean}
+	 */
+	update: function (dt, self=null)
 	{
-		if (this.paused || this.block.isFinished())
-			return true;
+		if (self === null)
+			self = this;
 
-		this.time += dt*this.timeScale*Anim.timeScale;
-
-		if (this.block.update(this) !== true)
+		if (self.paused || self.block.isFinished())
 			return false;
 
-		let finished = this.finished;
-		let count = this.block.length;
-		let block = this.block;
+		self.time += dt*self.timeScale*Anim.timeScale;
 
-		this.finished = true;
+		if (self.block.update(self) !== true)
+			return true;
 
-		if (!finished && this.finishedCallback !== null)
+		let finished = self.finished;
+		let count = self.block.length;
+		let block = self.block;
+
+		self.finished = true;
+
+		if (!finished && self.finishedCallback !== null)
 		{
-			if (this.finishedCallback(this.data, this) === false)
-				this.finishedCallback = null;
+			if (self.finishedCallback(self.data, self) === false)
+				self.finishedCallback = null;
 
-			if (this.block !== block || this.block.length != count)
+			if (self.block !== block || self.block.length != count)
 			{
-				this.resume();
-				return false;
+				self.resume();
+				return true;
 			}
 		}
 
-		return true;
+		return false;
 	},
 
 	/*
@@ -463,6 +472,22 @@ const Anim = Class.extend
 		cmd.field = this.prepareFieldName(field);
 		cmd.duration = duration;
 		cmd.startValue = startValue;
+		cmd.endValue = endValue;
+		cmd.easing = easing;
+
+		return this;
+	},
+
+	/*
+	**	Sets the range of a variable, using the current value as startValue.
+	*/
+	rangeTo: function (field, duration, endValue, easing=null)
+	{
+		let cmd = this.block.add(Command.alloc(RANGE));
+
+		cmd.field = this.prepareFieldName(field);
+		cmd.duration = duration;
+		cmd.startValue = null;
 		cmd.endValue = endValue;
 		cmd.easing = easing;
 

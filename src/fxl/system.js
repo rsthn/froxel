@@ -2,6 +2,7 @@
 import System from '../system/system.js';
 import Resources from '../resources/resources.js';
 import Boot from '../flow/boot.js';
+import Handler from '../utils/handler.js';
 
 //!class sys
 
@@ -42,6 +43,12 @@ const system =
 	 * 	!static readonly dt: Number;
 	 */
 	dt: 0,
+
+	/**
+	 * 	Update handler executed on every frame start.
+	 * 	!static readonly update: Handler;
+	 */
+	update: null,
 
 	/**
 	 * 	System initialization options.
@@ -91,7 +98,7 @@ const system =
 		/**
 		 * 	Minimum allowed frames per second (FPS). If system FPS drops below this value, the `frameDelta` property of System will be truncated to 1/minFps.
 		 */
-		minFps: 10
+		minFps: 24
 	},
 
 	/**
@@ -114,10 +121,15 @@ const system =
 			Resources.init ({ pixelated: !this.antialias });
 			System.init (this.options);
 
-			System.updateQueueAdd({
-				update: function(dt) {
+			System.updateQueueAdd
+			({
+				update: function(dt)
+				{
 					system.time = System.frameTime;
 					system.dt = dt;
+
+					system.update.host = dt;
+					system.update.exec();
 				}
 			});
 
@@ -128,6 +140,8 @@ const system =
 				system.screenWidth = System.screenWidth;
 				system.screenHeight = System.screenHeight;
 				system.renderer = System.renderer;
+
+				system.update = Handler.Pool.alloc();
 
 				system.initialized = true;
 

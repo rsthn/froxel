@@ -2785,7 +2785,7 @@ export class Block
 	/**
 	 * 	Resets the block to its initial state. Does not remove commands.
 	 */
-	reset(time: number) : Block;
+	reset (time: number) : Block;
 
 	/**
 	 * 	Sets the block to use the first command in the next call to `update`.
@@ -3164,6 +3164,11 @@ export class Container
 	readonly drawCount: number;
 
 	/**
+	 * 	Constructs the container with the specified size.
+	 */
+	constructor (width: number, height: number);
+
+	/**
 	 * 	Returns the value of the `visible` flag.
 	 */
 	visible() : boolean;
@@ -3258,7 +3263,7 @@ export class IDrawable
 	/**
 	 * 	Returns the underlying Image object, can be used directly with Canvas.drawImage.
 	 */
-	getImage(): Image;
+	getImage(): HTMLImageElement|Canvas;
 
 	/**
 	 * 	Draws the drawable on the given canvas.
@@ -4172,6 +4177,11 @@ export namespace fxl
 	static readonly dt: Number;
 
 	/**
+	 * 	Update handler executed on every frame start.
+	 */
+	static readonly update: Handler;
+
+	/**
 	 * 	Initializes the system with the specified options.
 	 */
 	static init (options: System.Options) : Promise<void>;
@@ -4342,6 +4352,11 @@ export namespace fxl
 	 *	Sets the element's visibility flag.
 	 */
 	setVisible (elem: Element, value: boolean) : void;
+
+	/**
+	 *	Sets an attribute of an object to a given value.
+	 */
+	setValue (obj: Object, name: string, value: any) : void;
 
 	/**
 	 *	Sets the element's flags.
