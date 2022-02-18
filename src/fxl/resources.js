@@ -208,7 +208,7 @@ const res =
 	},
 
 	/**
-	 * 	Registers an sound effect audio resource.
+	 * 	Registers a sound effect audio resource.
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.
 	 * 
@@ -219,6 +219,21 @@ const res =
 		this.__resIdMustNotExist(id);
 
 		return r[id] = { type: 'audio', wrapper: 'Sound', src: path, track: 'sfx', ...opts };
+	},
+
+	/**
+	 * 	Registers a multi sound effect audio resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "sound-##.ogg").
+	 * 	@param count - Number of sounds to load (from 0 to count-1).
+	 * 	@param mode - Playback mode, can be `sequential` (default) or `random`.
+	 * 
+	 * 	!static sfxm (id: string, path: string, opts?: object) : object;
+	 */
+	sfxm: function (id, path, count, mode='sequential')
+	{
+		this.__resIdMustNotExist(id);
+		return r[id] = { type: 'audios', wrapper: 'SoundArray', src: path, count: count, track: 'sfx', mode: mode };
 	},
 
 	/**

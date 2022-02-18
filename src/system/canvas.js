@@ -130,8 +130,7 @@ const Canvas = function (options=null)
 		this.gl = this.elem.getContext('webgl2', { desynchronized: false, alpha: false });
 		this.context = null;
 
-		Log.write(this.gl.getParameter(this.gl.VERSION));
-		Log.write(this.gl.getParameter(this.gl.SHADING_LANGUAGE_VERSION));
+		Log.write(this.gl.getParameter(this.gl.VERSION) + ', ' + this.gl.getParameter(this.gl.SHADING_LANGUAGE_VERSION));
 
 		globals.gl = this.gl;
 	}

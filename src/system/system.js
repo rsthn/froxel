@@ -784,6 +784,7 @@ const System =
 	 */
 	onWindowResized: function(notRendering=false)
 	{
+		// Determine size of the screen.
 		if ('document' in global)
 		{
 			if (this.options.fullscreen)
@@ -806,6 +807,7 @@ const System =
 				throw new Error ('At least one screen dimension must be specified in headless mode.');
 		}
 
+		// Flip dimensions to ensure the desired orientation.
 		if ((this._screenWidth < this._screenHeight && this.orientation == 'landscape') || (this._screenWidth > this._screenHeight && this.orientation == 'portrait'))
 		{
 			this.screenWidth = this._screenHeight;
@@ -821,7 +823,7 @@ const System =
 			this.reverseRender = false;
 		}
 
-		// ***
+		// Get target screen dimensions.
 		let targetScreenWidth = this.options.screenWidth;
 		let targetScreenHeight = this.options.screenHeight;
 
@@ -834,11 +836,11 @@ const System =
 			}
 			else if (targetScreenWidth === null)
 			{
-				targetScreenWidth = int(this.screenWidth * (this.options.screenHeight / this.screenHeight));
+				targetScreenWidth = int(0.5 + this.screenWidth * (this.options.screenHeight / this.screenHeight));
 			}
 			else if (targetScreenHeight === null)
 			{
-				targetScreenHeight = int(this.screenHeight * (this.options.screenWidth / this.screenWidth));
+				targetScreenHeight = int(0.5 + this.screenHeight * (this.options.screenWidth / this.screenWidth));
 			}
 		}
 
@@ -907,12 +909,12 @@ const System =
 		if (!this.reverseRender)
 		{
 			this.renderer.resize (this.screenWidth*this.scaleFactor, this.screenHeight*this.scaleFactor);
-			this.renderer.elem.style.width = (this.screenWidth*this.canvasScaleFactor) + "px";
-			this.renderer.elem.style.height = (this.screenHeight*this.canvasScaleFactor) + "px";
+			this.renderer.elem.style.width = int(this.screenWidth*this.canvasScaleFactor+0.5) + "px";
+			this.renderer.elem.style.height = int(this.screenHeight*this.canvasScaleFactor+0.5) + "px";
 
 			this.displayBuffer2.resize (this.screenWidth*this.scaleFactor, this.screenHeight*this.scaleFactor);
-			this.displayBuffer2.elem.style.width = (this.screenWidth*this.canvasScaleFactor) + "px";
-			this.displayBuffer2.elem.style.height = (this.screenHeight*this.canvasScaleFactor) + "px";
+			this.displayBuffer2.elem.style.width = int(this.screenWidth*this.canvasScaleFactor+0.5) + "px";
+			this.displayBuffer2.elem.style.height = int(this.screenHeight*this.canvasScaleFactor+0.5) + "px";
 
 			this.displayBuffer3.resize (_screenWidth, _screenHeight);
 			this.displayBuffer3.elem.style.width = _screenWidth + "px";
@@ -921,12 +923,12 @@ const System =
 		else
 		{
 			this.renderer.resize (this.screenHeight*this.scaleFactor, this.screenWidth*this.scaleFactor);
-			this.renderer.elem.style.width = (this.screenHeight*this.canvasScaleFactor) + "px";
-			this.renderer.elem.style.height = (this.screenWidth*this.canvasScaleFactor) + "px";
+			this.renderer.elem.style.width = int(this.screenHeight*this.canvasScaleFactor+0.5) + "px";
+			this.renderer.elem.style.height = int(this.screenWidth*this.canvasScaleFactor+0.5) + "px";
 
 			this.displayBuffer2.resize (this.screenHeight*this.scaleFactor, this.screenWidth*this.scaleFactor);
-			this.displayBuffer2.elem.style.width = (this.screenHeight*this.canvasScaleFactor) + "px";
-			this.displayBuffer2.elem.style.height = (this.screenWidth*this.canvasScaleFactor) + "px";
+			this.displayBuffer2.elem.style.width = int(this.screenHeight*this.canvasScaleFactor+0.5) + "px";
+			this.displayBuffer2.elem.style.height = int(this.screenWidth*this.canvasScaleFactor+0.5) + "px";
 
 			this.displayBuffer3.resize (_screenHeight, _screenWidth);
 			this.displayBuffer3.elem.style.width = _screenHeight + "px";
@@ -973,7 +975,7 @@ const System =
 		/* *** */
 		this.scaleFactor *= this.options.extraScaleFactor;
 
-		this.integerScaleFactor = int(this.scaleFactor + 0.9);
+		this.integerScaleFactor = int(this.scaleFactor + 0.5); //0.9
 		this.resetPerf();
 
 		if (this.initialMatrix)
@@ -1187,7 +1189,7 @@ const System =
 				callback (data, count == 0);
 
 				if (count == 0)
-					System.updateQueueRemove(interpolator);
+					return false;
 			}
 		};
 

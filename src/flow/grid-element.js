@@ -324,8 +324,17 @@ const GridElement = Class.extend
 	 * 	Sets the position of the element.
 	 * 	!setPosition (x: number, y: number) : GridElement;
 	 */
-	setPosition: function (x, y)
+	/**
+	 * 	Sets the position of the element.
+	 * 	!setPosition (pointer: {x:number,y:number}) : GridElement;
+	 */
+	setPosition: function (x, y=null)
 	{
+		if (y === null) {
+			y = x.y;
+			x = x.x;
+		}
+
 		return this.translate (upscale(x)-this.bounds.ux1, upscale(y)-this.bounds.uy1, true);
 	}
 });

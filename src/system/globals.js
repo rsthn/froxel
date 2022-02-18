@@ -111,7 +111,7 @@ global.dispose = function (obj)
 if ('AudioContext' in global)
 {
 	global.audioContext = new AudioContext({ latencyHint: 'interactive', sampleRate: 44100 });
-	Log.write('AudioContext: baseLatency=' + global.audioContext.baseLatency);
+	Log.write('AudioContext: baseLatency=' + ~~(global.audioContext.baseLatency*1000) + ' ms' );
 }
 else
 	global.audioContext = null;

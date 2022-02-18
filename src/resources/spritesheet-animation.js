@@ -141,6 +141,12 @@ export const Animation = Class.extend
 
 	then: function (callback, context=null)
 	{
+		if (callback === false && this.finishedCallback === this.thenCallback)
+		{
+			this.finishedCallbackHandler.clear();
+			this.finishedCallbackContext.clear();
+		}
+
 		if (!callback) return this;
 
 		if (this.finishedCallback !== this.thenCallback)

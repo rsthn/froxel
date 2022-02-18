@@ -3035,6 +3035,11 @@ export class GridElement
 	setPosition (x: number, y: number) : GridElement;
 
 	/**
+	 * 	Sets the position of the element.
+	 */
+	setPosition (pointer: {x:number,y:number}) : GridElement;
+
+	/**
 	 * 	Class-level function to allocate a new flag.
 	 */
 	static allocFlag() : number;
@@ -4262,11 +4267,20 @@ export namespace fxl
 	static text (id: string, path: string, opts?: object) : object;
 
 	/**
-	 * 	Registers an sound effect audio resource.
+	 * 	Registers a sound effect audio resource.
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.
 	 */
 	static sfx (id: string, path: string, opts?: object) : object;
+
+	/**
+	 * 	Registers a multi sound effect audio resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "sound-##.ogg").
+	 * 	@param count - Number of sounds to load (from 0 to count-1).
+	 * 	@param mode - Playback mode, can be `sequential` (default) or `random`.
+	 */
+	static sfxm (id: string, path: string, opts?: object) : object;
 
 	/**
 	 * 	Registers an music audio resource.
