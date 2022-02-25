@@ -39,8 +39,8 @@ const Viewport = Class.extend
 	 * 	!readonly width: number;
 	 * 	!readonly height: number;
 	 */
-	width: 0,
-	height: 0,
+	width: 0, initialWidth: 0,
+	height: 0, initialHeight: 0,
 
 	/**
 	 * 	Position of the top-left corner of the viewport in screen space.
@@ -158,8 +158,8 @@ const Viewport = Class.extend
 
 		this.sx = sx;
 		this.sy = sy;
-		this.width = width;
-		this.height = height;
+		this.width = this.initialWidth = width;
+		this.height = this.initialHeight = height;
 
 		this.x = 0;
 		this.y = 0;
@@ -224,6 +224,9 @@ const Viewport = Class.extend
 	 */
 	setContainerBounds: function (x1, y1, x2, y2)
 	{
+		this.width = this.initialWidth;
+		this.height = this.initialHeight;
+
 		if (this.width > x2-x1) this.width = x2-x1;
 		if (this.height > y2-y1) this.height = y2-y1;
 
@@ -316,8 +319,8 @@ const Viewport = Class.extend
 	 */
 	resize: function (width, height)
 	{
-		this.width = width;
-		this.height = height;
+		this.width = this.initialWidth = width;
+		this.height = this.initialHeight = height;
 
 		this.updateScreenBounds();
 		this.updateBounds();
@@ -334,6 +337,9 @@ const Viewport = Class.extend
 	{
 		this.width += dWidth;
 		this.height += dHeight;
+
+		this.initialWidth = this.width;
+		this.initialHeight = this.height;
 
 		this.updateScreenBounds();
 		this.updateBounds();

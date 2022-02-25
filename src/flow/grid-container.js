@@ -171,8 +171,8 @@ export default Container.extend
 
 		g.lineWidth(1/System.canvasScaleFactor);
 		g.strokeStyle('#008');
-		for (let y = globals.viewport.worldY1+this.grid.offsy; y < globals.viewport.worldY2+this.grid.offsy; y += (1 << this.grid.ky))
-		for (let x = globals.viewport.worldX1+this.grid.offsx; x < globals.viewport.worldX2+this.grid.offsx; x += (1 << this.grid.kx))
+		for (let y = globals.viewport.container.y1+this.grid.offsy; y < globals.viewport.container.y2+this.grid.offsy; y += (1 << this.grid.ky))
+		for (let x = globals.viewport.container.x1+this.grid.offsx; x < globals.viewport.container.x2+this.grid.offsx; x += (1 << this.grid.kx))
 		{
 			g.strokeRect(x-this.grid.offsx, y-this.grid.offsy, (1 << this.grid.kx), (1 << this.grid.ky));
 		}
