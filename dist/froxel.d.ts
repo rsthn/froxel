@@ -4394,8 +4394,8 @@ export namespace fxl
 
 	/**
 	 * 	Adds a truncation rule.
-	 * 	@param primaryType - Type of the primary element.
-	 * 	@param secondaryType - Type of the secondary element.
+	 * 	@param primaryType - Type or super-type of the primary element.
+	 * 	@param secondaryType - Type or super-type of the secondary element.
 	 * 	@param value - Indicates the status of the truncation rule.
 	 */
 	static truncate (primaryType: number, secondaryType: number, value: boolean) : collider;

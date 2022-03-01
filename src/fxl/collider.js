@@ -5,9 +5,14 @@ import Handler from '../utils/handler.js';
 
 import world from './world.js';
 
-/*
-**	The collider system is responsible of detecting collisions and performing the respective actions.
-*/
+/**
+ * 	Mask used to isolate the super-type of a type.
+ */
+const SUPER_TYPE_MASK = 0xFFFFF000;
+
+/**
+ * 	The collider system is responsible of detecting collisions and performing the respective actions.
+ */
 
 //!class collider
 
@@ -266,16 +271,16 @@ const collider =
 
 	/**
 	 * 	Adds a truncation rule.
-	 * 	@param primaryType - Type of the primary element.
-	 * 	@param secondaryType - Type of the secondary element.
+	 * 	@param primaryType - Type or super-type of the primary element.
+	 * 	@param secondaryType - Type or super-type of the secondary element.
 	 * 	@param callback - Returns boolean indicating if the truncation rule should be applied.
 	 * 	@param context - Optional value passed as last parameter to the callback.
 	 * 	:static truncate (primaryType: number, secondaryType: number, callback?: (primary: Mask, secondary: Mask, context?: any) => void, context?: any) : collider;
 	 */
 	/**
 	 * 	Adds a truncation rule.
-	 * 	@param primaryType - Type of the primary element.
-	 * 	@param secondaryType - Type of the secondary element.
+	 * 	@param primaryType - Type or super-type of the primary element.
+	 * 	@param secondaryType - Type or super-type of the secondary element.
 	 * 	@param value - Indicates the status of the truncation rule.
 	 * 	!static truncate (primaryType: number, secondaryType: number, value: boolean) : collider;
 	 */
@@ -534,9 +539,14 @@ const collider =
 			return this.commit();
 
 		let truncationRules = this.truncationRules[mask.type];
-		if (!truncationRules) {
-			this.commit();
-			return this.scan(mask, group);
+		if (!truncationRules)
+		{
+			truncationRules = this.truncationRules[mask.type & SUPER_TYPE_MASK];
+			if (!truncationRules)
+			{
+				this.commit();
+				return this.scan(mask, group);
+			}
 		}
 
 		this.state.offs = group.getOffsets(this.state.dx, this.state.dy);
@@ -560,7 +570,11 @@ const collider =
 			if (item === null) break;
 
 			let allowsTruncation = truncationRules[item.type];
-			if (!allowsTruncation) continue;
+			if (!allowsTruncation)
+			{
+				allowsTruncation = truncationRules[item.type & SUPER_TYPE_MASK];
+				if (!allowsTruncation) continue;
+			}
 
 			if (allowsTruncation.callback === false || (allowsTruncation.callback !== null && allowsTruncation.callback !== true && !allowsTruncation.callback(mask, item, allowsTruncation.context)))
 				continue;
@@ -615,6 +629,8 @@ const collider =
 		if (this.state.w2 !== null)
 		{
 			let contactRules = this.contactRules[mask.type];
+			if (!contactRules) contactRules = this.contactRules[mask.type & SUPER_TYPE_MASK];
+
 			if (contactRules)
 			{
 				this.state.bounds.set(mask.bounds).translate(this.state.offs.x+this.state.dx-this.state.t_dx*0.5, this.state.offs.y+this.state.dy-this.state.t_dy*0.5);
@@ -627,7 +643,11 @@ const collider =
 					if (item === null) break;
 		
 					let contact = contactRules[item.type];
-					if (!contact) continue;
+					if (!contact)
+					{
+						contact = contactRules[item.type & SUPER_TYPE_MASK];
+						if (!contact) continue;
+					}
 
 					contact.callback (mask, item, contact.context);
 				}
@@ -663,10 +683,13 @@ const collider =
 		this.state.mask = mask;
 		this.state.group = group;
 
-		let contactRules = this.contactRules[mask.type];
-		if (!this.maskLayer || !mask.visible() || !contactRules)
+		if (!this.maskLayer || !mask.visible())
 			return;
 
+		let contactRules = this.contactRules[mask.type];
+		if (!contactRules) contactRules = this.contactRules[mask.type & SUPER_TYPE_MASK];
+		if (!contactRules) return;
+	
 		group.setFlags (collider.FLAG_EXCLUDE);
 		let collisionItems = this.maskLayer.selectInRegion(mask.bounds, this.flagsAnd, this.flagsValue);
 		group.clearFlags (collider.FLAG_EXCLUDE);
@@ -677,7 +700,11 @@ const collider =
 			if (item === null) break;
 
 			let contact = contactRules[item.type];
-			if (!contact) continue;
+			if (!contact)
+			{
+				contact = contactRules[item.type & SUPER_TYPE_MASK];
+				if (!contact) continue;
+			}
 
 			contact.callback (mask, item, contact.context);
 		}
