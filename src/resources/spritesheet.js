@@ -57,10 +57,10 @@ export default Class.extend
 		if (r.type == 'image')
 		{
 			if (!r.config.sheetWidth && (!r.config.numFrames || !r.config.frameWidth))
-				throw new Error ('Required sheetWidth or numFrames+frameWidth');
+				throw new Error (r.resName + ': required sheetWidth or numFrames+frameWidth');
 
 			if (!r.config.sheetWidth)
-				r.config.sheetWidth = r.config.numFrames * r.config.frameWidth;
+				r.config.sheetWidth = r.width; //r.config.numFrames * r.config.frameWidth;
 
 			if (!r.config.frameHeight)
 				r.config.frameHeight = r.data.height;

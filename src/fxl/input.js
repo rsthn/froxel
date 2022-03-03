@@ -60,9 +60,21 @@ const input =
 		},
 
 		/**
+		 *	Hides or shows the native cursor.
+		 *	@param {boolean} value
+		 */
+		native: function (value)
+		{
+			if (!value && system.renderer.elem.style.cursor !== 'none')
+				system.renderer.elem.style.cursor = 'none';
+			else if (value && system.renderer.elem.style.cursor === 'none')
+				system.renderer.elem.style.removeProperty('cursor');
+		},
+
+		/**
 		 *	Enables or disables the single-cursor input.
-		*	@param {boolean} value
-		*/
+		 *	@param {boolean} value
+		 */
 		enabled: function (value=null)
 		{
 			if (value === null)

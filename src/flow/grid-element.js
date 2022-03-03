@@ -59,6 +59,12 @@ const GridElement = Class.extend
 	data: null,
 
 	/**
+	 * 	Extension object of the element, can be used to implement specific functionality.
+	 * 	!ext: object;
+	 */
+	ext: null,
+
+	/**
 	 * 	The container where the element is stored.
 	 */
 	container: null,
@@ -86,6 +92,7 @@ const GridElement = Class.extend
 
 		this.flags = GridElement.ALIVE | GridElement.VISIBLE | GridElement.DIRTY | GridElement.DEPTH_FLAG;
 		this.data = null;
+		this.ext = null;
 
 		this.remover = Handler.Pool.alloc(this);
 	},
@@ -152,7 +159,7 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the generic data of the element.
+	 * 	Sets the generic data of the element. Will be disposed when the element is destroyed.
 	 * 	!setData (data: object) : GridElement;
 	 */
 	setData: function (data)
@@ -168,6 +175,25 @@ const GridElement = Class.extend
 	getData: function()
 	{
 		return this.data;
+	},
+
+	/**
+	 * 	Sets the extension object of the element.
+	 * 	!setExtension (extensionObject: object) : GridElement;
+	 */
+	setExt: function (extensionObject)
+	{
+		this.ext = extensionObject;
+		return this;
+	},
+
+	/**
+	 * 	Returns the extension object of the element.
+	 * 	!getExt() : object;
+	 */
+	getExt: function()
+	{
+		return this.ext;
 	},
 
 	/**

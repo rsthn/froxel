@@ -28,6 +28,10 @@ export default
 	//!TAB
 	ENTER: 13,
 	//!ENTER
+	SHIFT: 16,
+	//!SHIFT
+	CTRL: 17,
+	//!CTRL
 	ESC: 27,
 	//!ESC
 	SPACE: 32,

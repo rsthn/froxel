@@ -47,6 +47,8 @@ export enum KeyCode
 	BACKSPACE,
 	TAB,
 	ENTER,
+	SHIFT,
+	CTRL,
 	ESC,
 	SPACE,
 	PGUP,
@@ -2919,6 +2921,11 @@ export class GridElement
 	data: object;
 
 	/**
+	 * 	Extension object of the element, can be used to implement specific functionality.
+	 */
+	ext: object;
+
+	/**
 	 * 	Constructs the instance at the specified position and with the specified size.
 	 */
 	constructor (x: number, y: number, width: number, height: number);
@@ -2944,7 +2951,7 @@ export class GridElement
 	getFlags (andMask: number, value?: number) : boolean;
 
 	/**
-	 * 	Sets the generic data of the element.
+	 * 	Sets the generic data of the element. Will be disposed when the element is destroyed.
 	 */
 	setData (data: object) : GridElement;
 
@@ -2952,6 +2959,16 @@ export class GridElement
 	 * 	Returns the generic data of the element.
 	 */
 	getData() : object;
+
+	/**
+	 * 	Sets the extension object of the element.
+	 */
+	setExtension (extensionObject: object) : GridElement;
+
+	/**
+	 * 	Returns the extension object of the element.
+	 */
+	getExt() : object;
 
 	/**
 	 * 	Sets the visible flag.

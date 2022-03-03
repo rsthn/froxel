@@ -14,9 +14,11 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+let totalPreallocated = 0;
 const recyclingFacilities = { };
 
 const Recycler = { };
+global.Recycler = Recycler;
 export default Recycler;
 
 //:/**
@@ -67,6 +69,7 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 	{
 		targetClass.recyclerPool.push(new targetClass ());
 		targetClass.recyclerLength++;
+		totalPreallocated++;
 	}
 
 	/**
@@ -155,6 +158,8 @@ Recycler.showStats = function (name=null)
 {
 	let list = recyclingFacilities;
 
+	console.log('Total Preallocated: ' + totalPreallocated);
+
 	if (name === true)
 	{
 		console.group('Recycling Facilities');
@@ -164,7 +169,7 @@ Recycler.showStats = function (name=null)
 			let c = list[i];
 			if (!c.recyclerCreated) continue;
 
-			console.debug (i + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', capacity=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
+			console.debug (i + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', array=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
 		}
 	
 		console.groupEnd();
@@ -176,7 +181,7 @@ Recycler.showStats = function (name=null)
 		if (typeof(name) === 'string')
 		{
 			let c = recyclingFacilities[name];
-			console.debug (name + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', capacity=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
+			console.debug (name + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', array=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
 			return;
 		}
 
@@ -188,7 +193,7 @@ Recycler.showStats = function (name=null)
 	for (let i in list)
 	{
 		let c = list[i];
-		console.debug (i + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', capacity=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
+		console.debug (i + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', array=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
 	}
 
 	console.groupEnd();
