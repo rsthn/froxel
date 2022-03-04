@@ -217,7 +217,7 @@ const System =
 	keyState: { time: 0, shift: false, ctrl: false, alt: false, keyCode: 0 },
 
 	/**
-	 * 	Current status of all pointers. The related object is known as the Pointer State, and has the following fields: id, isActive, isDragging, sx, sy, x, y, dx, dy, and button.
+	 * 	Current status of all pointers. The related object is known as the Pointer State, and has the following fields: id, isActive, isDragging, sx, sy, x, y, dx, dy, button, wheelDelta and wheelAccum.
 	 */
 	pointerState: { },
 
@@ -464,7 +464,8 @@ const System =
 					{
 						System.pointerState[touches[i].identifier] = {
 								id: touches[i].identifier, isActive: false, isDragging: false,
-								sx: 0, sy: 0, x: 0, y: 0, dx: 0, dy: 0, button: 0
+								sx: 0, sy: 0, x: 0, y: 0, dx: 0, dy: 0, button: 0,
+								wheelDelta: 0, wheelAccum: 0
 							};
 					}
 
@@ -585,6 +586,30 @@ const System =
 				return false;
 			};
 
+			display0.onwheel = function (evt)
+			{
+				evt.preventDefault();
+
+				if (!System.pointerState[0])
+				{
+					System.pointerState[0] = {
+							id: 0, isActive: false, isDragging: false,
+							sx: 0, sy: 0, x: 0, y: 0, dx: 0, dy: 0, button: 0,
+							wheelDelta: 0, wheelAccum: 0
+						};
+				}
+
+				let p = System.pointerState[0];
+
+				p.x = pointerConvX(evt.clientX, evt.clientY);
+				p.y = pointerConvY(evt.clientX, evt.clientY);
+				p.wheelDelta = evt.deltaY;
+				p.wheelAccum += evt.deltaY;
+
+				System.onPointerEvent (System.PointerEventType.POINTER_WHEEL, p, System.pointerState);
+				return false;
+			};
+
 			display0.onmousedown = function (evt)
 			{
 				evt.preventDefault();
@@ -592,8 +617,9 @@ const System =
 				if (!System.pointerState[0])
 				{
 					System.pointerState[0] = {
-							id: 0, isActive: false, isDragging: false, button: 0,
-							sx: 0, sy: 0, x: 0, y: 0, dx: 0, dy: 0,
+							id: 0, isActive: false, isDragging: false,
+							sx: 0, sy: 0, x: 0, y: 0, dx: 0, dy: 0, button: 0,
+							wheelDelta: 0, wheelAccum: 0
 						};
 				}
 
@@ -1236,6 +1262,7 @@ const System =
 		POINTER_DRAG_START:	0x013,
 		POINTER_DRAG_MOVE:	0x014,
 		POINTER_DRAG_STOP:	0x015,
+		POINTER_WHEEL:		0x016,
 
 		//!POINTER_DOWN
 		//!POINTER_UP
@@ -1243,6 +1270,7 @@ const System =
 		//!POINTER_DRAG_START
 		//!POINTER_DRAG_MOVE
 		//!POINTER_DRAG_STOP
+		//!POINTER_WHEEL
 	};
 	//!/enum
 

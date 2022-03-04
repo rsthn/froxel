@@ -1287,6 +1287,7 @@ export namespace System
 		POINTER_DRAG_START,
 		POINTER_DRAG_MOVE,
 		POINTER_DRAG_STOP,
+		POINTER_WHEEL,
 	}
 
 }
@@ -1886,9 +1887,19 @@ export class Viewport
 	setScale (value: number) : Viewport;
 
 	/**
+	 * 	Returns the scale of the viewport.
+	 */
+	getScale () : number;
+
+	/**
 	 * 	Sets the global scale of the viewport.
 	 */
 	setGlobalScale (value: number) : Viewport;
+
+	/**
+	 * 	Returns the global scale of the viewport.
+	 */
+	getGlobalScale () : number;
 
 	/**
 	 * 	Sets the center ratio of the viewport (values from -1 to 1, default is 0). Used to focus on a different point instead of the exact center.

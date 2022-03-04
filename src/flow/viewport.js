@@ -392,6 +392,16 @@ const Viewport = Class.extend
 	},
 
 	/**
+	 * 	Returns the scale of the viewport.
+	 * 
+	 * 	!getScale () : number;
+	 */
+	getScale: function ()
+	{
+		return this.scale;
+	},
+
+	/**
 	 * 	Sets the global scale of the viewport.
 	 * 
 	 * 	!setGlobalScale (value: number) : Viewport;
@@ -400,6 +410,16 @@ const Viewport = Class.extend
 	{
 		this.globalScale = value;
 		return this;
+	},
+
+	/**
+	 * 	Returns the global scale of the viewport.
+	 * 
+	 * 	!getGlobalScale () : number;
+	 */
+	getGlobalScale: function ()
+	{
+		return this.globalScale;
 	},
 
 	/**
