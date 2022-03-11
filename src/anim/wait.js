@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Rin } from 'rinn';
+import { Rinn } from 'rinn';
 
 export default
 {
@@ -26,7 +26,7 @@ export default
 	{
 		if (cmd.started === false)
 		{
-			cmd._duration = Rin.typeOf(cmd.duration) === 'string' ? anim.getValue(cmd.duration) : cmd.duration;
+			cmd._duration = Rinn.typeOf(cmd.duration) === 'string' ? anim.getValue(cmd.duration) : cmd.duration;
 			cmd.started = true;
 		}
 

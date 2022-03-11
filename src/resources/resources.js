@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Rin } from 'rinn';
+import { Rinn } from 'rinn';
 import System from '../system/system.js';
 import Canvas from '../system/canvas.js';
 import Log from '../system/log.js';
@@ -91,7 +91,7 @@ Object.assign(Resources,
 			for (let i in keyList)
 			{
 				if (!('__loaded' in list[keyList[i]]))
-					list[keyList[i]].__clone = Rin.clone(list[keyList[i]]);
+					list[keyList[i]].__clone = Rinn.clone(list[keyList[i]]);
 			}
 
 			index = 0;

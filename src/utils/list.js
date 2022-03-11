@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Rin, Class } from 'rinn';
+import { Rinn, Class } from 'rinn';
 import Linkable from './linkable.js';
 import Recycler from './recycler.js';
 
@@ -81,7 +81,7 @@ const List = Class.extend
 		let list = List.Pool.alloc();
 
 		for (let i = this.top; i; i = i.next)
-			list.push(Rin.clone(i.value));
+			list.push(Rinn.clone(i.value));
 
 		return list;
 	},

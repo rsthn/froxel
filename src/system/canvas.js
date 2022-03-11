@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Rin } from 'rinn';
+import { Rinn } from 'rinn';
 import Matrix from '../math/matrix.js';
 import System from './system.js';
 import List from '../utils/list.js';
@@ -105,7 +105,7 @@ const Canvas = function (options=null)
 	// Create canvas element if required.
 	if (opts.elem == null)
 	{
-		this.elem = !headless ? global.document.createElement('canvas') : Rin.clone(Canvas.passThruCanvas);
+		this.elem = !headless ? global.document.createElement('canvas') : Rinn.clone(Canvas.passThruCanvas);
 
 		if (global.document && opts.hidden != true)
 		{
