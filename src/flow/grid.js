@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Class } from '@rsthn/rin';
+import { Class } from 'rinn';
 import GridElement from './grid-element.js';
 import List from '../utils/list.js';
 

@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Rin } from '@rsthn/rin';
+import { Rin } from 'rinn';
 import System from '../system/system.js';
 import Canvas from '../system/canvas.js';
 import Log from '../system/log.js';

@@ -1,11 +1,12 @@
 {
     "name": "froxel",
-    "version": "2.0.64",
+    "version": "2.1.0",
     "description": "Froxel Game Engine",
     "type": "module",
+    "source": "src/main.js",
     "main": "src/main.js",
+    "module": "./dist/froxel.js",
     "types": "./dist/froxel.d.ts",
-    "browser": "./dist/froxel.js",
     "bin": {
         "froxel": "bin/cli.js"
     },
@@ -15,21 +16,12 @@
         "deploy": "yarn build && yarn tsdoc && node ./scripts/deploy.js",
         "commit": "node ./scripts/commit.js",
         "tsdoc": "node ./scripts/tsdoc.js ./src/main.js ./dist/froxel.d.ts",
-        "build:browser": "parcel build --no-cache --target browser",
-        "build": "yarn build:browser"
+        "build": "parcel build --no-cache --target module"
     },
+    "browserslist": "since 2020-01",
     "targets": {
-        "browser": {
-            "context": "browser",
-            "outputFormat": "esmodule",
-            "isLibrary": true,
-            "scopeHoist": true,
-            "optimize": true,
-            "sourceMap": true,
-            "source": "src/main.js",
-            "engines": {
-                "browsers": "since 2021-01"
-            }
+        "module": {
+            "optimize": true
         }
     },
     "repository": {
@@ -43,14 +35,14 @@
     },
     "homepage": "https://github.com/rsthn/froxel#readme",
     "dependencies": {
-        "@rsthn/rin": "^2.0.33",
         "filereader": "^0.10.3",
         "fs-extra": "^10.0.0",
-        "image-size": "^1.0.0"
+        "image-size": "^1.0.0",
+        "rinn": "^2.0.39"
     },
     "files": [
-        "src/",
         "dist/",
+        "src/",
         "bin/",
         "LICENSE",
         "README.md"

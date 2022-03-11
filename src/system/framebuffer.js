@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Class } from '@rsthn/rin';
+import { Class } from 'rinn';
 import globals from './globals.js';
 import System from './system.js';
 

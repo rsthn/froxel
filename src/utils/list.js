@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Rin, Class } from '@rsthn/rin';
+import { Rin, Class } from 'rinn';
 import Linkable from './linkable.js';
 import Recycler from './recycler.js';
 

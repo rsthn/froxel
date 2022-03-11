@@ -51,6 +51,12 @@ const system =
 	update: null,
 
 	/**
+	 * 	Draw handler executed on every frame start.
+	 * 	!static readonly draw: Handler;
+	 */
+	draw: null,
+
+	/**
 	 * 	System initialization options.
 	 */
 	options:
@@ -133,6 +139,15 @@ const system =
 				}
 			});
 
+			System.drawQueueAdd
+			({
+				draw: function(g)
+				{
+					system.draw.host = g;
+					system.draw.exec();
+				}
+			});
+
 			Boot.startup(function()
 			{
 				System.start();
@@ -142,6 +157,7 @@ const system =
 				system.renderer = System.renderer;
 
 				system.update = Handler.Pool.alloc();
+				system.draw = Handler.Pool.alloc();
 
 				system.initialized = true;
 

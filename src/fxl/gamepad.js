@@ -1,5 +1,5 @@
 
-import { Class } from '@rsthn/rin';
+import { Class } from 'rinn';
 import Stick from '../flow/stick.js';
 import Button from '../flow/button.js';
 

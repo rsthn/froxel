@@ -4215,6 +4215,11 @@ export namespace fxl
 	static readonly update: Handler;
 
 	/**
+	 * 	Draw handler executed on every frame start.
+	 */
+	static readonly draw: Handler;
+
+	/**
 	 * 	Initializes the system with the specified options.
 	 */
 	static init (options: System.Options) : Promise<void>;

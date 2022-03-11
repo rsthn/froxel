@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Class } from '@rsthn/rin';
+import { Class } from 'rinn';
 
 const rol16 = function (value, n) { return ((value << n) | ((value >>> (16 - n)) & ((1 << n) - 1))) & 0xFFFF; };
 const ror16 = function (value, n) { return ((value >>> n) | ((value & ((1 << n) - 1)) << (16 - n))) & 0xFFFF; };

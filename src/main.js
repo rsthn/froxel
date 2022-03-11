@@ -19,10 +19,10 @@
 // *********************************************
 // rin
 
-import * as _Rin from '@rsthn/rin';
-export const Class = _Rin.Class;
-export const Schema = _Rin.Schema;
-export const Template = _Rin.Template;
+import * as rinn from 'rinn';
+export const Class = rinn.Class;
+export const Schema = rinn.Schema;
+export const Template = rinn.Template;
 
 // *********************************************
 // system

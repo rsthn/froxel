@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Rin } from '@rsthn/rin';
+import { Rin } from 'rinn';
 import Matrix from '../math/matrix.js';
 import System from './system.js';
 import List from '../utils/list.js';
