@@ -14,8 +14,8 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-let totalPreallocated = 0;
 const recyclingFacilities = { };
+let totalPreallocated = 0;
 
 const Recycler = { };
 global.Recycler = Recycler;
@@ -65,12 +65,27 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 	targetClass.recyclerLength = 0;
 	targetClass.recyclerActive = 0;
 
-	for (let i = 0; i < minPoolSize; i++)
+	let preallocated = false;
+
+	/**
+	 * 	Preallocates instances according the the minPoolSize value.
+	 */
+	targetClass.preallocate = function (maximum=null)
 	{
-		targetClass.recyclerPool.push(new targetClass ());
-		targetClass.recyclerLength++;
-		totalPreallocated++;
-	}
+		if (preallocated)
+			return;
+
+		let n = maximum === null ? minPoolSize : Math.min(maximum, minPoolSize);
+
+		for (let i = 0; i < n; i++)
+		{
+			targetClass.recyclerPool.push(new targetClass ());
+			targetClass.recyclerLength++;
+			totalPreallocated++;
+		}
+
+		preallocated = true;
+	};
 
 	/**
 	 * 	Allocates a new instance of the class. To ensure correct instance state a call to `init` must be made later.
@@ -233,3 +248,19 @@ Recycler.createPool = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 
 	return targetClass;
 };
+
+
+/**
+ * 	Runs the preallocation process of all registered pools. Returns the total number of instances preallocated.
+ * 	@param {number|null} maxPreallocationsPerPool
+ * 	!function preallocate (maxPreallocationsPerPool?: number) : number;
+ */
+Recycler.preallocate = function (maxPreallocationsPerPool=null)
+{
+	totalPreallocated = 0;
+
+	for (let i in recyclingFacilities)
+		recyclingFacilities[i].preallocate(maxPreallocationsPerPool);
+
+	return totalPreallocated;
+}

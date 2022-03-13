@@ -85,14 +85,27 @@ const Grid = Class.extend
 		this.offsx = width >> 1;
 		this.offsy = height >> 1;
 
+		if (ky === null)
+			ky = kx;
+
 		kx = Math.floor(Math.log2(kx));
-		if (ky === null) ky = kx;
+		ky = Math.floor(Math.log2(ky));
 
 		this.kx = kx;
 		this.ky = ky;
 
 		let w = width >> kx;
 		let h = height >> ky;
+
+		if (!w) {
+			kx = Math.log2(width);
+			w = 1;
+		}
+
+		if (!h) {
+			ky = Math.log2(height);
+			h = 1;
+		}
 
 		this.grid = new Array(w*h).fill(null);
 		this.stride = w;

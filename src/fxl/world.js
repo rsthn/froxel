@@ -84,28 +84,31 @@ const world =
 	/**
 	 * 	Initializes the world with the default scenes, viewports and layers.
 	 */
-	init: function (worldWidth=32768, worldHeight=32768, divisor=null)
+	init: function (worldWidth=32768, worldHeight=32768, divisorX=null, divisorY=null)
 	{
-		if (divisor === null)
-			divisor = Math.max(worldWidth, worldHeight) / 512;
+		if (divisorX === null)
+			divisorX = Math.max(worldWidth, worldHeight) / 512;
 
-		if (divisor < 32)
-			divisor = 32;
+		if (divisorX < 16)
+			divisorX = 16;
+
+		if (divisorY !== null && divisorY < 16)
+			divisorY = 16;
 
 		this.bounds.zero().resize(worldWidth, worldHeight);
 
 		this.createScene(world.SCENE_MAIN);
-		this.setContainer(world.LAYER_BG0, new GridContainer (worldWidth, worldHeight, divisor));
-		this.setContainer(world.LAYER_BG1, new GridContainer (worldWidth, worldHeight, divisor));
-		this.setContainer(world.LAYER_BG2, new GridContainer (worldWidth, worldHeight, divisor));
-		this.setContainer(world.LAYER_BG3, new GridContainer (worldWidth, worldHeight, divisor));
-		this.setContainer(world.LAYER_MAIN, new GridContainer (worldWidth, worldHeight, divisor));
-		this.setContainer(world.LAYER_FG0, new GridContainer (worldWidth, worldHeight, divisor));
-		this.setContainer(world.LAYER_FG1, new GridContainer (worldWidth, worldHeight, divisor));
-		this.setContainer(world.LAYER_FG2, new GridContainer (worldWidth, worldHeight, divisor));
-		this.setContainer(world.LAYER_FG3, new GridContainer (worldWidth, worldHeight, divisor));
+		this.setContainer(world.LAYER_BG0, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
+		this.setContainer(world.LAYER_BG1, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
+		this.setContainer(world.LAYER_BG2, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
+		this.setContainer(world.LAYER_BG3, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
+		this.setContainer(world.LAYER_MAIN, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
+		this.setContainer(world.LAYER_FG0, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
+		this.setContainer(world.LAYER_FG1, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
+		this.setContainer(world.LAYER_FG2, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
+		this.setContainer(world.LAYER_FG3, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 
-		this.setContainer(world.LAYER_MASK, new GridContainer (worldWidth, worldHeight, divisor));
+		this.setContainer(world.LAYER_MASK, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.getContainer(world.LAYER_MASK).visible(false);
 		this.createViewport(0);
 

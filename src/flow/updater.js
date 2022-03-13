@@ -49,6 +49,12 @@ const Updater = Class.extend
 	__context: null,
 
 	/**
+	 * 	Pre-update and post-update callbacks. Set using the `preupdate` and `postupdate` methods.
+	 */
+	__preupdate: null,
+	__postupdate: null,
+
+	/**
 	 * 	Constructs the updater linked to the specified scene.
 	 * 	!constructor (scene: Scene, update: (elem: Element, dt: number, context: object) => boolean, context?: object);
 	 */
@@ -59,6 +65,9 @@ const Updater = Class.extend
 
 		this.__update = update;
 		this.__context = context;
+
+		this.__preupdate = null;
+		this.__postupdate = null;
 
 		this.scene.updater.add(this._update, this);
 		this.scene.synchronizer.add(this._sync, this);
@@ -83,9 +92,60 @@ const Updater = Class.extend
 		this.list.free();
 	},
 
+	/**
+	 * 	Destroyer callback.
+	 */
 	_destroy: function (scene, self)
 	{
 		dispose(self);
+	},
+
+
+	/**
+	 * 	Resets the updater by removing all elements.
+	 * 	!reset () : Updater;
+	 */
+	reset: function ()
+	{
+		while ((i = this.list.shift()) !== null) {
+			i.remover.remove(this._remove, this);
+		}
+
+		return this;
+	},
+
+	/**
+	 * 	Clears the updater by destroying all elements.
+	 * 	!clear () : Updater;
+	 */
+	clear: function ()
+	{
+		while ((i = this.list.shift()) !== null) {
+			i.remover.remove(this._remove, this);
+			dispose(i);
+		}
+
+		return this;
+	},
+
+	/**
+	 * 	Sets the pre-update callback.
+	 * 	!preupdate (callback: (list: List, dt: number, updater: Updater) => Updater) : Updater;
+	 */
+	preupdate: function (callback)
+	{
+		this.__preupdate = callback;
+		return this;
+	},
+
+	/**
+	 * 	Sets the post-update callback.
+	 * 	!postupdate (callback: (list: List, dt: number, updater: Updater) => Updater) : Updater;
+	 */
+	postupdate: function (callback)
+	{
+		this.__postupdate = callback;
+		return this;
 	},
 
 	/**
@@ -145,6 +205,9 @@ const Updater = Class.extend
 	 */
 	update: function (dt)
 	{
+		if (this.__preupdate !== null)
+			this.__preupdate (this.list, dt, this.__context);
+
 		if (this.__update !== null)
 		{
 			let next = null;
@@ -156,6 +219,9 @@ const Updater = Class.extend
 					this.remove(i.value);
 			}
 		}
+
+		if (this.__postupdate !== null)
+			this.__postupdate (this.list, dt, this.__context);
 	}
 });
 

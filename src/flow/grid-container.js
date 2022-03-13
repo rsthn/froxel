@@ -56,12 +56,12 @@ export default Container.extend
 	 */
 	/**
 	 * 	Constructs the grid container with the specified size and divisor.
-	 * 	!constructor (width: number, height: number, divisor: number);
+	 * 	!constructor (width: number, height: number, divisorX: number, divisorY?: number);
 	 */
-	__ctor: function (width=32768, height=32768, divisor=64)
+	__ctor: function (width=32768, height=32768, divisorX=64, divisorY=null)
 	{
 		this._super.Container.__ctor (width, height);
-		this.grid = new Grid (width, height, divisor);
+		this.grid = new Grid (width, height, divisorX, divisorY);
 	},
 
 	/**

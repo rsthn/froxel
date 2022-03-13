@@ -169,6 +169,19 @@ export default Group.extend
 	},
 
 	/**
+	 * 	Sets the visible flag of the element.
+	 * 	!visible (value: boolean) : Button;
+	 */
+	/**
+	 * 	Returns the visible flag of the element.
+	 * 	!visible () : boolean;
+	 */
+	visible: function (value=null)
+	{
+		return this._super.Element.visible(value);
+	},
+
+	/**
 	 * 	Changes the pressed/unpressed images of the outer stick.
 	 * 	!setImage (unpressedImg: IDrawable, pressedImg?: IDrawable) : Stick;
 	 */

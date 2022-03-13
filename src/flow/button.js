@@ -82,22 +82,35 @@ export default Group.extend
 	hitbox: 0,
 
 	/**
-	 * 	Creates the button with the specified parameters. Automatically adds it to the screen controls.
-	 * 	!constructor (container: Container, x: number, y: number, unpressedImg: IDrawable, pressedImg?: IDrawable);
+	 * 	Handlers for the button events.
 	 */
-	__ctor: function (container, x, y, unpressedImg, pressedImg=null)
+	_onButtonDown: null,
+	_onButtonUp: null,
+	_onTap: null,
+	_onChange: null,
+ 
+	/**
+	 * 	Creates the button with the specified parameters. Automatically adds it to the screen controls.
+	 * 	!constructor (container: Container, x: number, y: number, unpressedImg?: IDrawable, pressedImg?: IDrawable);
+	 */
+	__ctor: function (container, x, y, unpressedImg=null, pressedImg=null)
 	{
 		this._super.Group.__ctor();
 
 		this.unpressedImg = unpressedImg;
 		this.pressedImg = pressedImg || unpressedImg;
 
-		this.hitbox = new Mask (0, x, y, unpressedImg.width, unpressedImg.height).visible(false);
+		this.hitbox = new Mask (0, x, y, unpressedImg ? unpressedImg.width : 16, unpressedImg ? unpressedImg.height : 16).visible(false);
 		this.addChild(this.hitbox);
 
 		container.add(this.hitbox);
 		container.add(this);
 
+		this._onButtonDown = null;
+		this._onButtonUp = null;
+		this._onTap = null;
+		this._onChange = this._default_onChange;
+	
 		ScreenControls.add(this);
 	},
 
@@ -108,6 +121,19 @@ export default Group.extend
 	{
 		this._super.Group.__dtor();
 		ScreenControls.remove(this);
+	},
+
+	/**
+	 * 	Sets the visible flag of the element.
+	 * 	!visible (value: boolean) : Button;
+	 */
+	/**
+	 * 	Returns the visible flag of the element.
+	 * 	!visible () : boolean;
+	 */
+	visible: function (value=null)
+	{
+		return this._super.Element.visible(value);
 	},
 
 	/**
@@ -137,7 +163,7 @@ export default Group.extend
 	 */
 	reset: function ()
 	{
-		this.onChange (this.isPressed = false, this.wasPressed = false);
+		this._onChange (this.isPressed = false, this.wasPressed = false, this);
 	},
 
 	/**
@@ -146,9 +172,9 @@ export default Group.extend
 	 */
 	render: function (g)
 	{
-		if (this.isPressed)
+		if (this.isPressed && this.pressedImg)
 			this.pressedImg.draw (g, this.bounds.x1, this.bounds.y1);
-		else
+		else if (!this.isPressed && this.unpressedImg)
 			this.unpressedImg.draw (g, this.bounds.x1, this.bounds.y1);
 	},
 
@@ -170,7 +196,7 @@ export default Group.extend
 			return this;
 
 		this.updateStatus (value);
-		this.onChange (this.isPressed, this.wasPressed);
+		this._onChange (this.isPressed, this.wasPressed, this);
 
 		return this;
 	},
@@ -218,19 +244,20 @@ export default Group.extend
 
 	/**
 	 * 	Executed after any change in the status of the button. Be careful when overriding this, because when so, the `onTap` method will not work.
-	 * 	!onChange (isPressed: boolean, wasPressed: boolean) : void;
+	 * 	!onChange (isPressed: boolean, wasPressed: boolean, button: Button) : void;
 	 */
-	onChange: function (isPressed, wasPressed)
+	_default_onChange: function (isPressed, wasPressed, button)
 	{
 		if (isPressed != wasPressed)
 		{
-			if (isPressed)
-				this.onButtonDown();
-			else
-				this.onButtonUp();
+			if (isPressed && this._onButtonDown)
+				this._onButtonDown();
+			else if (!isPressed && this._onButtonUp)
+				this._onButtonUp();
 		}
 
-		if (!isPressed && wasPressed) this.onTap();
+		if (!isPressed && wasPressed && this._onTap)
+			this._onTap();
 	},
 
 	/**
@@ -260,26 +287,44 @@ export default Group.extend
 	},
 
 	/**
-	 * 	Executed when the button is pressed. Works only if the `onChange` method was not overriden.
-	 * 	!onButtonDown: () => void;
+	 * 	Sets the handler for the on-change event. Executed when the button state changes. Settings this callback will cause onButtonDown,
+	 * 	onButtonUp and onTap to no longer work. Set the callback to `null` to return it to the default state.
+	 * 
+	 * 	!onChange: (callback: (isPressed: boolean, wasPressed: boolean, buttons: Button) => void) => Button;
 	 */
-	onButtonDown: function ()
+	onChange: function (callback)
 	{
+		this._onChange = callback === null ? this._default_onChange : callback;
+		return this;
 	},
 
 	/**
-	 * 	Executed when the button is released. Works only if the onChange method was not overriden.
-	 * 	!onButtonUp: () => void;
+	 * 	Sets the handler for the button-down event. Executed when the button is pressed. Fired only if the `onChange` method was not overriden.
+	 * 	!onButtonDown: (callback: () => void) => Button;
 	 */
-	onButtonUp: function ()
+	onButtonDown: function (callback)
 	{
+		this._onButtonDown = callback;
+		return this;
 	},
 
 	/**
-	 * 	Executed when the button is tapped (pressed and then released). Works only if the onChange method was not overriden.
-	 * 	!onTap: () => void;
+	 * 	Sets the handler for the button-up event. Executed when the button is released. Fired only if the `onChange` method was not overriden.
+	 * 	!onButtonUp: (callback: () => void) => Button;
 	 */
-	onTap: function ()
+	onButtonUp: function (callback)
 	{
+		this._onButtonUp = callback;
+		return this;
+	},
+
+	/**
+	 * 	Sets the handler for the on-tap event. Executed when the button is tapped (pressed and then released). Fired only if the `onChange` method was not overriden.
+	 * 	!onTap: (callback: () => void) => Button;
+	 */
+	onTap: function (callback)
+	{
+		this._function = callback;
+		return this;
 	}
 });

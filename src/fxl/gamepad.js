@@ -67,7 +67,7 @@ const Gamepad = Class.extend
 	/*
 	**	Creates a new button control and adds it to the gamepad.
 	*/
-	addButton: function (id, x, y, unpressedDrawable, pressedDrawable=null)
+	addButton: function (id, x, y, unpressedDrawable=null, pressedDrawable=null)
 	{
 		let button = new Button (this.layer, x, y, unpressedDrawable, pressedDrawable);
 

@@ -21,6 +21,7 @@ import Timer from './timer.js';
 import Canvas from './canvas.js';
 import Log from './log.js';
 import globals from './globals.js';
+import Recycler from '../utils/recycler.js';
 
 //![import "./keycode"]
 //![import "../utils/list"]
@@ -112,7 +113,14 @@ import globals from './globals.js';
 		 *	@default false
 		 *	!fullscreen?: boolean;
 		 */
-	  
+
+		/**
+		 * 	Indicates if recycler pool preallocation should be automatically executed. Additionally if this value is a number, it will be used as
+		 * 	maximum preallocation parameter for the recycler.
+		 * 	@default true
+		 * 	!preallocate?: boolean|number;
+		 */
+
 	//!/type
 
 //!/namespace
@@ -322,6 +330,15 @@ const System =
 
 		let o = { ...this.defaultOptions, ...options };
 		this.options = o;
+
+		// Execute recycler pool data preallocation.
+		if (this.options.preallocate !== false)
+		{
+			if (this.options.preallocate === true)
+				Recycler.preallocate();
+			else
+				Recycler.preallocate(this.options.preallocate);
+		}
 
 		// Set default orientation if both target sizes were specified.
 		if (o.screenWidth && o.screenHeight && o.orientation == 'default')

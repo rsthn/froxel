@@ -3,6 +3,7 @@ import System from '../system/system.js';
 import Resources from '../resources/resources.js';
 import Boot from '../flow/boot.js';
 import Handler from '../utils/handler.js';
+import Recycler from '../utils/recycler.js';
 
 //!class sys
 
@@ -104,7 +105,13 @@ const system =
 		/**
 		 * 	Minimum allowed frames per second (FPS). If system FPS drops below this value, the `frameDelta` property of System will be truncated to 1/minFps.
 		 */
-		minFps: 24
+		minFps: 24,
+
+		/**
+		 * 	Indicates if recycler pool preallocation should be automatically executed. Additionally if this value is a number, it will be used as
+		 * 	maximum preallocation parameter for the recycler.
+		 */
+		preallocate: true
 	},
 
 	/**

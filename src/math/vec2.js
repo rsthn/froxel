@@ -195,6 +195,21 @@ const Vec2 = Class.extend
 	},
 
 	/**
+	 *	Rotates the vector by the specified angle.
+	 *	!rotate (angle: number) : Vec2;
+	 */
+	rotate: function (angle)
+	{
+		let x = this.x*Math.cos(angle) + this.y*Math.sin(angle);
+		let y = this.y*Math.cos(angle) - this.x*Math.sin(angle);
+
+		this.x = x;
+		this.y = y;
+
+		return this;
+	},
+
+	/**
 	 *	Adds the coordinates of the given Vec2 to the vector.
 	 *	!add (value: Vec2) : Vec2;
 	 */
@@ -311,11 +326,11 @@ const Vec2 = Class.extend
 
 	/**
 	 * 	Returns the magnitude of the vector.
-	 * 	!magnitude() : number;
+	 * 	!magnitude(squared: boolean) : number;
 	 */
-	magnitude: function ()
+	magnitude: function (squared=false)
 	{
-		return Math.sqrt(this.x*this.x + this.y*this.y);
+		return squared ? (this.x*this.x + this.y*this.y) : Math.sqrt(this.x*this.x + this.y*this.y);
 	},
 
 	/**

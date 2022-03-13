@@ -142,6 +142,12 @@ export namespace Recycler
 	 */
 	function createPool (targetClass: any, maxPoolSize?: number, minPoolSize?: number) : any;
 
+	/**
+	 * 	Runs the preallocation process of all registered pools. Returns the total number of instances preallocated.
+	 * 	@param {number|null} maxPreallocationsPerPool
+	 */
+	function preallocate (maxPreallocationsPerPool?: number) : number;
+
 }
 /**
  * 	Generic class for linkable items such as required by List. The responsibility of this class is to wrap a value into a linkable object.
@@ -483,6 +489,11 @@ export class Vec2
 	translate (dx: number, dy: number) : Vec2;
 
 	/**
+	 *	Rotates the vector by the specified angle.
+	 */
+	rotate (angle: number) : Vec2;
+
+	/**
 	 *	Adds the coordinates of the given Vec2 to the vector.
 	 */
 	add (value: Vec2) : Vec2;
@@ -540,7 +551,7 @@ export class Vec2
 	/**
 	 * 	Returns the magnitude of the vector.
 	 */
-	magnitude() : number;
+	magnitude(squared: boolean) : number;
 
 	/**
 	 * 	Normalizes the vector by dividing each component by the vector magnitude to obtain a unit vector.
@@ -1110,6 +1121,13 @@ export namespace System
 		 *	@default false
 		 */
 		fullscreen?: boolean;
+
+		/**
+		 * 	Indicates if recycler pool preallocation should be automatically executed. Additionally if this value is a number, it will be used as
+		 * 	maximum preallocation parameter for the recycler.
+		 * 	@default true
+		 */
+		preallocate?: boolean|number;
 
 	}
 
@@ -3619,6 +3637,26 @@ export class Updater
 	constructor (scene: Scene, update: (elem: Element, dt: number, context: object) => boolean, context?: object);
 
 	/**
+	 * 	Resets the updater by removing all elements.
+	 */
+	reset () : Updater;
+
+	/**
+	 * 	Clears the updater by destroying all elements.
+	 */
+	clear () : Updater;
+
+	/**
+	 * 	Sets the pre-update callback.
+	 */
+	preupdate (callback: (list: List, dt: number, updater: Updater) => Updater) : Updater;
+
+	/**
+	 * 	Sets the post-update callback.
+	 */
+	postupdate (callback: (list: List, dt: number, updater: Updater) => Updater) : Updater;
+
+	/**
 	 * 	Adds an element to the updater.
 	 */
 	add (elem: Element) : boolean;
@@ -3704,7 +3742,7 @@ export class GridContainer extends Container
 	/**
 	 * 	Constructs the grid container with the specified size and divisor.
 	 */
-	constructor (width: number, height: number, divisor: number);
+	constructor (width: number, height: number, divisorX: number, divisorY?: number);
 
 	/**
 	 * 	Syncs the actual location of the specified element with its storage location. Returns true if successful.
@@ -3951,7 +3989,17 @@ export class Button extends Group
 	/**
 	 * 	Creates the button with the specified parameters. Automatically adds it to the screen controls.
 	 */
-	constructor (container: Container, x: number, y: number, unpressedImg: IDrawable, pressedImg?: IDrawable);
+	constructor (container: Container, x: number, y: number, unpressedImg?: IDrawable, pressedImg?: IDrawable);
+
+	/**
+	 * 	Sets the visible flag of the element.
+	 */
+	visible (value: boolean) : Button;
+
+	/**
+	 * 	Returns the visible flag of the element.
+	 */
+	visible () : boolean;
 
 	/**
 	 * 	Changes the pressed/unpressed images of the button.
@@ -4006,7 +4054,7 @@ export class Button extends Group
 	/**
 	 * 	Executed after any change in the status of the button. Be careful when overriding this, because when so, the `onTap` method will not work.
 	 */
-	onChange (isPressed: boolean, wasPressed: boolean) : void;
+	onChange (isPressed: boolean, wasPressed: boolean, button: Button) : void;
 
 	/**
 	 * 	Key down event, handles the keys that control the button.
@@ -4019,19 +4067,25 @@ export class Button extends Group
 	keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
 
 	/**
-	 * 	Executed when the button is pressed. Works only if the `onChange` method was not overriden.
+	 * 	Sets the handler for the on-change event. Executed when the button state changes. Settings this callback will cause onButtonDown,
+	 * 	onButtonUp and onTap to no longer work. Set the callback to `null` to return it to the default state.
 	 */
-	onButtonDown: () => void;
+	onChange: (callback: (isPressed: boolean, wasPressed: boolean, buttons: Button) => void) => Button;
 
 	/**
-	 * 	Executed when the button is released. Works only if the onChange method was not overriden.
+	 * 	Sets the handler for the button-down event. Executed when the button is pressed. Fired only if the `onChange` method was not overriden.
 	 */
-	onButtonUp: () => void;
+	onButtonDown: (callback: () => void) => Button;
 
 	/**
-	 * 	Executed when the button is tapped (pressed and then released). Works only if the onChange method was not overriden.
+	 * 	Sets the handler for the button-up event. Executed when the button is released. Fired only if the `onChange` method was not overriden.
 	 */
-	onTap: () => void;
+	onButtonUp: (callback: () => void) => Button;
+
+	/**
+	 * 	Sets the handler for the on-tap event. Executed when the button is tapped (pressed and then released). Fired only if the `onChange` method was not overriden.
+	 */
+	onTap: (callback: () => void) => Button;
 
 }
 export class Stick extends Group
@@ -4092,6 +4146,16 @@ export class Stick extends Group
 	 * 	Creates the stick with the specified parameters. Automatically adds it to the screen controls.
 	 */
 	constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: IDrawable, unpressedImgInner: IDrawable, pressedImg?: IDrawable, pressedImgInner?: IDrawable);
+
+	/**
+	 * 	Sets the visible flag of the element.
+	 */
+	visible (value: boolean) : Button;
+
+	/**
+	 * 	Returns the visible flag of the element.
+	 */
+	visible () : boolean;
 
 	/**
 	 * 	Changes the pressed/unpressed images of the outer stick.
