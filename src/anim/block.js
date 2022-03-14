@@ -63,7 +63,12 @@ const Block = Class.extend
 	 */
 	clone: function()
 	{
-		throw new Error('Method `clone` not implemented in Anim:Block');
+		let block = Block.alloc();
+
+		for (let node = this.commands.top; node !== null; node = node.next)
+			block.commands.push(node.value.clone());
+
+		return block;
 	},
 
 	/**

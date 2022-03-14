@@ -336,11 +336,11 @@ const Rect = Class.extend
 
 	/**
 	 * 	Resizes the rectangle to the given size using its center or top-left corner as reference.
-	 * 	@param normalized - When `true` the `w` and `h` will be treated as normalized ranging from 0 to 1 (inclusive).
 	 * 	@param topLeftRelative - When `true` reference will be top-left corner, set to `false` to use the center.
+	 * 	@param normalized - When `true` the `w` and `h` will be treated as normalized ranging from 0 to 1 (inclusive).
 	 * 	!resize (w: number, h: number, normalized?: boolean, topLeftRelative?: boolean) : Rect;
 	 */
-	resize: function (w, h, normalized=false, topLeftRelative=false)
+	resize: function (w, h, topLeftRelative=false, normalized=false)
 	{
 		if (normalized == true)
 		{

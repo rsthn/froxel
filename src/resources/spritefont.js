@@ -61,8 +61,6 @@ export default Class.extend
 
 		this.charTable = { };
 
-		this.charTable[' '] = { charWidth: int((this.charWidth + this.paddingX)*2/3), r_charWidth: this.r_charWidth };
-
 		while (k < n)
 		{
 			let x = 0;
@@ -71,13 +69,16 @@ export default Class.extend
 			{
 				let c = r.font.charset[k++];
 
-				this.charTable[c] = { x: x, y: y, charWidth: this.charWidth, r_charWidth: this.r_charWidth };
+				this.charTable[c] = { hidden: false, x: x, y: y, charWidth: this.charWidth, r_charWidth: this.r_charWidth };
 
 				x += this.r_charWidth;
 			}
 
 			y += this.r_charHeight;
 		}
+
+		if (!(' ' in this.charTable))
+			this.charTable[' '] = { hidden: true, charWidth: int((this.charWidth + this.paddingX)*2/3), r_charWidth: this.r_charWidth };
 
 		if (!r.font.widths) return;
 
@@ -109,16 +110,11 @@ export default Class.extend
 
 		for (let i = 0; i < n; i++)
 		{
-			if (text[i] == ' ')
-			{
-				x += this.charTable[text[i]].charWidth + pX;
-				continue;
-			}
-
 			let c = this.charTable[text[i]];
 			if (!c) continue;
 
-			g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight, null, null, c.charWidth, this.charHeight);
+			if (!c.hidden)
+				g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight, null, null, c.charWidth, this.charHeight);
 
 			x += c.charWidth + pX;
 		}

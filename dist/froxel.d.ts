@@ -1670,8 +1670,8 @@ export class Rect
 
 	/**
 	 * 	Resizes the rectangle to the given size using its center or top-left corner as reference.
-	 * 	@param normalized - When `true` the `w` and `h` will be treated as normalized ranging from 0 to 1 (inclusive).
 	 * 	@param topLeftRelative - When `true` reference will be top-left corner, set to `false` to use the center.
+	 * 	@param normalized - When `true` the `w` and `h` will be treated as normalized ranging from 0 to 1 (inclusive).
 	 */
 	resize (w: number, h: number, normalized?: boolean, topLeftRelative?: boolean) : Rect;
 
@@ -1865,9 +1865,36 @@ export class Viewport
 	enabled (value: boolean) : Viewport;
 
 	/**
+	 * 	Returns the value of the `topLeft` flag.
+	 */
+	topLeft() : boolean;
+
+	/**
+	 * 	Sets the `topLeft` flag.
+	 */
+	topLeft (value: boolean) : Viewport;
+
+	/**
 	 * 	Sets the container bounds. Used to ensure the viewport bounds are never outside these limits.
 	 */
 	setContainerBounds (x1: number, y1: number, x2: number, y2: number) : Viewport;
+
+	/**
+	 * 	Sets the container bounds. Used to ensure the viewport bounds are never outside these limits.
+	 */
+	setContainerBounds (v: Bounds2|Rect) : Viewport;
+
+	/**
+	 * 	Sets the viewport bounds in screen space. Same can be achieved by using a combination of setScreenPosition, resize/resizeBy. But when more
+	 * 	detailed control is needed, this function is your friend.
+	 */
+	setScreenBounds (x1: number, y1: number, x2: number, y2: number) : Viewport;
+
+	/**
+	 * 	Sets the viewport bounds in screen space. Same can be achieved by using a combination of setScreenPosition, resize/resizeBy. But when more
+	 * 	detailed control is needed, this function is your friend.
+	 */
+	setScreenBounds (v: Bounds2|Rect) : Viewport;
 
 	/**
 	 * 	Sets the viewport padding.

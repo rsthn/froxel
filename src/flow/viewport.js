@@ -206,7 +206,7 @@ const Viewport = Class.extend
 	 *
 	 * 	!enabled (value: boolean) : Viewport;
 	 */
-	enabled: function(value=null)
+	enabled: function (value=null)
 	{
 		if (value === null)
 			return !!(this.flags & Viewport.ENABLED);
@@ -218,12 +218,46 @@ const Viewport = Class.extend
 	},
 
 	/**
+	 * 	Returns the value of the `topLeft` flag.
+	 *
+	 * 	!topLeft() : boolean;
+	 */
+	/**
+	 * 	Sets the `topLeft` flag.
+	 *
+	 * 	!topLeft (value: boolean) : Viewport;
+	 */
+	topLeft: function (value=null)
+	{
+		if (value === null)
+			return !!(this.flags & Viewport.TOP_LEFT);
+
+		this.flags &= ~Viewport.TOP_LEFT;
+		if (value) this.flags |= Viewport.TOP_LEFT;
+
+		return this;
+	},
+
+	/**
 	 * 	Sets the container bounds. Used to ensure the viewport bounds are never outside these limits.
 	 *
 	 * 	!setContainerBounds (x1: number, y1: number, x2: number, y2: number) : Viewport;
 	 */
-	setContainerBounds: function (x1, y1, x2, y2)
+	/**
+	 * 	Sets the container bounds. Used to ensure the viewport bounds are never outside these limits.
+	 *
+	 * 	!setContainerBounds (v: Bounds2|Rect) : Viewport;
+	 */
+	setContainerBounds: function (x1, y1=null, x2=null, y2=null)
 	{
+		if (y1 === null)
+		{
+			y2 = x1.y2;
+			x2 = x1.x2;
+			y1 = x1.y1;
+			x1 = x1.x1;
+		}
+
 		this.width = this.initialWidth;
 		this.height = this.initialHeight;
 
@@ -231,6 +265,43 @@ const Viewport = Class.extend
 		if (this.height > y2-y1) this.height = y2-y1;
 
 		this.container.set(x1, y1, x2, y2);
+		return this;
+	},
+
+	/**
+	 * 	Sets the viewport bounds in screen space. Same can be achieved by using a combination of setScreenPosition, resize/resizeBy. But when more
+	 * 	detailed control is needed, this function is your friend.
+	 *
+	 * 	!setScreenBounds (x1: number, y1: number, x2: number, y2: number) : Viewport;
+	 */
+	/**
+	 * 	Sets the viewport bounds in screen space. Same can be achieved by using a combination of setScreenPosition, resize/resizeBy. But when more
+	 * 	detailed control is needed, this function is your friend.
+	 *
+	 * 	!setScreenBounds (v: Bounds2|Rect) : Viewport;
+	 */
+	setScreenBounds: function (x1, y1=null, x2=null, y2=null)
+	{
+		if (y1 === null)
+		{
+			y2 = x1.y2;
+			x2 = x1.x2;
+			y1 = x1.y1;
+			x1 = x1.x1;
+		}
+
+		this.sx = x1;
+		this.sy = y1;
+
+		this.width = x2 - x1;
+		this.height = y2 - y1;
+
+		this.initialWidth = this.width;
+		this.initialHeight = this.height;
+
+		this.updateScreenBounds();
+		this.updateBounds();
+
 		return this;
 	},
 
@@ -264,16 +335,19 @@ const Viewport = Class.extend
 	 */
 	updateBounds: function (truncateToContainer=false)
 	{
-		let w = this.width >> 1;
-		let h = this.height >> 1;
+		let w, h, ws, hs;
+		let x1, y1, x2, y2;
 
-		let ws = (w/this.scale);
-		let hs = (h/this.scale);
+		w = this.width >> 1;
+		h = this.height >> 1;
 
-		let x1 = this.x-ws+this.offset.x;
-		let y1 = this.y-hs+this.offset.y;
-		let x2 = this.x+ws+this.offset.x;
-		let y2 = this.y+hs+this.offset.y;
+		ws = (w/this.scale);
+		hs = (h/this.scale);
+
+		x1 = this.x-ws+this.offset.x;
+		y1 = this.y-hs+this.offset.y;
+		x2 = this.x+ws+this.offset.x;
+		y2 = this.y+hs+this.offset.y;
 
 		if (truncateToContainer)
 		{
@@ -698,10 +772,10 @@ const Viewport = Class.extend
 	 */
 	applyTransform: function (g)
 	{
-		let cx = this.screenBounds.x1 + (this.screenBounds.width() >> 1);
-		let cy = this.screenBounds.y1 + (this.screenBounds.height() >> 1);
-
-		g.translate (cx, cy);
+		if (!(this.flags & Viewport.TOP_LEFT))
+			g.translate (this.screenBounds.cx, this.screenBounds.cy);
+		else
+			g.translate (this.screenBounds.x1, this.screenBounds.y1);
 
 		if (this.scale != 1.0)
 			g.scale (this.scale, this.scale);
@@ -709,7 +783,11 @@ const Viewport = Class.extend
 		if (this.globalScale != 1.0)
 			g.scale (this.globalScale, this.globalScale);
 
-		g.translate (-this.getX(), -this.getY());
+		if (!(this.flags & Viewport.TOP_LEFT))
+			g.translate (-this.bounds.cx, -this.bounds.cy);
+		else
+			g.translate (-this.bounds.x1, -this.bounds.y1);
+
 		g.updateTransform();
 	},
 
@@ -734,16 +812,35 @@ const Viewport = Class.extend
 			x = x.x;
 		}
 
-		let cx = this.screenBounds.x1 + (this.screenBounds.width() >> 1);
-		let cy = this.screenBounds.y1 + (this.screenBounds.height() >> 1);
+		let refX, refY;
 
-		if (floor) {
-			x = ((x - int(cx)) / this.scale) + int(this.getX());
-			y = ((y - int(cy)) / this.scale) + int(this.getY());
+		if (!(this.flags & Viewport.TOP_LEFT))
+		{
+			refX = this.screenBounds.cx;
+			refY = this.screenBounds.cy;
+
+			if (floor) {
+				x = ((x - int(refX)) / this.scale) + int(this.bounds.cx);
+				y = ((y - int(refY)) / this.scale) + int(this.bounds.cy);
+			}
+			else {
+				x = ((x - refX) / this.scale) + this.bounds.cx;
+				y = ((y - refY) / this.scale) + this.bounds.cy;
+			}
 		}
-		else {
-			x = ((x - cx) / this.scale) + this.getX();
-			y = ((y - cy) / this.scale) + this.getY();
+		else
+		{
+			refX = this.screenBounds.x1;
+			refY = this.screenBounds.y1;
+
+			if (floor) {
+				x = ((x - int(refX)) / this.scale) + int(this.bounds.x1);
+				y = ((y - int(refY)) / this.scale) + int(this.bounds.y1);
+			}
+			else {
+				x = ((x - refX) / this.scale) + this.bounds.x1;
+				y = ((y - refY) / this.scale) + this.bounds.y1;
+			}
 		}
 
 		return this.tmpPoint.set(x, y);
@@ -770,16 +867,35 @@ const Viewport = Class.extend
 			x = x.x;
 		}
 
-		let cx = this.screenBounds.x1 + (this.screenBounds.width() >> 1);
-		let cy = this.screenBounds.y1 + (this.screenBounds.height() >> 1);
+		let refX, refY;
 
-		if (floor) {
-			x = (x - int(this.getX())) * this.scale + int(cx);
-			y = (y - int(this.getY())) * this.scale + int(cy);
+		if (!(this.flags & Viewport.TOP_LEFT))
+		{
+			refX = this.screenBounds.cx;
+			refY = this.screenBounds.cy;
+
+			if (floor) {
+				x = (x - int(this.bounds.cx)) * this.scale + int(refX);
+				y = (y - int(this.bounds.cy)) * this.scale + int(refY);
+			}
+			else {
+				x = (x - this.bounds.cx) * this.scale + refX;
+				y = (y - this.bounds.cy) * this.scale + refY;
+			}
 		}
-		else {
-			x = (x - this.getX()) * this.scale + cx;
-			y = (y - this.getY()) * this.scale + cy;
+		else
+		{
+			refX = this.screenBounds.x1;
+			refY = this.screenBounds.y1;
+
+			if (floor) {
+				x = (x - int(this.bounds.x1)) * this.scale + int(refX);
+				y = (y - int(this.bounds.y1)) * this.scale + int(refY);
+			}
+			else {
+				x = (x - this.bounds.x1) * this.scale + refX;
+				y = (y - this.bounds.y1) * this.scale + refY;
+			}
 		}
 
 		return this.tmpPoint.set(x, y);
@@ -790,5 +906,6 @@ const Viewport = Class.extend
 **	Constants.
 */
 Viewport.ENABLED = 0x001;
+Viewport.TOP_LEFT = 0x002;
 
 export default Viewport;

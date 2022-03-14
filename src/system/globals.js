@@ -339,10 +339,10 @@ global.randvar = function (a, b)
  *
  * 	!function randitem (arr: Array<any>, startValue?: number, endValue?: number) : () => any;
  */
-global.randitem = function (arr, a, b)
+global.randitem = function (arr, a=null, b=null)
 {
-	if (!a) a = 0;
-	if (!b) b = arr.length - 1;
+	if (a === null) a = 0;
+	if (b === null) b = arr.length - 1;
 
 	return function() { return arr[randr(a, b)]; };
 };

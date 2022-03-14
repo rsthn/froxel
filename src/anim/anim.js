@@ -98,7 +98,11 @@ const Anim = Class.extend
 
 	copyTo: function (target)
 	{
+		target.clear();
+
+		dispose(target.block);
 		target.block = this.block.clone();
+
 		target.initialData = this.initialData;
 
 		return target.reset();

@@ -15,6 +15,7 @@
 */
 
 import { Class } from 'rinn';
+import List from '../utils/list.js';
 import Recycler from '../utils/recycler.js';
 
 //!class Command
@@ -100,7 +101,7 @@ const Command = Class.extend
 	 * 	Initializes the command.
 	 * 	!init (op: object) : Command;
 	 */
-	init: function(op)
+	init: function (op, autoInit)
 	{
 		this.op = op;
 		this.started = false;
@@ -112,7 +113,9 @@ const Command = Class.extend
 		this.snd = null;
 		this.fn = null;
 
-		op.init(this, false);
+		if (autoInit !== false)
+			op.init(this, false);
+
 		return this;
 	},
 
@@ -120,6 +123,35 @@ const Command = Class.extend
 	{
 		if (this.block !== null) this.block.clear().free();
 		if (this.blocks !== null) this.blocks.clear().free();
+	},
+
+	clone: function()
+	{
+		let cmd = Command.alloc(this.op, false);
+
+	 	cmd.field = this.field
+	 	cmd.value = this.value
+	 	cmd.duration = this.duration
+	 	cmd.count = this.count
+	 	cmd.startValue = this.startValue
+	 	cmd.endValue = this.endValue
+	 	cmd.easing = this.easing;
+		cmd.table = this.table;
+		cmd.snd = this.snd;
+		cmd.fn = this.fn;
+
+		if (this.block !== null)
+			cmd.block = this.block.clone();
+
+		if (this.blocks !== null)
+		{
+			cmd.blocks = List.Pool.alloc();
+
+			for (let node = this.blocks.top; node !== null; node = node.next)
+				cmd.blocks.push(node.value.clone());
+		}
+
+		return cmd;
 	},
 
 	/**
