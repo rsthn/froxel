@@ -20,8 +20,8 @@ const res =
 		return new Promise (function (resolve, reject)
 		{
 			Resources.load (r,
-				function (index, total, value) {
-					if (progressCallback) progressCallback(value);
+				function (index, total, value, name) {
+					if (progressCallback) progressCallback(value, name);
 				},
 				function () {
 					resolve();

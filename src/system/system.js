@@ -109,6 +109,12 @@ import Recycler from '../utils/recycler.js';
 		 */
 
 		/**
+		 *	Maximum scale factor that should be used in the system. A value of `null` will cause no limit.
+		 *	@default null
+		 *	!maxScaleFactor?: number;
+		 */
+
+		/**
 		 *	Indicates which method to use to find the target resolution, using `fullscreen` object when `true`, or the `window` object when `false`.
 		 *	@default false
 		 *	!fullscreen?: boolean;
@@ -159,6 +165,8 @@ const System =
 		screenHeight: null,
 
 		extraScaleFactor: 1,
+		maxScaleFactor: null,
+
 		fullscreen: false
 	},
 
@@ -936,6 +944,9 @@ const System =
 		this.scaleFactor = this.canvasScaleFactor * this.canvasPixelRatio;
 		this.scaleFactor = int(0.7 + this.scaleFactor);
 
+		if (this.options.maxScaleFactor > 0 && this.scaleFactor > this.options.maxScaleFactor)
+			this.scaleFactor = this.options.maxScaleFactor;
+
 		this.flags.renderingEnabled = false;
 
 		/*
@@ -1017,6 +1028,9 @@ const System =
 
 		/* *** */
 		this.scaleFactor *= this.options.extraScaleFactor;
+
+		if (this.options.maxScaleFactor > 0 && this.scaleFactor > this.options.maxScaleFactor)
+			this.scaleFactor = this.options.maxScaleFactor;
 
 		this.integerScaleFactor = int(this.scaleFactor + 0.5); //0.9
 		this.resetPerf();

@@ -21,7 +21,8 @@ import Canvas from '../system/canvas.js';
 
 /*
 	font: {
-		sheetWidth: int?, charWidth: int, charHeight: int, charset: string, widths: [char, width, ...]
+		sheetWidth: int?, charWidth: int, charHeight: int, charset: string, widths: [char, width, ...],
+		reverseDraw: bool?, paddingX: int?, paddingY: int?, spacingX: int?, spacingY: int?
 	}
 */
 
@@ -49,6 +50,8 @@ export default Class.extend
 
 		this.spacingX = (r.font.spacingX || 0) * v_scale;
 		this.spacingY = (r.font.spacingY || 0) * v_scale;
+
+		this.reverseDraw = r.font.reverseDraw || false;
 
 		let cols = int(r.font.sheetWidth / r.font.charWidth);
 
@@ -108,15 +111,39 @@ export default Class.extend
 		x -= this.paddingX;
 		y -= this.paddingY;
 
-		for (let i = 0; i < n; i++)
+		if (!this.reverseDraw)
 		{
-			let c = this.charTable[text[i]];
-			if (!c) continue;
+			for (let i = 0; i < n; i++)
+			{
+				let c = this.charTable[text[i]];
+				if (!c) continue;
 
-			if (!c.hidden)
-				g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight, null, null, c.charWidth, this.charHeight);
+				if (!c.hidden)
+					g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight, null, null, c.charWidth, this.charHeight);
 
-			x += c.charWidth + pX;
+				x += c.charWidth + pX;
+			}
+		}
+		else
+		{
+			for (let i = 0; i < n-1; i++)
+			{
+				let c = this.charTable[text[i]];
+				if (!c) continue;
+
+				x += c.charWidth + pX;
+			}
+
+			for (let i = n-1; i >= 0; i--)
+			{
+				let c = this.charTable[text[i]];
+				if (!c) continue;
+
+				if (!c.hidden)
+					g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight, null, null, c.charWidth, this.charHeight);
+
+				x -= c.charWidth + pX;
+			}
 		}
 	},
 

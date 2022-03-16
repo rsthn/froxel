@@ -3,7 +3,6 @@ import System from '../system/system.js';
 import Resources from '../resources/resources.js';
 import Boot from '../flow/boot.js';
 import Handler from '../utils/handler.js';
-import Recycler from '../utils/recycler.js';
 
 //!class sys
 
@@ -131,7 +130,7 @@ const system =
 
 			Object.assign(this.options, options);
 
-			Resources.init ({ pixelated: !this.antialias });
+			Resources.config ({ pixelated: !this.antialias });
 			System.init (this.options);
 
 			System.updateQueueAdd

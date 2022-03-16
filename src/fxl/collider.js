@@ -524,6 +524,8 @@ const collider =
 			group = null;
 		}
 
+		if (!mask) return;
+
 		if (!group) group = mask.group;
 
 		if (!group.alive() || !mask.alive())

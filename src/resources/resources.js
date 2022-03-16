@@ -56,12 +56,20 @@ Object.assign(Resources,
 	pixelated: false,
 
 	/**
-	 * 	Initializes all wrappers and loads the specified options object.
+	 * 	Default value for the `original` parameter of image resources.
+	 * 
+	 * 	@default false
+	 * 	!static original: boolean;
+	 */
+	original: false,
+
+	/**
+	 * 	Configures the resources object with the specified options.
 	 * 	!static init (options?: object) : void;
 	 */
-	init: function (opts=null)
+	config: function (opts=null)
 	{
-		if (opts)
+		if (opts != null)
 			Object.assign(this, opts);
 	},
 
@@ -80,7 +88,7 @@ Object.assign(Resources,
 	 * 	@param list - Map of resources to load.
 	 * 	@param progressCallback - Executed once for every resource loaded.
 	 * 	@param completeCallback - Executed when all resources have been loaded.
-	 * 	!static load (list: { [id: string] : object }, progressCallback: (index: number, count: number, ratio: number) => void, completeCallback: (list: { [id: string] : object }) => void) : void;
+	 * 	!static load (list: { [id: string] : object }, progressCallback: (index: number, count: number, ratio: number, name: string) => void, completeCallback: (list: { [id: string] : object }) => void) : void;
 	*/
 	load: function (list, progressCallback, completeCallback, keyList, index)
 	{
@@ -101,7 +109,7 @@ Object.assign(Resources,
 			index++;
 
 		if (progressCallback)
-			progressCallback (index, keyList.length, index / keyList.length);
+			progressCallback (index, keyList.length, index / keyList.length, keyList[index]);
 
 		if (index == keyList.length)
 		{
@@ -150,12 +158,12 @@ Object.assign(Resources,
 					if (r.pixelated === null || !r.hasOwnProperty('pixelated'))
 						r.pixelated = Resources.pixelated;
 
-					if (r.data.width != r.width || r.data.height != r.height || (r.original !== true && System.scaleFactor != 1))
+					if (r.original === null || !r.hasOwnProperty('original'))
+						r.original = Resources.original;
+
+					if ((r.data.width != r.width || r.data.height != r.height) && r.original !== true)
 					{
-						if (r.original === true)
-							r.data = Resources.resizeImage (r, r.width, r.height, r.pixelated, true);
-						else
-							r.data = Resources.resizeImage (r, r.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.pixelated, true);
+						r.data = Resources.resizeImage (r, r.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.pixelated, true);
 					}
 
 					r.rscale = r.data.width / r.width;
@@ -247,15 +255,15 @@ Object.assign(Resources,
 							r.oheight = tmp.data.height;
 						}
 
-						if (tmp.data.width != tmp.width || tmp.data.height != tmp.height || (tmp.original !== true && System.scaleFactor != 1))
-						{
-							if (r.pixelated === null || !r.hasOwnProperty('pixelated'))
-								r.pixelated = Resources.pixelated;
+						if (r.pixelated === null || !r.hasOwnProperty('pixelated'))
+							r.pixelated = Resources.pixelated;
 
-							if (tmp.original === true)
-								tmp.data = Resources.resizeImage (tmp, tmp.width, tmp.height, r.pixelated, true);
-							else
-								tmp.data = Resources.resizeImage (tmp, tmp.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), tmp.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.pixelated, true);
+						if (r.original === null || !r.hasOwnProperty('original'))
+							r.original = Resources.original;
+
+						if ((tmp.data.width != tmp.width || tmp.data.height != tmp.height) && tmp.original !== true)
+						{
+							tmp.data = Resources.resizeImage (tmp, tmp.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), tmp.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.pixelated, true);
 						}
 
 						tmp.rscale = tmp.data.width / tmp.width;

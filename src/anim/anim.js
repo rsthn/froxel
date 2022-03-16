@@ -17,6 +17,7 @@
 import { Class } from 'rinn';
 import List from '../utils/list.js';
 import Recycler from '../utils/recycler.js';
+import sys from '../fxl/system.js';
 
 //![import "../utils/list"]
 //![import "../utils/recycler"]
@@ -59,6 +60,7 @@ const Anim = Class.extend
 
 	paused: false,
 	finished: false,
+	running: false,
 
 	finishedCallback: null,
 	finishedCallbackHandler: null,
@@ -66,13 +68,19 @@ const Anim = Class.extend
 
 	__ctor: function ()
 	{
-		// VIOLET: Possibly optimize this.
+		// VIOLET: Possibly optimize this { } objects.
 		this.initialData = { };
 		this.data = { };
 
 		this.block = Block.alloc();
 		this.blockStack = List.Pool.alloc();
 		this.cmdStack = List.Pool.alloc();
+
+		this.running = false;
+
+		this.finishedCallback = null;
+		this.finishedCallbackHandler = null;
+		this.finishedCallbackContext = null;
 
 		return this.reset();
 	},
@@ -104,7 +112,6 @@ const Anim = Class.extend
 		target.block = this.block.clone();
 
 		target.initialData = this.initialData;
-
 		return target.reset();
 	},
 
@@ -231,7 +238,9 @@ const Anim = Class.extend
 	*/
 	pause: function ()
 	{
-		this.paused = true;
+		if (!this.paused)
+			this.paused = true;
+
 		return this;
 	},
 
@@ -242,6 +251,27 @@ const Anim = Class.extend
 	{
 		this.finished = false;
 		this.paused = false;
+
+		if (!this.running)
+			this.run(false);
+
+		return this;
+	},
+
+	/*
+	**	Begins execution of the animation.
+	*/
+	run: function (reset=true)
+	{
+		if (this.running)
+			return this;
+
+		if (reset == true)
+			this.reset();
+
+		sys.update.add(this.update, this);
+		this.running = true;
+
 		return this;
 	},
 
@@ -338,7 +368,10 @@ const Anim = Class.extend
 			self = this;
 
 		if (self.paused || self.block.isFinished())
+		{
+			self.running = false;
 			return false;
+		}
 
 		self.time += dt*self.timeScale*Anim.timeScale;
 
@@ -363,6 +396,7 @@ const Anim = Class.extend
 			}
 		}
 
+		self.running = false;
 		return false;
 	},
 

@@ -1117,6 +1117,12 @@ export namespace System
 		extraScaleFactor?: number;
 
 		/**
+		 *	Maximum scale factor that should be used in the system. A value of `null` will cause no limit.
+		 *	@default null
+		 */
+		maxScaleFactor?: number;
+
+		/**
 		 *	Indicates which method to use to find the target resolution, using `fullscreen` object when `true`, or the `window` object when `false`.
 		 *	@default false
 		 */
@@ -1883,18 +1889,6 @@ export class Viewport
 	 * 	Sets the container bounds. Used to ensure the viewport bounds are never outside these limits.
 	 */
 	setContainerBounds (v: Bounds2|Rect) : Viewport;
-
-	/**
-	 * 	Sets the viewport bounds in screen space. Same can be achieved by using a combination of setScreenPosition, resize/resizeBy. But when more
-	 * 	detailed control is needed, this function is your friend.
-	 */
-	setScreenBounds (x1: number, y1: number, x2: number, y2: number) : Viewport;
-
-	/**
-	 * 	Sets the viewport bounds in screen space. Same can be achieved by using a combination of setScreenPosition, resize/resizeBy. But when more
-	 * 	detailed control is needed, this function is your friend.
-	 */
-	setScreenBounds (v: Bounds2|Rect) : Viewport;
 
 	/**
 	 * 	Sets the viewport padding.

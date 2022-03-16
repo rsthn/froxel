@@ -269,43 +269,6 @@ const Viewport = Class.extend
 	},
 
 	/**
-	 * 	Sets the viewport bounds in screen space. Same can be achieved by using a combination of setScreenPosition, resize/resizeBy. But when more
-	 * 	detailed control is needed, this function is your friend.
-	 *
-	 * 	!setScreenBounds (x1: number, y1: number, x2: number, y2: number) : Viewport;
-	 */
-	/**
-	 * 	Sets the viewport bounds in screen space. Same can be achieved by using a combination of setScreenPosition, resize/resizeBy. But when more
-	 * 	detailed control is needed, this function is your friend.
-	 *
-	 * 	!setScreenBounds (v: Bounds2|Rect) : Viewport;
-	 */
-	setScreenBounds: function (x1, y1=null, x2=null, y2=null)
-	{
-		if (y1 === null)
-		{
-			y2 = x1.y2;
-			x2 = x1.x2;
-			y1 = x1.y1;
-			x1 = x1.x1;
-		}
-
-		this.sx = x1;
-		this.sy = y1;
-
-		this.width = x2 - x1;
-		this.height = y2 - y1;
-
-		this.initialWidth = this.width;
-		this.initialHeight = this.height;
-
-		this.updateScreenBounds();
-		this.updateBounds();
-
-		return this;
-	},
-
-	/**
 	 * 	Sets the viewport padding.
 	 *
 	 * 	!setPadding (value: number) : Viewport;

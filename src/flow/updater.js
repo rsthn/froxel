@@ -132,7 +132,7 @@ const Updater = Class.extend
 	 * 	Sets the pre-update callback.
 	 * 	!preupdate (callback: (list: List, dt: number, updater: Updater) => Updater) : Updater;
 	 */
-	preupdate: function (callback)
+	preUpdate: function (callback)
 	{
 		this.__preupdate = callback;
 		return this;
@@ -142,7 +142,7 @@ const Updater = Class.extend
 	 * 	Sets the post-update callback.
 	 * 	!postupdate (callback: (list: List, dt: number, updater: Updater) => Updater) : Updater;
 	 */
-	postupdate: function (callback)
+	postUpdate: function (callback)
 	{
 		this.__postupdate = callback;
 		return this;
