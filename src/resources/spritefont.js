@@ -72,7 +72,7 @@ export default Class.extend
 			{
 				let c = r.font.charset[k++];
 
-				this.charTable[c] = { hidden: false, x: x, y: y, charWidth: this.charWidth, r_charWidth: this.r_charWidth };
+				this.charTable[c] = { hidden: false, x: x, y: y, charWidth: this.charWidth, r_charWidth: this.r_charWidth, spacingX: 0 };
 
 				x += this.r_charWidth;
 			}
@@ -81,7 +81,7 @@ export default Class.extend
 		}
 
 		if (!(' ' in this.charTable))
-			this.charTable[' '] = { hidden: true, charWidth: int((this.charWidth + this.paddingX)*2/3), r_charWidth: this.r_charWidth };
+			this.charTable[' '] = { hidden: true, charWidth: int((this.charWidth + this.paddingX)*2/3), r_charWidth: this.r_charWidth, spacingX: 0 };
 
 		if (!r.font.widths) return;
 
@@ -89,15 +89,16 @@ export default Class.extend
 
 		for (let i = 0; i < n; i += 2)
 		{
-			let w1 = (r.font.widths[i] * v_scale);
-			let w2 = (r.font.widths[i] * r_scale);
+			let w = r.font.widths[i+1] * v_scale;
+			let s = r.font.widths[i];
 
-			let s = r.font.widths[i+1];
+			if (typeof(s) === 'number')
+				s = String.fromCharCode(s);
 
 			for (let j = 0; j < s.length; j++)
 			{
-				this.charTable[s[j]].charWidth = w1;
-				this.charTable[s[j]].r_charWidth = w2;
+				if (s[j] in this.charTable)
+					this.charTable[s[j]].spacingX = w - this.charTable[s[j]].charWidth;
 			}
 		}
 	},
@@ -121,7 +122,7 @@ export default Class.extend
 				if (!c.hidden)
 					g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight, null, null, c.charWidth, this.charHeight);
 
-				x += c.charWidth + pX;
+				x += c.charWidth + pX + c.spacingX;
 			}
 		}
 		else
@@ -142,7 +143,7 @@ export default Class.extend
 				if (!c.hidden)
 					g.drawImage (this.r.data, c.x, c.y, c.r_charWidth, this.r_charHeight, x, y, c.charWidth, this.charHeight, null, null, c.charWidth, this.charHeight);
 
-				x -= c.charWidth + pX;
+				x -= c.charWidth + pX + c.spacingX;
 			}
 		}
 	},
@@ -159,7 +160,7 @@ export default Class.extend
 			let c = this.charTable[text[i]];
 			if (!c) continue;
 
-			x += c.charWidth + pX;
+			x += c.charWidth + pX + c.spacingX;
 		}
 
 		return x;

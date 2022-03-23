@@ -66,6 +66,8 @@ const Anim = Class.extend
 	finishedCallbackHandler: null,
 	finishedCallbackContext: null,
 
+	autoDispose: false,
+
 	__ctor: function ()
 	{
 		// VIOLET: Possibly optimize this { } objects.
@@ -77,6 +79,7 @@ const Anim = Class.extend
 		this.cmdStack = List.Pool.alloc();
 
 		this.running = false;
+		this.autoDispose = false;
 
 		this.finishedCallback = null;
 		this.finishedCallbackHandler = null;
@@ -113,6 +116,15 @@ const Anim = Class.extend
 
 		target.initialData = this.initialData;
 		return target.reset();
+	},
+
+	clone: function (autoDispose=false)
+	{
+		let anim = new Anim();
+		anim.autoDispose = autoDispose;
+
+		this.copyTo(anim);
+		return anim;
 	},
 
 	onFinished: function (callback)
@@ -397,6 +409,10 @@ const Anim = Class.extend
 		}
 
 		self.running = false;
+
+		if (self.autoDispose)
+			dispose(self);
+
 		return false;
 	},
 

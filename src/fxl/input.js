@@ -22,6 +22,16 @@ const input =
 	activeGamepad: null,
 
 	/**
+	 *	Last created button.
+	 */
+	lastButton: null,
+
+	/**
+	 *	Last created stick.
+	 */
+	lastStick: null,
+
+	/**
 	 * 	Cursor object, used to control the state of the single-cursor input.
 	 */
 	cursor:
@@ -199,7 +209,7 @@ const input =
 		if (this.activeGamepad === null)
 			throw new Error ('input.addStick: use input.selectGamepad first to select the active gamepad.');
 
-		return this.activeGamepad.addStick (id, x, y, outerDrawable, innerDrawable, maxRadius);
+		return this.lastStick = this.activeGamepad.addStick (id, x, y, outerDrawable, innerDrawable, maxRadius);
 	},
 
 	/*
@@ -210,7 +220,7 @@ const input =
 		if (this.activeGamepad === null)
 			throw new Error ('input.addButton: use input.selectGamepad first to select the active gamepad.');
 
-		return this.activeGamepad.addButton (id, x, y, unpressedDrawable, pressedDrawable);
+		return this.lastButton = this.activeGamepad.addButton (id, x, y, unpressedDrawable, pressedDrawable);
 	}
 };
 

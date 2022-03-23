@@ -4013,16 +4013,6 @@ export class Button extends Group
 	constructor (container: Container, x: number, y: number, unpressedImg?: IDrawable, pressedImg?: IDrawable);
 
 	/**
-	 * 	Sets the visible flag of the element.
-	 */
-	visible (value: boolean) : Button;
-
-	/**
-	 * 	Returns the visible flag of the element.
-	 */
-	visible () : boolean;
-
-	/**
 	 * 	Changes the pressed/unpressed images of the button.
 	 */
 	setImage (unpressedImg: IDrawable, pressedImg?: IDrawable);
