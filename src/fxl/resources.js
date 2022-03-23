@@ -75,6 +75,25 @@ const res =
 	},
 
 	/**
+	 * 	Registers a multi image resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "image-##.png").
+	 * 	@param count - Number of images to load (from 0 to count-1).
+	 * 
+	 * 	!static images (id: string, path: string, frameWidth?: number, frameHeight?: number, optsA?: object, optsB?: object) : object;
+	 */
+	images: function (id, path, count, frameWidth=null, frameHeight=null, optsA=null, optsB=null)
+	{
+		this.__resIdMustNotExist(id);
+		return r[id] = { type: 'images', wrapper: 'Spritesheet', src: path, pixelated: null, count: count, width: frameWidth, height: frameHeight,
+			config: {
+				frameWidth: frameWidth, frameHeight: frameHeight, ...optsA
+			},
+			...optsB
+		};
+	},
+
+	/**
 	 * 	Registers an spritesheet resource.
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.

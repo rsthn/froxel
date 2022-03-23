@@ -32,12 +32,14 @@ const world =
 	LAYER_BG1: 1,
 	LAYER_BG2: 2,
 	LAYER_BG3: 3,
-	LAYER_MAIN: 4,
-	LAYER_FG0: 5,
-	LAYER_FG1: 6,
-	LAYER_FG2: 7,
-	LAYER_FG3: 8,
-	LAYER_MASK: 9,
+	LAYER_BG4: 4,
+	LAYER_MAIN: 5,
+	LAYER_FG0: 6,
+	LAYER_FG1: 7,
+	LAYER_FG2: 8,
+	LAYER_FG3: 9,
+	LAYER_FG4: 10,
+	LAYER_MASK: 11,
 
 	/**
 	 *	Default layers for the SCENE_HUD scene.
@@ -102,11 +104,13 @@ const world =
 		this.setContainer(world.LAYER_BG1, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.setContainer(world.LAYER_BG2, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.setContainer(world.LAYER_BG3, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
+		this.setContainer(world.LAYER_BG4, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.setContainer(world.LAYER_MAIN, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.setContainer(world.LAYER_FG0, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.setContainer(world.LAYER_FG1, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.setContainer(world.LAYER_FG2, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.setContainer(world.LAYER_FG3, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
+		this.setContainer(world.LAYER_FG4, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 
 		this.setContainer(world.LAYER_MASK, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.getContainer(world.LAYER_MASK).visible(false);

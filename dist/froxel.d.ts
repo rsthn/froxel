@@ -4333,6 +4333,14 @@ export namespace fxl
 	static image (id: string, path: string, opts?: object) : object;
 
 	/**
+	 * 	Registers a multi image resource.
+	 * 	@param id - Resource identifier.
+	 * 	@param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "image-##.png").
+	 * 	@param count - Number of images to load (from 0 to count-1).
+	 */
+	static images (id: string, path: string, frameWidth?: number, frameHeight?: number, optsA?: object, optsB?: object) : object;
+
+	/**
 	 * 	Registers an spritesheet resource.
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.
