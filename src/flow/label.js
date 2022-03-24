@@ -128,6 +128,21 @@ const Label = Element.extend
 	},
 
 	/**
+	 * 	Sets the font to use.
+	 * 	@param font
+	 * 	!setFont (value: object) : Label;
+	 */
+	setFont: function(font)
+	{
+		if (this.font === font)
+			return this;
+
+		this.font = font;
+		this._dirty = true;
+		return this;
+	},
+
+	/**
 	 * 	Updates the text related properties (textWidth, textHeight, textOffsetX and textOffsetY). Automatically
 	 * 	called before the label is drawn. Recalculates only if text changed since last call.
 	 */

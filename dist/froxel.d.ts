@@ -3890,6 +3890,12 @@ export class Label extends Element
 	 */
 	setText (value: string) : Label;
 
+	/**
+	 * 	Sets the font to use.
+	 * 	@param font
+	 */
+	setFont (value: object) : Label;
+
 }
 
 export namespace Label
