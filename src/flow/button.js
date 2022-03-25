@@ -124,6 +124,28 @@ export default Group.extend
 	},
 
 	/**
+	 * 	Sets the visible flag of the group and all children (except hitbox).
+	 * 	!visible (value: boolean) : Group;
+	 */
+	/**
+	 * 	Returns the visible flag of the group.
+	 * 	!visible () : boolean;
+	 */
+	visible: function (value=null)
+	{
+		if (value === null)
+			return this._super.Element.visible();
+
+		for (let i = this.children.top; i; i = i.next)
+		{
+			if (i.value !== this.hitbox)
+			i.value.visible(value);
+		}
+
+		return this._super.Element.visible(value);
+	},
+
+	/**
 	 * 	Changes the pressed/unpressed images of the button.
 	 * 	!setImage (unpressedImg: IDrawable, pressedImg?: IDrawable);
 	 */

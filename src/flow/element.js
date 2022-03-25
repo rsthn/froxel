@@ -25,7 +25,7 @@ import System from '../system/system.js';
 //![import "./idrawable"]
 
 //:/**
-//: * 	Describes an element that can be rendered to the screen.
+//: * Describes an element that can be rendered to the screen.
 //: */
 
 //!class Element extends GridElement
@@ -35,55 +35,60 @@ const Element = GridElement.extend
 	className: 'Element',
 
 	/**
-	 * 	Parent group to whom this element is related.
-	 * 	!group: Group;
+	 * Parent group to whom this element is related.
+	 * !group: Group;
 	 */
 	group: null,
 
 	/**
-	 * 	Drawable object to render to the display.
-	 * 	!img: IDrawable;
+	 * Drawable object to render to the display.
+	 * !img: IDrawable;
 	 */
 	img: null,
 
 	/**
-	 * 	Indicates if the bounds of the element should be drawn (for debugging purposes).
-	 * 	!debugBounds: boolean;
+	 * Indicates if the bounds of the element should be drawn (for debugging purposes).
+	 * !debugBounds: boolean;
 	 */
 	debugBounds: false,
 
 	/**
-	 * 	Basic depth (z-value) of the element (used for depth micro-adjustments).
+	 * Basic depth (z-value) of the element (used for depth micro-adjustments).
 	 */
 	_zvalue: 0,
 
 	/**
-	 * 	Actual depth (z-value) of the element, calculated by the container.
+	 * Actual depth (z-value) of the element, calculated by the container.
 	 */
 	__zvalue: 0,
 
 	/**
-	 * 	Alpha value of the element.
+	 * Alpha value of the element.
 	 */
 	_alpha: 1.0,
 
 	/**
-	 * 	Element shader program.
+	 * Element shader program.
 	 */
 	_shaderProgram: null,
 
 	/**
-	 * 	Function used to set the uniforms of the shader.
+	 * Function used to set the uniforms of the shader.
 	 */
 	_uniformSetter: null,
 
 	/**
-	 * 	Constructs a drawable element at the specified position with the given drawable.
-	 * 	!constructor (x: number, y: number, width: number, height: number, img?: IDrawable);
+	 * Function used to render the element. Called by `draw` after rendering configuration has been set. Defaults to `renderDefault`.
+	 */
+	render: null,
+
+	/**
+	 * Constructs a drawable element at the specified position with the given drawable.
+	 * !constructor (x: number, y: number, width: number, height: number, img?: IDrawable);
 	 */
 	/**
-	 * 	Constructs a drawable element at the specified position with the given drawable.
-	 * 	!constructor (x: number, y: number, img?: IDrawable);
+	 * Constructs a drawable element at the specified position with the given drawable.
+	 * !constructor (x: number, y: number, img?: IDrawable);
 	 */
 	__ctor: function(x, y, width=null, height=null, img=null)
 	{
@@ -106,11 +111,15 @@ const Element = GridElement.extend
 		this._zvalue = 0;
 		this.__zvalue = 0;
 		this._alpha = 1.0;
+
 		this._shaderProgram = null;
+		this._uniformSetter = null;
+
+		this.render = Element.renderDefault;
 	},
 
 	/**
-	 * 	Destroys the element.
+	 * Destroys the element.
 	 */
 	__dtor: function()
 	{
@@ -124,7 +133,8 @@ const Element = GridElement.extend
 	},
 
 	/**
-	 * 	Destroys the element later by adding it to the scene's destruction queue. If the element has no container, it will be destroyed immediately.
+	 * Destroys the element later by adding it to the scene's destruction queue. If the element has no container, it will be destroyed immediately.
+	 * !destroyLater() : void;
 	 */
 	destroyLater: function()
 	{
@@ -136,9 +146,17 @@ const Element = GridElement.extend
 			dispose(this);
 	},
 
-	/*
-	**	Sets or returns the alpha value of the element.
-	*/
+	/**
+	 * Returns the alpha value of the element.
+	 * @returns {number}
+	 * !alpha () : number;
+	 */
+	/**
+	 * Sets the alpha value of the element.
+	 * @param {number} value
+	 * @returns {Element}
+	 * !alpha (value: number) : Element;
+	 */
 	alpha: function (value=null)
 	{
 		if (value === null)
@@ -148,9 +166,17 @@ const Element = GridElement.extend
 		return this;
 	},
 
-	/*
-	**	Sets or returns the depth zvalue of the element.
-	*/
+	/**
+	 * Returns the zvalue of the element.
+	 * @returns {number}
+	 * !zvalue () : number;
+	 */
+	/**
+	 * Sets the zvalue of the element.
+	 * @param {number} value
+	 * @returns {Element}
+	 * !zvalue (value: number) : Element;
+	 */
 	zvalue: function (value=null)
 	{
 		if (value === null)
@@ -160,9 +186,17 @@ const Element = GridElement.extend
 		return this;
 	},
 
-	/*
-	**	Sets or returns the shader program of the element.
-	*/
+	/**
+	 * Returns the shader program of the element.
+	 * @returns {ShaderProgram}
+	 * !shaderProgram () : ShaderProgram;
+	 */
+	/**
+	 * Sets the shader program of the element.
+	 * @param {ShaderProgram} shaderProgram
+	 * @returns {Element}
+	 * !shaderProgram (shaderProgram: ShaderProgram) : Element;
+	 */
 	shaderProgram: function (shaderProgram=false)
 	{
 		if (shaderProgram === false)
@@ -173,8 +207,10 @@ const Element = GridElement.extend
 	},
 
 	/**
-	 * 	Sets the uniform setter function.
-	 * 	@param { (elem, gl, pgm) => void } uniformSetter
+	 * Sets the uniform setter function.
+	 * @param { (elem:Element, gl:WebGLRenderingContext, pgm:ShaderProgram) => void } uniformSetter
+	 * @returns {Element}
+	 * !uniformSetter (uniformSetter: (elem:Element, gl:WebGLRenderingContext, pgm:ShaderProgram) => void) : Element;
 	 */
 	uniformSetter: function (uniformSetter)
 	{
@@ -182,9 +218,10 @@ const Element = GridElement.extend
 		return this;
 	},
 
-	/*
-	**	Draws the element on the specified canvas.
-	*/
+	/**
+	 * Draws the element on the specified canvas.
+	 * @param {Canvas} g
+	 */
 	draw: function(g)
 	{
 		let shaderChanged = this._shaderProgram !== null ? g.pushShaderProgram(this._shaderProgram) : false;
@@ -225,13 +262,91 @@ const Element = GridElement.extend
 	},
 
 	/**
-	 * 	Renders the element to the graphics surface. Called by `draw` after the required renderer configuration has been set.
+	 * Changes the function used to render the element.
+	 * @param { (g:Canvas) => void } renderFunction
+	 * @returns {Element}
 	 */
-	render: function(g) /* @override */
+	renderWith: function (renderFunction)
 	{
-		this.img.draw (g, this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height());
+		this.render = renderFunction ?? Element.renderDefault;
+		return this;
 	}
 });
+
+/**
+ * Draws the element in the canvas.
+ * @param {Canvas} g
+ * !static renderDefault (g: Canvas) : void;
+ */
+Element.renderDefault = function(g)
+{
+	this.img.draw (g, this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height());
+};
+
+/**
+ * Draws the image without resizing it and clipped to the element's size.
+ * @param {Canvas} g
+ * !static renderClipped (g: Canvas) : void;
+ */
+Element.renderClipped = function(g)
+{
+	let img = this.img.getImage();
+
+	g.drawImage (img,
+			0, 0, this.bounds.width()*img.rscale, this.bounds.height()*img.rscale,
+			this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height(),
+			null, null,
+			this.img.width, this.img.height);
+}
+
+/**
+ * Draws the element with a composition of several tiles from a nine-slice spritesheet to create a box.
+ * @param {Canvas} g
+ * !static renderNineSlice (g: Canvas) : void;
+ */
+Element.renderNineSlice = function(g)
+{
+	let ss = this.img.spritesheet;
+	if (!ss) throw new Error('renderNineSlice requires the drawable to be a spritesheet with nine frames.');
+
+	let leftWidth = ss.getFrame(0).width;
+	let rightWidth = ss.getFrame(2).width;
+	let midWidth = ss.getFrame(1).width;
+
+	let topHeight = ss.getFrame(0).height;
+	let bottomHeight = ss.getFrame(6).height;
+	let midHeight = ss.getFrame(3).height;
+
+	let n = int((this.bounds.width() - leftWidth - rightWidth) / midWidth);
+	let m = int((this.bounds.height() - topHeight - bottomHeight) / midHeight);
+
+	let x1 = this.bounds.x1;
+	let y1 = this.bounds.y1;
+
+	// Corners
+	ss.getFrame(0).draw(g, x1, y1);
+	ss.getFrame(2).draw(g, x1 + leftWidth + n*midWidth, y1);
+	ss.getFrame(6).draw(g, x1, y1 + topHeight + m*midHeight);
+	ss.getFrame(8).draw(g, x1 + leftWidth + n*midWidth, y1 + topHeight + m*midHeight);
+
+	// Top/Bottom
+	for (let i = 0; i < n; i++) {
+		ss.getFrame(1).draw(g, x1 + leftWidth + i*midWidth, y1);
+		ss.getFrame(7).draw(g, x1 + leftWidth + i*midWidth, y1 + topHeight + m*midHeight);
+	}
+
+	// Left/Right
+	for (let i = 0; i < m; i++) {
+		ss.getFrame(3).draw(g, x1, y1 + topHeight + i*midHeight);
+		ss.getFrame(5).draw(g, x1 + leftWidth + n*midWidth, y1 + topHeight + i*midHeight);
+	}
+
+	// Center
+	for (let j = 0; j < m; j++)
+	for (let i = 0; i < n; i++) {
+		ss.getFrame(4).draw(g, x1 + leftWidth + i*midWidth, y1 + topHeight + j*midHeight);
+	}
+};
 
 //!/class
 
@@ -239,12 +354,12 @@ const Element = GridElement.extend
 //!namespace Pool
 
 	/**
-	 * 	Allocates a drawable element at the specified position with the given drawable.
-	 * 	!function alloc (x: number, y: number, width: number, height: number, img?: IDrawable) : Element;
+	 * Allocates a drawable element at the specified position with the given drawable.
+	 * !function alloc (x: number, y: number, width: number, height: number, img?: IDrawable) : Element;
 	 */
 	/**
-	 * 	Allocates a drawable element at the specified position with the given drawable.
-	 * 	!function alloc (x: number, y: number, img?: IDrawable) : Element;
+	 * Allocates a drawable element at the specified position with the given drawable.
+	 * !function alloc (x: number, y: number, img?: IDrawable) : Element;
 	 */
 
 Recycler.createPool(Element);

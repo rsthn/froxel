@@ -321,7 +321,7 @@ const GridElement = Class.extend
 	resize: function (width, height)
 	{
 		this.flags |= GridElement.DIRTY;
-		this.bounds.resize (width, height, true);
+		this.bounds.resize (width ?? this.bounds.width(), height ?? this.bounds.height(), true);
 		return this;
 	},
 

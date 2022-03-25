@@ -846,12 +846,12 @@ export class ShaderProgram
 	/**
 	 * 	Binds the attribute locations to their predefined values.
 	 */
-	bindLocations (gl: WebGL2Context) : void;
+	bindLocations (gl: WebGL2RenderingContext) : void;
 
 	/**
 	 * 	Loads the locations of the predefined uniforms and attributes.
 	 */
-	loadLocations (gl: WebGL2Context) : void;
+	loadLocations (gl: WebGL2RenderingContext) : void;
 
 	/**
 	 * 	Links the shaders into the shader program. Completion can be obtained by calling `getStatus`.
@@ -3344,34 +3344,103 @@ export class IDrawable
 
 }
 /**
- * 	Describes an element that can be rendered to the screen.
+ * Describes an element that can be rendered to the screen.
  */
 export class Element extends GridElement
 {
 	/**
-	 * 	Parent group to whom this element is related.
+	 * Parent group to whom this element is related.
 	 */
 	group: Group;
 
 	/**
-	 * 	Drawable object to render to the display.
+	 * Drawable object to render to the display.
 	 */
 	img: IDrawable;
 
 	/**
-	 * 	Indicates if the bounds of the element should be drawn (for debugging purposes).
+	 * Indicates if the bounds of the element should be drawn (for debugging purposes).
 	 */
 	debugBounds: boolean;
 
 	/**
-	 * 	Constructs a drawable element at the specified position with the given drawable.
+	 * Constructs a drawable element at the specified position with the given drawable.
 	 */
 	constructor (x: number, y: number, width: number, height: number, img?: IDrawable);
 
 	/**
-	 * 	Constructs a drawable element at the specified position with the given drawable.
+	 * Constructs a drawable element at the specified position with the given drawable.
 	 */
 	constructor (x: number, y: number, img?: IDrawable);
+
+	/**
+	 * Destroys the element later by adding it to the scene's destruction queue. If the element has no container, it will be destroyed immediately.
+	 */
+	destroyLater() : void;
+
+	/**
+	 * Returns the alpha value of the element.
+	 * @returns {number}
+	 */
+	alpha () : number;
+
+	/**
+	 * Sets the alpha value of the element.
+	 * @param {number} value
+	 * @returns {Element}
+	 */
+	alpha (value: number) : Element;
+
+	/**
+	 * Returns the zvalue of the element.
+	 * @returns {number}
+	 */
+	zvalue () : number;
+
+	/**
+	 * Sets the zvalue of the element.
+	 * @param {number} value
+	 * @returns {Element}
+	 */
+	zvalue (value: number) : Element;
+
+	/**
+	 * Returns the shader program of the element.
+	 * @returns {ShaderProgram}
+	 */
+	shaderProgram () : ShaderProgram;
+
+	/**
+	 * Sets the shader program of the element.
+	 * @param {ShaderProgram} shaderProgram
+	 * @returns {Element}
+	 */
+	shaderProgram (shaderProgram: ShaderProgram) : Element;
+
+	/**
+	 * Sets the uniform setter function.
+	 * @param { (elem:Element, gl:WebGLRenderingContext, pgm:ShaderProgram) => void } uniformSetter
+	 * @returns {Element}
+	 */
+	uniformSetter (uniformSetter: (elem:Element, gl:WebGLRenderingContext, pgm:ShaderProgram) => void) : Element;
+
+	/**
+	 * Draws the element in the canvas.
+	 * @param {Canvas} g
+	 */
+	static renderDefault (g: Canvas) : void;
+
+	/**
+	 * Draws the image without resizing it and clipped to the element's size.
+	 * @param {Canvas} g
+	 */
+	static renderClipped (g: Canvas) : void;
+
+	/**
+	 * Draws the element with a composition of several tiles from a nine-slice spritesheet to create a box.
+	 * @param {Canvas} g
+	 */
+	static renderNineSlice (g: Canvas) : void;
 
 }
 
@@ -3380,12 +3449,12 @@ export namespace Element
 	export namespace Pool
 	{
 		/**
-		 * 	Allocates a drawable element at the specified position with the given drawable.
+		 * Allocates a drawable element at the specified position with the given drawable.
 		 */
 		function alloc (x: number, y: number, width: number, height: number, img?: IDrawable) : Element;
 
 		/**
-		 * 	Allocates a drawable element at the specified position with the given drawable.
+		 * Allocates a drawable element at the specified position with the given drawable.
 		 */
 		function alloc (x: number, y: number, img?: IDrawable) : Element;
 
@@ -4019,6 +4088,16 @@ export class Button extends Group
 	constructor (container: Container, x: number, y: number, unpressedImg?: IDrawable, pressedImg?: IDrawable);
 
 	/**
+	 * 	Sets the visible flag of the group and all children (except hitbox).
+	 */
+	visible (value: boolean) : Group;
+
+	/**
+	 * 	Returns the visible flag of the group.
+	 */
+	visible () : boolean;
+
+	/**
 	 * 	Changes the pressed/unpressed images of the button.
 	 */
 	setImage (unpressedImg: IDrawable, pressedImg?: IDrawable);
@@ -4165,12 +4244,12 @@ export class Stick extends Group
 	constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: IDrawable, unpressedImgInner: IDrawable, pressedImg?: IDrawable, pressedImgInner?: IDrawable);
 
 	/**
-	 * 	Sets the visible flag of the element.
+	 * 	Sets the visible flag of the group and all children (except hitbox).
 	 */
-	visible (value: boolean) : Button;
+	visible (value: boolean) : Group;
 
 	/**
-	 * 	Returns the visible flag of the element.
+	 * 	Returns the visible flag of the group.
 	 */
 	visible () : boolean;
 
@@ -4344,7 +4423,7 @@ export namespace fxl
 	 * 	@param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "image-##.png").
 	 * 	@param count - Number of images to load (from 0 to count-1).
 	 */
-	static images (id: string, path: string, frameWidth?: number, frameHeight?: number, optsA?: object, optsB?: object) : object;
+	static images (id: string, path: string, count: number, frameWidth?: number, frameHeight?: number, optsA?: object, optsB?: object) : object;
 
 	/**
 	 * 	Registers an spritesheet resource.

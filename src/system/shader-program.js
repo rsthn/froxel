@@ -130,7 +130,7 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Binds the attribute locations to their predefined values.
-	 * 	!bindLocations (gl: WebGL2Context) : void;
+	 * 	!bindLocations (gl: WebGL2RenderingContext) : void;
 	 */
 	bindLocations: function (gl)
 	{
@@ -139,7 +139,7 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Loads the locations of the predefined uniforms and attributes.
-	 * 	!loadLocations (gl: WebGL2Context) : void;
+	 * 	!loadLocations (gl: WebGL2RenderingContext) : void;
 	 */
 	loadLocations: function (gl)
 	{

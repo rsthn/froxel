@@ -168,6 +168,7 @@ Object.assign(Resources,
 
 					r.rscale = r.data.width / r.width;
 
+					r.data.rscale = r.rscale;
 					r.data.targetWidth = r.width;
 					r.data.targetHeight = r.height;
 
@@ -268,6 +269,7 @@ Object.assign(Resources,
 
 						tmp.rscale = tmp.data.width / tmp.width;
 
+						tmp.data.rscale = tmp.rscale;
 						tmp.data.targetWidth = tmp.width;
 						tmp.data.targetHeight = tmp.height;
 	

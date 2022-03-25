@@ -80,7 +80,7 @@ const res =
 	 * 	@param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "image-##.png").
 	 * 	@param count - Number of images to load (from 0 to count-1).
 	 * 
-	 * 	!static images (id: string, path: string, frameWidth?: number, frameHeight?: number, optsA?: object, optsB?: object) : object;
+	 * 	!static images (id: string, path: string, count: number, frameWidth?: number, frameHeight?: number, optsA?: object, optsB?: object) : object;
 	 */
 	images: function (id, path, count, frameWidth=null, frameHeight=null, optsA=null, optsB=null)
 	{
