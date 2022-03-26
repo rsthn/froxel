@@ -1802,6 +1802,97 @@ export class Bounds2
 	 */
 	readonly y2: number;
 
+	/**
+	 */
+	constructor (bounds: Bounds2);
+
+	/**
+	 */
+	constructor (rect: Rect);
+
+	/**
+	 */
+	constructor (width: number, height: number);
+
+	/**
+	 */
+	constructor (x1: number, y1: number, x2: number, y2: number, upscaled:boolean=false);
+
+	/**
+	 * Truncates the components to remove fractional parts.
+	 */
+	trunc() : Bounds2;
+
+	/**
+	 * Clones the bounds and returns a new object.
+	 */
+	clone() : Bounds2;
+
+	/**
+	 * Sets the components to zero.
+	 */
+	zero() : Bounds2;
+
+	/**
+	 * Resets the component values to `null` for subsequent use with `setAsUnion`.
+	 */
+	reset() : Bounds2;
+
+	/**
+	 * Translates the bounds by the given deltas.
+	 */
+	translate (point: Point2) : Bounds2;
+
+	/**
+	 * Translates the bounds by the given deltas.
+	 */
+	translate (vec: Vec2) : Bounds2;
+
+	/**
+	 * Translates the bounds by the given deltas.
+	 */
+	translate (dx: number, dy: number, upscaled:boolean=false) : Bounds2;
+
+	/**
+	 * Returns the width of the bounds.
+	 */
+	width(): number
+
+	/**
+	 * Returns the height of the bounds.
+	 */
+	height(): number
+
+	/**
+	 * Returns true if the bounds are in forward position (x1 < x2 and y1 < y2).
+	 */
+	isForward() : boolean;
+
+	/**
+	 * Returns true if the specified point is within the bounds. The `tol` parameter is used to specify a tolerance value.
+	 */
+	containsPoint (x: number, y: number, tol:number=0) : boolean;
+
+	/**
+	 * Returns the area of the bounds. When strict is true, the area will be returned only if the bounds are forward.
+	 */
+	area (strict:boolean=false) : number;
+
+	/**
+	 * Returns the string representation of the rect coordinates.
+	 */
+	toString() : string;
+
+	/**
+	 * Flattens the contents of the bounds.
+	 */
+	flatten() : [number,number,number,number];
+
+	/**
+	 * Unflattens the given array into the bounds object.
+	 */
+	unflatten (data: [number,number,number,number]) : Bounds2;
+
 }
 
 export namespace Rect
@@ -2326,7 +2417,155 @@ export namespace Perf
 
 
 
+export namespace Resources
+{
+	type ConfigOptions =
+	{
+		/**
+		 * Enables integer scaling. When enabled, calling `resizeImage` with `pixelated` parameter set to `true` will cause images to be resized to integer
+		 * factors. When disabled, images will be resized using the half/double method to eventually end up reaching the exact target size.
+		 *
+		 * @default true
+		 */
+		integerScalingEnabled?: boolean;
 
+		/**
+		 * Default value for the `pixelated` parameter of image resources. Controls whether to use integer scaling when resizing images. Also controls the default
+		 * scaling filter (LINEAR/NEAREST) the image will use when converted to a WebGL2 texture.
+		 *
+		 * @default false
+		 */
+		pixelated?: boolean;
+
+		/**
+		 * Default value for the `filter` parameter of image resources. When an image does not have the `pixelated` property nor `filter`, this value will be used.
+		 *
+		 * @default LINEAR
+		 */
+		filter?: 'LINEAR'|'NEAREST';
+
+		/**
+		 * Default value for the `original` parameter of image resources. When set to `true`, no resizing will take place on the image resource at all and the
+		 * original will be used as-is.
+		 *
+		 * @default false
+		 */
+		original?: boolean;
+
+	}
+
+}
+
+/**
+ * Provides functionality to load and manipulate resources (images, audio, etc).
+ */
+export class Resources
+{
+	/**
+	 * Enables integer scaling. When enabled, calling `resizeImage` with `pixelated` parameter set to `true` will cause images to be resized to integer
+	 * factors. When disabled, images will be resized using the half/double method to eventually end up reaching the exact target size.
+	 *
+	 * @default true
+	 */
+	static integerScalingEnabled: boolean;
+
+	/**
+	 * Default value for the `pixelated` parameter of image resources. Controls whether to use integer scaling when resizing images. Also controls the default
+	 * scaling filter (LINEAR/NEAREST) the image will use when converted to a WebGL2 texture.
+	 *
+	 * @default false
+	 */
+	static pixelated: boolean;
+
+	/**
+	 * Default value for the `filter` parameter of image resources. When an image does not have the `pixelated` property nor `filter`, this value will be used.
+	 *
+	 * @default LINEAR
+	 */
+	static filter: 'LINEAR'|'NEAREST';
+
+	/**
+	 * Default value for the `original` parameter of image resources. When set to `true`, no resizing will take place on the image resource at all and the
+	 * original will be used as-is.
+	 *
+	 * @default false
+	 */
+	static original: boolean;
+
+	/**
+	 * Configures the resources object with the specified options.
+	 */
+	static config (options: Resources.ConfigOptions) : void;
+
+	/**
+	 * Loads a list of resources. The list parameter is actually a dictionary with objects as shown in the example below.
+	 *
+	 * { type: "image", wrapper: "", src: "assets/ui/btn-left.png", width: 64, [ height: 64 ], scale: 1, pixelated: false, filter: null, original: false }
+	 * { type: "images", wrapper: "", src: "assets/ui/##.png", count: 16, width: 64, [ height: 64 ], pixelated: false }
+	 * { type: "audio", wrapper: "", src: "assets/ui/tap.wav", track: "sfx|music" }
+	 * { type: "audios", wrapper: "", src: "assets/ui/snd-##.wav", count: 4 }
+	 * { type: "json", wrapper: "", src: "assets/config.json" }
+	 * { type: "data", wrapper: "", src: "assets/config.dat" }
+	 * { type: "text", wrapper: "", src: "assets/config.frag" }
+	 * { type: "object", wrapper: "" }
+	 *
+	 * @param list - Map of resources to load.
+	 * @param progressCallback - Executed once for every resource loaded.
+	 * @param completeCallback - Executed when all resources have been loaded.
+	 */
+	static load (list: { [id: string] : object }, progressCallback: (index: number, count: number, ratio: number, name: string) => void, completeCallback: (list: { [id: string] : object }) => void) : void;
+
+	/**
+	 * Unloads the specified list of resources.
+	 */
+	static unload (list: { [id: string] : object }) : void;
+
+	/**
+	 * Resizes the given image to the specified size.
+	 */
+	static resizeImage (image: HTMLImageElement, targetWidth: number, targetHeight: number, pixelated?: boolean, discardOriginal?: boolean) : HTMLImageElement;
+
+	/**
+	 * Flips an image horizontally.
+	 */
+	static flipImageHorz (image: HTMLImageElement) : HTMLImageElement;
+
+	/**
+	 * Flips an image vertically.
+	 */
+	static flipImageVert (image: HTMLImageElement) : HTMLImageElement;
+
+	/**
+	 * Forces the browser to show a download dialog.
+	 */
+	static showDownload (filename: string, dataUrl: string) : void;
+
+	/**
+	 * Forces the browser to show a file selection dialog.
+	 */
+	static showFilePicker (allowMultiple: boolean, accept: string, callback: (files: Array<File>) => void) : void;
+
+	/**
+	 * Loads a file using FileReader and returns the result as a dataURL.
+	 */
+	static loadAsDataURL (file: File, callback: (dataUrl: string) => void) : void;
+
+	/**
+	 * Loads a file using FileReader and returns the result as text.
+	 */
+	static loadAsText (file: File, callback: (text: string) => void) : void;
+
+	/**
+	 * Loads a file using FileReader and returns the result as an array buffer.
+	 */
+	static loadAsArrayBuffer (file: File, callback: (buff: ArrayBuffer) => void) : void;
+
+	/**
+	 * Loads an array of File objects using FileReader and returns them as data URLs.
+	 */
+	static loadAllAsDataURL (fileList: Array<File>, callback: (urlList: Array<{name:string, size:number, url:string}>) => void) : void;
+
+}
 
 
 
@@ -4309,7 +4548,7 @@ export class Stick extends Group
 	containsPoint (x: number, y: number) : boolean;
 
 	/**
-	 * 	Sets the direction of the stick, the provided deltas should be normalized in the (Unknown: -1,) range.
+	 * 	Sets the direction of the stick, the provided deltas should be normalized in the [-1, 1] range.
 	 */
 	setDirection (dx: number, dy: number, deadZoneX?: number, deadZoneY?: number) : boolean;
 
@@ -4390,14 +4629,184 @@ export namespace fxl
 	static init () : Promise<void>;
 
 }
-	
-	
+	/**
+ * 	World system allows to manage scenes, containers, viewports and display elements.
+ */
+export class world
+{
+	/**
+	 * World scene constants.
+	 */
+	static const SCENE_MAIN: number;
+	static const SCENE_HUD: number;
+
+	/**
+	 * Default layers for the SCENE_MAIN scene.
+	 */
+	static const LAYER_BG0: number;
+	static const LAYER_BG1: number;
+	static const LAYER_BG2: number;
+	static const LAYER_BG3: number;
+	static const LAYER_BG4: number;
+	static const LAYER_MAIN: number;
+	static const LAYER_FG0: number;
+	static const LAYER_FG1: number;
+	static const LAYER_FG2: number;
+	static const LAYER_FG3: number;
+	static const LAYER_FG4: number;
+	static const LAYER_MASK: number;
+
+	/**
+	 * Default layers for the SCENE_HUD scene.
+	 */
+	static const LAYER_HUD_BG0: number;
+	static const LAYER_HUD_BG1: number;
+	static const LAYER_HUD_MAIN: number;
+	static const LAYER_HUD_FG0: number;
+	static const LAYER_HUD_FG1: number;
+
+	/**
+	 * Active scene set by `selectScene`.
+	 */
+	static activeScene: Scene;
+
+	/**
+	 * Active viewport set by `selectViewport`.
+	 */
+	static activeViewport: Viewport;
+
+	/**
+	 * Active container set by `selectContainer`.
+	 */
+	static activeContainer: Container;
+
+	/**
+	 * Currently active group (set by `createGroup`).
+	 */
+	static activeGroup: Group;
+
+	/**
+	 * Last used group (set by `endGroup`).
+	 */
+	static lastGroup: Group;
+
+	/**
+	 * Last element created by `createElement`, or `createLabel`.
+	 */
+	static lastElement: Element;
+
+	/**
+	 * Dimensions of the world.
+	 */
+	static readonly bounds: Bounds2;
+
+	/**
+	 * Initializes the world with the default scenes, viewports and layers.
+	 */
+	static init (worldWidth?: number, worldHeight?: number, divisorX?: number, divisorY?: number) : void;
+
+	/**
+	 * Creates a scene at the specified index and automatically selects it.
+	 */
+	static createScene (index: number) : void;
+
+	/**
+	 * Returns the scene at the specified index (or the active scene if no index provided).
+	 */
+	static getScene (index?: number) : Scene;
+
+	/**
+	 * Selects the active scene for subsequence scene-level operations.
+	 */
+	static selectScene (index: number) : boolean;
+
+	/**
+	 * Creates a viewport at the specified index, attaches it to the active scene and selects it. Use this only after attaching all
+	 * containers to the scene or the `maxWidth` and `maxHeight` properties of the scene will not be properly set yet.
+	 */
+	static createViewport (index: number) : void;
+
+	/**
+	 * Returns a viewport given its index (or the active viewport if no index provided).
+	 */
+	static getViewport (index?: number) : Viewport;
+
+	/**
+	 * Selects the active viewport.
+	 */
+	static selectViewport (index: number) : boolean;
+
+	/**
+	 * Sets a container in the active scene at the specified index and returns it.
+	 */
+	static setContainer (index: number, container: Container) : Container;
+
+	/**
+	 * Returns the container at the specified index in the active scene (or the active container if no index provided).
+	 */
+	static getContainer (index?: number) : Container;
+
+	/**
+	 * Selects the active container.
+	 */
+	static selectContainer (index: number) : boolean;
+
+	/**
+	 * Creates a group in the active scene and selects it as the active group.
+	 */
+	static createGroup (id?: string) : Group;
+
+	/**
+	 * If coordinates are provided the group will be translated to the specified position. It will then set `lastGroup`, and nullify `activeGroup`.
+	 */
+	static endGroup (x?: number, y?: number) : Group;
+
+	/**
+	 * Creates a named Element and adds it to the specified container (or the active one) in the active scene.
+	 * If a group is active, the element will be attached to the group.
+	 */
+	static createElement (id: string, x: number, y: number, img?: Drawable, containerIndex?: number) : Element;
+
+	/**
+	 * Creates an Element and adds it to the specified container (or the active one) in the active scene.
+	 * If a group is active, the element will be attached to the group.
+	 */
+	static createElement (x: number, y: number, img?: Drawable, containerIndex?: number) : Element;
+
+	/**
+	 * Creates a named mask and adds it to the specified container or LAYER_MASK if none provided.
+	 * If a group is active, the mask will be attached to the group.
+	 */
+	static createMask (id: string, type: number, x?: number, y?: number, width?: number, height?: number, containerIndex?: number) : Mask;
+
+	/**
+	 * Creates a named label element and adds it to the specified container (or the active one) in the active scene.
+	 * If a group is active, the label element will be attached to the group.
+	 */
+	static createLabel (id: string, x: number, y: number, font: object, text: string, containerIndex?: number) : Label;
+
+	/**
+	 * Creates a label element and adds it to the specified container (or the active one) in the active scene.
+	 * If a group is active, the label element will be attached to the group.
+	 */
+	static createLabel (x: number, y: number, font: object, text: string, containerIndex?: number) : Label;
+
+	/**
+	 * Creates a new updater, attaches it to the active scene and returns it.
+	 */
+	static createUpdater (update?: (elem: Element, dt: number, context: object) => boolean, context?: object) : Updater;
+
+}
+	/**
+ * Registered resources. Initially these are resource descriptors, but after a call to `res.load` these will be fully loaded resources.
+ */
+declare const r : { [key: string]: any };
 	export class res
 {
 	/**
 	 * 	Loads all registered resources that have not been loaded yet.
 	 */
-	static load (progressCallback?: (level: number) => void) : Promise<void>;
+	static load (progressCallback?: (level: number, resourceName: string) => void) : Promise<void>;
 
 	/**
 	 * 	Returns a resource given its identifier.
@@ -4491,7 +4900,101 @@ export namespace fxl
 	static music (id: string, path: string, opts?: object) : object;
 
 }
-	
+	export namespace input
+{
+	export class Gamepad
+{
+	/**
+	 * Contains the sticks of the gamepad.
+	 */
+	readonly sticks: { [key:string]: Stick };
+
+	/**
+	 * Contains the buttons of the gamepad.
+	 */
+	readonly buttons: { [key:string]: Button };
+
+	/**
+	 * Constructs a new gamepad object.
+	 */
+	constructor (scene: Scene, containerIndex: number);
+
+	/**
+	 * Creates a new stick control and adds it to the gamepad.
+	 */
+	addStick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius:number=0) : Stick;
+
+	/**
+	 * Creates a new button control and adds it to the gamepad.
+	 */
+	addButton (id: string, x: number, y: number, unpressedDrawable?: Drawable, pressedDrawable?: Drawable) : Button;
+
+	/**
+	 * Returns the `visible` property of the gamepad.
+	 */
+	visible() : boolean;
+
+	/**
+	 * Sets the `visible` property of the gamepad.
+	 */
+	visible (value: boolean) : Gamepad;
+
+	/**
+	 * Sets the `visible` property of all masks to the specified value.
+	 */
+	showMasks (value: boolean) : Gamepad;
+
+}
+}
+
+export class input
+{
+	/**
+	 * Currently active gamepad.
+	 */
+	static activeGamepad: input.Gamepad;
+
+	/**
+	 * Last created button.
+	 */
+	static lastButton: Button;
+
+	/**
+	 * Last created stick.
+	 */
+	static lastStick: Stick;
+
+	/**
+	 * Creates a gamepad object and attaches it to the SCENE_HUD in the specified layer (defaults to LAYER_HUD_MAIN).
+	 */
+	static createGamepad (index: number, layerIndex?: number) : input.Gamepad;
+
+	/**
+	 * Returns a gamepad given its index.
+	 */
+	static getGamepad (index: number) : input.Gamepad;
+
+	/**
+	 * Selects the active gamepad for subsequent gamepad-level operations.
+	 */
+	static selectGamepad (index: number) : boolean;
+
+	/**
+	 * Sets the value of `debugBounds` on the specified gamepad. If index is `null`, all gamepads will be selected.
+	 */
+	static debugGamepad (index: number, value: boolean) : void;
+
+	/**
+	 * Adds an stick control to the active gamepad.
+	 */
+	static stick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius?: number) : Stick;
+
+	/**
+	 * Adds a button control to the active gamepad.
+	 */
+	static button (id: string, x: number, y: number, unpressedDrawable?: Drawable, pressedDrawable?: Drawable) : Button;
+
+}
 	export class collider
 {
 	/**
@@ -4651,6 +5154,5 @@ export namespace collider
 	}
 
 }
-	// fxl ends
 }
 export default fxl;

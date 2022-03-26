@@ -71,16 +71,18 @@ const Bounds2 = Class.extend
 	ux1: 0, uy1: 0,
 	ux2: 0, uy2: 0,
 
-	//violet
-
-	/*
-	**	Initializes the instance.
-	**
-	**	Bounds2 __ctor (Bounds2 b)
-	**	Bounds2 __ctor (Rect r)
-	**	Bounds2 __ctor (float width, float height)
-	**	Bounds2 __ctor (float x1, float y1, float x2, float y2, bool upscaled=false)
-	*/
+	/**
+	 * !constructor (bounds: Bounds2);
+	 */
+	/**
+	 * !constructor (rect: Rect);
+	 */
+	/**
+	 * !constructor (width: number, height: number);
+	 */
+	/**
+	 * !constructor (x1: number, y1: number, x2: number, y2: number, upscaled:boolean=false);
+	 */
 	__ctor: function (x1=null, y1=null, x2=null, y2=null, upscaled=false)
 	{
 		if (x1 === null)
@@ -95,11 +97,9 @@ const Bounds2 = Class.extend
 		return this.set(x1, y1, x2, y2, upscaled);
 	},
 
-	/*
-	**	Populates the downscaled components.
-	**
-	**	Bounds2 downscale ()
-	*/
+	/**
+	 * Populates the downscaled components.
+	 */
 	downscale: function ()
 	{
 		this.x1 = downscale(this.ux1);
@@ -112,11 +112,10 @@ const Bounds2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Truncates the components to remove fractional parts.
-	**
-	**	Bounds2 trunc ()
-	*/
+	/**
+	 * Truncates the components to remove fractional parts.
+	 * !trunc() : Bounds2;
+	 */
 	trunc: function ()
 	{
 		this.ux1 = upscale(this.x1);
@@ -129,21 +128,19 @@ const Bounds2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Clones the bounds and returns a new object.
-	**
-	**	Bounds2 clone ()
-	*/
+	/**
+	 * Clones the bounds and returns a new object.
+	 * !clone() : Bounds2;
+	 */
 	clone: function ()
 	{
 		return Bounds2.Pool.alloc(this.ux1, this.uy1, this.ux2, this.uy2, true);
 	},
 
-	/*
-	**	Sets the components to zero.
-	**
-	**	Bounds2 zero ()
-	*/
+	/**
+	 * Sets the components to zero.
+	 * !zero() : Bounds2;
+	 */
 	zero: function ()
 	{
 		this.ux1 = 0; this.uy1 = 0;
@@ -153,11 +150,10 @@ const Bounds2 = Class.extend
 		return this.downscale();
 	},
 
-	/*
-	**	Resets the component values to `null` for subsequent use with `setAsUnion`.
-	**
-	**	Bounds2 reset ()
-	*/
+	/**
+	 * Resets the component values to `null` for subsequent use with `setAsUnion`.
+	 * !reset() : Bounds2;
+	 */
 	reset: function ()
 	{
 		this.ux1 = null; this.uy1 = null;
@@ -171,13 +167,18 @@ const Bounds2 = Class.extend
 		return this;
 	},
 
-	/*
-	**	Translates the bounds by the given deltas.
-	**
-	**	Bounds2 translate (Point2 p)
-	**	Bounds2 translate (Vec2 v)
-	**	Bounds2 translate (float dx, float dy, bool upscaled=false)
-	*/
+	/**
+	 * Translates the bounds by the given deltas.
+	 * !translate (point: Point2) : Bounds2;
+	 */
+	/**
+	 * Translates the bounds by the given deltas.
+	 * !translate (vec: Vec2) : Bounds2;
+	 */
+	/**
+	 * Translates the bounds by the given deltas.
+	 * !translate (dx: number, dy: number, upscaled:boolean=false) : Bounds2;
+	 */
 	translate: function (dx, dy=null, upscaled=false)
 	{
 		if (dy === null)
@@ -567,41 +568,37 @@ const Bounds2 = Class.extend
 		return this.downscale();
 	},
 
-	/*
-	**	Returns the width of the bounds.
-	**
-	**	int width ()
-	*/
+	/**
+	 * Returns the width of the bounds.
+	 * !width(): number
+	 */
 	width: function ()
 	{
 		return this.x2 - this.x1;
 	},
 
-	/*
-	**	Returns the height of the bounds.
-	**
-	**	int height ()
-	*/
+	/**
+	 * Returns the height of the bounds.
+	 * !height(): number
+	 */
 	height: function ()
 	{
 		return this.y2 - this.y1;
 	},
 
-	/*
-	**	Returns true if the bounds are in forward position (x1 < x2 and y1 < y2).
-	**
-	**	bool isForward ()
-	*/
+	/**
+	 * Returns true if the bounds are in forward position (x1 < x2 and y1 < y2).
+	 * !isForward() : boolean;
+	 */
 	isForward: function ()
 	{
 		return this.ux1 <= this.ux2 && this.uy1 <= this.uy2;
 	},
 
-	/*
-	**	Returns true if the specified point is within the bounds. The `tol` parameter is used to specify a tolerance value.
-	**
-	**	bool containsPoint (float x, float y, float tol=0)
-	*/
+	/**
+	 * Returns true if the specified point is within the bounds. The `tol` parameter is used to specify a tolerance value.
+	 * !containsPoint (x: number, y: number, tol:number=0) : boolean;
+	 */
 	containsPoint: function (x, y, tol=0)
 	{
 		x = upscale(x);
@@ -611,39 +608,37 @@ const Bounds2 = Class.extend
 		return (this.ux1-tol <= x && x <= this.ux2+tol) && (this.uy1-tol <= y && y <= this.uy2+tol);
 	},
 
-	/*
-	**	Returns the area of the bounds. When strict is true, the area will be returned only if the bounds are forward.
-	**
-	**	int area (bool strict=false)
-	*/
+	/**
+	 * Returns the area of the bounds. When strict is true, the area will be returned only if the bounds are forward.
+	 * !area (strict:boolean=false) : number;
+	 */
 	area: function (strict=false)
 	{
 		return strict ? (this.isForward() ? (this.y2-this.y1)*(this.x2-this.x1) : 0) : ((this.y2-this.y1)*(this.x2-this.x1));
 	},
 
-	/*
-	**	Returns the string representation of the rect coordinates.
-	*/
+	/**
+	 * Returns the string representation of the rect coordinates.
+	 * !toString() : string;
+	 */
 	toString: function ()
 	{
 		return '(' + this.x1 + ', ' + this.y1 + ', ' + this.x2 + ', ' + this.y2 + ')';
 	},
 
-	/*
-	**	Flattens the contents of the bounds.
-	**
-	**	array flatten ()
-	*/
+	/**
+	 * Flattens the contents of the bounds.
+	 * !flatten() : \[number,number,number,number\];
+	 */
 	flatten: function ()
 	{
 		return [this.ux1, this.uy1, this.ux2, this.uy2];
 	},
 
-	/*
-	**	Unflattens the given array into the bounds object.
-	**
-	**	Bounds2 unflatten (array x);
-	*/
+	/**
+	 * Unflattens the given array into the bounds object.
+	 * !unflatten (data: \[number,number,number,number\]) : Bounds2;
+	 */
 	unflatten: function (x)
 	{
 		this.ux1 = x[0];

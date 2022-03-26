@@ -380,7 +380,7 @@ export default Group.extend
 	},
 
 	/**
-	 * 	Sets the direction of the stick, the provided deltas should be normalized in the [-1, 1] range.
+	 * 	Sets the direction of the stick, the provided deltas should be normalized in the \[-1, 1\] range.
 	 * 	!setDirection (dx: number, dy: number, deadZoneX?: number, deadZoneY?: number) : boolean;
 	 */
 	setDirection: function (dx, dy, deadZoneX=0.10, deadZoneY=0.10)

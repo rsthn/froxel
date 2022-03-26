@@ -1,3 +1,18 @@
+/*
+**	fxl/world.js
+**
+**	Copyright (c) 2016-2022, RedStar Technologies, All rights reserved.
+**	https://rsthn.com/
+**
+**	THIS LIBRARY IS PROVIDED BY REDSTAR TECHNOLOGIES "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+**	INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A 
+**	PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL REDSTAR TECHNOLOGIES BE LIABLE FOR ANY
+**	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
+**	NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
+**	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+**	STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+**	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 import System from '../system/system.js';
 import Scene from '../flow/scene.js';
@@ -10,23 +25,40 @@ import Group from '../flow/group.js';
 import Updater from '../flow/updater.js';
 import SimpleContainer from '../flow/simple-container.js';
 import Mask from '../flow/mask.js';
-
 import system from './system.js';
 
-/**
- * 	World system allows to manage scenes containers, viewports and display elements.
- */
+//!/**
+//! * 	World system allows to manage scenes, containers, viewports and display elements.
+//! */
+
+//!class world
 
 const world =
 {
 	/**
-	 *	Built-in scenes.
+	 * World scene constants.
+	 *
+	 * !static const SCENE_MAIN: number;
+	 * !static const SCENE_HUD: number;
 	 */
 	SCENE_MAIN: 0,
 	SCENE_HUD: 1,
 
 	/**
-	 *	Default layers for the SCENE_MAIN scene.
+	 * Default layers for the SCENE_MAIN scene.
+	 *
+	 * !static const LAYER_BG0: number;
+	 * !static const LAYER_BG1: number;
+	 * !static const LAYER_BG2: number;
+	 * !static const LAYER_BG3: number;
+	 * !static const LAYER_BG4: number;
+	 * !static const LAYER_MAIN: number;
+	 * !static const LAYER_FG0: number;
+	 * !static const LAYER_FG1: number;
+	 * !static const LAYER_FG2: number;
+	 * !static const LAYER_FG3: number;
+	 * !static const LAYER_FG4: number;
+	 * !static const LAYER_MASK: number;
 	 */
 	LAYER_BG0: 0,
 	LAYER_BG1: 1,
@@ -42,49 +74,75 @@ const world =
 	LAYER_MASK: 11,
 
 	/**
-	 *	Default layers for the SCENE_HUD scene.
+	 * Default layers for the SCENE_HUD scene.
+	 *
+	 * !static const LAYER_HUD_BG0: number;
+	 * !static const LAYER_HUD_BG1: number;
+	 * !static const LAYER_HUD_MAIN: number;
+	 * !static const LAYER_HUD_FG0: number;
+	 * !static const LAYER_HUD_FG1: number;
 	 */
-	LAYER_HUD_BG0: 0,
+ 	LAYER_HUD_BG0: 0,
 	LAYER_HUD_BG1: 1,
 	LAYER_HUD_MAIN: 2,
 	LAYER_HUD_FG0: 3,
 	LAYER_HUD_FG1: 4,
 
 	/**
-	 *	Scenes and active scene.
+	 *	Registered scenes.
 	 */
 	_scenes: [],
+
+	/**
+	 * Active scene set by `selectScene`.
+	 * !static activeScene: Scene;
+	 */
 	activeScene: null,
 
 	/**
-	 *	Viewports and active viewport.
+	 *	Registered viewports.
 	 */
 	_viewports: [],
+
+	/**
+	 * Active viewport set by `selectViewport`.
+	 * !static activeViewport: Viewport;
+	 */
 	activeViewport: null,
 
 	/**
-	 *	Active container.
+	 * Active container set by `selectContainer`.
+	 * !static activeContainer: Container;
 	 */
 	activeContainer: null,
 
 	/**
-	 *	Active and last ended group.
+	 * Currently active group (set by `createGroup`).
+	 * !static activeGroup: Group;
 	 */
 	activeGroup: null,
+
+	/**
+	 * Last used group (set by `endGroup`).
+	 * !static lastGroup: Group;
+	 */
 	lastGroup: null,
 
 	/**
-	 *	Last element created.
+	 * Last element created by `createElement`, or `createLabel`.
+	 * !static lastElement: Element;
 	 */
 	lastElement: null,
 
 	/**
-	 *	Dimensions of the world.
+	 * Dimensions of the world.
+	 * !static readonly bounds: Bounds2;
 	 */
 	bounds: Bounds2.Pool.alloc(),
 
 	/**
-	 * 	Initializes the world with the default scenes, viewports and layers.
+	 * Initializes the world with the default scenes, viewports and layers.
+	 * !static init (worldWidth?: number, worldHeight?: number, divisorX?: number, divisorY?: number) : void;
 	 */
 	init: function (worldWidth=32768, worldHeight=32768, divisorX=null, divisorY=null)
 	{
@@ -125,7 +183,8 @@ const world =
 	},
 
 	/**
-	 * 	Creates a scene for the system at the specified index and automatically selects it.
+	 * Creates a scene at the specified index and automatically selects it.
+	 * !static createScene (index: number) : void;
 	 */
 	createScene: function (index)
 	{
@@ -142,7 +201,8 @@ const world =
 	},
 
 	/**
-	 * 	Returns the scene at the specified index (or the active scene).
+	 * Returns the scene at the specified index (or the active scene if no index provided).
+	 * !static getScene (index?: number) : Scene;
 	 */
 	getScene: function (index=null)
 	{
@@ -156,7 +216,8 @@ const world =
 	},
 
 	/**
-	 *	Selects the active scene for subsequence scene-level operations.
+	 * Selects the active scene for subsequence scene-level operations.
+	 * !static selectScene (index: number) : boolean;
 	 */
 	selectScene: function (index)
 	{
@@ -170,8 +231,10 @@ const world =
 	},
 
 	/**
-	 *	Creates a viewport at the specified index, attaches it to the active scene and selects it. Use this after attaching all containers
-	 *	to the scene or the maxWidth and maxHeight properties of the scene will not be properly set yet.
+	 * Creates a viewport at the specified index, attaches it to the active scene and selects it. Use this only after attaching all
+	 * containers to the scene or the `maxWidth` and `maxHeight` properties of the scene will not be properly set yet.
+	 *
+	 * !static createViewport (index: number) : void;
 	 */
 	createViewport: function (index)
 	{
@@ -196,7 +259,8 @@ const world =
 	},
 
 	/**
-	 *	Returns a viewport given its index (or the active viewport).
+	 * Returns a viewport given its index (or the active viewport if no index provided).
+	 * !static getViewport (index?: number) : Viewport;
 	 */
 	getViewport: function (index=null)
 	{
@@ -210,7 +274,8 @@ const world =
 	},
 
 	/**
-	 *	Selects the active viewport for subsequence viewport-level operations.
+	 * Selects the active viewport.
+	 * !static selectViewport (index: number) : boolean;
 	 */
 	selectViewport: function (index)
 	{
@@ -222,7 +287,8 @@ const world =
 	},
 
 	/**
-	 *	Sets a container in the active scene and returns it.
+	 * Sets a container in the active scene at the specified index and returns it.
+	 * !static setContainer (index: number, container: Container) : Container;
 	 */
 	setContainer: function (index, container)
 	{
@@ -234,7 +300,8 @@ const world =
 	},
 
 	/**
-	 *	Returns the container of the active scene at the specified index (or the active container).
+	 * Returns the container at the specified index in the active scene (or the active container if no index provided).
+	 * !static getContainer (index?: number) : Container;
 	 */
 	getContainer: function (index=null, throwErrors=false)
 	{
@@ -257,7 +324,8 @@ const world =
 	},
 
 	/**
-	 *	Selects the active container.
+	 * Selects the active container.
+	 * !static selectContainer (index: number) : boolean;
 	 */
 	selectContainer: function (index)
 	{
@@ -266,7 +334,8 @@ const world =
 	},
 
 	/**
-	 *	Creates a group in the active scene and selects it as the active group.
+	 * Creates a group in the active scene and selects it as the active group.
+	 * !static createGroup (id?: string) : Group;
 	 */
 	createGroup: function(id=null)
 	{
@@ -280,12 +349,12 @@ const world =
 	},
 
 	/**
-	 *	Stores the activeGroup in `lastGroup` property, then nullifies activeGroup. If the coordinate parameters are provided the group will be translated to
-	 *	the specified position first.
+	 * If coordinates are provided the group will be translated to the specified position. It will then set `lastGroup`, and nullify `activeGroup`.
+	 * !static endGroup (x?: number, y?: number) : Group;
 	 */
 	endGroup: function(x=null, y=null)
 	{
-		if (x !== null)
+		if (x !== null && y !== null)
 			this.activeGroup.translate(x, y);
 
 		this.lastGroup = this.activeGroup;
@@ -295,8 +364,16 @@ const world =
 	},
 
 	/**
-	 *	Creates an Element with the given position and image, and adds it to the specified container (or the default one) in the
-	 *	active scene. If a group is active, the element will be attached to the group.
+	 * Creates a named Element and adds it to the specified container (or the active one) in the active scene.
+	 * If a group is active, the element will be attached to the group.
+	 * 
+	 * !static createElement (id: string, x: number, y: number, img?: Drawable, containerIndex?: number) : Element;
+	 */
+	/**
+	 * Creates an Element and adds it to the specified container (or the active one) in the active scene.
+	 * If a group is active, the element will be attached to the group.
+	 * 
+	 * !static createElement (x: number, y: number, img?: Drawable, containerIndex?: number) : Element;
 	 */
 	createElement: function (id, x, y, img=null, containerIndex=null)
 	{
@@ -322,27 +399,19 @@ const world =
 	},
 
 	/**
-	 *	Creates a default element mask for the active group.
+	 * Creates a named mask and adds it to the specified container or LAYER_MASK if none provided.
+	 * If a group is active, the mask will be attached to the group.
+	 * 
+	 * !static createMask (id: string, type: number, x?: number, y?: number, width?: number, height?: number, containerIndex?: number) : Mask;
 	 */
-	createMask: function (id, type=null, x=null, y=null, width=null, height=null, containerIndex=null)
+	createMask: function (id, type, x=null, y=null, width=null, height=null, containerIndex=null)
 	{
-		if (typeof(id) !== 'string')
-		{
-			containerIndex = height;
-			height = width;
-			width = y;
-			y = x;
-			x = type;
-			type = id;
-			id = null;
-		}
-
 		let container = this.getContainer(containerIndex || world.LAYER_MASK);
 
 		if (x === null)
 		{
 			if (this.activeGroup === null)
-				throw new Error ('createMask: create a group first to use automatic masks');
+				throw new Error ('createMask: create a group first to use default masks.');
 
 			x = this.activeGroup.bounds.x1;
 			y = this.activeGroup.bounds.y1;
@@ -360,8 +429,16 @@ const world =
 	},
 
 	/**
-	 *	Creates a text element with the given position and text, and adds it to the specified container (or the default one) in the
-	 *	active scene. If a group is active, the element will be attached to the group.
+	 * Creates a named label element and adds it to the specified container (or the active one) in the active scene.
+	 * If a group is active, the label element will be attached to the group.
+	 * 
+	 * !static createLabel (id: string, x: number, y: number, font: object, text: string, containerIndex?: number) : Label;
+	 */
+	/**
+	 * Creates a label element and adds it to the specified container (or the active one) in the active scene.
+	 * If a group is active, the label element will be attached to the group.
+	 * 
+	 * !static createLabel (x: number, y: number, font: object, text: string, containerIndex?: number) : Label;
 	 */
 	createLabel: function (id, x, y, font, text, containerIndex=null)
 	{
@@ -388,7 +465,8 @@ const world =
 	},
 
 	/**
-	 *	Creates a new updater, attaches it to the active scene and returns it.
+	 * Creates a new updater, attaches it to the active scene and returns it.
+	 * !static createUpdater (update?: (elem: Element, dt: number, context: object) => boolean, context?: object) : Updater;
 	 */
 	createUpdater: function (update=null, context=null)
 	{
@@ -398,5 +476,7 @@ const world =
 		return new Updater (this.activeScene, update, context);
 	}
 };
+
+//!/class
 
 export default world;

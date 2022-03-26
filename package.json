@@ -1,10 +1,9 @@
 {
     "name": "froxel",
-    "version": "2.1.9",
+    "version": "2.1.10",
     "description": "Froxel Game Framework",
     "type": "module",
-    "source": "src/main.js",
-    "main": "src/main.js",
+    "main": "./dist/froxel.m.js",
     "module": "./dist/froxel.m.js",
     "browser": "./dist/froxel.js",
     "types": "./dist/froxel.d.ts",
@@ -24,9 +23,11 @@
     "browserslist": "since 2020-01",
     "targets": {
         "module": {
+            "source": "./src/main.js",
             "optimize": true
         },
         "browser": {
+            "source": "./src/main.js",
             "optimize": true,
             "includeNodeModules": true
         }
@@ -49,7 +50,6 @@
     },
     "files": [
         "dist/",
-        "src/",
         "bin/",
         "LICENSE",
         "README.md"

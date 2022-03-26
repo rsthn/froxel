@@ -2,28 +2,28 @@
 
 //!namespace fxl
 
-import _sys from './system.js';
 //![import "./system"]
+import _sys from './system.js';
 export const sys = _sys;
 
-import _world from './world.js';
 //![import "./world"]
+import _world from './world.js';
 export const world = _world;
 
-import _r from './r.js';
 //![import "./r"]
+import _r from './r.js';
 export const r = _r;
 
-import _res from './resources.js';
 //![import "./resources"]
+import _res from './resources.js';
 export const res = _res;
 
-import _input from './input.js';
 //![import "./input"]
+import _input from './input.js';
 export const input = _input;
 
-import _collider from './collider.js';
 //![import "./collider"]
+import _collider from './collider.js';
 export const collider = _collider;
 
-//!// fxl ends
+//!/namespace

@@ -17,7 +17,7 @@
 import { Class } from 'rinn';
 import Resources from './resources.js';
 
-//![import "./resources"]
+//![import './resources']
 
 export default Class.extend
 ({

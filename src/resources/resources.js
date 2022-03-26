@@ -19,9 +19,9 @@ import System from '../system/system.js';
 import Canvas from '../system/canvas.js';
 import Log from '../system/log.js';
 
-//![import "../system/system"]
-//![import "../system/canvas"]
-//![import "../system/log"]
+//[import '../system/system']
+//[import '../system/canvas']
+//[import '../system/log']
 
 const Resources = { };
 
@@ -29,9 +29,46 @@ import * as Wrappers from './wrappers.js';
 
 let reported = false;
 
-/**
- * Provides functionality to load and manipulate resources (images, audio, etc).
- */
+
+//!namespace Resources
+
+	//!type ConfigOptions =
+
+		/**
+		 * Enables integer scaling. When enabled, calling `resizeImage` with `pixelated` parameter set to `true` will cause images to be resized to integer
+		 * factors. When disabled, images will be resized using the half/double method to eventually end up reaching the exact target size.
+		 *
+		 * @default true
+		 * !integerScalingEnabled?: boolean;
+		 */
+		/**
+		 * Default value for the `pixelated` parameter of image resources. Controls whether to use integer scaling when resizing images. Also controls the default
+		 * scaling filter (LINEAR/NEAREST) the image will use when converted to a WebGL2 texture.
+		 * 
+		 * @default false
+		 * !pixelated?: boolean;
+		 */
+		/**
+		 * Default value for the `filter` parameter of image resources. When an image does not have the `pixelated` property nor `filter`, this value will be used.
+		 * 
+		 * @default LINEAR
+		 * !filter?: 'LINEAR'|'NEAREST';
+		 */
+		/**
+		 * Default value for the `original` parameter of image resources. When set to `true`, no resizing will take place on the image resource at all and the
+		 * original will be used as-is.
+		 * 
+		 * @default false
+		 * !original?: boolean;
+		 */
+
+	//!/type
+
+//!/namespace
+
+//:/**
+//: * Provides functionality to load and manipulate resources (images, audio, etc).
+//: */
 
 //!class Resources
 
@@ -74,19 +111,19 @@ Object.assign(Resources,
 
 	/**
 	 * Configures the resources object with the specified options.
-	 * !static init (options?: object) : void;
+	 * !static config (options: Resources.ConfigOptions) : void;
 	 */
-	config: function (opts=null)
+	config: function (opts)
 	{
-		if (opts != null)
+		if (opts !== null)
 			Object.assign(this, opts);
 	},
 
 	/**
 	 * Loads a list of resources. The list parameter is actually a dictionary with objects as shown in the example below.
 	 *
-	 * { type: "image", wrapper: "", src: "assets/ui/btn-left.png", width: 64, [ height: 64 ], scale: 1, pixelated: false, filter: null, original: false }
-	 * { type: "images", wrapper: "", src: "assets/ui/##.png", count: 16, width: 64, [ height: 64 ], pixelated: false }
+	 * { type: "image", wrapper: "", src: "assets/ui/btn-left.png", width: 64, \[ height: 64 \], scale: 1, pixelated: false, filter: null, original: false }
+	 * { type: "images", wrapper: "", src: "assets/ui/##.png", count: 16, width: 64, \[ height: 64 \], pixelated: false }
 	 * { type: "audio", wrapper: "", src: "assets/ui/tap.wav", track: "sfx|music" }
 	 * { type: "audios", wrapper: "", src: "assets/ui/snd-##.wav", count: 4 }
 	 * { type: "json", wrapper: "", src: "assets/config.json" }
@@ -97,7 +134,7 @@ Object.assign(Resources,
 	 * @param list - Map of resources to load.
 	 * @param progressCallback - Executed once for every resource loaded.
 	 * @param completeCallback - Executed when all resources have been loaded.
-	 * !static load (list: { [id: string] : object }, progressCallback: (index: number, count: number, ratio: number, name: string) => void, completeCallback: (list: { [id: string] : object }) => void) : void;
+	 * !static load (list: { \[id: string\] : object }, progressCallback: (index: number, count: number, ratio: number, name: string) => void, completeCallback: (list: { \[id: string\] : object }) => void) : void;
 	 */
 	load: function (list, progressCallback, completeCallback, keyList, index)
 	{
@@ -546,7 +583,7 @@ Object.assign(Resources,
 
 	/**
 	 * Unloads the specified list of resources.
-	 * !static unload (list: { [id: string] : object }) : void;
+	 * !static unload (list: { \[id: string\] : object }) : void;
 	 */
 	unload: function (list)
 	{
@@ -712,7 +749,21 @@ Object.assign(Resources,
 		temp.scale(-1, 1);
 
 		temp.drawImage (image.data, 0, 0);
+		return temp.elem;
+	},
 
+	/**
+	 * Flips an image vertically.
+	 * !static flipImageVert (image: HTMLImageElement) : HTMLImageElement;
+	 */
+	flipImageVert: function (image)
+	{
+		var temp = new Canvas ({ hidden: true }).resize (image.data.width, image.data.height);
+
+		temp.translate(0, image.data.height);
+		temp.scale(1, -1);
+
+		temp.drawImage (image.data, 0, 0);
 		return temp.elem;
 	},
 
@@ -736,7 +787,7 @@ Object.assign(Resources,
 
 	/**
 	 * Forces the browser to show a file selection dialog.
-	 * !static showFilePicker (allowMultiple, accept, callback)
+	 * !static showFilePicker (allowMultiple: boolean, accept: string, callback: (files: Array<File>) => void) : void;
 	 */
 	showFilePicker: function (allowMultiple, accept, callback)
 	{
@@ -810,7 +861,7 @@ Object.assign(Resources,
 
 	/**
 	 * Loads an array of File objects using FileReader and returns them as data URLs.
-	 * !static loadAllAsDataURL (fileList: Array<File>, callback: (urlList: Array<String>) => void) : void;
+	 * !static loadAllAsDataURL (fileList: Array<File>, callback: (urlList: Array<{name:string, size:number, url:string}>) => void) : void;
 	 */
 	loadAllAsDataURL: function (fileList, callback)
 	{
@@ -839,5 +890,7 @@ Object.assign(Resources,
 		loadNext(0);
 	}
 });
+
+//!/class
 
 export default Resources;

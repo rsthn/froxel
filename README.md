@@ -3,8 +3,9 @@
 	<br/>
 	<span>Froxel Gamedev Framework</span>
 	<br/><br/>
-	<img src="https://img.shields.io/npm/v/froxel?label=version&style=for-the-badge"/>
-	<img src="https://img.shields.io/npm/dt/froxel?style=for-the-badge"/>
+	<img src="https://img.shields.io/npm/v/froxel?label=version&color=%2300a020&style=flat-square"/>
+	<img src="https://img.shields.io/npm/dt/froxel?color=%23a000a0&style=flat-square"/>
+	<img src="https://img.shields.io/bundlephobia/min/froxel/latest?color=%2300a0b0&style=flat-square"/>
 </p>
 
 <br/>
@@ -32,6 +33,6 @@ You need to have parcel and shx installed (preferrably globally). You can instal
 
 Build your project using `yarn build` and then just open the `index.html` file in your browser to view the results.
 
-<small>
-<b>NOTE:</b> Due to restrictions of access to the `file://` URI in browsers, it is recommended to use an HTTP server to host your project in a localhost environment. You can use a server such as the `http-server` package for Node, `nginx`, `Apache`, etc. If you're using Firefox, you can alternatively open `about:config` and set `security.fileuri.strict_origin_policy` to `false`.
-</small>
+<br/>
+
+##### <b>NOTE:</b> Due to restrictions of access to the `file://` URI in browsers, it is recommended to use an HTTP server to host your project in a localhost environment. You can use a server such as the `http-server` package for Node, `nginx`, `Apache`, etc. If you're using Firefox, you can alternatively open `about:config` and set `security.fileuri.strict_origin_policy` to `false`.
