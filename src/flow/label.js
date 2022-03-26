@@ -79,6 +79,7 @@ const Label = Element.extend
 		this._align = -1;
 		this._valign = -1;
 
+		this.renderWith(this.renderText);
 		this._dirty = true;
 	},
 
@@ -175,7 +176,7 @@ const Label = Element.extend
 	/**
 	 * 	Renders the element to the graphics surface.
 	 */
-	render: function(g)
+	renderText: function(g)
 	{
 		this.update();
 		this.font.drawText (g, this.bounds.x1 + this.textOffsetX, this.bounds.y1 + this.textOffsetY, this.text);

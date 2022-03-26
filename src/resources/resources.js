@@ -24,14 +24,13 @@ import Log from '../system/log.js';
 //![import "../system/log"]
 
 const Resources = { };
-export default Resources;
 
 import * as Wrappers from './wrappers.js';
 
 let reported = false;
 
 /**
- * 	Provides functionality to load and manipulate resources (images, audio, etc).
+ * Provides functionality to load and manipulate resources (images, audio, etc).
  */
 
 //!class Resources
@@ -39,33 +38,43 @@ let reported = false;
 Object.assign(Resources,
 {
 	/**
-	 * 	Indicates if integer scaling is enabled. When `true` calling `resizeImage` will cause images to be up-scaled to integer factors. If `false` images will be
-	 * 	down or up-scaled using the half/double method and will eventually end up having the exact target size.
+	 * Enables integer scaling. When enabled, calling `resizeImage` with `pixelated` parameter set to `true` will cause images to be resized to integer
+	 * factors. When disabled, images will be resized using the half/double method to eventually end up reaching the exact target size.
 	 *
-	 * 	@default true
-	 * 	!static integerScaling: boolean;
+	 * @default true
+	 * !static integerScalingEnabled: boolean;
 	 */
-	integerScaling: true,
+	integerScalingEnabled: true,
 
 	/**
-	 * 	Default value for the `pixelated` parameter of image resources.
+	 * Default value for the `pixelated` parameter of image resources. Controls whether to use integer scaling when resizing images. Also controls the default
+	 * scaling filter (LINEAR/NEAREST) the image will use when converted to a WebGL2 texture.
 	 * 
-	 * 	@default false
-	 * 	!static pixelated: boolean;
+	 * @default false
+	 * !static pixelated: boolean;
 	 */
 	pixelated: false,
 
 	/**
-	 * 	Default value for the `original` parameter of image resources.
+	 * Default value for the `filter` parameter of image resources. When an image does not have the `pixelated` property nor `filter`, this value will be used.
 	 * 
-	 * 	@default false
-	 * 	!static original: boolean;
+	 * @default LINEAR
+	 * !static filter: 'LINEAR'|'NEAREST';
+	 */
+	filter: 'LINEAR',
+
+	/**
+	 * Default value for the `original` parameter of image resources. When set to `true`, no resizing will take place on the image resource at all and the
+	 * original will be used as-is.
+	 * 
+	 * @default false
+	 * !static original: boolean;
 	 */
 	original: false,
 
 	/**
-	 * 	Configures the resources object with the specified options.
-	 * 	!static init (options?: object) : void;
+	 * Configures the resources object with the specified options.
+	 * !static init (options?: object) : void;
 	 */
 	config: function (opts=null)
 	{
@@ -74,22 +83,22 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Loads a list of resources. The list parameter is actually a dictionary with objects as shown in the example below.
+	 * Loads a list of resources. The list parameter is actually a dictionary with objects as shown in the example below.
 	 *
-	 * 	{ type: "image", wrapper: "", src: "assets/ui/btn-left.png", width: 64, [ height: 64 ], scale: 1, pixelated: false, original: false }
-	 * 	{ type: "images", wrapper: "", src: "assets/ui/##.png", count: 16, width: 64, [ height: 64 ], pixelated: false }
-	 * 	{ type: "audio", wrapper: "", src: "assets/ui/tap.wav", track: "sfx|music" }
-	 * 	{ type: "audios", wrapper: "", src: "assets/ui/snd-##.wav", count: 4 }
-	 * 	{ type: "json", wrapper: "", src: "assets/config.json" }
-	 * 	{ type: "data", wrapper: "", src: "assets/config.dat" }
-	 * 	{ type: "text", wrapper: "", src: "assets/config.frag" }
-	 * 	{ type: "object", wrapper: "" }
+	 * { type: "image", wrapper: "", src: "assets/ui/btn-left.png", width: 64, [ height: 64 ], scale: 1, pixelated: false, filter: null, original: false }
+	 * { type: "images", wrapper: "", src: "assets/ui/##.png", count: 16, width: 64, [ height: 64 ], pixelated: false }
+	 * { type: "audio", wrapper: "", src: "assets/ui/tap.wav", track: "sfx|music" }
+	 * { type: "audios", wrapper: "", src: "assets/ui/snd-##.wav", count: 4 }
+	 * { type: "json", wrapper: "", src: "assets/config.json" }
+	 * { type: "data", wrapper: "", src: "assets/config.dat" }
+	 * { type: "text", wrapper: "", src: "assets/config.frag" }
+	 * { type: "object", wrapper: "" }
 	 * 
-	 * 	@param list - Map of resources to load.
-	 * 	@param progressCallback - Executed once for every resource loaded.
-	 * 	@param completeCallback - Executed when all resources have been loaded.
-	 * 	!static load (list: { [id: string] : object }, progressCallback: (index: number, count: number, ratio: number, name: string) => void, completeCallback: (list: { [id: string] : object }) => void) : void;
-	*/
+	 * @param list - Map of resources to load.
+	 * @param progressCallback - Executed once for every resource loaded.
+	 * @param completeCallback - Executed when all resources have been loaded.
+	 * !static load (list: { [id: string] : object }, progressCallback: (index: number, count: number, ratio: number, name: string) => void, completeCallback: (list: { [id: string] : object }) => void) : void;
+	 */
 	load: function (list, progressCallback, completeCallback, keyList, index)
 	{
 		if (!keyList)
@@ -155,26 +164,31 @@ Object.assign(Resources,
 					r.owidth = r.data.width;
 					r.oheight = r.data.height;
 
-					if (r.pixelated === null || !r.hasOwnProperty('pixelated'))
+					if (!r.hasOwnProperty('pixelated'))
 						r.pixelated = Resources.pixelated;
 
-					if (r.original === null || !r.hasOwnProperty('original'))
+					if (!r.hasOwnProperty('filter'))
+						r.filter = r.pixelated === true ? 'NEAREST' : Resources.filter;
+
+					if (!r.hasOwnProperty('original'))
 						r.original = Resources.original;
 
 					if ((r.data.width != r.width || r.data.height != r.height) && r.original !== true)
 					{
+//let t = hrnow();//violet
 						r.data = Resources.resizeImage (r, r.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.pixelated, true);
+//console.log((hrnow() - t) + ': resize to ' + (r.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor)) + 'x' + (r.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor)));
 					}
 
 					r.rscale = r.data.width / r.width;
 
 					r.data.rscale = r.rscale;
+					r.data.filter = r.filter;
 					r.data.targetWidth = r.width;
 					r.data.targetHeight = r.height;
 
 					// Pre-draw on an offscreen canvas, used to prevent a delay when rendering an image for the first time on some browsers.
 					System.tempDisplayBuffer.drawImage(r.data, 0, 0);
-
 					System.renderer.prepareImage(r.data);
 
 					Resources.onLoaded (list, keyList[index]);
@@ -254,25 +268,35 @@ Object.assign(Resources,
 						{
 							r.owidth = tmp.data.width;
 							r.oheight = tmp.data.height;
+
+							if (!r.hasOwnProperty('pixelated'))
+								r.pixelated = Resources.pixelated;
+
+							if (!r.hasOwnProperty('filter'))
+								r.filter = r.pixelated === true ? 'NEAREST' : Resources.filter;
+
+							if (!r.hasOwnProperty('original'))
+								r.original = Resources.original;
 						}
 
-						if (r.pixelated === null || !r.hasOwnProperty('pixelated'))
-							r.pixelated = Resources.pixelated;
-
-						if (r.original === null || !r.hasOwnProperty('original'))
-							r.original = Resources.original;
+						tmp.pixelated = r.pixelated;
+						tmp.filter = r.filter;
+						tmp.original = r.original;
 
 						if ((tmp.data.width != tmp.width || tmp.data.height != tmp.height) && tmp.original !== true)
 						{
-							tmp.data = Resources.resizeImage (tmp, tmp.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), tmp.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.pixelated, true);
+//let t = hrnow();//violet
+							tmp.data = Resources.resizeImage (tmp, tmp.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), tmp.height * (tmp.pixelated ? System.integerScaleFactor : System.scaleFactor), tmp.pixelated, true);
+//console.log((hrnow() - t) + ': resize to ' + (tmp.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor)) + 'x' + (tmp.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor)));
 						}
 
 						tmp.rscale = tmp.data.width / tmp.width;
 
 						tmp.data.rscale = tmp.rscale;
+						tmp.data.filter = tmp.filter;
 						tmp.data.targetWidth = tmp.width;
 						tmp.data.targetHeight = tmp.height;
-	
+
 						if (r._i == 1)
 						{
 							r.width = tmp.width;
@@ -521,8 +545,8 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Unloads the specified list of resources.
-	 * 	!static unload (list: { [id: string] : object }) : void;
+	 * Unloads the specified list of resources.
+	 * !static unload (list: { [id: string] : object }) : void;
 	 */
 	unload: function (list)
 	{
@@ -576,7 +600,7 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Executes post-load actions on a resource.
+	 * Executes post-load actions on a resource.
 	 */
 	onLoaded: function (list, index)
 	{
@@ -588,8 +612,8 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Resizes the given image to the specified size.
-	 * 	!static resizeImage (image: HTMLImageElement, targetWidth: number, targetHeight: number, pixelated?: boolean, discardOriginal?: boolean) : HTMLImageElement;
+	 * Resizes the given image to the specified size.
+	 * !static resizeImage (image: HTMLImageElement, targetWidth: number, targetHeight: number, pixelated?: boolean, discardOriginal?: boolean) : HTMLImageElement;
 	 */
 	resizeImage: function (image, dw, dh, pixelated, discardOriginal)
 	{
@@ -602,7 +626,7 @@ Object.assign(Resources,
 		if (sw == dw && sh == dh)
 			return image.data;
 
-		if (!this.integerScaling && pixelated) pixelated = null;
+		if (!this.integerScalingEnabled && pixelated) pixelated = null;
 
 		if (!pixelated)
 		{
@@ -677,8 +701,8 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Flips an image horizontally.
-	 * 	!static flipImageHorz (image: HTMLImageElement) : HTMLImageElement;
+	 * Flips an image horizontally.
+	 * !static flipImageHorz (image: HTMLImageElement) : HTMLImageElement;
 	 */
 	flipImageHorz: function (image)
 	{
@@ -693,8 +717,8 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Forces the browser to show a download dialog.
-	 * 	!static showDownload (filename: string, dataUrl: string) : void;
+	 * Forces the browser to show a download dialog.
+	 * !static showDownload (filename: string, dataUrl: string) : void;
 	 */
 	showDownload: function (filename, dataUrl)
 	{
@@ -711,8 +735,8 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Forces the browser to show a file selection dialog.
-	 * 	!static showFilePicker (allowMultiple, accept, callback)
+	 * Forces the browser to show a file selection dialog.
+	 * !static showFilePicker (allowMultiple, accept, callback)
 	 */
 	showFilePicker: function (allowMultiple, accept, callback)
 	{
@@ -740,8 +764,8 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Loads a file using FileReader and returns the result as a dataURL.
-	 * 	!static loadAsDataURL (file: File, callback: (dataUrl: string) => void) : void;
+	 * Loads a file using FileReader and returns the result as a dataURL.
+	 * !static loadAsDataURL (file: File, callback: (dataUrl: string) => void) : void;
 	 */
 	loadAsDataURL: function (file, callback)
 	{
@@ -755,8 +779,8 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Loads a file using FileReader and returns the result as text.
-	 * 	!static loadAsText (file: File, callback: (text: string) => void) : void;
+	 * Loads a file using FileReader and returns the result as text.
+	 * !static loadAsText (file: File, callback: (text: string) => void) : void;
 	 */
 	loadAsText: function (file, callback)
 	{
@@ -770,8 +794,8 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Loads a file using FileReader and returns the result as an array buffer.
-	 * 	!static loadAsArrayBuffer (file: File, callback: (buff: ArrayBuffer) => void) : void;
+	 * Loads a file using FileReader and returns the result as an array buffer.
+	 * !static loadAsArrayBuffer (file: File, callback: (buff: ArrayBuffer) => void) : void;
 	 */
 	loadAsArrayBuffer: function (file, callback)
 	{
@@ -785,8 +809,8 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * 	Loads an array of File objects using FileReader and returns them as data URLs.
-	 * 	!static loadAllAsDataURL (fileList: Array<File>, callback: (urlList: Array<String>) => void) : void;
+	 * Loads an array of File objects using FileReader and returns them as data URLs.
+	 * !static loadAllAsDataURL (fileList: Array<File>, callback: (urlList: Array<String>) => void) : void;
 	 */
 	loadAllAsDataURL: function (fileList, callback)
 	{
@@ -815,3 +839,5 @@ Object.assign(Resources,
 		loadNext(0);
 	}
 });
+
+export default Resources;

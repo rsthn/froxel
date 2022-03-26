@@ -60,6 +60,8 @@ const Group = Element.extend
 
 		this.ref = Point2.Pool.alloc();
 		this.setId(id);
+
+		this.renderWith(this.renderGroup);
 	},
 
 	/**
@@ -304,9 +306,9 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Override render method to do nothing.
+	 * 	Render method does nothing.
 	 */
-	render: function(g)
+	renderGroup: function(g)
 	{
 	}
 });

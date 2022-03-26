@@ -1035,7 +1035,7 @@ export class Canvas
 	/**
 	 * 	Executes the `draw` function on a new canvas of the specified width and height. Renders it into an image and runs the completed callback with the ready HTMLImageElement object.
 	 */
-	static renderImage (width: number, height: number, draw: (g: Canvas) => void, completed: (img: HTMLImageElement) => void) : void;
+	static renderImage (width: number, height: number, filter: 'NEAREST'|'LINEAR', draw: (g: Canvas) => void, completed: (img: HTMLImageElement) => void) : void;
 
 }
 
@@ -4113,9 +4113,9 @@ export class Button extends Group
 	reset() : void;
 
 	/**
-	 * 	Renders the element to the graphics surface.
+	 * 	Renders the button in the canvas.
 	 */
-	override render (g: Canvas) : void;
+	renderButton (g: Canvas) : void;
 
 	/**
 	 * 	Button pointer update event. Not required for the button control.
@@ -4284,9 +4284,9 @@ export class Stick extends Group
 	reset() : void;
 
 	/**
-	 * 	Renders the element to the graphics surface.
+	 * 	Renders the stick in the canvas.
 	 */
-	render (g: Canvas) : void;
+	renderStick (g: Canvas) : void;
 
 	/**
 	 * 	Button pointer update event. Not required for the button control.

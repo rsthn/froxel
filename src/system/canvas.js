@@ -687,8 +687,21 @@ Canvas.prototype.prepareImage = function (image)
 
 	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, image.width, image.height);
 	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, image);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+	if (!image.filter)
+		image.filter = 'NEAREST';
+
+	if (image.filter === 'NEAREST')
+	{
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	}
+	else
+	{
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	}
+
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
@@ -2039,7 +2052,7 @@ Canvas.prototype.removePointerHandler = function (id)
 
 /**
  * 	Executes the `draw` function on a new canvas of the specified width and height. Renders it into an image and runs the completed callback with the ready HTMLImageElement object.
- * 	!static renderImage (width: number, height: number, draw: (g: Canvas) => void, completed: (img: HTMLImageElement) => void) : void;
+ * 	!static renderImage (width: number, height: number, filter: 'NEAREST'|'LINEAR', draw: (g: Canvas) => void, completed: (img: HTMLImageElement) => void) : void;
  */
 Canvas.renderImage = function (width, height, draw, completed)
 {
@@ -2049,6 +2062,9 @@ Canvas.renderImage = function (width, height, draw, completed)
 
 	let img = new Image();
 	img.onload = () => {
+		//Violet: set other image properties.
+		img.filter = 'NEAREST';
+		img.rscale = 1.0;
 		System.renderer.prepareImage(img);
 		completed(img);
 	};

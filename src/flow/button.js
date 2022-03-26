@@ -111,6 +111,7 @@ export default Group.extend
 		this._onTap = null;
 		this._onChange = this._default_onChange;
 	
+		this.renderWith(this.renderButton);
 		ScreenControls.add(this);
 	},
 
@@ -176,10 +177,10 @@ export default Group.extend
 	},
 
 	/**
-	 * 	Renders the element to the graphics surface.
-	 * 	!override render (g: Canvas) : void;
+	 * 	Renders the button in the canvas.
+	 * 	!renderButton (g: Canvas) : void;
 	 */
-	render: function (g)
+	renderButton: function (g)
 	{
 		if (this.isPressed && this.pressedImg)
 			this.pressedImg.draw (g, this.bounds.x1, this.bounds.y1);

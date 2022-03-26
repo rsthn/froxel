@@ -130,7 +130,7 @@ const system =
 
 			Object.assign(this.options, options);
 
-			Resources.config ({ pixelated: !this.antialias });
+			Resources.config ({ pixelated: !this.options.antialias });
 			System.init (this.options);
 
 			System.updateQueueAdd

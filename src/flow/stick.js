@@ -156,6 +156,7 @@ export default Group.extend
 		container.add(this.hitbox);
 		container.add(this);
 
+		this.renderWith(this.renderStick);
 		ScreenControls.add(this);
 	},
 
@@ -264,10 +265,10 @@ export default Group.extend
 	},
 
 	/**
-	 * 	Renders the element to the graphics surface.
-	 * 	!render (g: Canvas) : void;
+	 * 	Renders the stick in the canvas.
+	 * 	!renderStick (g: Canvas) : void;
 	 */
-	render: function (g)
+	renderStick: function (g)
 	{
 		if (this.isPressed)
 		{

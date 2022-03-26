@@ -1,11 +1,12 @@
 {
     "name": "froxel",
-    "version": "2.1.8",
-    "description": "Froxel Game Engine",
+    "version": "2.1.9",
+    "description": "Froxel Game Framework",
     "type": "module",
     "source": "src/main.js",
     "main": "src/main.js",
-    "module": "./dist/froxel.js",
+    "module": "./dist/froxel.m.js",
+    "browser": "./dist/froxel.js",
     "types": "./dist/froxel.d.ts",
     "bin": {
         "froxel": "bin/cli.js"
@@ -13,15 +14,21 @@
     "scripts": {
         "test": "echo Ok",
         "requirements": "yarn global add --ignore-optional parcel",
-        "deploy": "yarn build && yarn tsdoc && node ./scripts/deploy.js",
+        "deploy": "yarn build:all && yarn tsdoc && node ./scripts/deploy.js",
         "commit": "node ./scripts/commit.js",
         "tsdoc": "node ./scripts/tsdoc.js ./src/main.js ./dist/froxel.d.ts",
+        "build:all": "yarn build && yarn build:browser",
+        "build:browser": "parcel build --no-cache --target browser",
         "build": "parcel build --no-cache --target module"
     },
     "browserslist": "since 2020-01",
     "targets": {
         "module": {
             "optimize": true
+        },
+        "browser": {
+            "optimize": true,
+            "includeNodeModules": true
         }
     },
     "repository": {
