@@ -145,7 +145,7 @@ const system =
 
 			Object.assign(this.options, options);
 
-			Resources.config ({ pixelated: !this.options.antialias });
+			Resources.config ({ pixelated: !this.options.antialias, filter: this.options.antialias ? 'LINEAR' : 'NEAREST' });
 			System.init (this.options);
 
 			System.updateQueueAdd

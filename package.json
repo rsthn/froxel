@@ -1,6 +1,6 @@
 {
     "name": "froxel",
-    "version": "2.1.10",
+    "version": "2.1.11",
     "description": "Froxel Game Framework",
     "type": "module",
     "main": "./dist/froxel.m.js",
@@ -16,9 +16,10 @@
         "deploy": "yarn build:all && yarn tsdoc && node ./scripts/deploy.js",
         "commit": "node ./scripts/commit.js",
         "tsdoc": "node ./scripts/tsdoc.js ./src/main.js ./dist/froxel.d.ts",
-        "build:all": "yarn build && yarn build:browser",
+        "build:all": "yarn build:module && yarn build:browser",
         "build:browser": "parcel build --no-cache --target browser",
-        "build": "parcel build --no-cache --target module"
+        "build:module": "parcel build --no-cache --target module",
+        "build": "yarn build:browser"
     },
     "browserslist": "since 2020-01",
     "targets": {

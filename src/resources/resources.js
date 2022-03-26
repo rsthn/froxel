@@ -51,7 +51,7 @@ let reported = false;
 		/**
 		 * Default value for the `filter` parameter of image resources. When an image does not have the `pixelated` property nor `filter`, this value will be used.
 		 * 
-		 * @default LINEAR
+		 * @default NEAREST
 		 * !filter?: 'LINEAR'|'NEAREST';
 		 */
 		/**
@@ -201,11 +201,11 @@ Object.assign(Resources,
 					r.owidth = r.data.width;
 					r.oheight = r.data.height;
 
+					if (!r.hasOwnProperty('filter'))
+						r.filter = !r.hasOwnProperty('pixelated') ? Resources.filter : (r.pixelated === true ? 'NEAREST' : Resources.filter);
+
 					if (!r.hasOwnProperty('pixelated'))
 						r.pixelated = Resources.pixelated;
-
-					if (!r.hasOwnProperty('filter'))
-						r.filter = r.pixelated === true ? 'NEAREST' : Resources.filter;
 
 					if (!r.hasOwnProperty('original'))
 						r.original = Resources.original;
@@ -306,11 +306,11 @@ Object.assign(Resources,
 							r.owidth = tmp.data.width;
 							r.oheight = tmp.data.height;
 
+							if (!r.hasOwnProperty('filter'))
+								r.filter = !r.hasOwnProperty('pixelated') ? Resources.filter : (r.pixelated === true ? 'NEAREST' : Resources.filter);
+
 							if (!r.hasOwnProperty('pixelated'))
 								r.pixelated = Resources.pixelated;
-
-							if (!r.hasOwnProperty('filter'))
-								r.filter = r.pixelated === true ? 'NEAREST' : Resources.filter;
 
 							if (!r.hasOwnProperty('original'))
 								r.original = Resources.original;

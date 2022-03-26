@@ -2440,7 +2440,7 @@ export namespace Resources
 		/**
 		 * Default value for the `filter` parameter of image resources. When an image does not have the `pixelated` property nor `filter`, this value will be used.
 		 *
-		 * @default LINEAR
+		 * @default NEAREST
 		 */
 		filter?: 'LINEAR'|'NEAREST';
 
@@ -4803,6 +4803,11 @@ export class world
 declare const r : { [key: string]: any };
 	export class res
 {
+	/**
+	 * Configures the resources object with the specified options.
+	 */
+	static config (options: Resources.ConfigOptions) : void;
+
 	/**
 	 * 	Loads all registered resources that have not been loaded yet.
 	 */

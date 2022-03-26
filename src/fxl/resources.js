@@ -12,6 +12,15 @@ import r from './r.js';
 const res =
 {
 	/**
+	 * Configures the resources object with the specified options.
+	 * !static config (options: Resources.ConfigOptions) : void;
+	 */
+	config: function (opts)
+	{
+		Resources.config(opts);
+	},
+
+	/**
 	 * 	Loads all registered resources that have not been loaded yet.
 	 * 	!static load (progressCallback?: (level: number, resourceName: string) => void) : Promise<void>;
 	 */
@@ -71,7 +80,7 @@ const res =
 	{
 		this.__resIdMustNotExist(id);
 
-		return r[id] = { type: 'image', wrapper: 'Drawable', src: path, pixelated: null, ...opts };
+		return r[id] = { type: 'image', wrapper: 'Drawable', src: path, ...opts };
 	},
 
 	/**
@@ -85,7 +94,7 @@ const res =
 	images: function (id, path, count, frameWidth=null, frameHeight=null, optsA=null, optsB=null)
 	{
 		this.__resIdMustNotExist(id);
-		return r[id] = { type: 'images', wrapper: 'Spritesheet', src: path, pixelated: null, count: count, width: frameWidth, height: frameHeight,
+		return r[id] = { type: 'images', wrapper: 'Spritesheet', src: path, count: count, width: frameWidth, height: frameHeight,
 			config: {
 				frameWidth: frameWidth, frameHeight: frameHeight, ...optsA
 			},
@@ -104,7 +113,7 @@ const res =
 	{
 		this.__resIdMustNotExist(id);
 
-		return r[id] = { type: 'image', wrapper: 'Spritesheet', src: path, pixelated: null,
+		return r[id] = { type: 'image', wrapper: 'Spritesheet', src: path,
 			config: {
 				frameWidth: frameWidth, frameHeight: frameHeight, numFrames: numFrames, ...optsA
 			},
