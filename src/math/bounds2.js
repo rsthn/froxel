@@ -517,8 +517,8 @@ const Bounds2 = Class.extend
 	*/
 	resize: function (width, height, topLeftRelative=false)
 	{
-		width = upscale(width);
-		height = upscale(height);
+		width = width !== null ? upscale(width) : (this.ux2 - this.ux1);
+		height = height !== null ? upscale(height) : (this.uy2 - this.uy1);
 
 		if (topLeftRelative === true)
 		{

@@ -352,12 +352,12 @@ const Viewport = Class.extend
 	/**
 	 * 	Resizes the viewport to the specified size.
 	 *
-	 * 	!resize (width: number, height: number) : Viewport;
+	 * 	!resize (width: number|null, height: number|null) : Viewport;
 	 */
 	resize: function (width, height)
 	{
-		this.width = this.initialWidth = width;
-		this.height = this.initialHeight = height;
+		this.width = this.initialWidth = width ?? this.width;
+		this.height = this.initialHeight = height ?? this.height;
 
 		this.updateScreenBounds();
 		this.updateBounds();
@@ -385,14 +385,15 @@ const Viewport = Class.extend
 	},
 
 	/**
-	 * 	Sets the position of the viewport's center within the world and resets the relative offset to zero.
+	 * Sets the position of the viewport's center within the world and resets the relative offset to zero.
+	 * Setting any parameter to `null` will cause it not to be changed.
 	 * 
-	 *	!setPosition (x: number, y: number) : Viewport;
+	 * !setPosition (x: number|null, y: number|null) : Viewport;
 	 */
 	setPosition: function (x, y)
 	{
-		this.x = x;
-		this.y = y;
+		this.x = x ?? this.x;
+		this.y = y ?? this.y;
 
 		this.offset.set(0, 0);
 		this.updateBounds();
@@ -421,10 +422,7 @@ const Viewport = Class.extend
 	setScale: function (value)
 	{
 		this.scale = value;
-
-		this.updateScreenBounds();
 		this.updateBounds();
-
 		return this;
 	},
 

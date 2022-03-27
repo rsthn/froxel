@@ -347,21 +347,21 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the position of the element.
+	 * 	Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
 	 * 	!setPosition (x: number, y: number) : GridElement;
 	 */
 	/**
-	 * 	Sets the position of the element.
-	 * 	!setPosition (pointer: {x:number,y:number}) : GridElement;
+	 * 	Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
+	 * 	!setPosition (pointer: {x:number, y:number}) : GridElement;
 	 */
-	setPosition: function (x, y=null)
+	setPosition: function (x, y=false)
 	{
-		if (y === null) {
+		if (y === false) {
 			y = x.y;
 			x = x.x;
 		}
 
-		return this.translate (upscale(x)-this.bounds.ux1, upscale(y)-this.bounds.uy1, true);
+		return this.translate (x !== null ? upscale(x)-this.bounds.ux1 : 0, y !== null ? upscale(y)-this.bounds.uy1 : 0, true);
 	}
 });
 

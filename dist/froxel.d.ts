@@ -1994,7 +1994,7 @@ export class Viewport
 	/**
 	 * 	Resizes the viewport to the specified size.
 	 */
-	resize (width: number, height: number) : Viewport;
+	resize (width: number|null, height: number|null) : Viewport;
 
 	/**
 	 * 	Resizes the viewport by the specified deltas.
@@ -2002,9 +2002,10 @@ export class Viewport
 	resizeBy (dWidth: number, dHeight: number) : Viewport;
 
 	/**
-	 * 	Sets the position of the viewport's center within the world and resets the relative offset to zero.
+	 * Sets the position of the viewport's center within the world and resets the relative offset to zero.
+	 * Setting any parameter to `null` will cause it not to be changed.
 	 */
-	setPosition (x: number, y: number) : Viewport;
+	setPosition (x: number|null, y: number|null) : Viewport;
 
 	/**
 	 * 	Sets the position of the viewport relative to the current focus point.
@@ -3336,14 +3337,14 @@ export class GridElement
 	translate (dx: number, dy: number, upscaled?: boolean) : GridElement;
 
 	/**
-	 * 	Sets the position of the element.
+	 * 	Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
 	 */
 	setPosition (x: number, y: number) : GridElement;
 
 	/**
-	 * 	Sets the position of the element.
+	 * 	Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
 	 */
-	setPosition (pointer: {x:number,y:number}) : GridElement;
+	setPosition (pointer: {x:number, y:number}) : GridElement;
 
 	/**
 	 * 	Class-level function to allocate a new flag.
@@ -4895,14 +4896,14 @@ declare const r : { [key: string]: any };
 	 * 	@param count - Number of sounds to load (from 0 to count-1).
 	 * 	@param mode - Playback mode, can be `sequential` (default) or `random`.
 	 */
-	static sfxm (id: string, path: string, opts?: object) : object;
+	static sfxm (id: string, path: string, count: number, mode?: string) : object;
 
 	/**
 	 * 	Registers an music audio resource.
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.
 	 */
-	static music (id: string, path: string, opts?: object) : object;
+	static music (id: string, path: string) : object;
 
 }
 	export namespace input

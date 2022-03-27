@@ -256,7 +256,7 @@ const res =
 	 * 	@param count - Number of sounds to load (from 0 to count-1).
 	 * 	@param mode - Playback mode, can be `sequential` (default) or `random`.
 	 * 
-	 * 	!static sfxm (id: string, path: string, opts?: object) : object;
+	 * 	!static sfxm (id: string, path: string, count: number, mode?: string) : object;
 	 */
 	sfxm: function (id, path, count, mode='sequential')
 	{
@@ -269,13 +269,13 @@ const res =
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.
 	 * 
-	 * 	!static music (id: string, path: string, opts?: object) : object;
+	 * 	!static music (id: string, path: string) : object;
 	 */
-	music: function (id, path, opts=null)
+	music: function (id, path)
 	{
 		this.__resIdMustNotExist(id);
 
-		return r[id] = { type: 'audio', wrapper: 'Sound', src: path, track: 'music', ...opts };
+		return r[id] = { type: 'audio', wrapper: 'Sound', src: path, track: 'music' };
 	}
 };
 

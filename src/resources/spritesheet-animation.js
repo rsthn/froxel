@@ -127,7 +127,7 @@ export const Animation = Class.extend
 		return this;
 	},
 
-	setInitialDelay: function (dt)
+	initialDelay: function (dt)
 	{
 		this.time = -dt;
 		return this;
