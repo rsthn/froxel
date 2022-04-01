@@ -20,7 +20,7 @@ import Recycler from './recycler.js';
 //![import "./recycler"]
 
 //:/**
-//: * 	Defines a callback node. Contains a callback function, its context and up to four arguments.
+//: * 	Defines a callback node. Contains a callback function, and up to six arguments.
 //: */
 
 //!class Callback
@@ -30,18 +30,19 @@ const Callback = Class.extend
 	className: 'Callback',
 
 	/*
-	**	Callback and its context.
+	**	Callback function.
 	*/
 	callback: null,
-	context: null,
 
 	/*
 	**	Optional arguments.
 	*/
+	arg0: null,
 	arg1: null,
 	arg2: null,
 	arg3: null,
 	arg4: null,
+	arg5: null,
 
 	/*
 	**	Link to the previous and next callback.
@@ -51,17 +52,18 @@ const Callback = Class.extend
 
 	/**
 	 * 	Initializes the callback with the specified arguments.
-	 * 	!constructor (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any);
+	 * 	!constructor (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any);
 	 */
-	__ctor: function (callback, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
+	__ctor: function (callback, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
 		this.callback = callback;
-		this.context = context;
 
+		this.arg0 = arg0;
 		this.arg1 = arg1;
 		this.arg2 = arg2;
 		this.arg3 = arg3;
 		this.arg4 = arg4;
+		this.arg5 = arg5;
 
 		this.prev = null;
 		this.next = null;
@@ -73,12 +75,13 @@ const Callback = Class.extend
 	__dtor: function()
 	{
 		this.callback = null;
-		this.context = null;
 
+		this.arg0 = null;
 		this.arg1 = null;
 		this.arg2 = null;
 		this.arg3 = null;
 		this.arg4 = null;
+		this.arg5 = null;
 
 		this.prev = null;
 		this.next = null;
@@ -87,17 +90,15 @@ const Callback = Class.extend
 	/*
 	**	Returns true if the specified arguments are the same as the callback. Compares from left to right. All null values are ignored.
 	*/
-	isEqual: function (callback=null, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
+	isEqual: function (callback=null, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
 		if (callback !== null && Callback.isInstance(callback))
-		{
 			return callback === this;
-		}
 
 		if (callback !== null && this.callback !== callback)
 			return false;
 
-		if (context !== null && this.context !== context)
+		if (arg0 !== null && this.arg0 !== arg0)
 			return false;
 
 		if (arg1 !== null && this.arg1 !== arg1)
@@ -112,18 +113,21 @@ const Callback = Class.extend
 		if (arg4 !== null && this.arg4 !== arg4)
 			return false;
 
+		if (arg5 !== null && this.arg5 !== arg5)
+			return false;
+
 		return true;
 	},
 
 	/**
-	 * 	Executes the callback. Returns `false` if the callback should be removed from the handler.
+	 * 	Executes the callback. Returns `false` if the callback has finished and should be removed.
 	 * 	@param host - Host object.
 	 * 	!exec (host: Object) : boolean;
 	 */
-	exec: function(host)
+	exec: function (host)
 	{
 		if (this.callback !== null)
-			return this.callback (host, this.context, this.arg1, this.arg2, this.arg3, this.arg4);
+			return this.callback (host, this.arg0, this.arg1, this.arg2, this.arg3, this.arg4, this.arg5);
 
 		return true;
 	}
@@ -136,7 +140,7 @@ const Callback = Class.extend
 
 /**
  * 	Allocates a callback with the specified arguments.
- * 	!function alloc (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+ * 	!function alloc (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
  */
 
 Recycler.createPool(Callback, 16384, 6144);

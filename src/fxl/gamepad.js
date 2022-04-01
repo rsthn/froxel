@@ -133,10 +133,10 @@ const Gamepad = Class.extend
 	showMasks: function (value)
 	{
 		for (let i in this.sticks)
-			this.sticks[i].hitbox.visible(value);
+			this.sticks[i].hitbox.visible(value, true);
 
 		for (let i in this.buttons)
-			this.buttons[i].hitbox.visible(value);
+			this.buttons[i].hitbox.visible(value, true);
 
 		return this;
 	}

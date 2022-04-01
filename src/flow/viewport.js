@@ -219,12 +219,10 @@ const Viewport = Class.extend
 
 	/**
 	 * 	Returns the value of the `topLeft` flag.
-	 *
 	 * 	!topLeft() : boolean;
 	 */
 	/**
 	 * 	Sets the `topLeft` flag.
-	 *
 	 * 	!topLeft (value: boolean) : Viewport;
 	 */
 	topLeft: function (value=null)

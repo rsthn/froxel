@@ -32,8 +32,8 @@ const Handler = Class.extend
 	className: 'Handler',
 
 	/**
-	 * 	Handler host element.
-	 * 	!host: Object;
+	 * 	Handler host element or value.
+	 * 	!host: any;
 	 */
 	host: null,
 
@@ -45,7 +45,7 @@ const Handler = Class.extend
 
 	/**
 	 * 	Initializes the Handler instance.
-	 * 	!constructor (host?: Object);
+	 * 	!constructor (host?: any);
 	 */
 	__ctor: function (host=null)
 	{
@@ -67,11 +67,11 @@ const Handler = Class.extend
 
 	/**
 	 * 	Adds the specified callback to the handler.
-	 * 	!add (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+	 * 	!add (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
 	 */
-	add: function(callback, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
+	add: function (callback, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
-		let node = Callback.isInstance(callback) ? callback : Callback.Pool.alloc(callback, context, arg1, arg2, arg3, arg4);
+		let node = Callback.isInstance(callback) ? callback : Callback.Pool.alloc(callback, arg0, arg1, arg2, arg3, arg4, arg5);
 
 		node.prev = this.bottom;
 
@@ -109,9 +109,9 @@ const Handler = Class.extend
 
 	/**
 	 * 	Removes all callbacks matching the specified arguments.
-	 * 	!remove (callback?: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Handler;
+	 * 	!remove (callback?: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Handler;
 	 */
-	remove: function(callback=null, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
+	remove: function (callback=null, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
 		if (callback !== null && Callback.isInstance(callback))
 		{
@@ -125,7 +125,7 @@ const Handler = Class.extend
 		{
 			let next = node.next;
 
-			if (node.isEqual(callback, context, arg1, arg2, arg3, arg4))
+			if (node.isEqual(callback, arg0, arg1, arg2, arg3, arg4, arg5))
 				this.unlink(node);
 
 			node = next;
@@ -136,15 +136,15 @@ const Handler = Class.extend
 
 	/**
 	 * 	Returns the first callback matching the specified arguments.
-	 * 	!find (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+	 * 	!find (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
 	 */
-	find: function(callback, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
+	find: function (callback, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
 		let node = this.top;
 
 		while (node !== null)
 		{
-			if (node.isEqual(callback, context, arg1, arg2, arg3, arg4))
+			if (node.isEqual(callback, arg0, arg1, arg2, arg3, arg4, arg5))
 				return node;
 
 			node = node.next;
@@ -155,17 +155,19 @@ const Handler = Class.extend
 
 	/**
 	 * 	Executes all callbacks in the handler.
-	 * 	!exec() : void;
+	 * 	!exec(host?: any) : void;
 	 */
-	exec: function()
+	exec: function (host=null)
 	{
 		let node = this.top;
+
+		host = host ?? this.host;
 
 		while (node !== null)
 		{
 			let next = node.next;
 
-			if (node.exec(this.host) === false)
+			if (node.exec(host) === false)
 				this.unlink(node);
 
 			node = next;
@@ -174,9 +176,9 @@ const Handler = Class.extend
 
 	/**
 	 * 	Executes the first callback matching the specified arguments.
-	 * 	!execf (callback?: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : void;
+	 * 	!execf (callback?: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : void;
 	 */
-	execf: function(callback=null, context=null, arg1=null, arg2=null, arg3=null, arg4=null)
+	execf: function (callback=null, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
 		let node = this.top;
 
@@ -184,7 +186,7 @@ const Handler = Class.extend
 		{
 			let next = node.next;
 
-			if (node.isEqual(callback, context, arg1, arg2, arg3, arg4))
+			if (node.isEqual(callback, arg0, arg1, arg2, arg3, arg4, arg5))
 			{
 				if (node.exec(this.host) === false)
 					this.unlink(node);
@@ -198,11 +200,11 @@ const Handler = Class.extend
 
 	/**
 	 * 	Executes the specified callback.
-	 * 	!execc (node: Callback) : void;
+	 * 	!execc (node: Callback, host?: any) : void;
 	 */
-	execc: function(node)
+	execc: function (node, host=null)
 	{
-		if (node.exec(this.host) === false)
+		if (node.exec(host ?? this.host) === false)
 			this.unlink(node);
 	}
 });

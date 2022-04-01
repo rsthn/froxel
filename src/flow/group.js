@@ -287,22 +287,24 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Sets the visible flag of the group and all children.
-	 * 	!visible (value: boolean) : Group;
+	 * Sets the visible flag of the group and all children.
+	 * @param {boolean} value - New visibility value.
+	 * @param {boolean} forced - When `true` forces to ignore the VISIBLE_LOCK flag.
+	 * !visible (value: boolean, forced: boolean=false) : GridElement;
 	 */
 	/**
-	 * 	Returns the visible flag of the group.
-	 * 	!visible () : boolean;
+	 * Returns the visible flag.
+	 * !visible() : boolean;
 	 */
-	visible: function (value=null)
+	visible: function (value=null, forced=false)
 	{
 		if (value === null)
 			return this._super.Element.visible();
 
 		for (let i = this.children.top; i; i = i.next)
-			i.value.visible(value);
+			i.value.visible(value, forced);
 
-		return this._super.Element.visible(value);
+		return this._super.Element.visible(value, forced);
 	},
 
 	/**

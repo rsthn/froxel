@@ -100,7 +100,7 @@ export default Group.extend
 		this.unpressedImg = unpressedImg;
 		this.pressedImg = pressedImg || unpressedImg;
 
-		this.hitbox = new Mask (0, x, y, unpressedImg ? unpressedImg.width : 16, unpressedImg ? unpressedImg.height : 16).visible(false);
+		this.hitbox = new Mask (0, x, y, unpressedImg ? unpressedImg.width : 16, unpressedImg ? unpressedImg.height : 16).visible(false).visibleLock(true);
 		this.addChild(this.hitbox);
 
 		container.add(this.hitbox);
@@ -122,28 +122,6 @@ export default Group.extend
 	{
 		this._super.Group.__dtor();
 		ScreenControls.remove(this);
-	},
-
-	/**
-	 * 	Sets the visible flag of the group and all children (except hitbox).
-	 * 	!visible (value: boolean) : Group;
-	 */
-	/**
-	 * 	Returns the visible flag of the group.
-	 * 	!visible () : boolean;
-	 */
-	visible: function (value=null)
-	{
-		if (value === null)
-			return this._super.Element.visible();
-
-		for (let i = this.children.top; i; i = i.next)
-		{
-			if (i.value !== this.hitbox)
-			i.value.visible(value);
-		}
-
-		return this._super.Element.visible(value);
 	},
 
 	/**

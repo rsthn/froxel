@@ -91,7 +91,8 @@ global.px = function(value)
  */
 global.dispose = function (obj)
 {
-	if (!obj) return;
+	if (obj === null || typeof(obj) !== 'object')
+		return;
 
 	if ('free' in obj)
 		return obj.free();

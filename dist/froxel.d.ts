@@ -4,12 +4,7 @@ export class Random
 	/**
 	 * 	Seed value of the generator. Remains constant throughout the life of the generator.
 	 */
-	seed: number;
-
-	/**
-	 * 	Last value returned by the generator.
-	 */
-	last: number;
+	readonly seed: number;
 
 	/**
 	 * 	Initializes the instance of the pseudo-random number generator.
@@ -22,6 +17,11 @@ export class Random
 	 * 	@param value - Seed value to use (32-bit unsigned integer).
 	 */
 	setSeed (value: number) : Random;
+
+	/**
+	 * 	Generates a 32-bit unsigned integer.
+	 */
+	nextInt32 () : number;
 
 	/**
 	 * 	Generates a 16-bit unsigned integer.
@@ -800,18 +800,18 @@ export class ShaderProgram
 	/**
 	 * 	Locations of the generic uniforms.
 	 */
-	readonly uniform_location_matrix: number;
-	readonly uniform_transform_matrix: number;
-	readonly uniform_texture_matrix: number;
-	readonly uniform_resolution: number;
-	readonly uniform_texture_size: number;
-	readonly uniform_frame_size: number;
-	readonly uniform_base_color: number;
-	readonly uniform_time: number;
-	readonly uniform_depth: number;
-	readonly uniform_scale: number;
-	readonly uniform_alpha: number;
-	readonly uniform_texture_0: number;
+	readonly uniform_location_matrix: number; // m_location
+	readonly uniform_transform_matrix: number; // m_transform
+	readonly uniform_texture_matrix: number; // m_texture
+	readonly uniform_resolution: number; // v_resolution
+	readonly uniform_texture_size: number; // v_texture_size
+	readonly uniform_frame_size: number; // v_frame_size
+	readonly uniform_base_color: number; // v_base_color
+	readonly uniform_time: number; // f_time
+	readonly uniform_depth: number; // f_depth
+	readonly uniform_scale: number; // f_scale
+	readonly uniform_alpha: number; // f_alpha
+	readonly uniform_texture_0: number; // texture0
 
 	/**
 	 * 	Locations of the generic attributes.
@@ -2621,17 +2621,17 @@ export class PriorityQueue
 
 }
 /**
- * 	Defines a callback node. Contains a callback function, its context and up to four arguments.
+ * 	Defines a callback node. Contains a callback function, and up to six arguments.
  */
 export class Callback
 {
 	/**
 	 * 	Initializes the callback with the specified arguments.
 	 */
-	constructor (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any);
+	constructor (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any);
 
 	/**
-	 * 	Executes the callback. Returns `false` if the callback should be removed from the handler.
+	 * 	Executes the callback. Returns `false` if the callback has finished and should be removed.
 	 * 	@param host - Host object.
 	 */
 	exec (host: Object) : boolean;
@@ -2645,7 +2645,7 @@ export namespace Callback
 		/**
 		 * 	Allocates a callback with the specified arguments.
 		 */
-		function alloc (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+		function alloc (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
 
 	}
 }
@@ -2655,19 +2655,19 @@ export namespace Callback
 export class Handler
 {
 	/**
-	 * 	Handler host element.
+	 * 	Handler host element or value.
 	 */
-	host: Object;
+	host: any;
 
 	/**
 	 * 	Initializes the Handler instance.
 	 */
-	constructor (host?: Object);
+	constructor (host?: any);
 
 	/**
 	 * 	Adds the specified callback to the handler.
 	 */
-	add (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+	add (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
 
 	/**
 	 * 	Unlinks a callback from the handler.
@@ -2677,27 +2677,27 @@ export class Handler
 	/**
 	 * 	Removes all callbacks matching the specified arguments.
 	 */
-	remove (callback?: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Handler;
+	remove (callback?: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Handler;
 
 	/**
 	 * 	Returns the first callback matching the specified arguments.
 	 */
-	find (callback: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : Callback;
+	find (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
 
 	/**
 	 * 	Executes all callbacks in the handler.
 	 */
-	exec() : void;
+	exec(host?: any) : void;
 
 	/**
 	 * 	Executes the first callback matching the specified arguments.
 	 */
-	execf (callback?: Function, context?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) : void;
+	execf (callback?: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : void;
 
 	/**
 	 * 	Executes the specified callback.
 	 */
-	execc (node: Callback) : void;
+	execc (node: Callback, host?: any) : void;
 
 }
 
@@ -3251,9 +3251,9 @@ export class GridElement
 	getData() : object;
 
 	/**
-	 * 	Sets the extension object of the element.
+	 * 	Sets the extension object of the element. Calls to functions of this object should be done using the `exec` method.
 	 */
-	setExtension (extensionObject: object) : GridElement;
+	setExt (extensionObject: object) : GridElement;
 
 	/**
 	 * 	Returns the extension object of the element.
@@ -3261,14 +3261,32 @@ export class GridElement
 	getExt() : object;
 
 	/**
-	 * 	Sets the visible flag.
+	 * Executes a function of the extension object.
+	 * @param {string} name
 	 */
-	visible (value: boolean) : GridElement;
+	exec (name: string, ...args: any) : any;
 
 	/**
-	 * 	Returns the visible flag.
+	 * Sets the visible flag.
+	 * @param {boolean} value - New visibility value.
+	 * @param {boolean} forced - When `true` forces to ignore the VISIBLE_LOCK flag.
+	 */
+	visible (value: boolean, forced: boolean=false) : GridElement;
+
+	/**
+	 * Returns the visible flag.
 	 */
 	visible() : boolean;
+
+	/**
+	 * 	Sets the visible-lock flag.
+	 */
+	visibleLock (value: boolean) : GridElement;
+
+	/**
+	 * 	Returns the visible-lock flag.
+	 */
+	visibleLock() : boolean;
 
 	/**
 	 * 	Sets the alive flag.
@@ -3778,14 +3796,16 @@ export class Group extends Element
 	clearFlags (value: number) : Group;
 
 	/**
-	 * 	Sets the visible flag of the group and all children.
+	 * Sets the visible flag of the group and all children.
+	 * @param {boolean} value - New visibility value.
+	 * @param {boolean} forced - When `true` forces to ignore the VISIBLE_LOCK flag.
 	 */
-	visible (value: boolean) : Group;
+	visible (value: boolean, forced: boolean=false) : GridElement;
 
 	/**
-	 * 	Returns the visible flag of the group.
+	 * Returns the visible flag.
 	 */
-	visible () : boolean;
+	visible() : boolean;
 
 }
 
@@ -4328,16 +4348,6 @@ export class Button extends Group
 	constructor (container: Container, x: number, y: number, unpressedImg?: IDrawable, pressedImg?: IDrawable);
 
 	/**
-	 * 	Sets the visible flag of the group and all children (except hitbox).
-	 */
-	visible (value: boolean) : Group;
-
-	/**
-	 * 	Returns the visible flag of the group.
-	 */
-	visible () : boolean;
-
-	/**
 	 * 	Changes the pressed/unpressed images of the button.
 	 */
 	setImage (unpressedImg: IDrawable, pressedImg?: IDrawable);
@@ -4484,16 +4494,6 @@ export class Stick extends Group
 	constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: IDrawable, unpressedImgInner: IDrawable, pressedImg?: IDrawable, pressedImgInner?: IDrawable);
 
 	/**
-	 * 	Sets the visible flag of the group and all children (except hitbox).
-	 */
-	visible (value: boolean) : Group;
-
-	/**
-	 * 	Returns the visible flag of the group.
-	 */
-	visible () : boolean;
-
-	/**
 	 * 	Changes the pressed/unpressed images of the outer stick.
 	 */
 	setImage (unpressedImg: IDrawable, pressedImg?: IDrawable) : Stick;
@@ -4580,54 +4580,79 @@ export namespace fxl
 	export class sys
 {
 	/**
-	 * 	Indicates if the system module has already been initialized.
-	 */
-	static readonly initialized: boolean;
-
-	/**
-	 * 	Screen width (available after calling `init`).
+	 * Screen width (available after calling `init`).
 	 */
 	static readonly screenWidth: number;
 
 	/**
-	 * 	Screen height (available after calling `init`).
+	 * Screen height (available after calling `init`).
 	 */
 	static readonly screenHeight: number;
 
 	/**
-	 * 	Primary renderer (available after calling `init`).
+	 * Primary renderer (available after calling `init`).
 	 */
 	static readonly renderer: Canvas;
 
 	/**
-	 * 	Logical system time (mirrors the value of System.frameTime).
+	 * Logical system time (mirrors the value of System.frameTime).
 	 */
 	static readonly time: Number;
 
 	/**
-	 * 	Logical system delta time (mirrors the value of System.frameDelta).
+	 * Logical system delta time (mirrors the value of System.frameDelta).
 	 */
 	static readonly dt: Number;
 
 	/**
-	 * 	Update handler executed on every frame start.
+	 * Update handler executed on every frame start.
 	 */
 	static readonly update: Handler;
 
 	/**
-	 * 	Draw handler executed on every frame start.
+	 * Draw handler executed on every frame start.
 	 */
 	static readonly draw: Handler;
 
 	/**
-	 * 	Initializes the system with the specified options.
+	 * Executed when the system is paused.
+	 */
+	static onPaused: (fromExternalEvent: boolean) => void;
+
+	/**
+	 * Executed when the system is resumed.
+	 */
+	static onResumed: (fromExternalEvent: boolean) => void;
+
+	/**
+	 * Initializes the system with the specified options.
 	 */
 	static init (options: System.Options) : Promise<void>;
 
 	/**
-	 * 	Initializes the system using the default options.
+	 * Initializes the system using the default options.
 	 */
 	static init () : Promise<void>;
+
+	/**
+	 * Pauses the system.
+	 */
+	static pause (fromExternalEvent:boolean=false) : void;
+
+	/**
+	 * Resumes the system.
+	 */
+	static resume (fromExternalEvent:boolean=false) : void;
+
+	/**
+	 * Creates a timeout callback.
+	 */
+	static timeout (duration: number, callback: function, arg0?: any, arg1?: any, arg2?: any, arg3?: any) : void;
+
+	/**
+	 * Creates an interval callback.
+	 */
+	static interval (period: number, callback: function, arg0?: any, arg1?: any, arg2?: any) : void;
 
 }
 	/**

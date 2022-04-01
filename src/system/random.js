@@ -16,29 +16,33 @@
 
 import { Class } from 'rinn';
 
-const rol16 = function (value, n) { return ((value << n) | ((value >>> (16 - n)) & ((1 << n) - 1))) & 0xFFFF; };
-const ror16 = function (value, n) { return ((value >>> n) | ((value & ((1 << n) - 1)) << (16 - n))) & 0xFFFF; };
-const add16 = function (value, x) { return (value + x) & 0xFFFF; };
-const sub16 = function (value, x) { return (value - x) & 0xFFFF; };
-const xor16 = function (value, x) { return (value ^ x) & 0xFFFF; };
+const XOR = (value, x) => (value ^ x) & 0x7FFFFFFF;
+const SHR = (value, x) => (value >>> x)  & 0x7FFFFFFF;
+const SHL = (value, x) => (value << x) & 0x7FFFFFFF;
+
+/**
+ * Random number generator based on the WELL algorithm family.
+ */
 
 //!class Random
 
 const Random = Class.extend
 ({
 	/**
-	 * 	Seed value of the generator. Remains constant throughout the life of the generator.
-	 * 	!seed: number;
+	 * State of the generator.
 	 */
-	seed: 0,
+	state: null,
 
 	/**
-	 * 	Last value returned by the generator.
-	 * 	!last: number;
+	 * Index of the next state value.
 	 */
-	last: 0,
+	index: 0,
 
-	a: 0, b: 0,
+	/**
+	 * 	Seed value of the generator. Remains constant throughout the life of the generator.
+	 * 	!readonly seed: number;
+	 */
+	seed: 0,
 
 	/**
 	 * 	Initializes the instance of the pseudo-random number generator.
@@ -48,6 +52,15 @@ const Random = Class.extend
 	 */
 	__ctor: function(seed=0xDAE7A5D3)
 	{
+		this.state = [
+			0xA5F7310C, 0xEF731CF3, 0xFA784322, 0x7834FC31,
+			0xD9AF7813, 0xDE78AD13, 0x783F3418, 0xAA123176,
+			0x871CF4D1, 0x73412FAB, 0xBAE6C710, 0x06F73481,
+			0x8910CF15, 0x927CF813, 0xBCF7834F, 0x73F61193
+		];
+
+		this.index = 0;
+
 		this.setSeed(seed);
 	},
 
@@ -61,11 +74,40 @@ const Random = Class.extend
 	{
 		this.seed = value;
 
-		this.a = (value >> 16) & 0xFFFF;
-		this.b = (value >> 0) & 0xFFFF;
+		this.state = [
+			0xA5F7310C, 0xEF731CF3, 0xFA784322, 0x7834FC31,
+			0xD9AF7813, 0xDE78AD13, 0x783F3418, 0xAA123176,
+			0x871CF4D1, 0x73412FAB, 0xBAE6C710, 0x06F73481,
+			0x8910CF15, 0x927CF813, 0xBCF7834F, 0x73F61193
+		];
 
-		this.last = ((this.a >> 4) & 0x00FF) | ((this.b << 4) & 0xFF00);
+		for (let i = 0; i < this.state.length; i++)
+			this.state[i] = XOR(this.state[i], this.seed);
+
 		return this;
+	},
+
+	/**
+	 * 	Generates a 32-bit unsigned integer.
+	 *	!nextInt32 () : number;
+	 */
+	nextInt32: function ()
+	{
+		let a, b, c, d;
+
+		a = this.state[this.index];
+		c = this.state[(this.index + 13) & 15];
+		b = XOR(XOR(XOR(a, c), SHL(a, 16)), SHL(c, 15));
+		c = this.state[(this.index + 9) & 15];
+		c = XOR(c, SHR(c, 11));
+		a = this.state[this.index] = XOR(b, c);
+		d = XOR(a, SHL(a, 5) & 0xDA442D24);
+
+		this.index = (this.index + 15) & 15;
+		a = this.state[this.index];
+
+		this.state[this.index] = XOR(XOR(XOR(XOR(XOR(a, b), d), SHL(a, 2)), SHL(b, 18)), SHL(c, 28));
+		return this.state[this.index] & 0x7FFFFFFFF;
 	},
 
 	/**
@@ -74,18 +116,7 @@ const Random = Class.extend
 	 */
 	nextInt16: function ()
 	{
-		let value = this.last;
-
-		value = add16(value, this.a);
-		value = xor16(value, 0x1515);
-
-		this.a = xor16(this.a, 0x51A1);
-		this.a = sub16(this.a, this.b);
-		this.b = xor16(this.b, 0x1A15);
-
-		value = rol16(value, this.b & 0x0F);
-
-		return ((this.last = value) & 0xFFFF);
+		return this.nextInt32() & 0xFFFF;
 	},
 
 	/**
@@ -94,7 +125,7 @@ const Random = Class.extend
 	 */
 	nextInt8: function ()
 	{
-		return this.nextInt16() & 0xFF;
+		return this.nextInt32() & 0xFF;
 	},
 
 	/**
@@ -103,7 +134,7 @@ const Random = Class.extend
 	 */
 	nextFloat: function ()
 	{
-		return this.nextInt16() / 0xFFFF;
+		return this.nextInt32() / 0x7FFFFFFF;
 	}
 });
 

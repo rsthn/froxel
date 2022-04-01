@@ -32,18 +32,18 @@ const ShaderProgram = Class.extend
 	/**
 	 * 	Locations of the generic uniforms.
 	 * 
-	 *	!readonly uniform_location_matrix: number;
-	 *	!readonly uniform_transform_matrix: number;
-	 *	!readonly uniform_texture_matrix: number;
-	 *	!readonly uniform_resolution: number;
-	 *	!readonly uniform_texture_size: number;
-	 *	!readonly uniform_frame_size: number;
-	 *	!readonly uniform_base_color: number;
-	 *	!readonly uniform_time: number;
-	 *	!readonly uniform_depth: number;
-	 *	!readonly uniform_scale: number;
-	 *	!readonly uniform_alpha: number;
-	 *	!readonly uniform_texture_0: number;
+	 *	!readonly uniform_location_matrix: number; // m_location
+	 *	!readonly uniform_transform_matrix: number; // m_transform
+	 *	!readonly uniform_texture_matrix: number; // m_texture
+	 *	!readonly uniform_resolution: number; // v_resolution
+	 *	!readonly uniform_texture_size: number; // v_texture_size
+	 *	!readonly uniform_frame_size: number; // v_frame_size
+	 *	!readonly uniform_base_color: number; // v_base_color
+	 *	!readonly uniform_time: number; // f_time
+	 *	!readonly uniform_depth: number; // f_depth
+	 *	!readonly uniform_scale: number; // f_scale
+	 *	!readonly uniform_alpha: number; // f_alpha
+	 *	!readonly uniform_texture_0: number; // texture0
 	 */
 
 	uniform_location_matrix: 0, /* mat3 */

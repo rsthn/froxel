@@ -18,61 +18,83 @@ import System from '../system/system.js';
 import Resources from '../resources/resources.js';
 import Boot from '../flow/boot.js';
 import Handler from '../utils/handler.js';
+import Callback from '../utils/callback.js';
 
 //!class sys
 
 const system =
 {
 	/**
-	 * 	Indicates if the system module has already been initialized.
-	 * 	!static readonly initialized: boolean;
+	 * Indicates if the system module has already been initialized.
 	 */
 	initialized: false,
 
 	/**
-	 * 	Screen width (available after calling `init`).
-	 * 	!static readonly screenWidth: number;
+	 * Screen width (available after calling `init`).
+	 * !static readonly screenWidth: number;
 	 */
 	screenWidth: 0,
 
 	/**
-	 * 	Screen height (available after calling `init`).
-	 * 	!static readonly screenHeight: number;
+	 * Screen height (available after calling `init`).
+	 * !static readonly screenHeight: number;
 	 */
 	screenHeight: 0,
 
 	/**
-	 * 	Primary renderer (available after calling `init`).
-	 * 	!static readonly renderer: Canvas;
+	 * Primary renderer (available after calling `init`).
+	 * !static readonly renderer: Canvas;
 	 */
 	renderer: null,
 
 	/**
-	 * 	Logical system time (mirrors the value of System.frameTime).
-	 * 	!static readonly time: Number;
+	 * Logical system time (mirrors the value of System.frameTime).
+	 * !static readonly time: Number;
 	 */
 	time: 0,
 
 	/**
-	 * 	Logical system delta time (mirrors the value of System.frameDelta).
-	 * 	!static readonly dt: Number;
+	 * Logical system delta time (mirrors the value of System.frameDelta).
+	 * !static readonly dt: Number;
 	 */
 	dt: 0,
 
 	/**
-	 * 	Update handler executed on every frame start.
-	 * 	!static readonly update: Handler;
+	 * Timeout update handler.
+	 */
+	_timeout: null,
+
+	/**
+	 * Interval update handler.
+	 */
+	_interval: null,
+
+	/**
+	 * Update handler executed on every frame start.
+	 * !static readonly update: Handler;
 	 */
 	update: null,
 
 	/**
-	 * 	Draw handler executed on every frame start.
-	 * 	!static readonly draw: Handler;
+	 * Draw handler executed on every frame start.
+	 * !static readonly draw: Handler;
 	 */
 	draw: null,
 
 	/**
-	 * 	System initialization options.
+	 * Executed when the system is paused.
+	 * !static onPaused: (fromExternalEvent: boolean) => void;
+	 */
+	onPaused: null,
+
+	/**
+	 * Executed when the system is resumed.
+	 * !static onResumed: (fromExternalEvent: boolean) => void;
+	 */
+	onResumed: null,
+
+	/**
+	 * System initialization options.
 	 */
 	options:
 	{
@@ -129,12 +151,12 @@ const system =
 	},
 
 	/**
-	 * 	Initializes the system with the specified options.
-	 * 	!static init (options: System.Options) : Promise<void>;
+	 * Initializes the system with the specified options.
+	 * !static init (options: System.Options) : Promise<void>;
 	 */
 	/**
-	 * 	Initializes the system using the default options.
-	 * 	!static init () : Promise<void>;
+	 * Initializes the system using the default options.
+	 * !static init () : Promise<void>;
 	 */
 	init: function (options)
 	{
@@ -155,8 +177,9 @@ const system =
 					system.time = System.frameTime;
 					system.dt = dt;
 
-					system.update.host = dt;
-					system.update.exec();
+					system._timeout.exec(dt);
+					system._interval.exec(dt);
+					system.update.exec(dt);
 				}
 			});
 
@@ -164,8 +187,7 @@ const system =
 			({
 				draw: function(g)
 				{
-					system.draw.host = g;
-					system.draw.exec();
+					system.draw.exec(g);
 				}
 			});
 
@@ -177,14 +199,84 @@ const system =
 				system.screenHeight = System.screenHeight;
 				system.renderer = System.renderer;
 
+				system._timeout = Handler.Pool.alloc();
+				system._interval = Handler.Pool.alloc();
 				system.update = Handler.Pool.alloc();
 				system.draw = Handler.Pool.alloc();
+
+				window.onblur = function() {
+					system.pause(true);
+				};
+
+				window.onfocus = function() {
+					system.resume(true);
+				};
 
 				system.initialized = true;
 
 				resolve();
 			});
 		});
+	},
+
+	/**
+	 * Pauses the system.
+	 * !static pause (fromExternalEvent:boolean=false) : void;
+	 */
+	pause: function (fromExternalEvent=false)
+	{
+		if (system.onPaused)
+			system.onPaused(fromExternalEvent);
+		else
+			System.timeScale = 0;
+	},
+
+	/**
+	 * Resumes the system.
+	 * !static resume (fromExternalEvent:boolean=false) : void;
+	 */
+	resume: function (fromExternalEvent=false)
+	{
+		if (system.onResumed)
+			system.onResumed(fromExternalEvent);
+		else
+			System.timeScale = 1;
+	},
+
+	/**
+	 * Creates a timeout callback.
+	 * !static timeout (duration: number, callback: function, arg0?: any, arg1?: any, arg2?: any, arg3?: any) : void;
+	 */
+	timeout: function (duration, callback, arg0=null, arg1=null, arg2=null, arg3=null)
+	{
+		this._timeout.add(this._updateTimeout, duration, callback, arg0, arg1, arg2, arg3);
+	},
+
+	_updateTimeout: function (dt, _, callback, arg0, arg1, arg2, arg3)
+	{
+		this.arg0 -= dt;
+		if (this.arg0 > 0) return true;
+
+		callback (arg0, arg1, arg2, arg3);
+		return false;
+	},
+
+	/**
+	 * Creates an interval callback.
+	 * !static interval (period: number, callback: function, arg0?: any, arg1?: any, arg2?: any) : void;
+	 */
+	interval: function (period, callback, arg0=null, arg1=null, arg2=null)
+	{
+		this._interval.add(this._updateInterval, 0, period, callback, arg0, arg1, arg2);
+	},
+
+	_updateInterval: function (dt, _0, _1, callback, arg0, arg1, arg2)
+	{
+		this.arg0 += dt;
+		if (this.arg0 < this.arg1) return true;
+
+		this.arg0 = 0;
+		return callback (arg0, arg1, arg2);
 	}
 };
 

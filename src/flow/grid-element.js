@@ -178,8 +178,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the extension object of the element.
-	 * 	!setExtension (extensionObject: object) : GridElement;
+	 * 	Sets the extension object of the element. Calls to functions of this object should be done using the `exec` method.
+	 * 	!setExt (extensionObject: object) : GridElement;
 	 */
 	setExt: function (extensionObject)
 	{
@@ -197,20 +197,57 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the visible flag.
-	 * 	!visible (value: boolean) : GridElement;
+	 * Executes a function of the extension object.
+	 * @param {string} name
+	 * !exec (name: string, ...args: any) : any;
+	 */
+	exec: function(name, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null, arg6=null, arg7=null, arg8=null, arg9=null)
+	{
+		if (this.ext === null || !this.ext.hasOwnProperty(name))
+			return false;
+
+		return this.ext[name] (this, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+	},
+
+	/**
+	 * Sets the visible flag.
+	 * @param {boolean} value - New visibility value.
+	 * @param {boolean} forced - When `true` forces to ignore the VISIBLE_LOCK flag.
+	 * !visible (value: boolean, forced: boolean=false) : GridElement;
 	 */
 	/**
-	 * 	Returns the visible flag.
-	 * 	!visible() : boolean;
+	 * Returns the visible flag.
+	 * !visible() : boolean;
 	 */
-	visible: function (value=null)
+	visible: function (value=null, forced=false)
 	{
 		if (value === null)
 			return !!(this.flags & GridElement.VISIBLE);
 
+		if (!forced && this.flags & GridElement.VISIBLE_LOCK)
+			return this;
+
 		this.flags &= ~GridElement.VISIBLE;
 		if (value) this.flags |= GridElement.VISIBLE;
+
+		return this;
+	},
+
+	/**
+	 * 	Sets the visible-lock flag.
+	 * 	!visibleLock (value: boolean) : GridElement;
+	 */
+	/**
+	 * 	Returns the visible-lock flag.
+	 * 	!visibleLock() : boolean;
+	 */
+	visibleLock: function (value=null)
+	{
+		if (value === null)
+			return !!(this.flags & GridElement.VISIBLE_LOCK);
+
+		this.flags &= ~GridElement.VISIBLE_LOCK;
+		if (value) this.flags |= GridElement.VISIBLE_LOCK;
 
 		return this;
 	},
@@ -370,9 +407,10 @@ const GridElement = Class.extend
 */
 GridElement.ALIVE 				= 	0x0001;
 GridElement.VISIBLE 			= 	0x0002;
-GridElement.DIRTY 				= 	0x0004;
-GridElement.DEPTH_FLAG_ENABLED	= 	0x0008;
-GridElement.DEPTH_FLAG			= 	0x0010;
+GridElement.VISIBLE_LOCK 		= 	0x0004;
+GridElement.DIRTY 				= 	0x0008;
+GridElement.DEPTH_FLAG_ENABLED	= 	0x0010;
+GridElement.DEPTH_FLAG			= 	0x0020;
 
 GridElement.USERDEF		=	0x0100; /* Bits 8 to 30 : 23 flags  */
 GridElement.LAST_FLAG	=	0x0080;
