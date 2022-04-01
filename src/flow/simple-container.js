@@ -35,23 +35,25 @@ export default Container.extend
 	className: 'SimpleContainer',
 
 	/**
-	 * 	List containing the elements.
-	 * 	!readonly list: List;
+	 * List containing the elements.
+	 * !readonly list: List;
 	 */
 	list: null,
 
 	/**
-	 * 	Constructs the container with the specified size.
-	 * 	!constructor (width: number, height: number);
+	 * Constructs the container with the specified size.
+	 * !constructor (width: number, height: number);
 	 */
 	__ctor: function (width, height)
 	{
 		this._super.Container.__ctor (width, height);
 		this.list = List.Pool.alloc();
+
+		this.depthFlag(false);
 	},
 
 	/**
-	 * 	Destroys the container and all contained elements.
+	 * Destroys the container and all contained elements.
 	 */
 	__dtor: function()
 	{
@@ -62,8 +64,8 @@ export default Container.extend
 	},
 
 	/**
-	 * 	Syncs the actual location of the specified element with its storage location. Returns true if successful.
-	 * 	!override sync (elem: Element) : boolean;
+	 * Syncs the actual location of the specified element with its storage location. Returns true if successful.
+	 * !override sync (elem: Element) : boolean;
 	 */
 	sync: function (elem)
 	{
@@ -72,8 +74,8 @@ export default Container.extend
 	},
 
 	/**
-	 * 	Clears the container to empty. All contained elements will be destroyed.
-	 * 	!override clear() : void;
+	 * Clears the container to empty. All contained elements will be destroyed.
+	 * !override clear() : void;
 	 */
 	clear: function()
 	{
@@ -90,8 +92,8 @@ export default Container.extend
 	},
 
 	/**
-	 * 	Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
-	 * 	!override reset() : void;
+	 * Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
+	 * !override reset() : void;
 	 */
 	reset: function()
 	{
@@ -107,8 +109,8 @@ export default Container.extend
 	},
 
 	/**
-	 * 	Adds an element to the container. Returns boolean indicating if successful.
-	 * 	!override add (elem: Element) : boolean;
+	 * Adds an element to the container. Returns boolean indicating if successful.
+	 * !override add (elem: Element) : boolean;
 	 */
 	add: function (elem)
 	{
@@ -126,7 +128,7 @@ export default Container.extend
 	},
 
 	/**
-	 * 	Callback to remove an element from the container (called by Handler).
+	 * Callback to remove an element from the container (called by Handler).
 	 */
 	_remove: function (elem, self, node)
 	{
@@ -138,8 +140,8 @@ export default Container.extend
 	},
 
 	/**
-	 * 	Removes an element from the container and returns it.
-	 * 	!override remove (elem: Element) : Element;
+	 * Removes an element from the container and returns it.
+	 * !override remove (elem: Element) : Element;
 	 */
 	remove: function (elem)
 	{
@@ -148,8 +150,8 @@ export default Container.extend
 	},
 
 	/**
-	 * 	Actually draws the contained elements. Does not take the active viewport into account (hence simple container).
-	 * 	!override render() : void;
+	 * Actually draws the contained elements. Does not take the active viewport into account (hence simple container).
+	 * !override render() : void;
 	 */
 	render: function()
 	{

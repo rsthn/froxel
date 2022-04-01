@@ -275,7 +275,7 @@ export default Group.extend
 	},
 
 	/**
-	 * 	Sets the handler for the on-change event. Executed when the button state changes. Settings this callback will cause onButtonDown,
+	 * 	Sets the handler for the on-change event. Executed when the button state changes. Setting this callback will cause onButtonDown,
 	 * 	onButtonUp and onTap to no longer work. Set the callback to `null` to return it to the default state.
 	 * 
 	 * 	!onChange: (callback: (isPressed: boolean, wasPressed: boolean, buttons: Button) => void) => Button;

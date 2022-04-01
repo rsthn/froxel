@@ -127,7 +127,7 @@ const Canvas = function (options=null)
 
 	if (opts.gl === true && !headless)
 	{
-		this.gl = this.elem.getContext('webgl2', { desynchronized: false, alpha: false });
+		this.gl = this.elem.getContext('webgl2', { desynchronized: false, alpha: false, stencil: true });
 		this.context = null;
 
 		Log.write(this.gl.getParameter(this.gl.VERSION) + ', ' + this.gl.getParameter(this.gl.SHADING_LANGUAGE_VERSION));
@@ -496,7 +496,7 @@ Canvas.prototype.initGl = function ()
 	 */
 	let buffer = this.attrib_location_buffer = gl.createBuffer();
 	gl.bindBuffer (gl.ARRAY_BUFFER, buffer);
-	gl.bufferData (gl.ARRAY_BUFFER, new Float32Array ([0, 0, 0, 1, 1, 0, 1, 1]), gl.STATIC_DRAW);
+	gl.bufferData (gl.ARRAY_BUFFER, new Float32Array ([0,0,  0,1,  1,0,  1,1]), gl.STATIC_DRAW);
 
 	gl.enableVertexAttribArray (this.shaderProgram.attrib_location);
 	gl.vertexAttribPointer (this.shaderProgram.attrib_location, 2, gl.FLOAT, gl.FALSE, 2*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
@@ -504,7 +504,7 @@ Canvas.prototype.initGl = function ()
 	/**
 	 * 	Setup initial GL configuration.
 	 */
-	gl.clearColor (0, 0, 0, 1.0);
+	gl.clearColor (0.0, 0.0, 0.0, 1.0);
 
 	gl.enable (gl.DEPTH_TEST);
 	gl.clearDepth (0.0);
@@ -1458,7 +1458,7 @@ Canvas.prototype.clear = function (backgroundColor=null)
 {
 	if (this.gl != null)
 	{
-		this.gl.clear(this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
+		this.gl.clear(this.gl.STENCIL_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
 		this.glActiveTextureId = null;
 
 		return this;
@@ -1480,21 +1480,21 @@ Canvas.prototype.clear = function (backgroundColor=null)
 
 
 /*
-**	Indicates that rendering is about to start. Used only in gl mode.
+**	Indicates that rendering is about to start. Used only in GL mode.
 */
 Canvas.prototype.start = function ()
 {
 };
 
 /*
-**	Indicates that rendering has ended. Used only in gl mode.
+**	Indicates that rendering has ended. Used only in GL mode.
 */
 Canvas.prototype.end = function ()
 {
 };
 
 /*
-**	Indicates that rendering has been completed and any flush operation should be executed. Used only in gl mode.
+**	Indicates that rendering has been completed and any flush operation should be executed. Used only in GL mode.
 */
 Canvas.prototype.flush = function ()
 {

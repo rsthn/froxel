@@ -34,10 +34,10 @@ export default Group.extend
 ({
 	/**
 	 * 	Indicates if once focus is obtained it is locked until the user releases it.
-	 * 	@default false
+	 * 	@default true
 	 *	!focusLock: boolean;
 	 */
-	focusLock: false,
+	focusLock: true,
 
 	/**
 	 * 	Indicates if keyboard events are enabled on this object.
@@ -132,6 +132,11 @@ export default Group.extend
 	hitbox: 0,
 
 	/**
+	 * 	Handlers for the stick events.
+	 */
+	_onChange: null,
+ 
+	/**
 	 * 	Creates the stick with the specified parameters. Automatically adds it to the screen controls.
 	 * 	!constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: IDrawable, unpressedImgInner: IDrawable, pressedImg?: IDrawable, pressedImgInner?: IDrawable);
 	 */
@@ -150,11 +155,13 @@ export default Group.extend
 		this.deadZoneX = 0;
 		this.deadZoneY = 0;
 
-		this.hitbox = new Mask(0, x, y, unpressedImg.width, unpressedImg.height).visible(false).visibleLock(true);
+		this.hitbox = new Mask(0, x, y, (this.unpressedImg ?? this.unpressedImgInner).width, (this.unpressedImg ?? this.unpressedImgInner).height).visible(false).visibleLock(true);
 		this.addChild(this.hitbox);
 
 		container.add(this.hitbox);
 		container.add(this);
+
+		this._onChange = null;
 
 		this.renderWith(this.renderStick);
 		ScreenControls.add(this);
@@ -239,7 +246,8 @@ export default Group.extend
 		this.diry = 0;
 		this.magnitude = 0;
 
-		this.onChange(this.dirx, this.diry, this.magnitude, this.angle);
+		if (this._onChange)
+			this._onChange (this.dirx, this.diry, this.magnitude, this.angle, this);
 	},
 
 	/**
@@ -250,13 +258,19 @@ export default Group.extend
 	{
 		if (this.isPressed)
 		{
-			this.pressedImg.draw (g, this.bounds.x1, this.bounds.y1);
-			this.pressedImgInner.draw (g, this.bounds.x1 + this.dispx, this.bounds.y1 + this.dispy);
+			if (this.pressedImg)
+				this.pressedImg.draw (g, this.bounds.x1, this.bounds.y1);
+
+			if (this.pressedImgInner)
+				this.pressedImgInner.draw (g, this.bounds.x1 + this.dispx, this.bounds.y1 + this.dispy);
 		}
 		else
 		{
-			this.unpressedImg.draw (g, this.bounds.x1, this.bounds.y1);
-			this.unpressedImgInner.draw (g, this.bounds.x1, this.bounds.y1);
+			if (this.unpressedImg)
+				this.unpressedImg.draw (g, this.bounds.x1, this.bounds.y1);
+
+			if (this.unpressedImgInner)
+				this.unpressedImgInner.draw (g, this.bounds.x1, this.bounds.y1);
 		}
 	},
 
@@ -318,7 +332,8 @@ export default Group.extend
 			this.diry = 0;
 		}
 
-		this.onChange(this.dirx, this.diry, this.magnitude, this.angle);
+		if (this._onChange)
+			this._onChange (this.dirx, this.diry, this.magnitude, this.angle, this);
 	},
 
 	/**
@@ -446,10 +461,12 @@ export default Group.extend
 	},
 
 	/**
-	 * 	Executed after any change in the direction of the stick.
-	 * 	!onChange: (dirx: number, diry: number, magnitude: number, angle: number) => void;
+	 * 	Sets the handler for the on-change event. Executed after any change in the direction of the stick.
+	 * 	!onChange: (callback: (dirx: number, diry: number, magnitude: number, angle: number, stick: Stick) => void) => Stick;
 	 */
-	onChange: function (dirx, diry, magnitude, angle)
+	onChange: function (callback)
 	{
+		this._onChange = callback;
+		return this;
 	}
 });

@@ -238,7 +238,8 @@ const Element = GridElement.extend
 			g.alpha(this._alpha);
 		}
 
-		this.render(g);
+		if (this.render)
+			this.render(g);
 
 		if (depthFlagChanged) g.popDepthFlag();
 		if (shaderChanged) g.popShaderProgram();

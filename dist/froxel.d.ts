@@ -4029,42 +4029,42 @@ export class Updater
 export class SimpleContainer extends Container
 {
 	/**
-	 * 	List containing the elements.
+	 * List containing the elements.
 	 */
 	readonly list: List;
 
 	/**
-	 * 	Constructs the container with the specified size.
+	 * Constructs the container with the specified size.
 	 */
 	constructor (width: number, height: number);
 
 	/**
-	 * 	Syncs the actual location of the specified element with its storage location. Returns true if successful.
+	 * Syncs the actual location of the specified element with its storage location. Returns true if successful.
 	 */
 	override sync (elem: Element) : boolean;
 
 	/**
-	 * 	Clears the container to empty. All contained elements will be destroyed.
+	 * Clears the container to empty. All contained elements will be destroyed.
 	 */
 	override clear() : void;
 
 	/**
-	 * 	Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
+	 * Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
 	 */
 	override reset() : void;
 
 	/**
-	 * 	Adds an element to the container. Returns boolean indicating if successful.
+	 * Adds an element to the container. Returns boolean indicating if successful.
 	 */
 	override add (elem: Element) : boolean;
 
 	/**
-	 * 	Removes an element from the container and returns it.
+	 * Removes an element from the container and returns it.
 	 */
 	override remove (elem: Element) : Element;
 
 	/**
-	 * 	Actually draws the contained elements. Does not take the active viewport into account (hence simple container).
+	 * Actually draws the contained elements. Does not take the active viewport into account (hence simple container).
 	 */
 	override render() : void;
 
@@ -4413,7 +4413,7 @@ export class Button extends Group
 	keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
 
 	/**
-	 * 	Sets the handler for the on-change event. Executed when the button state changes. Settings this callback will cause onButtonDown,
+	 * 	Sets the handler for the on-change event. Executed when the button state changes. Setting this callback will cause onButtonDown,
 	 * 	onButtonUp and onTap to no longer work. Set the callback to `null` to return it to the default state.
 	 */
 	onChange: (callback: (isPressed: boolean, wasPressed: boolean, buttons: Button) => void) => Button;
@@ -4438,7 +4438,7 @@ export class Stick extends Group
 {
 	/**
 	 * 	Indicates if once focus is obtained it is locked until the user releases it.
-	 * 	@default false
+	 * 	@default true
 	 */
 	focusLock: boolean;
 
@@ -4570,9 +4570,9 @@ export class Stick extends Group
 	keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
 
 	/**
-	 * 	Executed after any change in the direction of the stick.
+	 * 	Sets the handler for the on-change event. Executed after any change in the direction of the stick.
 	 */
-	onChange: (dirx: number, diry: number, magnitude: number, angle: number) => void;
+	onChange: (callback: (dirx: number, diry: number, magnitude: number, angle: number, stick: Stick) => void) => Stick;
 
 }
 export namespace fxl

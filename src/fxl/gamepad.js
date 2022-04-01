@@ -66,9 +66,7 @@ const Gamepad = Class.extend
 		this.buttons = { };
 
 		this.scene = scene;
-
 		this.layer = scene.getContainer(containerIndex);
-		this.layer.depthFlag(false);
 	},
 
 	/**
