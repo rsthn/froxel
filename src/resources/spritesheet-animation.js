@@ -50,8 +50,11 @@ export const Animation = Class.extend
 ({
 	className: 'Animation',
 
+	/* IDrawable */
 	width: null,
 	height: null,
+	x: 0,
+	y: 0,
 
 	seq: null, seq_i: 0,
 	trans: null, trans_i: 0, trans_t: null,
@@ -192,7 +195,7 @@ export const Animation = Class.extend
 		return this.seq.group.length;
 	},
 
-	draw: function (g, x=0, y=0, width=0, height=0)
+	draw: function (g, x=0, y=0, width=null, height=null)
 	{
 		if (this.time < 0)
 		{
@@ -210,7 +213,7 @@ export const Animation = Class.extend
 		{
 			let t = this.seq.group[this.seq_i-1];
 
-			if (g != null)
+			if (g !== null)
 			{
 				for (let i = 0; i < t.length; i++)
 					g.drawFrame (this.anim, x, y, t[i], width, height);
@@ -221,7 +224,7 @@ export const Animation = Class.extend
 
 		let t = this.seq.group[this.seq_i];
 
-		if (g != null)
+		if (g !== null)
 		{
 			for (let i = 0; i < t.length; i++)
 				g.drawFrame (this.anim, x, y, t[i], width, height);
@@ -524,11 +527,6 @@ export default Spritesheet.extend
 	getSequence: function (name)
 	{
 		return this.a.seq[name];
-	},
-
-	getImage: function()
-	{
-		return this.r.data;
 	},
 
 	getDrawable: function()

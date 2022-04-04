@@ -3586,6 +3586,16 @@ export class IDrawable
 	height: number;
 
 	/**
+	 * 	Frame X-position.
+	 */
+	x: number;
+
+	/**
+	 * 	Frame Y-position.
+	 */
+	y: number;
+
+	/**
 	 * 	Returns the actual independent drawable object.
 	 */
 	getDrawable(): IDrawable;
@@ -3699,6 +3709,12 @@ export class Element extends GridElement
 	 * @param {Canvas} g
 	 */
 	static renderNineSlice (g: Canvas) : void;
+
+	/**
+	 * Draws the image without resizing it and repeated to the element's size.
+	 * @param {Canvas} g
+	 */
+	static renderRepeat (g: Canvas) : void;
 
 }
 
@@ -4654,6 +4670,11 @@ export namespace fxl
 	 */
 	static interval (period: number, callback: function, arg0?: any, arg1?: any, arg2?: any) : void;
 
+	/**
+	 * Creates a a time-span callback.
+	 */
+	static span (period: number, callback: function, arg0?: any, arg1?: any, arg2?: any) : void;
+
 }
 	/**
  * 	World system allows to manage scenes, containers, viewports and display elements.
@@ -4687,9 +4708,11 @@ export class world
 	 */
 	static const LAYER_HUD_BG0: number;
 	static const LAYER_HUD_BG1: number;
+	static const LAYER_HUD_BG2: number;
 	static const LAYER_HUD_MAIN: number;
 	static const LAYER_HUD_FG0: number;
 	static const LAYER_HUD_FG1: number;
+	static const LAYER_HUD_FG2: number;
 
 	/**
 	 * Active scene set by `selectScene`.
@@ -4846,10 +4869,16 @@ declare const r : { [key: string]: any };
 	static get (id: string) : object;
 
 	/**
-	 * 	Registers a solid-color placeholder resource.
+	 * 	Registers a solid-color resource.
 	 * 	@param id - Resource identifier.
 	 */
-	static placeholder (id: string, color: string, width: number, height: number) : object;
+	static color (id: string, color: string, width: number, height: number) : object;
+
+	/**
+	 * 	Registers a custom drawable resource.
+	 * 	@param id - Resource identifier.
+	 */
+	static custom (id: string, width: number, height: number, drawFunction: (g: Canvas) => void) : object;
 
 	/**
 	 * 	Registers an image resource.

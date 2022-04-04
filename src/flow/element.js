@@ -294,7 +294,7 @@ Element.renderClipped = function(g)
 	let img = this.img.getImage();
 
 	g.drawImage (img,
-			0, 0, this.bounds.width()*img.rscale, this.bounds.height()*img.rscale,
+			this.img.x, this.img.y, this.bounds.width()*img.rscale, this.bounds.height()*img.rscale,
 			this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height(),
 			null, null,
 			this.img.width, this.img.height);
@@ -346,6 +346,64 @@ Element.renderNineSlice = function(g)
 	for (let j = 0; j < m; j++)
 	for (let i = 0; i < n; i++) {
 		ss.getFrame(4).draw(g, x1 + leftWidth + i*midWidth, y1 + topHeight + j*midHeight);
+	}
+};
+
+/**
+ * Draws the image without resizing it and repeated to the element's size.
+ * @param {Canvas} g
+ * !static renderRepeat (g: Canvas) : void;
+ */
+Element.renderRepeat = function(g)
+{
+	let img = this.img.getImage();
+
+	let h = this.bounds.height();
+	let w = this.bounds.width();
+
+	let ih = this.img.height;
+	let iw = this.img.width;
+
+	let rh = ih * img.rscale;
+	let rw = iw * img.rscale;
+
+	let x, y;
+
+	for (y = 0; y+ih < h; y += ih)
+	{
+		for (x = 0; x+iw < w; x += iw)
+		{
+			g.drawImage (img,
+					this.img.x, this.img.y, rw, rh,
+					this.bounds.x1 + x, this.bounds.y1 + y, iw, ih);
+		}
+
+		if (x < w)
+		{
+			g.drawImage (img,
+				this.img.x, this.img.y, (w-x)*img.rscale, rh,
+				this.bounds.x1 + x, this.bounds.y1 + y, w-x, ih);
+		}
+	}
+
+	if (y < h)
+	{
+		ih = h-y;
+		rh = ih*img.rscale;
+
+		for (x = 0; x+iw < w; x += iw)
+		{
+			g.drawImage (img,
+					this.img.x, this.img.y, rw, rh,
+					this.bounds.x1 + x, this.bounds.y1 + y, iw, ih);
+		}
+
+		if (x < w)
+		{
+			g.drawImage (img,
+				this.img.x, this.img.y, (w-x)*img.rscale, rh,
+				this.bounds.x1 + x, this.bounds.y1 + y, w-x, ih);
+		}
 	}
 };
 

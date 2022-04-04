@@ -18,7 +18,6 @@ import System from '../system/system.js';
 import Resources from '../resources/resources.js';
 import Boot from '../flow/boot.js';
 import Handler from '../utils/handler.js';
-import Callback from '../utils/callback.js';
 
 //!class sys
 
@@ -68,6 +67,11 @@ const system =
 	 * Interval update handler.
 	 */
 	_interval: null,
+
+	/**
+	 * Time span update handler.
+	 */
+	_span: null,
 
 	/**
 	 * Update handler executed on every frame start.
@@ -179,6 +183,8 @@ const system =
 
 					system._timeout.exec(dt);
 					system._interval.exec(dt);
+					system._span.exec(dt);
+
 					system.update.exec(dt);
 				}
 			});
@@ -201,6 +207,8 @@ const system =
 
 				system._timeout = Handler.Pool.alloc();
 				system._interval = Handler.Pool.alloc();
+				system._span = Handler.Pool.alloc();
+
 				system.update = Handler.Pool.alloc();
 				system.draw = Handler.Pool.alloc();
 
@@ -275,8 +283,28 @@ const system =
 		this.arg0 += dt;
 		if (this.arg0 < this.arg1) return true;
 
-		this.arg0 = 0;
+		this.arg0 -= this.arg1;
 		return callback (arg0, arg1, arg2);
+	},
+
+	/**
+	 * Creates a a time-span callback.
+	 * !static span (period: number, callback: function, arg0?: any, arg1?: any, arg2?: any) : void;
+	 */
+	span: function (duration, callback, arg0=null, arg1=null, arg2=null)
+	{
+		this._span.add(this._updateSpan, 0, duration, callback, arg0, arg1, arg2);
+	},
+
+	_updateSpan: function (dt, _0, _1, callback, arg0, arg1, arg2)
+	{
+		this.arg0 += dt;
+		if (this.arg0 > this.arg1) this.arg0 = this.arg1;
+
+		if (callback (this.arg0/this.arg1, arg0, arg1, arg2) === false)
+			return false;
+
+		return this.arg0 !== this.arg1;
 	}
 };
 

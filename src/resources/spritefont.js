@@ -169,11 +169,6 @@ export default Class.extend
 	measureHeight: function (text)
 	{
 		return this.charHeight - 2*this.paddingY + this.spacingY;
-	},
-
-	getImage: function()
-	{
-		return this.r.data;
 	}
 });
 

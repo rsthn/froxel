@@ -1,5 +1,5 @@
 /*
-**	resources/placeholder.js
+**	resources/custom.js
 **
 **	Copyright (c) 2016-2021, RedStar Technologies, All rights reserved.
 **	https://rsthn.com/
@@ -23,10 +23,13 @@ import Resources from './resources.js';
 
 export default Class.extend
 ({
-	className: "Placeholder",
+	className: "Custom",
 
 	width: null,
 	height: null,
+
+	x: 0,
+	y: 0,
 
 	__ctor: function (r)
 	{
@@ -43,8 +46,13 @@ export default Class.extend
 
 		Canvas.renderImage(r.width, r.height,
 		(g) => {
-			g.fillStyle(this.r.color);
-			g.fillRect(0, 0, r.width, r.height);
+			if (this.r.draw !== null && typeof(this.r.draw) === 'function') {
+				this.r.draw(g, this.r);
+			}
+			else {
+				g.fillStyle(this.r.color);
+				g.fillRect(0, 0, this.r.width, this.r.height);
+			}
 		},
 		(img) => {
 			this.data = img;
@@ -56,7 +64,7 @@ export default Class.extend
 		if (!this.data)
 			return;
 
-		g.drawImage (this.data, 0, 0, this.data.width, this.data.height, x, y, width || this.width, height || this.height);
+		g.drawImage (this.data, 0, 0, this.data.width, this.data.height, x, y, width ?? this.width, height ?? this.height);
 	},
 
 	getImage: function()
@@ -71,9 +79,9 @@ export default Class.extend
 });
 
 /**
-**	Creates a descriptor for a placeholder.
+**	Creates a descriptor for a custom.
 */
-Resources.Placeholder = function (width, height, color='#ff0000', opts=null)
+Resources.Custom = function (width, height, color='#ff0000', opts=null)
 {
-	return { type: "object", wrapper: "Placeholder", width: width, height: height, color: color, ...opts };
+	return { type: "object", wrapper: "Custom", width: width, height: height, color: color, ...opts };
 };

@@ -26,6 +26,9 @@ export default Class.extend
 	width: null,
 	height: null,
 
+	x: 0,
+	y: 0,
+
 	__ctor: function (r)
 	{
 		if (r.type != "image")
@@ -40,7 +43,7 @@ export default Class.extend
 
 	draw: function (g, x=0, y=0, width=null, height=null)
 	{
-		g.drawImage (this.r.data, 0, 0, this.r.data.width, this.r.data.height, x, y, width || this.r.width, height || this.r.height,
+		g.drawImage (this.r.data, 0, 0, this.r.data.width, this.r.data.height, x, y, width ?? this.r.width, height ?? this.r.height,
 			null, null, this.width, this.height);
 	},
 

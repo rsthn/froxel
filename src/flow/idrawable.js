@@ -31,6 +31,16 @@
 	 */
 
 	/**
+	 * 	Frame X-position.
+	 * 	!x: number;
+	 */
+
+	/**
+	 * 	Frame Y-position.
+	 * 	!y: number;
+	 */
+
+	/**
 	 * 	Returns the actual independent drawable object.
 	 * 	!getDrawable(): IDrawable;
 	 */

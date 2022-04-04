@@ -41,11 +41,13 @@ export default Class.extend
 
 	width: 0,
 	height: 0,
+	x: 0,
+	y: 0,
 
 	numCols: 0,
 	numFrames: 0,
 
-	drawableCache: null,
+	frameCache: null,
 
 	__ctor: function (r)
 	{
@@ -103,35 +105,22 @@ export default Class.extend
 			this.numFrames = r.data.length;
 		}
 
-		this.drawableCache = { };
+		this.frameCache = { };
 
 		this.r = r;
 		this.r.wrapper = this;
+
+		// Preload frameCache.
+		for (let i = 0; i < this.numFrames; i++)
+			this.getFrame(i);
 	},
 
-	drawFrame: function (g, x, y, frame, width=0, height=0)
+	drawFrame: function (g, x, y, frameIndex, width=null, height=null)
 	{
-		if (frame < 0 || frame >= this.numFrames)
-			return;
-
-		if (!width) width = this.width;
-		if (!height) height = this.height;
-
-		if (this.numCols != 0)
-		{
-			var j = int(frame / this.numCols) * this.frameHeight;
-			var i =  (frame % this.numCols) * this.frameWidth;
-
-			g.drawImage (this.r.data, i, j, this.frameWidth, this.frameHeight, x, y, width, height, null, null, this.width, this.height);
-		}
-		else
-		{
-			g.drawImage (this.r.data[frame].data, 0, 0, this.frameWidth, this.frameHeight, x, y, width, height, null, null, this.width, this.height);
-		}
+		this.getFrame(frameIndex).draw(g, x, y, width, height);
 	},
 
 	getFrame: function (x, y=null)
-	// OR getFrame: function (frameIndex)
 	{
 		let frameIndex;
 
@@ -143,39 +132,54 @@ export default Class.extend
 		if (frameIndex < 0 || frameIndex >= this.numFrames)
 			throw new Error ('frameIndex out of range');
 
-		if (!this.drawableCache[frameIndex])
+		if (this.frameCache[frameIndex])
+			return this.frameCache[frameIndex];
+
+		let frameObject =
 		{
-			this.drawableCache[frameIndex] =
+			width: this.width,
+			height: this.height,
+			x: 0,
+			y: 0,
+
+			frameIndex: frameIndex,
+			spritesheet: this,
+
+			image: null,
+
+			draw: function (g, x=0, y=0, width=null, height=null)
 			{
-				width: this.width,
-				height: this.height,
+				g.drawImage (this.image, this.x, this.y, this.spritesheet.frameWidth, this.spritesheet.frameHeight, x, y, width ?? this.width, height ?? this.height, null, null, this.width, this.height);
+			},
 
-				frameIndex: frameIndex,
-				spritesheet: this,
+			getImage: function()
+			{
+				return this.image;
+			},
 
-				draw: function (g, x=0, y=0, width=0, height=0)
-				{
-					g.drawFrame (this.spritesheet, x, y, this.frameIndex, width, height);
-				},
+			getDrawable: function()
+			{
+				return this;
+			}
+		};
 
-				getImage: function()
-				{
-					return this.spritesheet.r.data;
-				},
-
-				getDrawable: function()
-				{
-					return this;
-				}
-			};
+		if (this.numCols !== 0)
+		{
+			frameObject.y = int(frameIndex / this.numCols) * this.frameHeight;
+			frameObject.x = (frameIndex % this.numCols) * this.frameWidth;
+			frameObject.image = this.r.data;
+		}
+		else
+		{
+			frameObject.image = this.r.data[frameIndex].data;
 		}
 
-		return this.drawableCache[frameIndex];
+		return this.frameCache[frameIndex] = frameObject;
 	},
 
 	getImage: function()
 	{
-		return this.r.data;
+		return this.getFrame(0).getImage();
 	},
 
 	getDrawable: function()

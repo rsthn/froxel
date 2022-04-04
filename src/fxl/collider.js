@@ -639,10 +639,13 @@ const collider =
 
 				collisionItems = this.maskLayer.selectInRegion(this.state.bounds, this.flagsAnd, this.flagsValue);
 
-				while (true)
+				while (mask.alive())
 				{
 					let item = collisionItems.shift();
 					if (item === null) break;
+
+					if (!item.alive())
+						continue;
 		
 					let contact = contactRules[item.type];
 					if (!contact)
@@ -679,7 +682,7 @@ const collider =
 	{
 		if (!group) group = mask.group;
 
-		if (!group.alive() || !mask.alive())
+		if (!group || !group.alive() || !mask.alive())
 			return;
 
 		this.state.mask = mask;
@@ -696,10 +699,13 @@ const collider =
 		let collisionItems = this.maskLayer.selectInRegion(mask.bounds, this.flagsAnd, this.flagsValue);
 		group.clearFlags (collider.FLAG_EXCLUDE);
 
-		while (true)
+		while (mask.alive())
 		{
 			let item = collisionItems.shift();
 			if (item === null) break;
+
+			if (!item.alive())
+				continue;
 
 			let contact = contactRules[item.type];
 			if (!contact)

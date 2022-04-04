@@ -16,8 +16,8 @@
 
 //![import './drawable']
 import _Drawable from './drawable.js'; export const Drawable = _Drawable;
-//![import './placeholder']
-import _Placeholder from './placeholder.js'; export const Placeholder = _Placeholder;
+//![import './custom']
+import _Custom from './custom.js'; export const Custom = _Custom;
 //![import './spritesheet']
 import _Spritesheet from './spritesheet.js'; export const Spritesheet = _Spritesheet;
 //![import './spritesheet-animation']

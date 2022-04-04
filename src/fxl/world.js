@@ -78,15 +78,19 @@ const world =
 	 *
 	 * !static const LAYER_HUD_BG0: number;
 	 * !static const LAYER_HUD_BG1: number;
+	 * !static const LAYER_HUD_BG2: number;
 	 * !static const LAYER_HUD_MAIN: number;
 	 * !static const LAYER_HUD_FG0: number;
 	 * !static const LAYER_HUD_FG1: number;
+	 * !static const LAYER_HUD_FG2: number;
 	 */
  	LAYER_HUD_BG0: 0,
 	LAYER_HUD_BG1: 1,
-	LAYER_HUD_MAIN: 2,
-	LAYER_HUD_FG0: 3,
-	LAYER_HUD_FG1: 4,
+	LAYER_HUD_BG2: 2,
+	LAYER_HUD_MAIN: 3,
+	LAYER_HUD_FG0: 4,
+	LAYER_HUD_FG1: 5,
+	LAYER_HUD_FG2: 6,
 
 	/**
 	 *	Registered scenes.
@@ -177,9 +181,11 @@ const world =
 		this.createScene(world.SCENE_HUD);
 		this.setContainer(world.LAYER_HUD_BG0, new SimpleContainer (system.screenWidth, system.screenHeight));
 		this.setContainer(world.LAYER_HUD_BG1, new SimpleContainer (system.screenWidth, system.screenHeight));
+		this.setContainer(world.LAYER_HUD_BG2, new SimpleContainer (system.screenWidth, system.screenHeight));
 		this.setContainer(world.LAYER_HUD_MAIN, new SimpleContainer (system.screenWidth, system.screenHeight));
 		this.setContainer(world.LAYER_HUD_FG0, new SimpleContainer (system.screenWidth, system.screenHeight));
 		this.setContainer(world.LAYER_HUD_FG1, new SimpleContainer (system.screenWidth, system.screenHeight));
+		this.setContainer(world.LAYER_HUD_FG2, new SimpleContainer (system.screenWidth, system.screenHeight));
 	},
 
 	/**

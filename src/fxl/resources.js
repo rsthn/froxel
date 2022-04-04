@@ -58,16 +58,29 @@ const res =
 	},
 
 	/**
-	 * 	Registers a solid-color placeholder resource.
+	 * 	Registers a solid-color resource.
 	 * 	@param id - Resource identifier.
 	 * 
-	 * 	!static placeholder (id: string, color: string, width: number, height: number) : object;
+	 * 	!static color (id: string, color: string, width: number, height: number) : object;
 	 */
-	placeholder: function (id, color, width, height)
+	color: function (id, color, width, height)
 	{
 		this.__resIdMustNotExist(id);
 
-		return r[id] = { type: 'object', wrapper: 'Placeholder', color: color, width: width, height: height };
+		return r[id] = { type: 'object', wrapper: 'Custom', color: color, width: width, height: height };
+	},
+
+	/**
+	 * 	Registers a custom drawable resource.
+	 * 	@param id - Resource identifier.
+	 * 
+	 * 	!static custom (id: string, width: number, height: number, drawFunction: (g: Canvas) => void) : object;
+	 */
+	custom: function (id, width, height, drawFunction, opts=null)
+	{
+		this.__resIdMustNotExist(id);
+
+		return r[id] = { type: 'object', wrapper: 'Custom', width: width, height: height, draw: drawFunction, ...opts };
 	},
 
 	/**
