@@ -10,10 +10,10 @@ async function main()
 
 	fxl.world.init(fxl.sys.screenWidth, fxl.sys.screenHeight);
 
-	fxl.res.placeholder('red_block', '#ff0000', 2, 2);
-	fxl.res.placeholder('blue_block', '#0000ff', 2, 2);
-	fxl.res.placeholder('cyan_block', '#00ffff', 2, 2);
-	fxl.res.placeholder('magenta_block', '#ff00ff', 2, 2);
+	fxl.res.color('red_block', '#ff0000', 2, 2);
+	fxl.res.color('blue_block', '#0000ff', 2, 2);
+	fxl.res.color('cyan_block', '#00ffff', 2, 2);
+	fxl.res.color('magenta_block', '#ff00ff', 2, 2);
 	await fxl.res.load();
 
 	fxl.world.selectScene(fxl.world.SCENE_MAIN);

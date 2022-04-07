@@ -1,6 +1,6 @@
 {
-	"short_name": "Froxel Project",
-	"name": "Froxel Project",
+	"short_name": "project_name",
+	"name": "project_name",
 	"display": "fullscreen",
 	"orientation": "portrait-primary",
 	"background_color": "#000",

@@ -1,27 +1,28 @@
 {
-	"name": "froxel-project",
+	"name": "package_name",
 	"version": "1.0.0",
 	"main": "src/main.js",
 	"type": "module",
+	"browser": "./main.min.js",
 	"private": true,
 	"scripts": {
-		"requirements": "yarn global add --ignore-optional parcel shx",
+		"requirements": "pnpm global add --ignore-optional parcel shx",
 		"clean": "shx rm -f main.js && shx rm -f main.js.map",
-		"release": "yarn clean && parcel build --no-cache --no-source-maps --target target_main src/main.js",
-		"build": "yarn clean && parcel build --no-cache --target target_main src/main.js",
-		"watch": "yarn clean && parcel watch --no-cache --target target_main --no-hmr src/main.js"
+		"release": "pnpm clean && parcel build --no-cache --no-source-maps --target browser",
+		"build": "pnpm clean && parcel build --no-cache --target browser",
+		"watch": "pnpm clean && parcel watch --no-cache --target browser --no-hmr"
 	},
-	"target_main": "main.js",
+	"browserslist": "since 2020-01",
 	"targets": {
-		"target_main": {
-			"isLibrary": false,
-			"engines": {
-				"browsers": "last 4 Chrome version"
-			}
+		"browser": {
+			"source": "./src/main.js",
+			"optimize": true,
+			"includeNodeModules": true
 		}
 	},
-	"author": "RedStar Technologies",
-	"dependencies": {
-		"froxel": "^2.0.52"
+	"devDependencies": {
+		"froxel": "^2.2.0",
+		"parcel": "^2.4.1",
+		"shx": "^0.3.4"
 	}
 }

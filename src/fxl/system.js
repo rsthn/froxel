@@ -233,10 +233,8 @@ const system =
 	 */
 	pause: function (fromExternalEvent=false)
 	{
-		if (system.onPaused)
+		if (system.onPaused !== null)
 			system.onPaused(fromExternalEvent);
-		else
-			System.timeScale = 0;
 	},
 
 	/**
@@ -245,10 +243,8 @@ const system =
 	 */
 	resume: function (fromExternalEvent=false)
 	{
-		if (system.onResumed)
+		if (system.onResumed !== null)
 			system.onResumed(fromExternalEvent);
-		else
-			System.timeScale = 1;
 	},
 
 	/**

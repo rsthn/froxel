@@ -8,12 +8,24 @@ import { exec } from 'child_process';
 
 const INFO = '\x1B[32m';
 const ERROR = '\x1B[91m(error)\x1B[0m ';
-const SUCCESS = '\x1B[92m';
+const SUCCESS = '\x1B[93m';
 const BLANK = '\x1B[0m';
 const WHITE = '\x1B[97m';
 
 function msg (type, message) {
 	console.log(WHITE + 'froxel: ' + type + message + BLANK);
+}
+
+function patch (dest, fileNames, searchString, newString)
+{
+	searchString = new RegExp(searchString, 'g');
+
+	for (let fileName of fileNames)
+	{
+		let data = fs.readFileSync(path.join(dest, fileName)).toString();
+		data = data.replace(searchString, newString);
+		fs.writeFileSync(path.join(dest, fileName), data);
+	}
 }
 
 function run (command)
@@ -42,8 +54,7 @@ if (args.length == 0)
     froxel <command> [options]
 
 Command:
-    create <name>                Create a project <name> in the current folder (yarn).
-    prepare                      Installs global requirements (yarn).
+    create <name>                Creates a project <name> in the current folder.
 `);
 
 	process.exit();
@@ -60,7 +71,7 @@ switch (args[0])
 			break;
 		}
 
-		msg(INFO, 'Creating folder ' + args[1] + '...');
+		msg(INFO, 'Creating project ' + args[1] + '...');
 		const dest = path.join(cdir, args[1]);
 		if (!fs.existsSync(dest)) fs.mkdirSync(dest);
 
@@ -72,25 +83,9 @@ switch (args[0])
 				return;
 			}
 
-			msg(INFO, 'Installing dependencies ...');
-			process.chdir(dest);
+			patch(dest, ['package.json', 'manifest.json', 'index.html'], 'package_name', args[1]);
 
-			run('yarn').then(r => {
-				msg(SUCCESS, 'Completed.');
-			});
-		});
-
-		break;
-
-	case 'prepare':
-		msg(INFO, 'Installing parcel ...');
-		run('yarn global add --ignore-optional parcel').then(r =>
-		{
-			msg(INFO, 'Installing shx ...');
-			run('yarn global add --ignore-optional shx').then(r =>
-			{
-				msg(SUCCESS, 'Completed.');
-			});
+			msg(SUCCESS, 'Completed.');
 		});
 
 		break;

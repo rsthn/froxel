@@ -1,6 +1,6 @@
 {
     "name": "froxel",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "description": "Froxel Game Framework",
     "type": "module",
     "main": "./dist/froxel.m.js",
@@ -10,9 +10,9 @@
     "bin": {
         "froxel": "bin/cli.js"
     },
+    "packageManager": "pnpm@6.32.4",
     "scripts": {
         "test": "echo Ok",
-        "requirements": "pnpm global add --ignore-optional parcel",
         "deploy": "pnpm build:all && pnpm tsdoc && node ./scripts/deploy.js",
         "commit": "node ./scripts/commit.js",
         "tsdoc": "node ./scripts/tsdoc.js ./src/main.js ./dist/froxel.d.ts",
@@ -43,12 +43,14 @@
         "url": "https://github.com/rsthn/froxel/issues"
     },
     "homepage": "https://github.com/rsthn/froxel#readme",
-    "dependencies": {
+    "devDependencies": {
         "filereader": "^0.10.3",
-        "fs-extra": "^10.0.0",
-        "image-size": "^1.0.0",
-        "parcel": "^2.4.1",
-        "rinn": "^2.0.39"
+        "fs-extra": "^10.0.1",
+        "image-size": "^1.0.1",
+        "parcel": "^2.4.1"
+    },
+    "dependencies": {
+        "rinn": "^2.0.41"
     },
     "files": [
         "dist/",
