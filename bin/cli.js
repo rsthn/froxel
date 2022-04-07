@@ -83,7 +83,7 @@ switch (args[0])
 				return;
 			}
 
-			patch(dest, ['package.json', 'manifest.json', 'index.html'], 'package_name', args[1]);
+			patch(dest, ['package.json', 'manifest.json', 'index.html'], 'project_name', args[1]);
 
 			msg(SUCCESS, 'Completed.');
 		});
