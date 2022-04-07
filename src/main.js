@@ -155,6 +155,9 @@ import _GridContainer from './flow/grid-container.js'; export const GridContaine
 //![import "flow/group"]
 import _Group from './flow/group.js'; export const Group = _Group;
 
+//![import "flow/drawable"]
+import _Drawable from './flow/drawable.js'; export const Drawable = _Drawable;
+
 //![import "flow/element"]
 import _Element from './flow/element.js'; export const Element = _Element;
 

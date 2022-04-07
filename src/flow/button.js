@@ -58,13 +58,13 @@ export default Group.extend
 
 	/**
 	 * 	Image to draw when the button is unpressed.
-	 *	!unpressedImg: IDrawable;
+	 *	!unpressedImg: Drawable;
 	 */
 	unpressedImg: null,
 
 	/**
 	 * 	Image to draw when the button is pressed.
-	 *	!pressedImg: IDrawable;
+	 *	!pressedImg: Drawable;
 	 */
 	pressedImg: null,
 
@@ -79,7 +79,7 @@ export default Group.extend
 	 * 	Hitbox element.
 	 * 	!readonly hitbox: Mask;
 	 */
-	hitbox: 0,
+	hitbox: null,
 
 	/**
 	 * 	Handlers for the button events.
@@ -91,28 +91,31 @@ export default Group.extend
  
 	/**
 	 * 	Creates the button with the specified parameters. Automatically adds it to the screen controls.
-	 * 	!constructor (container: Container, x: number, y: number, unpressedImg?: IDrawable, pressedImg?: IDrawable);
+	 * 	!constructor (container: Container, x: number, y: number, unpressedImg?: Drawable, pressedImg?: Drawable);
 	 */
 	__ctor: function (container, x, y, unpressedImg=null, pressedImg=null)
 	{
 		this._super.Group.__ctor();
 
 		this.unpressedImg = unpressedImg;
-		this.pressedImg = pressedImg || unpressedImg;
+		this.pressedImg = pressedImg ?? unpressedImg;
+		this.hitbox = null;
 
-		this.hitbox = new Mask (0, x, y, unpressedImg ? unpressedImg.width : 16, unpressedImg ? unpressedImg.height : 16).visible(false).visibleLock(true);
-		this.addChild(this.hitbox);
+		let hitbox = new Mask (0, x, y, this.unpressedImg ? this.unpressedImg.width : 16, this.unpressedImg ? this.unpressedImg.height : 16).visible(false).visibleLock(true);
+		this.addChild(hitbox);
 
-		container.add(this.hitbox);
+		container.add(hitbox);
 		container.add(this);
+
+		this.hitbox = hitbox;
 
 		this._onButtonDown = null;
 		this._onButtonUp = null;
 		this._onTap = null;
 		this._onChange = this._default_onChange;
-	
-		this.renderWith(this.renderButton);
+
 		ScreenControls.add(this);
+		this.reset();
 	},
 
 	/**
@@ -125,13 +128,43 @@ export default Group.extend
 	},
 
 	/**
+	 * 	Sets the width and height of the button and the hitbox.
+	 * 	!resize (width: number, height: number) : GridElement;
+	 */
+	resize: function (width, height)
+	{
+		this._super.Group.resize(width, height);
+
+		if (this.hitbox !== null)
+			this.hitbox.resize(width, height);
+
+		return this;
+	},
+
+	/**
+	 * 	Resizes the button and hitbox by the specified deltas.
+	 * 	!resizeBy (deltaWidth: number, deltaHeight: number) : GridElement;
+	 */
+	resizeBy: function (dWidth, dHeight)
+	{
+		this._super.Group.resizeBy(dWidth, dHeight);
+
+		if (this.hitbox !== null)
+			this.hitbox.resizeBy(dWidth, dHeight);
+
+		return this;
+	},
+
+	/**
 	 * 	Changes the pressed/unpressed images of the button.
-	 * 	!setImage (unpressedImg: IDrawable, pressedImg?: IDrawable);
+	 * 	!setImage (unpressedImg: Drawable, pressedImg?: Drawable);
 	 */
 	setImage: function (unpressedImg, pressedImg=null)
 	{
 		this.unpressedImg = unpressedImg;
 		this.pressedImg = pressedImg || unpressedImg;
+
+		this.reset();
 		return this;
 	},
 
@@ -151,19 +184,8 @@ export default Group.extend
 	 */
 	reset: function ()
 	{
+		this.img = this.unpressedImg;
 		this._onChange (this.isPressed = false, this.wasPressed = false, this);
-	},
-
-	/**
-	 * 	Renders the button in the canvas.
-	 * 	!renderButton (g: Canvas) : void;
-	 */
-	renderButton: function (g)
-	{
-		if (this.isPressed && this.pressedImg)
-			this.pressedImg.draw (g, this.bounds.x1, this.bounds.y1);
-		else if (!this.isPressed && this.unpressedImg)
-			this.unpressedImg.draw (g, this.bounds.x1, this.bounds.y1);
 	},
 
 	/**
@@ -184,6 +206,8 @@ export default Group.extend
 			return this;
 
 		this.updateStatus (value);
+
+		this.img = this.isPressed ? this.pressedImg : this.unpressedImg;
 		this._onChange (this.isPressed, this.wasPressed, this);
 
 		return this;

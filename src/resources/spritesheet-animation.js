@@ -19,6 +19,7 @@ import Spritesheet from './spritesheet.js';
 import System from '../system/system.js';
 import List from '../utils/list.js';
 import Recycler from '../utils/recycler.js';
+import Drawable from '../flow/drawable.js';
 
 //![import "./spritesheet"]
 //![import "../system/system"]
@@ -46,15 +47,9 @@ import Recycler from '../utils/recycler.js';
 	NOTE: When specifying a group such as "0,12" it means to draw tiles 0 and the 12 in that single frame.
 */
 
-export const Animation = Class.extend
+export const Animation = Drawable.extend
 ({
 	className: 'Animation',
-
-	/* IDrawable */
-	width: null,
-	height: null,
-	x: 0,
-	y: 0,
 
 	seq: null, seq_i: 0,
 	trans: null, trans_i: 0, trans_t: null,
@@ -76,6 +71,8 @@ export const Animation = Class.extend
 
 	__ctor: function (anim, seq, fps)
 	{
+		this._super.Drawable.__ctor(anim.getImage(), anim.width, anim.height);
+
 		this.anim = anim;
 		this.queue = List.Pool.alloc();
 
@@ -85,9 +82,6 @@ export const Animation = Class.extend
 		this.trans = null;
 		this.trans_i = 0;
 		this.trans_t = null;
-
-		this.width = anim.width;
-		this.height = anim.height;
 
 		this.frameNumber = -1;
 		this.finished = false;
@@ -216,7 +210,7 @@ export const Animation = Class.extend
 			if (g !== null)
 			{
 				for (let i = 0; i < t.length; i++)
-					g.drawFrame (this.anim, x, y, t[i], width, height);
+					this.anim.getFrame(t[i]).draw(g, x, y, width, height);
 			}
 
 			return;
@@ -227,7 +221,7 @@ export const Animation = Class.extend
 		if (g !== null)
 		{
 			for (let i = 0; i < t.length; i++)
-				g.drawFrame (this.anim, x, y, t[i], width, height);
+				this.anim.getFrame(t[i]).draw(g, x, y, width, height);
 		}
 
 		if (!this._paused)

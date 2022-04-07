@@ -60,25 +60,25 @@ export default Group.extend
 
 		/**
 		 * 	Image to draw when the stick is unpressed (outer circle).
-		 *	!unpressedImg: IDrawable;
+		 *	!unpressedImg: Drawable;
 		 */
 		unpressedImg: null,
 
 		/**
 		 * 	Image to draw when the stick is pressed (outer circle).
-		 *	!pressedImg: IDrawable;
+		 *	!pressedImg: Drawable;
 		 */
 		pressedImg: null,
 
 	/**
 	 * 	Image to draw when the stick is unpressed (inner circle).
-	 *	!unpressedImg: IDrawable;
+	 *	!unpressedImg: Drawable;
 	 */
 	unpressedImgInner: null,
 
 	/**
 	 * 	Image to draw when the stick is pressed (inner circle).
-	 *	!pressedImg: IDrawable;
+	 *	!pressedImg: Drawable;
 	 */
 	pressedImgInner: null,
 
@@ -138,7 +138,7 @@ export default Group.extend
  
 	/**
 	 * 	Creates the stick with the specified parameters. Automatically adds it to the screen controls.
-	 * 	!constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: IDrawable, unpressedImgInner: IDrawable, pressedImg?: IDrawable, pressedImgInner?: IDrawable);
+	 * 	!constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: Drawable, unpressedImgInner: Drawable, pressedImg?: Drawable, pressedImgInner?: Drawable);
 	 */
 	__ctor: function (container, x, y, maxRadius, unpressedImg, unpressedImgInner, pressedImg=null, pressedImgInner=null)
 	{
@@ -178,7 +178,7 @@ export default Group.extend
 
 	/**
 	 * 	Changes the pressed/unpressed images of the outer stick.
-	 * 	!setImage (unpressedImg: IDrawable, pressedImg?: IDrawable) : Stick;
+	 * 	!setImage (unpressedImg: Drawable, pressedImg?: Drawable) : Stick;
 	 */
 	setImage: function (unpressedImg, pressedImg=null)
 	{
@@ -189,7 +189,7 @@ export default Group.extend
 
 	/**
 	 * 	Changes the pressed/unpressed images of the inner stick.
-	 * 	!setImageInner (unpressedImg: IDrawable, pressedImg?: IDrawable) : Stick;
+	 * 	!setImageInner (unpressedImg: Drawable, pressedImg?: Drawable) : Stick;
 	 */
 	setImageInner: function (unpressedImg, pressedImg=null)
 	{
@@ -254,23 +254,23 @@ export default Group.extend
 	 * 	Renders the stick in the canvas.
 	 * 	!renderStick (g: Canvas) : void;
 	 */
-	renderStick: function (g)
+	renderStick: function (g, elem, img)
 	{
-		if (this.isPressed)
+		if (elem.isPressed)
 		{
-			if (this.pressedImg)
-				this.pressedImg.draw (g, this.bounds.x1, this.bounds.y1);
+			if (elem.pressedImg)
+				elem.pressedImg.draw (g, elem.bounds.x1, elem.bounds.y1);
 
-			if (this.pressedImgInner)
-				this.pressedImgInner.draw (g, this.bounds.x1 + this.dispx, this.bounds.y1 + this.dispy);
+			if (elem.pressedImgInner)
+				elem.pressedImgInner.draw (g, elem.bounds.x1 + elem.dispx, elem.bounds.y1 + elem.dispy);
 		}
 		else
 		{
-			if (this.unpressedImg)
-				this.unpressedImg.draw (g, this.bounds.x1, this.bounds.y1);
+			if (elem.unpressedImg)
+				elem.unpressedImg.draw (g, elem.bounds.x1, elem.bounds.y1);
 
-			if (this.unpressedImgInner)
-				this.unpressedImgInner.draw (g, this.bounds.x1, this.bounds.y1);
+			if (elem.unpressedImgInner)
+				elem.unpressedImgInner.draw (g, elem.bounds.x1, elem.bounds.y1);
 		}
 	},
 

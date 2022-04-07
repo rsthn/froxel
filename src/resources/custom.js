@@ -14,27 +14,21 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Class } from 'rinn';
 import Canvas from '../system/canvas.js';
-import Resources from './resources.js';
+import Drawable from '../flow/drawable.js';
 
 //![import "../system/canvas"]
-//![import "./resources"]
 
-export default Class.extend
+export default Drawable.extend
 ({
-	className: "Custom",
-
-	width: null,
-	height: null,
-
-	x: 0,
-	y: 0,
+	className: 'DrawableCustom',
 
 	__ctor: function (r)
 	{
-		if (r.type != "object")
-			throw new Error ("Resource is not an object.");
+		if (r.type != 'object')
+			throw new Error ('Resource is not an object.');
+
+		this._super.Drawable.__ctor();
 
 		this.width = r.width;
 		this.height = r.height;
@@ -61,27 +55,12 @@ export default Class.extend
 
 	draw: function (g, x=0, y=0, width=null, height=null)
 	{
-		if (!this.data)
-			return;
-
-		g.drawImage (this.data, 0, 0, this.data.width, this.data.height, x, y, width ?? this.width, height ?? this.height);
+		if (this.data !== null)
+			g.drawImage (this.data, 0, 0, this.data.width, this.data.height, x, y, width ?? this.width, height ?? this.height);
 	},
 
 	getImage: function()
 	{
 		return this.data;
-	},
-
-	getDrawable: function()
-	{
-		return this;
 	}
 });
-
-/**
-**	Creates a descriptor for a custom.
-*/
-Resources.Custom = function (width, height, color='#ff0000', opts=null)
-{
-	return { type: "object", wrapper: "Custom", width: width, height: height, color: color, ...opts };
-};

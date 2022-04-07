@@ -18,11 +18,13 @@ import GridElement from './grid-element.js';
 import G from '../system/globals.js';
 import Recycler from '../utils/recycler.js';
 import System from '../system/system.js';
+import Canvas from '../system/canvas.js';
+import Drawable from './drawable.js';
 
 //![import "./grid-element"]
 //![import "../system/globals"]
 //![import "../utils/recycler"]
-//![import "./idrawable"]
+//![import "./drawable"]
 
 //:/**
 //: * Describes an element that can be rendered to the screen.
@@ -42,7 +44,7 @@ const Element = GridElement.extend
 
 	/**
 	 * Drawable object to render to the display.
-	 * !img: IDrawable;
+	 * !img: Drawable;
 	 */
 	img: null,
 
@@ -78,17 +80,18 @@ const Element = GridElement.extend
 	_uniformSetter: null,
 
 	/**
-	 * Function used to render the element. Called by `draw` after rendering configuration has been set. Defaults to `renderDefault`.
+	 * Function used to render the element. Called by `draw` after rendering configuration has been set.
+	 * @type {(g:Canvas, elem:Element, img:Drawable) => void}
 	 */
 	render: null,
 
 	/**
 	 * Constructs a drawable element at the specified position with the given drawable.
-	 * !constructor (x: number, y: number, width: number, height: number, img?: IDrawable);
+	 * !constructor (x: number, y: number, width: number, height: number, img?: Drawable);
 	 */
 	/**
 	 * Constructs a drawable element at the specified position with the given drawable.
-	 * !constructor (x: number, y: number, img?: IDrawable);
+	 * !constructor (x: number, y: number, img?: Drawable);
 	 */
 	__ctor: function(x, y, width=null, height=null, img=null)
 	{
@@ -115,7 +118,7 @@ const Element = GridElement.extend
 		this._shaderProgram = null;
 		this._uniformSetter = null;
 
-		this.render = Element.renderDefault;
+		this.render = null;
 	},
 
 	/**
@@ -224,6 +227,9 @@ const Element = GridElement.extend
 	 */
 	draw: function(g)
 	{
+		if (this.img === null && this.render === null)
+			return;
+
 		let shaderChanged = this._shaderProgram !== null ? g.pushShaderProgram(this._shaderProgram) : false;
 		let depthFlagChanged = this.depthFlagEnabled() ? g.pushDepthFlag(this.depthFlag()) : false;
 
@@ -238,8 +244,10 @@ const Element = GridElement.extend
 			g.alpha(this._alpha);
 		}
 
-		if (this.render)
-			this.render(g);
+		if (this.render !== null)
+			this.render(g, this, this.img);
+		else
+			this.img.render(g, this);
 
 		if (depthFlagChanged) g.popDepthFlag();
 		if (shaderChanged) g.popShaderProgram();
@@ -264,148 +272,15 @@ const Element = GridElement.extend
 
 	/**
 	 * Changes the function used to render the element.
-	 * @param { (g:Canvas) => void } renderFunction
+	 * @param { (g:Canvas, elem:Element, img:Drawable) => void } renderFunction
 	 * @returns {Element}
 	 */
 	renderWith: function (renderFunction)
 	{
-		this.render = renderFunction ?? Element.renderDefault;
+		this.render = renderFunction ?? null;
 		return this;
 	}
 });
-
-/**
- * Draws the element in the canvas.
- * @param {Canvas} g
- * !static renderDefault (g: Canvas) : void;
- */
-Element.renderDefault = function(g)
-{
-	this.img.draw (g, this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height());
-};
-
-/**
- * Draws the image without resizing it and clipped to the element's size.
- * @param {Canvas} g
- * !static renderClipped (g: Canvas) : void;
- */
-Element.renderClipped = function(g)
-{
-	let img = this.img.getImage();
-
-	g.drawImage (img,
-			this.img.x, this.img.y, this.bounds.width()*img.rscale, this.bounds.height()*img.rscale,
-			this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height(),
-			null, null,
-			this.img.width, this.img.height);
-}
-
-/**
- * Draws the element with a composition of several tiles from a nine-slice spritesheet to create a box.
- * @param {Canvas} g
- * !static renderNineSlice (g: Canvas) : void;
- */
-Element.renderNineSlice = function(g)
-{
-	let ss = this.img.spritesheet;
-	if (!ss) throw new Error('renderNineSlice requires the drawable to be a spritesheet with nine frames.');
-
-	let leftWidth = ss.getFrame(0).width;
-	let rightWidth = ss.getFrame(2).width;
-	let midWidth = ss.getFrame(1).width;
-
-	let topHeight = ss.getFrame(0).height;
-	let bottomHeight = ss.getFrame(6).height;
-	let midHeight = ss.getFrame(3).height;
-
-	let n = int((this.bounds.width() - leftWidth - rightWidth) / midWidth);
-	let m = int((this.bounds.height() - topHeight - bottomHeight) / midHeight);
-
-	let x1 = this.bounds.x1;
-	let y1 = this.bounds.y1;
-
-	// Corners
-	ss.getFrame(0).draw(g, x1, y1);
-	ss.getFrame(2).draw(g, x1 + leftWidth + n*midWidth, y1);
-	ss.getFrame(6).draw(g, x1, y1 + topHeight + m*midHeight);
-	ss.getFrame(8).draw(g, x1 + leftWidth + n*midWidth, y1 + topHeight + m*midHeight);
-
-	// Top/Bottom
-	for (let i = 0; i < n; i++) {
-		ss.getFrame(1).draw(g, x1 + leftWidth + i*midWidth, y1);
-		ss.getFrame(7).draw(g, x1 + leftWidth + i*midWidth, y1 + topHeight + m*midHeight);
-	}
-
-	// Left/Right
-	for (let i = 0; i < m; i++) {
-		ss.getFrame(3).draw(g, x1, y1 + topHeight + i*midHeight);
-		ss.getFrame(5).draw(g, x1 + leftWidth + n*midWidth, y1 + topHeight + i*midHeight);
-	}
-
-	// Center
-	for (let j = 0; j < m; j++)
-	for (let i = 0; i < n; i++) {
-		ss.getFrame(4).draw(g, x1 + leftWidth + i*midWidth, y1 + topHeight + j*midHeight);
-	}
-};
-
-/**
- * Draws the image without resizing it and repeated to the element's size.
- * @param {Canvas} g
- * !static renderRepeat (g: Canvas) : void;
- */
-Element.renderRepeat = function(g)
-{
-	let img = this.img.getImage();
-
-	let h = this.bounds.height();
-	let w = this.bounds.width();
-
-	let ih = this.img.height;
-	let iw = this.img.width;
-
-	let rh = ih * img.rscale;
-	let rw = iw * img.rscale;
-
-	let x, y;
-
-	for (y = 0; y+ih < h; y += ih)
-	{
-		for (x = 0; x+iw < w; x += iw)
-		{
-			g.drawImage (img,
-					this.img.x, this.img.y, rw, rh,
-					this.bounds.x1 + x, this.bounds.y1 + y, iw, ih);
-		}
-
-		if (x < w)
-		{
-			g.drawImage (img,
-				this.img.x, this.img.y, (w-x)*img.rscale, rh,
-				this.bounds.x1 + x, this.bounds.y1 + y, w-x, ih);
-		}
-	}
-
-	if (y < h)
-	{
-		ih = h-y;
-		rh = ih*img.rscale;
-
-		for (x = 0; x+iw < w; x += iw)
-		{
-			g.drawImage (img,
-					this.img.x, this.img.y, rw, rh,
-					this.bounds.x1 + x, this.bounds.y1 + y, iw, ih);
-		}
-
-		if (x < w)
-		{
-			g.drawImage (img,
-				this.img.x, this.img.y, (w-x)*img.rscale, rh,
-				this.bounds.x1 + x, this.bounds.y1 + y, w-x, ih);
-		}
-	}
-};
 
 //!/class
 
@@ -414,11 +289,11 @@ Element.renderRepeat = function(g)
 
 	/**
 	 * Allocates a drawable element at the specified position with the given drawable.
-	 * !function alloc (x: number, y: number, width: number, height: number, img?: IDrawable) : Element;
+	 * !function alloc (x: number, y: number, width: number, height: number, img?: Drawable) : Element;
 	 */
 	/**
 	 * Allocates a drawable element at the specified position with the given drawable.
-	 * !function alloc (x: number, y: number, img?: IDrawable) : Element;
+	 * !function alloc (x: number, y: number, img?: Drawable) : Element;
 	 */
 
 Recycler.createPool(Element);

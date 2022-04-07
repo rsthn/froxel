@@ -3573,43 +3573,130 @@ export class Container
 /**
  * 	Describes an object that can be drawn to a Canvas.
  */
-export class IDrawable
+export class Drawable
 {
 	/**
-	 * 	Width of the drawable.
+	 * Image resource.
+	 * @protected
 	 */
-	width: number;
+	readonly resource: HTMLImageElement|Canvas;
 
 	/**
-	 * 	Height of the drawable.
+	 * Width of the drawable.
+	 * @protected
 	 */
-	height: number;
+	readonly width: number;
 
 	/**
-	 * 	Frame X-position.
+	 * Height of the drawable.
+	 * @protected
 	 */
-	x: number;
+	readonly height: number;
 
 	/**
-	 * 	Frame Y-position.
+	 * Frame X-position.
+	 * @protected
 	 */
-	y: number;
+	readonly x: number;
 
 	/**
-	 * 	Returns the actual independent drawable object.
+	 * Frame Y-position.
+	 * @protected
 	 */
-	getDrawable(): IDrawable;
+	readonly y: number;
 
 	/**
-	 * 	Returns the underlying Image object, can be used directly with Canvas.drawImage.
+	 * Initializes the instance.
+	 */
+	construct();
+
+	/**
+	 * Returns the actual independent drawable object.
+	 */
+	getDrawable(): Drawable;
+
+	/**
+	 * Returns the underlying Image object, can be used directly with Canvas.drawImage.
 	 */
 	getImage(): HTMLImageElement|Canvas;
 
 	/**
-	 * 	Draws the drawable on the given canvas.
+	 * Draws the drawable on the given canvas.
 	 */
-	draw(g: Canvas, x: number, y: number, width: number, height: number): void;
+	draw (g: Canvas, x?: number, y?: number, width?: number, height?: number) : void;
 
+	/**
+	 * Renders the drawable for the specified element.
+	 */
+	render (g: Canvas, elem: Element) : void;
+
+	/**
+	 * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
+	 */
+	static nineSlice (spritesheet: Spritesheet, startingIndex?:number=0) : Drawable;
+
+	/**
+	 * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
+	 */
+	nineSlice (startingIndex?:number=0) : Drawable;
+
+	/**
+	 * Drawable tiles to the target size.
+	 */
+	static repeated (drawable: Drawable) : Drawable;
+
+	/**
+	 * Drawable tiles to the target size.
+	 */
+	repeated () : Drawable;
+
+	/**
+	 * Drawable clipped to the target size.
+	 */
+	static clipped (drawable: Drawable) : Drawable;
+
+	/**
+	 * Drawable clipped to the target size.
+	 */
+	clipped () : Drawable;
+
+	/**
+	 * Drawable centered to the target rectangle.
+	 */
+	static centered (drawable: Drawable, offsX?: number, offsY?: number) : Drawable;
+
+	/**
+	 * Drawable centered to the target rectangle.
+	 */
+	centered (offsX?: number, offsY?: number) : Drawable;
+
+	/**
+	 * Drawable as-is without stretching it.
+	 */
+	static static (drawable: Drawable, offsX?: number, offsY?: number) : Drawable;
+
+	/**
+	 * Drawable as-is without stretching it.
+	 */
+	static (offsX?: number, offsY?: number) : Drawable;
+
+	/**
+	 * Creates a drawable group.
+	 */
+	static group (...args) : Drawable;
+
+}
+
+export namespace Drawable
+{
+	export namespace Pool
+	{
+		/**
+		 * Allocates a drawable object.
+		 */
+		function alloc () : Drawable;
+
+	}
 }
 /**
  * Describes an element that can be rendered to the screen.
@@ -3624,7 +3711,7 @@ export class Element extends GridElement
 	/**
 	 * Drawable object to render to the display.
 	 */
-	img: IDrawable;
+	img: Drawable;
 
 	/**
 	 * Indicates if the bounds of the element should be drawn (for debugging purposes).
@@ -3634,12 +3721,12 @@ export class Element extends GridElement
 	/**
 	 * Constructs a drawable element at the specified position with the given drawable.
 	 */
-	constructor (x: number, y: number, width: number, height: number, img?: IDrawable);
+	constructor (x: number, y: number, width: number, height: number, img?: Drawable);
 
 	/**
 	 * Constructs a drawable element at the specified position with the given drawable.
 	 */
-	constructor (x: number, y: number, img?: IDrawable);
+	constructor (x: number, y: number, img?: Drawable);
 
 	/**
 	 * Destroys the element later by adding it to the scene's destruction queue. If the element has no container, it will be destroyed immediately.
@@ -3692,30 +3779,6 @@ export class Element extends GridElement
 	 */
 	uniformSetter (uniformSetter: (elem:Element, gl:WebGLRenderingContext, pgm:ShaderProgram) => void) : Element;
 
-	/**
-	 * Draws the element in the canvas.
-	 * @param {Canvas} g
-	 */
-	static renderDefault (g: Canvas) : void;
-
-	/**
-	 * Draws the image without resizing it and clipped to the element's size.
-	 * @param {Canvas} g
-	 */
-	static renderClipped (g: Canvas) : void;
-
-	/**
-	 * Draws the element with a composition of several tiles from a nine-slice spritesheet to create a box.
-	 * @param {Canvas} g
-	 */
-	static renderNineSlice (g: Canvas) : void;
-
-	/**
-	 * Draws the image without resizing it and repeated to the element's size.
-	 * @param {Canvas} g
-	 */
-	static renderRepeat (g: Canvas) : void;
-
 }
 
 export namespace Element
@@ -3725,12 +3788,12 @@ export namespace Element
 		/**
 		 * Allocates a drawable element at the specified position with the given drawable.
 		 */
-		function alloc (x: number, y: number, width: number, height: number, img?: IDrawable) : Element;
+		function alloc (x: number, y: number, width: number, height: number, img?: Drawable) : Element;
 
 		/**
 		 * Allocates a drawable element at the specified position with the given drawable.
 		 */
-		function alloc (x: number, y: number, img?: IDrawable) : Element;
+		function alloc (x: number, y: number, img?: Drawable) : Element;
 
 	}
 }
@@ -4164,6 +4227,7 @@ export class GridContainer extends Container
 }
 
 
+
 /**
  * 	Describes an element mask. Used for collision detection.
  */
@@ -4340,12 +4404,12 @@ export class Button extends Group
 	/**
 	 * 	Image to draw when the button is unpressed.
 	 */
-	unpressedImg: IDrawable;
+	unpressedImg: Drawable;
 
 	/**
 	 * 	Image to draw when the button is pressed.
 	 */
-	pressedImg: IDrawable;
+	pressedImg: Drawable;
 
 	/**
 	 * 	Key code related to the button. Used only if not `null`.
@@ -4361,12 +4425,22 @@ export class Button extends Group
 	/**
 	 * 	Creates the button with the specified parameters. Automatically adds it to the screen controls.
 	 */
-	constructor (container: Container, x: number, y: number, unpressedImg?: IDrawable, pressedImg?: IDrawable);
+	constructor (container: Container, x: number, y: number, unpressedImg?: Drawable, pressedImg?: Drawable);
+
+	/**
+	 * 	Sets the width and height of the button and the hitbox.
+	 */
+	resize (width: number, height: number) : GridElement;
+
+	/**
+	 * 	Resizes the button and hitbox by the specified deltas.
+	 */
+	resizeBy (deltaWidth: number, deltaHeight: number) : GridElement;
 
 	/**
 	 * 	Changes the pressed/unpressed images of the button.
 	 */
-	setImage (unpressedImg: IDrawable, pressedImg?: IDrawable);
+	setImage (unpressedImg: Drawable, pressedImg?: Drawable);
 
 	/**
 	 * 	Changes the key code of the button.
@@ -4377,11 +4451,6 @@ export class Button extends Group
 	 * 	Resets the button to its initial state.
 	 */
 	reset() : void;
-
-	/**
-	 * 	Renders the button in the canvas.
-	 */
-	renderButton (g: Canvas) : void;
 
 	/**
 	 * 	Button pointer update event. Not required for the button control.
@@ -4477,22 +4546,22 @@ export class Stick extends Group
 	/**
 	 * 	Image to draw when the stick is unpressed (outer circle).
 	 */
-	unpressedImg: IDrawable;
+	unpressedImg: Drawable;
 
 	/**
 	 * 	Image to draw when the stick is pressed (outer circle).
 	 */
-	pressedImg: IDrawable;
+	pressedImg: Drawable;
 
 	/**
 	 * 	Image to draw when the stick is unpressed (inner circle).
 	 */
-	unpressedImg: IDrawable;
+	unpressedImg: Drawable;
 
 	/**
 	 * 	Image to draw when the stick is pressed (inner circle).
 	 */
-	pressedImg: IDrawable;
+	pressedImg: Drawable;
 
 	/**
 	 * 	Number of steps for the angle. Used to snap the stick movement to discrete steps.
@@ -4507,17 +4576,17 @@ export class Stick extends Group
 	/**
 	 * 	Creates the stick with the specified parameters. Automatically adds it to the screen controls.
 	 */
-	constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: IDrawable, unpressedImgInner: IDrawable, pressedImg?: IDrawable, pressedImgInner?: IDrawable);
+	constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: Drawable, unpressedImgInner: Drawable, pressedImg?: Drawable, pressedImgInner?: Drawable);
 
 	/**
 	 * 	Changes the pressed/unpressed images of the outer stick.
 	 */
-	setImage (unpressedImg: IDrawable, pressedImg?: IDrawable) : Stick;
+	setImage (unpressedImg: Drawable, pressedImg?: Drawable) : Stick;
 
 	/**
 	 * 	Changes the pressed/unpressed images of the inner stick.
 	 */
-	setImageInner (unpressedImg: IDrawable, pressedImg?: IDrawable) : Stick;
+	setImageInner (unpressedImg: Drawable, pressedImg?: Drawable) : Stick;
 
 	/**
 	 * 	Sets the number of angle-steps for the stick.

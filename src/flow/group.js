@@ -60,8 +60,6 @@ const Group = Element.extend
 
 		this.ref = Point2.Pool.alloc();
 		this.setId(id);
-
-		this.renderWith(this.renderGroup);
 	},
 
 	/**
@@ -136,21 +134,26 @@ const Group = Element.extend
 	 * 	property, which can be accessed directly using the element identifier or using the `getChild` method.
 	 * 	!addChild (elem: Element) : Element;
 	 */
-	addChild: function (elem)
+	addChild: function (elem, relative=false)
 	{
 		if (!elem) return elem;
 
 		let initial = this.bounds.x1 === null;
 
-		if (initial || elem.bounds.x1 < this.bounds.x1) this.ltranslate(elem.bounds.x1 - this.bounds.x1, 0);
-		if (initial || elem.bounds.y1 < this.bounds.y1) this.ltranslate(0, elem.bounds.y1 - this.bounds.y1);
-		if (initial || elem.bounds.x2 > this.bounds.x2) this.resizeBy(elem.bounds.x2 - this.bounds.x2, 0);
-		if (initial || elem.bounds.y2 > this.bounds.y2) this.resizeBy(0, elem.bounds.y2 - this.bounds.y2);
+		if (initial) {
+			if (initial || elem.bounds.x1 < this.bounds.x1) this.ltranslate(elem.bounds.x1 - this.bounds.x1, 0);
+			if (initial || elem.bounds.y1 < this.bounds.y1) this.ltranslate(0, elem.bounds.y1 - this.bounds.y1);
+			if (initial || elem.bounds.x2 > this.bounds.x2) this.resizeBy(elem.bounds.x2 - this.bounds.x2, 0);
+			if (initial || elem.bounds.y2 > this.bounds.y2) this.resizeBy(0, elem.bounds.y2 - this.bounds.y2);
+		}
 
 		this.children.push(elem);
 
 		if (elem.id !== null)
 			this[elem.id] = elem;
+
+		if (relative === true)
+			elem.translate(this.bounds.x1, this.bounds.y1);
 
 		elem.group = this;
 		elem.remover.add(this._remove, this, this.children.bottom);
@@ -305,13 +308,6 @@ const Group = Element.extend
 			i.value.visible(value, forced);
 
 		return this._super.Element.visible(value, forced);
-	},
-
-	/**
-	 * 	Render method does nothing.
-	 */
-	renderGroup: function(g)
-	{
 	}
 });
 

@@ -14,10 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Class } from 'rinn';
-import Canvas from '../system/canvas.js';
-
-//![import "../system/canvas"]
+import Drawable from '../flow/drawable.js';
 
 /*
 	If source is "image":
@@ -35,14 +32,34 @@ import Canvas from '../system/canvas.js';
 	NOTE: The sheetWidth, frameWidth and frameHeight should reflect the real image size. The system will automatically scale it if the source image is smaller/bigger.
 */
 
-export default Class.extend
+const FrameDrawable = Drawable.extend
+({
+	spritesheet: null,
+	frameIndex: 0,
+
+	__ctor: function (spritesheet, frameIndex)
+	{
+		this._super.Drawable.__ctor(null, spritesheet.width, spritesheet.height);
+
+		this.spritesheet = spritesheet;
+		this.frameIndex = frameIndex;
+
+		this.width = spritesheet.width;
+		this.height = spritesheet.height;
+	},
+
+	draw: function (g, x=0, y=0, width=null, height=null)
+	{
+		g.drawImage (this.resource,
+				this.x, this.y, this.spritesheet.frameWidth, this.spritesheet.frameHeight,
+				x, y, width ?? this.width, height ?? this.height,
+				null, null, this.width, this.height);
+	}
+});
+
+export default Drawable.extend
 ({
 	className: 'Spritesheet',
-
-	width: 0,
-	height: 0,
-	x: 0,
-	y: 0,
 
 	numCols: 0,
 	numFrames: 0,
@@ -51,6 +68,8 @@ export default Class.extend
 
 	__ctor: function (r)
 	{
+		this._super.Drawable.__ctor();
+
 		if ((r.type != 'image' && r.type != 'images'))
 			throw new Error ('Resource is not a sprite sheet.');
 
@@ -115,63 +134,26 @@ export default Class.extend
 			this.getFrame(i);
 	},
 
-	drawFrame: function (g, x, y, frameIndex, width=null, height=null)
-	{
-		this.getFrame(frameIndex).draw(g, x, y, width, height);
-	},
-
 	getFrame: function (x, y=null)
 	{
-		let frameIndex;
-
-		if (y !== null)
-			frameIndex = y*this.numCols+x;
-		else
-			frameIndex = x;
-
+		let frameIndex = y !== null ? y*this.numCols+x : x;
 		if (frameIndex < 0 || frameIndex >= this.numFrames)
 			throw new Error ('frameIndex out of range');
 
 		if (this.frameCache[frameIndex])
 			return this.frameCache[frameIndex];
 
-		let frameObject =
-		{
-			width: this.width,
-			height: this.height,
-			x: 0,
-			y: 0,
+		let frameObject = new FrameDrawable (this, frameIndex);
 
-			frameIndex: frameIndex,
-			spritesheet: this,
-
-			image: null,
-
-			draw: function (g, x=0, y=0, width=null, height=null)
-			{
-				g.drawImage (this.image, this.x, this.y, this.spritesheet.frameWidth, this.spritesheet.frameHeight, x, y, width ?? this.width, height ?? this.height, null, null, this.width, this.height);
-			},
-
-			getImage: function()
-			{
-				return this.image;
-			},
-
-			getDrawable: function()
-			{
-				return this;
-			}
-		};
-
-		if (this.numCols !== 0)
+		if (this.numCols != 0)
 		{
 			frameObject.y = int(frameIndex / this.numCols) * this.frameHeight;
 			frameObject.x = (frameIndex % this.numCols) * this.frameWidth;
-			frameObject.image = this.r.data;
+			frameObject.resource = this.r.data;
 		}
 		else
 		{
-			frameObject.image = this.r.data[frameIndex].data;
+			frameObject.resource = this.r.data[frameIndex].data;
 		}
 
 		return this.frameCache[frameIndex] = frameObject;
@@ -187,8 +169,3 @@ export default Class.extend
 		return this.getFrame(0);
 	}
 });
-
-Canvas.prototype.drawFrame = function (r, x, y, frameIndex, width, height)
-{
-	r.drawFrame (this, x, y, frameIndex, width, height);
-};

@@ -176,10 +176,10 @@ const Label = Element.extend
 	/**
 	 * 	Renders the element to the graphics surface.
 	 */
-	renderText: function(g)
+	renderText: function(g, elem, img)
 	{
-		this.update();
-		this.font.drawText (g, this.bounds.x1 + this.textOffsetX, this.bounds.y1 + this.textOffsetY, this.text);
+		elem.update();
+		elem.font.drawText (g, elem.bounds.x1 + elem.textOffsetX, elem.bounds.y1 + elem.textOffsetY, elem.text);
 	}
 });
 

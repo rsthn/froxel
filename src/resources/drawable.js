@@ -14,54 +14,22 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Class } from 'rinn';
-import Resources from './resources.js';
+import Drawable from '../flow/drawable.js';
 
-//![import './resources']
-
-export default Class.extend
+export default Drawable.extend
 ({
-	className: "Drawable",
+	className: 'DrawableResource',
 
-	width: null,
-	height: null,
-
-	x: 0,
-	y: 0,
+	r: null,
 
 	__ctor: function (r)
 	{
-		if (r.type != "image")
-			throw new Error ("Resource is not an image.");
+		if (r.type !== 'image')
+			throw new Error ('Resource is not an image.');
 
-		this.width = r.width;
-		this.height = r.height;
+		this._super.Drawable.__ctor(r.data, r.width, r.height);
 
 		this.r = r;
 		this.r.wrapper = this;
-	},
-
-	draw: function (g, x=0, y=0, width=null, height=null)
-	{
-		g.drawImage (this.r.data, 0, 0, this.r.data.width, this.r.data.height, x, y, width ?? this.r.width, height ?? this.r.height,
-			null, null, this.width, this.height);
-	},
-
-	getImage: function()
-	{
-		return this.r.data;
-	},
-
-	getDrawable: function()
-	{
-		return this;
 	}
 });
-
-/**
- * 	Creates a descriptor for an image resource.
- */
-Resources.Image = function (src, opts=null)
-{
-	return { type: "image", wrapper: "Drawable", src: src, pixelated: null, ...opts };
-};
