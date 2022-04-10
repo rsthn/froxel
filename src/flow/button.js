@@ -101,7 +101,7 @@ export default Group.extend
 		this.pressedImg = pressedImg ?? unpressedImg;
 		this.hitbox = null;
 
-		let hitbox = new Mask (0, x, y, this.unpressedImg ? this.unpressedImg.width : 16, this.unpressedImg ? this.unpressedImg.height : 16).visible(false).visibleLock(true);
+		let hitbox = Mask.Pool.alloc (0, x, y, this.unpressedImg ? this.unpressedImg.width : 16, this.unpressedImg ? this.unpressedImg.height : 16).visible(false).visibleLock(true);
 		this.addChild(hitbox);
 
 		container.add(hitbox);
@@ -114,8 +114,8 @@ export default Group.extend
 		this._onTap = null;
 		this._onChange = this._default_onChange;
 
-		ScreenControls.add(this);
 		this.reset();
+		ScreenControls.add(this);
 	},
 
 	/**
@@ -124,6 +124,7 @@ export default Group.extend
 	__dtor: function ()
 	{
 		this._super.Group.__dtor();
+		this.hitbox.free();
 		ScreenControls.remove(this);
 	},
 

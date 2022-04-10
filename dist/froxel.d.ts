@@ -2181,6 +2181,11 @@ export namespace globals
 	let debugBounds: boolean;
 
 	/**
+	 * 	Indicates if the mask bounds should be drawn. Used by the `Mask` class.
+	 */
+	let debugMasks: boolean;
+
+	/**
 	 * 	Global random generators. Only `rand0` is used by the global random functions. The `rand1` and `rand2` can be used manually if desired.
 	 */
 	const rand0: Random;
@@ -3714,9 +3719,10 @@ export class Element extends GridElement
 	img: Drawable;
 
 	/**
-	 * Indicates if the bounds of the element should be drawn (for debugging purposes).
+	 * Indicates if the bounds of the element should be drawn (for debugging purposes). You can set it to a boolean or to a number from 1 to 7 to
+	 * draw the bounds with a different predefined color.
 	 */
-	debugBounds: boolean;
+	debugBounds: boolean|number;
 
 	/**
 	 * Constructs a drawable element at the specified position with the given drawable.
@@ -3732,6 +3738,19 @@ export class Element extends GridElement
 	 * Destroys the element later by adding it to the scene's destruction queue. If the element has no container, it will be destroyed immediately.
 	 */
 	destroyLater() : void;
+
+	/**
+	 * Returns the `debugBounds` of the element.
+	 * @returns {number}
+	 */
+	debug () : number;
+
+	/**
+	 * Sets the `debugBounds` of the element.
+	 * @param {boolean|number} value
+	 * @returns {Element}
+	 */
+	debug (value: number) : Element;
 
 	/**
 	 * Returns the alpha value of the element.
@@ -3778,6 +3797,16 @@ export class Element extends GridElement
 	 * @returns {Element}
 	 */
 	uniformSetter (uniformSetter: (elem:Element, gl:WebGLRenderingContext, pgm:ShaderProgram) => void) : Element;
+
+	/**
+	 * Colors for the bounds debugging.
+	 */
+	static debugColors : Array<string>;
+
+	/**
+	 * Returns an RGBA color for the given `debugBounds` value.
+	 */
+	static getDebugColor (debugBounds: boolean|number) : string;
 
 }
 
@@ -4868,6 +4897,13 @@ export class world
 	 * Selects the active container.
 	 */
 	static selectContainer (index: number) : boolean;
+
+	/**
+	 * Changes the visibility of the LAYER_MASK to enable (or disable) mask bounds rendering.
+	 * @param {boolean} value
+	 * @param {boolean} allMasks When `true` the `debugMasks` of `globals` will be set to the `value` parameter. When `false` only masks having `debugBounds` to non-false will be drawn.
+	 */
+	static showMasks (value: boolean, allMasks?: boolean) : void;
 
 	/**
 	 * Creates a group in the active scene and selects it as the active group.

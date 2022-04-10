@@ -155,7 +155,7 @@ export default Group.extend
 		this.deadZoneX = 0;
 		this.deadZoneY = 0;
 
-		this.hitbox = new Mask(0, x, y, (this.unpressedImg ?? this.unpressedImgInner).width, (this.unpressedImg ?? this.unpressedImgInner).height).visible(false).visibleLock(true);
+		this.hitbox = Mask.Pool.alloc (0, x, y, (this.unpressedImg ?? this.unpressedImgInner).width, (this.unpressedImg ?? this.unpressedImgInner).height).visible(false).visibleLock(true);
 		this.addChild(this.hitbox);
 
 		container.add(this.hitbox);
@@ -173,6 +173,7 @@ export default Group.extend
 	__dtor: function ()
 	{
 		this._super.Group.__dtor();
+		this.hitbox.free();
 		ScreenControls.remove(this);
 	},
 
@@ -280,8 +281,46 @@ export default Group.extend
 	 */
 	pointerUpdate: function (pointerX, pointerY)
 	{
-		let dx = pointerX - this.bounds.cx;
-		let dy = pointerY - this.bounds.cy;
+		let dx, dy;
+
+		/*if (true)
+		{
+			if (this.pointerRefX === null)
+			{
+				this.pointerRefX = this.bounds.cx;
+				this.pointerRefY = this.bounds.cy;
+				this.pointerRefN = 0;
+			}
+
+			dx = pointerX - this.pointerRefX;
+			dy = pointerY - this.pointerRefY;
+
+			this.pointerRefN++;
+			this.pointerRefX = (this.pointerRefX*this.pointerRefN + pointerX) / (this.pointerRefN+1);
+			this.pointerRefY = (this.pointerRefY*this.pointerRefN + pointerY) / (this.pointerRefN+1);
+
+			this.angle = Math.atan2(-dy, dx);
+			this.radius = this.maxRadius;
+
+			this.rdirx = Math.min(1, Math.max(dx / this.maxRadius, -1));
+			this.rdiry = Math.min(1, Math.max(dy / this.maxRadius, -1));
+
+			this.dispx = this.radius * Math.cos(this.angle);
+			this.dispy = this.radius * -Math.sin(this.angle);
+
+			this.dirx = this.dispx / this.radius;
+			this.diry = this.dispy / this.radius;
+
+			this.magnitude = 1.0;
+
+			if (this._onChange)
+				this._onChange (this.dirx, this.diry, this.magnitude, this.angle, this);
+
+			return;
+		}*/
+
+		dx = pointerX - this.bounds.cx;
+		dy = pointerY - this.bounds.cy;
 
 		this.angle = Math.atan2(-dy, dx);
 		this.radius = Math.sqrt(dx*dx + dy*dy);

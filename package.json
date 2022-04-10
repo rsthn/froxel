@@ -20,7 +20,7 @@
         "build:browser": "parcel build --no-cache --target browser",
         "build:module": "parcel build --no-cache --target module",
         "build": "pnpm build:browser"
-    },
+	},
     "browserslist": "since 2020-01",
     "targets": {
         "module": {

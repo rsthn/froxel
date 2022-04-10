@@ -57,6 +57,12 @@ const globals =
 	debugBounds: false,
 
 	/**
+	 * 	Indicates if the mask bounds should be drawn. Used by the `Mask` class.
+	 * 	!let debugMasks: boolean;
+	 */
+	debugMasks: false,
+
+	/**
 	 * 	Global random generators. Only `rand0` is used by the global random functions. The `rand1` and `rand2` can be used manually if desired.
 	 *
 	 * 	!const rand0: Random;

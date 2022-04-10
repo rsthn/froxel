@@ -1,12 +1,10 @@
 # v2.2.1 - April 6th 2022
 
-### What's New
+#### General
 - `Drawable` class is now part of the family. All resources using the deprecated `IDrawable` interface are now extending `Drawable` instead and taking advantage of the pre-made methods.
 - Several static methods of `Element` removed since those are now replaced by functionality from `Drawable`.
 - Ditched `yarn` and using now `pnpm` as package manager.
 - Removed `prepare` command from `froxel` CLI.
-
-### Class Changes
 
 #### `Drawable`
 - New class that represents an object that can be drawn on the canvas.

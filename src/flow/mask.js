@@ -17,6 +17,7 @@
 import Element from './element.js';
 import System from '../system/system.js';
 import Recycler from '../utils/recycler.js';
+import globals from '../system/globals.js';
 
 //![import "./element"]
 //![import "../system/system"]
@@ -55,15 +56,17 @@ const Mask = Element.extend
 	 */
 	draw: function(g)
 	{
-		let g2 = System.displayBuffer2;
+		if (!globals.debugMasks && !this.debugBounds)
+			return;
 
-		g2.pushMatrix();
-		g2.loadMatrix(g.getMatrix());
+		let m = g.getMatrix();
+		g = System.displayBuffer2;
 
-		g2.fillStyle('rgba(255,0,255,0.3)');
-		g2.fillRect(this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height());
-
-		g2.popMatrix();
+		g.pushMatrix();
+		g.loadMatrix(m);
+		g.fillStyle(Element.getDebugColor(this.debugBounds));
+		g.fillRect(this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height());
+		g.popMatrix();
 	}
 });
 

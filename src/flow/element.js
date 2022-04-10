@@ -49,8 +49,9 @@ const Element = GridElement.extend
 	img: null,
 
 	/**
-	 * Indicates if the bounds of the element should be drawn (for debugging purposes).
-	 * !debugBounds: boolean;
+	 * Indicates if the bounds of the element should be drawn (for debugging purposes). You can set it to a boolean or to a number from 1 to 7 to
+	 * draw the bounds with a different predefined color.
+	 * !debugBounds: boolean|number;
 	 */
 	debugBounds: false,
 
@@ -147,6 +148,26 @@ const Element = GridElement.extend
 			this.container.scene.disposeLater(this);
 		else
 			dispose(this);
+	},
+
+	/**
+	 * Returns the `debugBounds` of the element.
+	 * @returns {number}
+	 * !debug () : number;
+	 */
+	/**
+	 * Sets the `debugBounds` of the element.
+	 * @param {boolean|number} value
+	 * @returns {Element}
+	 * !debug (value: number) : Element;
+	 */
+	debug: function (value=null)
+	{
+		if (value === null)
+			return this.debugBounds;
+
+		this.debugBounds = value;
+		return this;
 	},
 
 	/**
@@ -263,7 +284,7 @@ const Element = GridElement.extend
 			g2.pushMatrix();
 			g2.loadMatrix(g.getMatrix());
 
-			g2.fillStyle(this.debugBounds === 1 ? 'rgba(255,255,0,0.5)' : 'rgba(0,255,255,0.5)');
+			g2.fillStyle(Element.getDebugColor(this.debugBounds));
 			g2.fillRect(this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height());
 
 			g2.popMatrix();
@@ -281,6 +302,33 @@ const Element = GridElement.extend
 		return this;
 	}
 });
+
+/**
+ * Colors for the bounds debugging.
+ * !static debugColors : Array<string>;
+ */
+Element.debugColors = [
+	'rgba(0,255,255,0.35)', // Cyan
+	'rgba(255,255,0,0.35)', // Yellow
+	'rgba(255,0,0,0.35)', // Red
+	'rgba(0,255,0,0.35)', // Green
+	'rgba(0,0,255,0.35)', // Blue
+	'rgba(255,0,255,0.35)', // Magenta
+	'rgba(255,255,255,0.35)', // White
+	'rgba(128,128,128,0.35)' // Gray
+];
+
+/**
+ * Returns an RGBA color for the given `debugBounds` value.
+ * !static getDebugColor (debugBounds: boolean|number) : string;
+ */
+Element.getDebugColor = function (debugBounds)
+{
+	if (debugBounds === true || debugBounds === false)
+		debugBounds = 0;
+
+	return Element.debugColors[(~~debugBounds) & 7];
+};
 
 //!/class
 

@@ -26,6 +26,7 @@ import Updater from '../flow/updater.js';
 import SimpleContainer from '../flow/simple-container.js';
 import Mask from '../flow/mask.js';
 import system from './system.js';
+import globals from '../system/globals.js';
 
 //!/**
 //! * 	World system allows to manage scenes, containers, viewports and display elements.
@@ -337,6 +338,18 @@ const world =
 	{
 		this.activeContainer = this.getContainer(index, true);
 		return this.activeContainer !== null;
+	},
+
+	/**
+	 * Changes the visibility of the LAYER_MASK to enable (or disable) mask bounds rendering.
+	 * @param {boolean} value
+	 * @param {boolean} allMasks If set to `false` only masks having `debugBounds` to non-false will be drawn.
+	 * !static showMasks (value: boolean, allMasks?: boolean) : void;
+	 */
+	showMasks: function (value, allMasks=true)
+	{
+		world.getScene(world.SCENE_MAIN).getContainer(world.LAYER_MASK).visible(value);
+		globals.debugMasks = allMasks;
 	},
 
 	/**
