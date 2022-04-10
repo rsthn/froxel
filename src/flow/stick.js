@@ -155,7 +155,7 @@ export default Group.extend
 		this.deadZoneX = 0;
 		this.deadZoneY = 0;
 
-		this.hitbox = Mask.Pool.alloc (0, x, y, (this.unpressedImg ?? this.unpressedImgInner).width, (this.unpressedImg ?? this.unpressedImgInner).height).visible(false).visibleLock(true);
+		this.hitbox = Mask.Pool.alloc (0, x, y, (this.unpressedImg ?? this.unpressedImgInner).width, (this.unpressedImg ?? this.unpressedImgInner).height).visible(false).visibleLock(true).debug(2);
 		this.addChild(this.hitbox);
 
 		container.add(this.hitbox);

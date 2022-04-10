@@ -101,7 +101,7 @@ export default Group.extend
 		this.pressedImg = pressedImg ?? unpressedImg;
 		this.hitbox = null;
 
-		let hitbox = Mask.Pool.alloc (0, x, y, this.unpressedImg ? this.unpressedImg.width : 16, this.unpressedImg ? this.unpressedImg.height : 16).visible(false).visibleLock(true);
+		let hitbox = Mask.Pool.alloc (0, x, y, this.unpressedImg ? this.unpressedImg.width : 16, this.unpressedImg ? this.unpressedImg.height : 16).visible(false).visibleLock(true).debug(2);
 		this.addChild(hitbox);
 
 		container.add(hitbox);
