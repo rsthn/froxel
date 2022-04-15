@@ -299,7 +299,7 @@ Canvas.prototype.initGl = function ()
 	 * 	Create the default shader program.
 	 */
 	this.glDefaultProgram = new ShaderProgram('def');
-
+/*
 	(new Shader ('def-vert', Shader.Type.VERTEX))
 	.source(
 		`#version 300 es
@@ -349,72 +349,68 @@ Canvas.prototype.initGl = function ()
 		}
 	`)
 	.compile();
+*/
 
-	/**
-	 * 	Create repeat (tileable) shader program.
-	 */
-	this.glRepeatProgram = new ShaderProgram('repeat');
-
-	(new Shader ('repeat-vert', Shader.Type.VERTEX))
+	(new Shader ('def-vert', Shader.Type.VERTEX))
 	.source(
 		`#version 300 es
 		precision highp float;
-		
+
 		uniform mat3 m_location;
 		uniform mat3 m_transform;
 		uniform mat3 m_texture;
-		
+
 		uniform vec2 v_resolution;
 		uniform vec2 v_texture_size;
 		uniform vec2 v_frame_size;
-		
+
 		uniform float f_time;
 		uniform float f_depth;
-		
+
 		uniform sampler2D texture0;
-		
+
 		in vec2 location;
+
 		out vec2 texcoords;
-		
 		out vec2 texoffs;
 		out vec2 texsiz;
-		
+
 		void main()
 		{
 			gl_Position = vec4(((vec2(m_transform * m_location * vec3(location, 1.0)) / v_resolution)*2.0 - vec2(1.0, 1.0)) * vec2(1.0, -1.0), f_depth / 16777216.0, 1.0);
-		
+
 			texcoords = vec2(
 				(location.x*m_texture[0][0]/v_texture_size[0])*(m_location[0][0] / v_frame_size[0]),
 				(location.y*m_texture[1][1]/v_texture_size[1])*(m_location[1][1] / v_frame_size[1])
 			);
-		
+
 			texoffs = vec2(m_texture[2][0]/v_texture_size[0], m_texture[2][1]/v_texture_size[1]);
 			texsiz = vec2(m_texture[0][0]/v_texture_size[0], m_texture[1][1]/v_texture_size[1]);
 		}
 	`)
 	.compile();
 
-	(new Shader ('repeat-frag', Shader.Type.FRAGMENT))
+	(new Shader ('def-frag', Shader.Type.FRAGMENT))
 	.source(
 		`#version 300 es
 		precision highp float;
-		
+
 		uniform mat3 m_texture;
 		uniform vec2 v_texture_size;
-		
+
 		uniform sampler2D texture0;
 		uniform float f_alpha;
-		
+
 		in vec2 texcoords;
 		in vec2 texoffs;
 		in vec2 texsiz;
-		
+
 		out vec4 color;
-		
+
 		void main()
 		{
 			color = texture(texture0, mod(texcoords, texsiz) + texoffs);
-		
+
 			color.a *= f_alpha;
 			if (color.a == 0.0) discard;
 		}
@@ -470,21 +466,14 @@ Canvas.prototype.initGl = function ()
 	this.glDefaultProgram.attach('def-vert');
 	this.glDefaultProgram.attach('def-frag');
 
-	this.glRepeatProgram.attach('repeat-vert');
-	this.glRepeatProgram.attach('repeat-frag');
-
 	this.glBlitProgram.attach('blit-vert');
 	this.glBlitProgram.attach('blit-frag');
 
 	this.glDefaultProgram.link();
-	this.glRepeatProgram.link();
 	this.glBlitProgram.link();
 
 	if (!this.glDefaultProgram.getStatus())
 		throw new Error (this.glDefaultProgram.getAllErrors());
-
-	if (!this.glRepeatProgram.getStatus())
-		throw new Error (this.glRepeatProgram.getAllErrors());
 
 	if (!this.glBlitProgram.getStatus())
 		throw new Error (this.glBlitProgram.getAllErrors());

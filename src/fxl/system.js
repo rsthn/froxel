@@ -285,7 +285,7 @@ const system =
 
 	/**
 	 * Creates a a time-span callback.
-	 * !static span (period: number, callback: function, arg0?: any, arg1?: any, arg2?: any) : void;
+	 * !static span (period: number, callback: (t:number, ...) => boolean, arg0?: any, arg1?: any, arg2?: any) : void;
 	 */
 	span: function (duration, callback, arg0=null, arg1=null, arg2=null)
 	{

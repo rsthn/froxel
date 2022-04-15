@@ -46,14 +46,9 @@ const FrameDrawable = Drawable.extend
 
 		this.width = spritesheet.width;
 		this.height = spritesheet.height;
-	},
 
-	draw: function (g, x=0, y=0, width=null, height=null)
-	{
-		g.drawImage (this.resource,
-				this.x, this.y, this.spritesheet.frameWidth, this.spritesheet.frameHeight,
-				x, y, width ?? this.width, height ?? this.height,
-				null, null, this.width, this.height);
+		this.swidth = spritesheet.frameWidth;
+		this.sheight = spritesheet.frameHeight;
 	}
 });
 
@@ -147,8 +142,8 @@ export default Drawable.extend
 
 		if (this.numCols != 0)
 		{
-			frameObject.y = int(frameIndex / this.numCols) * this.frameHeight;
-			frameObject.x = (frameIndex % this.numCols) * this.frameWidth;
+			frameObject.sy = int(frameIndex / this.numCols) * this.frameHeight;
+			frameObject.sx = (frameIndex % this.numCols) * this.frameWidth;
 			frameObject.resource = this.r.data;
 		}
 		else

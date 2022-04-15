@@ -34,32 +34,46 @@ const Drawable = Class.extend
 	resource: null,
 
 	/**
-	 * Width of the drawable.
+	 * Logical width of the drawable.
 	 * @protected
 	 * !readonly width: number;
 	 */
 	width: 0,
 
 	/**
-	 * Height of the drawable.
+	 * Logical height of the drawable.
 	 * @protected
 	 * !readonly height: number;
 	 */
 	height: 0,
 
 	/**
-	 * Frame X-position.
+	 * Frame source X-offset in physical units.
 	 * @protected
-	 * !readonly x: number;
+	 * !readonly sx: number;
 	 */
-	x: 0,
+	sx: 0,
 
 	/**
-	 * Frame Y-position.
+	 * Frame source Y-position in physical units.
 	 * @protected
-	 * !readonly y: number;
+	 * !readonly sy: number;
 	 */
-	y: 0,
+	sy: 0,
+
+	/**
+	 * Frame source width in physical units.
+	 * @protected
+	 * !readonly swidth: number;
+	 */
+	swidth: 0,
+
+	/**
+	 * Frame source height in physical units.
+	 * @protected
+	 * !readonly sheight: number;
+	 */
+	sheight: 0,
 
 	/**
 	 * Initializes the instance.
@@ -70,19 +84,40 @@ const Drawable = Class.extend
 		if (Rinn.isInstanceOf(resource, Drawable))
 		{
 			let drawable = resource;
+
 			this.resource = drawable.resource;
 			this.width = width ?? drawable.width;
 			this.height = height ?? drawable.height;
+
+			this.sx = drawable.sx;
+			this.sy = drawable.sy;
+			this.swidth = drawable.swidth;
+			this.sheight = drawable.sheight;
 		}
 		else
 		{
 			this.resource = resource;
-			this.width = resource ? (width ?? resource.targetWidth) : 0;
-			this.height = resource ? (height ?? resource.targetHeight) : 0;
-		}
 
-		this.x = 0;
-		this.y = 0;
+			this.sx = 0;
+			this.sy = 0;
+
+			if (this.resource)
+			{
+				this.width = width ?? resource.targetWidth;
+				this.height = height ?? resource.targetHeight;
+
+				this.swidth = resource.width;
+				this.sheight = resource.height;
+			}
+			else
+			{
+				this.width = width;
+				this.height = height;
+
+				this.swidth = width;
+				this.sheight = height;
+			}
+		}
 	},
 
 	/**
@@ -104,15 +139,27 @@ const Drawable = Class.extend
 	},
 
 	/**
-	 * Draws the drawable on the given canvas.
-	 * !draw (g: Canvas, x?: number, y?: number, width?: number, height?: number) : void;
+	 * Draws the drawable on the canvas.
+	 * !draw (g: Canvas, x: number, y: number, width?: number, height?: number) : void;
 	 */
-	draw: function (g, x=0, y=0, width=null, height=null)
+	draw: function (g, x, y, width=null, height=null)
+	{
+		width = width ?? this.width;
+		height = height ?? this.height;
+
+		this.drawf(g, this.sx, this.sy, this.swidth, this.sheight, x, y, width, height);
+	},
+
+	/**
+	 * Draws a section of the drawable on the canvas using full parameters.
+	 * !drawf (g: Canvas, sx:number, sy:number, swidth:number, sheight:number, tx:number, ty:number, twidth:number, theight:number, fwidth:number=null, fheight:number=null) : void;
+	 */
+	drawf: function (g, sx, sy, swidth, sheight, tx, ty, twidth, theight, fwidth=null, fheight=null)
 	{
 		g.drawImage (this.resource,
-				this.x, this.y, this.resource.width, this.resource.height,
-				x, y, width ?? this.resource.targetWidth, height ?? this.resource.targetHeight,
-				null, null, this.width, this.height);
+			sx, sy, swidth, sheight,
+			tx, ty, twidth, theight,
+			null, null, fwidth ?? twidth, fheight ?? theight);
 	},
 
 	/**
@@ -157,7 +204,7 @@ const NineSlice = Drawable.extend
 		return this.ss.getImage();
 	},
 
-	draw: function (g, x=0, y=0, width=null, height=null)
+	draw: function (g, x, y, width, height)
 	{
 		const k = this.startingIndex;
 
@@ -216,7 +263,6 @@ const Repeated = Drawable.extend
 	__ctor: function (drawable)
 	{
 		this._super.Drawable.__ctor(drawable);
-
 		this.drawable = drawable;
 	},
 
@@ -225,57 +271,9 @@ const Repeated = Drawable.extend
 		dispose(this.drawable);
 	},
 
-	draw: function (g, sx=0, sy=0, width=null, height=null)
+	drawf: function (g, sx, sy, swidth, sheight, tx, ty, twidth, theight, fwidth=null, fheight=null)
 	{
-		let img = this.drawable.getImage();
-
-		let h = height;
-		let w = width;
-
-		let ih = this.drawable.height;
-		let iw = this.drawable.width;
-
-		let rh = ih * img.rscale;
-		let rw = iw * img.rscale;
-
-		let x, y;
-
-		for (y = 0; y+ih < h; y += ih)
-		{
-			for (x = 0; x+iw < w; x += iw)
-			{
-				g.drawImage (img,
-						this.drawable.x, this.drawable.y, rw, rh,
-						sx + x, sy + y, iw, ih);
-			}
-
-			if (x < w)
-			{
-				g.drawImage (img,
-					this.drawable.x, this.drawable.y, (w-x)*img.rscale, rh,
-					sx + x, sy + y, w-x, ih);
-			}
-		}
-
-		if (y < h)
-		{
-			ih = h-y;
-			rh = ih*img.rscale;
-
-			for (x = 0; x+iw < w; x += iw)
-			{
-				g.drawImage (img,
-						this.drawable.x, this.drawable.y, rw, rh,
-						sx + x, sy + y, iw, ih);
-			}
-
-			if (x < w)
-			{
-				g.drawImage (img,
-					this.drawable.x, this.drawable.y, (w-x)*img.rscale, rh,
-					sx + x, sy + y, w-x, ih);
-			}
-		}
+		this.drawable.drawf(g, sx, sy, swidth, sheight, tx, ty, twidth, theight, this.width, this.height);
 	}
 });
 
@@ -294,7 +292,6 @@ const Clipped = Drawable.extend
 	__ctor: function (drawable)
 	{
 		this._super.Drawable.__ctor(drawable);
-
 		this.drawable = drawable;
 	},
 
@@ -303,15 +300,16 @@ const Clipped = Drawable.extend
 		dispose(this.drawable);
 	},
 
-	draw: function (g, x=0, y=0, width=null, height=null)
+	draw: function (g, x, y, width=null, height=null)
 	{
 		let img = this.getImage();
 	
-		g.drawImage (img,
-				this.drawable.x, this.drawable.y, width*img.rscale, height*img.rscale,
-				x, y, width, height,
-				null, null,
-				this.width, this.height);
+		width = width ?? this.width;
+		height = height ?? this.height;
+
+		this.drawable.drawf (g,
+			this.drawable.sx, this.drawable.sy, width*img.rscale, height*img.rscale,
+			x, y, width, height);
 	}
 });
 
@@ -343,8 +341,11 @@ const Centered = Drawable.extend
 		dispose(this.drawable);
 	},
 
-	draw: function (g, x=0, y=0, width=null, height=null)
+	draw: function (g, x, y, width=null, height=null)
 	{
+		width = width ?? this.width;
+		height = height ?? this.height;
+
 		this.drawable.draw(g, x+this.offsX+(width-this.width)*0.5, y+this.offsY+(height-this.height)*0.5, this.width, this.height);
 	}
 });
@@ -377,9 +378,9 @@ const Static = Drawable.extend
 		dispose(this.drawable);
 	},
 
-	draw: function (g, x=0, y=0, width=null, height=null)
+	draw: function (g, x, y, width=null, height=null)
 	{
-		this.drawable.draw(g, x+this.offsX, y+this.offsY, this.width, this.height);
+		this.drawable.draw(g, x+this.offsX, y+this.offsY, width, height);
 	}
 });
 
@@ -413,7 +414,7 @@ const Group = Drawable.extend
 		}
 	},
 
-	draw: function (g, x=0, y=0, width=null, height=null)
+	draw: function (g, x, y, width=null, height=null)
 	{
 		for (let i = 0; i < this.list.length; i++)
 			this.list[i].draw(g, x, y, width, height);

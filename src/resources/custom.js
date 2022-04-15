@@ -28,15 +28,10 @@ export default Drawable.extend
 		if (r.type != 'object')
 			throw new Error ('Resource is not an object.');
 
-		this._super.Drawable.__ctor();
-
-		this.width = r.width;
-		this.height = r.height;
+		this._super.Drawable.__ctor(null, r.width, r.height);
 
 		this.r = r;
 		this.r.wrapper = this;
-
-		this.data = null;
 
 		Canvas.renderImage(r.width, r.height,
 		(g) => {
@@ -49,18 +44,9 @@ export default Drawable.extend
 			}
 		},
 		(img) => {
-			this.data = img;
+			this.resource = img;
+			this.swidth = this.resource.width;
+			this.sheight = this.resource.height;
 		});
-	},
-
-	draw: function (g, x=0, y=0, width=null, height=null)
-	{
-		if (this.data !== null)
-			g.drawImage (this.data, 0, 0, this.data.width, this.data.height, x, y, width ?? this.width, height ?? this.height);
-	},
-
-	getImage: function()
-	{
-		return this.data;
 	}
 });

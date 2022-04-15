@@ -94,6 +94,12 @@ export default Group.extend
 		 */
 		radiusSteps: 0,
 
+	/**
+	 * Center reference coordinates. Set when the pointer is activated.
+	 */
+	refX: null,
+	refY: null,
+
 	/*
 	**	Direction (X and Y), magnitude and angle of the stick vector. The dirx and diry are normalized.
 	*/
@@ -283,44 +289,8 @@ export default Group.extend
 	{
 		let dx, dy;
 
-		/*if (true)
-		{
-			if (this.pointerRefX === null)
-			{
-				this.pointerRefX = this.bounds.cx;
-				this.pointerRefY = this.bounds.cy;
-				this.pointerRefN = 0;
-			}
-
-			dx = pointerX - this.pointerRefX;
-			dy = pointerY - this.pointerRefY;
-
-			this.pointerRefN++;
-			this.pointerRefX = (this.pointerRefX*this.pointerRefN + pointerX) / (this.pointerRefN+1);
-			this.pointerRefY = (this.pointerRefY*this.pointerRefN + pointerY) / (this.pointerRefN+1);
-
-			this.angle = Math.atan2(-dy, dx);
-			this.radius = this.maxRadius;
-
-			this.rdirx = Math.min(1, Math.max(dx / this.maxRadius, -1));
-			this.rdiry = Math.min(1, Math.max(dy / this.maxRadius, -1));
-
-			this.dispx = this.radius * Math.cos(this.angle);
-			this.dispy = this.radius * -Math.sin(this.angle);
-
-			this.dirx = this.dispx / this.radius;
-			this.diry = this.dispy / this.radius;
-
-			this.magnitude = 1.0;
-
-			if (this._onChange)
-				this._onChange (this.dirx, this.diry, this.magnitude, this.angle, this);
-
-			return;
-		}*/
-
-		dx = pointerX - this.bounds.cx;
-		dy = pointerY - this.bounds.cy;
+		dx = pointerX - this.refX;
+		dy = pointerY - this.refY;
 
 		this.angle = Math.atan2(-dy, dx);
 		this.radius = Math.sqrt(dx*dx + dy*dy);
@@ -383,6 +353,9 @@ export default Group.extend
 	{
 		this.wasPressed = this.isPressed;
 		this.isPressed = 1;
+
+		this.refX = pointer.x;
+		this.refY = pointer.y;
 
 		this.pointerUpdate(pointer.x, pointer.y);
 	},
