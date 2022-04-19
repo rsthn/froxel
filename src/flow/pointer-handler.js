@@ -60,7 +60,7 @@ export default Boot.Module.create
 
 	/**
 	 * 	Registers a new pointer event handler.
-	 * 	!register (handler: PointerHandler.EventHandler) : PointerHandler.EventHandler;
+	 * 	!static register (handler: PointerHandler.EventHandler) : PointerHandler.EventHandler;
 	 */
 	register: function (handler)
 	{
@@ -79,7 +79,7 @@ export default Boot.Module.create
 
 	/**
 	 * 	Removes a pointer event handler.
-	 * 	!unregister (handler: PointerHandler.EventHandler) : void;
+	 * 	!static unregister (handler: PointerHandler.EventHandler) : void;
 	 */
 	unregister: function (handler)
 	{

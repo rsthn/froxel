@@ -33,10 +33,16 @@ import Log from './log.js';
 const globals =
 {
 	/**
-	 * 	Renderer's GL context.
-	 * 	!let gl: WebGL2RenderingContext;
+	 * Renderer's GL context.
+	 * !let gl: WebGL2RenderingContext;
 	 */
 	gl: null,
+
+	/**
+	 * Currently active shader program.
+	 * !let shaderProgram: ShaderProgram;
+	 */
+	shaderProgram: null,
 
 	/**
 	 * 	Global system time, updated once per frame. Mirrors the `System.frameTime` property.

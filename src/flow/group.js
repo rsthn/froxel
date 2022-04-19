@@ -18,6 +18,7 @@ import Element from './element.js';
 import List from '../utils/list.js';
 import Point2 from '../math/point2.js';
 import Recycler from '../utils/recycler.js';
+import GridElement from './grid-element.js';
 
 //![import "./element"]
 //![import "../utils/list"]
@@ -36,9 +37,10 @@ const Group = Element.extend
 ({
 	className: 'Group',
 
-	/*
-	**	List of elements in to the group.
-	*/
+	/**
+	 * List of elements in the group.
+	 * !readonly children: List;
+	 */
 	children: null,
 
 	/**
@@ -130,6 +132,28 @@ const Group = Element.extend
 	},
 
 	/**
+	 * Returns the wrapExtents flag of the group.
+	 * @returns {boolean}
+	 * !wrapExtents () : boolean;
+	 */
+	/**
+	 * Sets the wrapExtents flag of the group.
+	 * @param {boolean} value
+	 * @returns {Group}
+	 * !wrapExtents (value: boolean) : Group;
+	 */
+	wrapExtents: function (value=null)
+	{
+		if (value === null)
+			return !!(this.flags & GridElement.WRAP_EXTENTS);
+
+		this.flags &= ~GridElement.WRAP_EXTENTS;
+		if (value) this.flags |= GridElement.WRAP_EXTENTS;
+
+		return this;
+	},
+
+	/**
 	 * 	Adds a child element to the group. If the element has its `id` property set, it will be added to the group as a
 	 * 	property, which can be accessed directly using the element identifier or using the `getChild` method.
 	 * 	!addChild (elem: Element) : Element;
@@ -140,7 +164,8 @@ const Group = Element.extend
 
 		let initial = this.bounds.x1 === null;
 
-		if (initial) {
+		if (initial || (this.flags & GridElement.WRAP_EXTENTS))
+		{
 			if (initial || elem.bounds.x1 < this.bounds.x1) this.ltranslate(elem.bounds.x1 - this.bounds.x1, 0);
 			if (initial || elem.bounds.y1 < this.bounds.y1) this.ltranslate(0, elem.bounds.y1 - this.bounds.y1);
 			if (initial || elem.bounds.x2 > this.bounds.x2) this.resizeBy(elem.bounds.x2 - this.bounds.x2, 0);
@@ -209,7 +234,7 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Local group translation, moves only the group by the specified deltas. Child element remain in position.
+	 * 	Local group translation, moves only the group by the specified deltas. Child elements remain in position.
 	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
 	 * 	!ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
 	 */
@@ -293,7 +318,7 @@ const Group = Element.extend
 	 * Sets the visible flag of the group and all children.
 	 * @param {boolean} value - New visibility value.
 	 * @param {boolean} forced - When `true` forces to ignore the VISIBLE_LOCK flag.
-	 * !visible (value: boolean, forced: boolean=false) : GridElement;
+	 * !visible (value: boolean, forced?: boolean|false) : GridElement;
 	 */
 	/**
 	 * Returns the visible flag.
@@ -308,6 +333,28 @@ const Group = Element.extend
 			i.value.visible(value, forced);
 
 		return this._super.Element.visible(value, forced);
+	},
+
+	/**
+	 * Returns the alpha value of the group.
+	 * @returns {number}
+	 * !alpha () : number;
+	 */
+	/**
+	 * Sets the alpha value of the group and all children.
+	 * @param {number} value
+	 * @returns {Element}
+	 * !alpha (value: number) : Element;
+	 */
+	alpha: function (value=null)
+	{
+		if (value === null)
+			return this._super.Element.alpha();
+
+		for (let i = this.children.top; i; i = i.next)
+			i.value.alpha(value);
+
+		return this._super.Element.alpha(value);
 	}
 });
 

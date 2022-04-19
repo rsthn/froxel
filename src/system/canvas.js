@@ -22,6 +22,7 @@ import ShaderProgram from './shader-program.js';
 import Shader from './shader.js';
 import globals from './globals.js';
 import Log from './log.js';
+import glx from './glx.js';
 
 //![import "../math/matrix"]
 //![import "./system"]
@@ -30,6 +31,7 @@ import Log from './log.js';
 //![import "./shader"]
 //![import "./globals"]
 //![import "./log"]
+//![import "./glx"]
 
 //!namespace Canvas
 
@@ -128,11 +130,15 @@ const Canvas = function (options=null)
 	if (opts.gl === true && !headless)
 	{
 		this.gl = this.elem.getContext('webgl2', { desynchronized: false, alpha: false, stencil: true });
+
+		globals.gl = this.gl
+		globals.shaderProgram = null;
+
+		glx.setContext(this.gl);
+
 		this.context = null;
 
-		Log.write(this.gl.getParameter(this.gl.VERSION) + ', ' + this.gl.getParameter(this.gl.SHADING_LANGUAGE_VERSION));
-
-		globals.gl = this.gl;
+		Log.write(glx.getParameter('VERSION') + ', ' + glx.getParameter('SHADING_LANGUAGE_VERSION'));
 	}
 	else
 	{
@@ -153,7 +159,6 @@ const Canvas = function (options=null)
 	this._globalScale = 1.0;
 	this._alpha = 1.0;
 	this._depthFlag = true;
-	this.shaderProgram = null;
 
 	// Set initial transformation matrix.
 	this.updateTransform();
@@ -289,84 +294,25 @@ Canvas.prototype.initGl = function ()
 {
 	let gl = this.gl;
 
-	// This code is required if "desynchronized" is set to true (for some reason).
-	//if (navigator && navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
-	//	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-	//else
-	//	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-
 	/**
 	 * 	Create the default shader program.
 	 */
 	this.glDefaultProgram = new ShaderProgram('def');
-/*
-	(new Shader ('def-vert', Shader.Type.VERTEX))
-	.source(
-		`#version 300 es
-		precision highp float;
-
-		uniform mat3 m_location;
-		uniform mat3 m_transform;
-		uniform mat3 m_texture;
-
-		uniform vec2 v_resolution;
-		uniform vec2 v_texture_size;
-		uniform vec2 v_frame_size;
-
-		uniform float f_time;
-		uniform float f_depth;
-
-		uniform sampler2D texture0;
-
-		in vec2 location;
-		out vec2 texcoords;
-
-		void main()
-		{
-			gl_Position = vec4(((vec2(m_transform * m_location * vec3(location, 1.0)) / v_resolution)*2.0 - vec2(1.0, 1.0)) * vec2(1.0, -1.0), f_depth / 16777216.0, 1.0);
-			texcoords = vec2(m_texture * vec3(location, 1.0)) / v_texture_size;
-		}
-	`)
-	.compile();
-
-	(new Shader ('def-frag', Shader.Type.FRAGMENT))
-	.source(
-		`#version 300 es
-		precision highp float;
-
-		uniform sampler2D texture0;
-		uniform float f_alpha;
-		in vec2 texcoords;
-
-		out vec4 color;
-
-		void main()
-		{
-			color = texture(texture0, texcoords);
-			color.a *= f_alpha;
-
-			if (color.a == 0.0) discard;
-		}
-	`)
-	.compile();
-*/
 
 	(new Shader ('def-vert', Shader.Type.VERTEX))
 	.source(
 		`#version 300 es
 		precision highp float;
 
-		uniform mat3 m_location;
-		uniform mat3 m_transform;
-		uniform mat3 m_texture;
-
 		uniform vec2 v_resolution;
+		uniform mat3 m_transform;
+		uniform float f_time;
+
+		uniform mat3 m_location;
+		uniform float f_depth;
+		uniform mat3 m_texture;
 		uniform vec2 v_texture_size;
 		uniform vec2 v_frame_size;
-
-		uniform float f_time;
-		uniform float f_depth;
-
 		uniform sampler2D texture0;
 
 		in vec2 location;
@@ -427,9 +373,12 @@ Canvas.prototype.initGl = function ()
 		`#version 300 es
 		precision highp float;
 
+		uniform vec2 v_resolution;
+		uniform mat3 m_transform;
+		uniform float f_time;
+
 		uniform mat3 m_location;
 		uniform mat3 m_texture;
-		uniform vec2 v_resolution;
 		uniform vec2 v_texture_size;
 
 		uniform sampler2D texture0;
@@ -483,12 +432,13 @@ Canvas.prototype.initGl = function ()
 	/**
 	 * 	Create the vertex buffer.
 	 */
-	let buffer = this.attrib_location_buffer = gl.createBuffer();
-	gl.bindBuffer (gl.ARRAY_BUFFER, buffer);
-	gl.bufferData (gl.ARRAY_BUFFER, new Float32Array ([0,0,  0,1,  1,0,  1,1]), gl.STATIC_DRAW);
+	this.vao0 = gl.createVertexArray();
+	gl.bindVertexArray(this.vao0);
 
-	gl.enableVertexAttribArray (this.shaderProgram.attrib_location);
-	gl.vertexAttribPointer (this.shaderProgram.attrib_location, 2, gl.FLOAT, gl.FALSE, 2*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
+	glx.createBufferFrom([ 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0 ], glx.BufferTarget.ARRAY_BUFFER, glx.BufferUsage.STATIC_DRAW);
+
+	gl.vertexAttribPointer(globals.shaderProgram.getAttribLocation('location'), 2, gl.FLOAT, gl.FALSE, 2*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
+	gl.enableVertexAttribArray(globals.shaderProgram.getAttribLocation('location'));
 
 	/**
 	 * 	Setup initial GL configuration.
@@ -509,8 +459,6 @@ Canvas.prototype.initGl = function ()
 	/* *** */
 	this.m_location = new Float32Array(9).fill(0);
 	this.m_texture = new Float32Array(9).fill(0);
-	this.v_texture_size = new Float32Array(2).fill(0);
-	this.v_frame_size = new Float32Array(2).fill(0);
 	this.v_resolution = new Float32Array(2).fill(0);
 	this.zvalue = 0;
 
@@ -527,7 +475,7 @@ Canvas.prototype.initGl = function ()
 			return;
 
 		let gl = this.gl;
-		let program = this.shaderProgram;
+		let program = globals.shaderProgram;
 
 		if (textureWidth === null)
 		{
@@ -541,24 +489,19 @@ Canvas.prototype.initGl = function ()
 			frameHeight = img.targetHeight;
 		}
 
-		gl.uniform2fv (program.uniform_resolution, this.v_resolution);
-		gl.uniform1f (program.uniform_time, globals.time);
-		gl.uniform1f (program.uniform_scale, this._globalScale);
-		gl.uniform1f (program.uniform_alpha, this._alpha);
+		program.uniform2fv ('v_resolution', this.v_resolution);
+		program.uniform1f ('f_time', globals.time);
+		program.uniform1f ('f_scale', this._globalScale);
+		program.uniform1f ('f_alpha', this._alpha);
 
 		if (this.glActiveTextureId !== img.glTextureId || this.glActiveShader !== program)
 		{
 			gl.activeTexture (gl.TEXTURE0);
 			gl.bindTexture (gl.TEXTURE_2D, img.glTextureId);
-			gl.uniform1i (program.uniform_texture_0, 0);
 
-			this.v_texture_size[0] = textureWidth;
-			this.v_texture_size[1] = textureHeight;
-			gl.uniform2fv (program.uniform_texture_size, this.v_texture_size);
-
-			this.v_frame_size[0] = frameWidth;
-			this.v_frame_size[1] = frameHeight;
-			gl.uniform2fv (program.uniform_frame_size, this.v_frame_size);
+			program.uniform1i ('texture0', 0);
+			program.uniform2f ('v_texture_size', textureWidth, textureHeight);
+			program.uniform2f ('v_frame_size', frameWidth, frameHeight);
 
 			this.glActiveTextureId = img.glTextureId;
 			this.glActiveShader = program;
@@ -577,10 +520,10 @@ Canvas.prototype.initGl = function ()
 			this.m_texture[6] = 0;
 			this.m_texture[7] = 0;
 
-			gl.uniformMatrix3fv (program.uniform_transform_matrix, false, this.transform.data);
-			gl.uniformMatrix3fv (program.uniform_location_matrix, false, this.m_location);
-			gl.uniformMatrix3fv (program.uniform_texture_matrix, false, this.m_texture);
-			gl.uniform1f (program.uniform_depth, this.zvalue);
+			gl.uniformMatrix3fv (program.getUniformLocation('m_transform'), false, this.transform.data);
+			gl.uniformMatrix3fv (program.getUniformLocation('m_location'), false, this.m_location);
+			gl.uniformMatrix3fv (program.getUniformLocation('m_texture'), false, this.m_texture);
+			program.uniform1f ('f_depth', this.zvalue);
 			gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 
 			return;
@@ -599,10 +542,10 @@ Canvas.prototype.initGl = function ()
 			this.m_texture[6] = 0;
 			this.m_texture[7] = 0;
 
-			gl.uniformMatrix3fv (program.uniform_transform_matrix, false, this.transform.data);
-			gl.uniformMatrix3fv (program.uniform_location_matrix, false, this.m_location);
-			gl.uniformMatrix3fv (program.uniform_texture_matrix, false, this.m_texture);
-			gl.uniform1f (program.uniform_depth, this.zvalue);
+			gl.uniformMatrix3fv (program.getUniformLocation('m_transform'), false, this.transform.data);
+			gl.uniformMatrix3fv (program.getUniformLocation('m_location'), false, this.m_location);
+			gl.uniformMatrix3fv (program.getUniformLocation('m_texture'), false, this.m_texture);
+			gl.uniform1f (program.getUniformLocation('f_depth'), this.zvalue);
 			gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 
 			return;
@@ -619,10 +562,10 @@ Canvas.prototype.initGl = function ()
 		this.m_texture[6] = sx;
 		this.m_texture[7] = sy;
 
-		gl.uniformMatrix3fv (program.uniform_transform_matrix, false, this.transform.data);
-		gl.uniformMatrix3fv (program.uniform_location_matrix, false, this.m_location);
-		gl.uniformMatrix3fv (program.uniform_texture_matrix, false, this.m_texture);
-		gl.uniform1f (program.uniform_depth, this.zvalue);
+		gl.uniformMatrix3fv (program.getUniformLocation('m_transform'), false, this.transform.data);
+		gl.uniformMatrix3fv (program.getUniformLocation('m_location'), false, this.m_location);
+		gl.uniformMatrix3fv (program.getUniformLocation('m_texture'), false, this.m_texture);
+		gl.uniform1f (program.getUniformLocation('f_depth'), this.zvalue);
 		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 	};
 
@@ -630,18 +573,16 @@ Canvas.prototype.initGl = function ()
 	this.drawRect = function (x, y, w, h)
 	{
 		let gl = this.gl;
-		let program = this.shaderProgram;
+		let program = globals.shaderProgram;
 
-		gl.uniform2fv (program.uniform_resolution, this.v_resolution);
-		gl.uniform1f (program.uniform_time, globals.time);
-		gl.uniform1f (program.uniform_scale, this._globalScale);
-		gl.uniform1f (program.uniform_alpha, this._alpha);
+		program.uniform2fv ('v_resolution', this.v_resolution);
+		program.uniform1f ('f_time', globals.time);
+		program.uniform1f ('f_scale', this._globalScale);
+		program.uniform1f ('f_alpha', this._alpha);
 
 		this.glActiveTextureId = null;
 
-		this.v_texture_size[0] = w;
-		this.v_texture_size[1] = h;
-		gl.uniform2fv (program.uniform_texture_size, this.v_texture_size);
+		program.uniform2f ('v_texture_size', w, h);
 
 		this.m_location[0] = w;
 		this.m_location[4] = h;
@@ -653,10 +594,10 @@ Canvas.prototype.initGl = function ()
 		this.m_texture[6] = 0;
 		this.m_texture[7] = 0;
 
-		gl.uniformMatrix3fv (program.uniform_transform_matrix, false, this.transform.data);
-		gl.uniformMatrix3fv (program.uniform_location_matrix, false, this.m_location);
-		gl.uniformMatrix3fv (program.uniform_texture_matrix, false, this.m_texture);
-		gl.uniform1f (program.uniform_depth, this.zvalue);
+		gl.uniformMatrix3fv (program.getUniformLocation('m_transform'), false, this.transform.data);
+		gl.uniformMatrix3fv (program.getUniformLocation('m_location'), false, this.m_location);
+		gl.uniformMatrix3fv (program.getUniformLocation('m_texture'), false, this.m_texture);
+		gl.uniform1f ('f_depth', this.zvalue);
 		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 	};
 };
@@ -1512,16 +1453,13 @@ Canvas.prototype.blit = function (texture, width, height, shaderProgram=null)
 
 		gl.activeTexture (gl.TEXTURE0);
 		gl.bindTexture (gl.TEXTURE_2D, texture);
-		gl.uniform1i (shaderProgram.uniform_texture_0, 0);
+		shaderProgram.uniform1i ('texture0', 0);
 
-		gl.uniform2fv (shaderProgram.uniform_resolution, this.v_resolution);
-		gl.uniform1f (shaderProgram.uniform_time, globals.time);
-		gl.uniform1f (shaderProgram.uniform_scale, this._globalScale);
-		gl.uniform1f (shaderProgram.uniform_alpha, this._alpha);
-
-		this.v_texture_size[0] = width;
-		this.v_texture_size[1] = height;
-		gl.uniform2fv (shaderProgram.uniform_texture_size, this.v_texture_size);
+		shaderProgram.uniform2fv ('v_resolution', this.v_resolution);
+		shaderProgram.uniform1f ('f_time', globals.time);
+		shaderProgram.uniform1f ('f_scale', this._globalScale);
+		shaderProgram.uniform1f ('f_alpha', this._alpha);
+		shaderProgram.uniform2f ('v_texture_size', width, height);
 
 		this.m_location[0] = this.width;
 		this.m_location[4] = this.height;
@@ -1533,8 +1471,8 @@ Canvas.prototype.blit = function (texture, width, height, shaderProgram=null)
 		this.m_texture[6] = 0;
 		this.m_texture[7] = 0;
 
-		gl.uniformMatrix3fv (shaderProgram.uniform_location_matrix, false, this.m_location);
-		gl.uniformMatrix3fv (shaderProgram.uniform_texture_matrix, false, this.m_texture);
+		gl.uniformMatrix3fv (shaderProgram.getUniformLocation('m_location'), false, this.m_location);
+		gl.uniformMatrix3fv (shaderProgram.getUniformLocation('m_texture'), false, this.m_texture);
 		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 
 	this.setShaderProgram(this.glDefaultProgram);
@@ -1682,8 +1620,8 @@ Canvas.prototype.setShaderProgram = function (program)
 	let gl = this.gl;
 	if (gl === null) return;
 
-	this.shaderProgram = program;
-	this.shaderProgram.use();
+	globals.shaderProgram = program;
+	globals.shaderProgram.activate();
 };
 
 /*
@@ -1691,7 +1629,7 @@ Canvas.prototype.setShaderProgram = function (program)
 */
 Canvas.prototype.getShaderProgram = function ()
 {
-	return this.shaderProgram;
+	return globals.shaderProgram;
 };
 
 /*
@@ -1702,16 +1640,16 @@ Canvas.prototype.pushShaderProgram = function (program=null)
 {
 	if (program !== null)
 	{
-		if (program === this.shaderProgram)
+		if (program === globals.shaderProgram)
 			return false;
 
-		this.shaderProgramStack.push(this.shaderProgram);
+		this.shaderProgramStack.push(globals.shaderProgram);
 		this.setShaderProgram(program);
 
 		return true;
 	}
 
-	this.shaderProgramStack.push(this.shaderProgram);
+	this.shaderProgramStack.push(globals.shaderProgram);
 };
 
 /*

@@ -72,13 +72,13 @@ export default Group.extend
 
 	/**
 	 * 	Image to draw when the stick is unpressed (inner circle).
-	 *	!unpressedImg: Drawable;
+	 *	!unpressedImgInner: Drawable;
 	 */
 	unpressedImgInner: null,
 
 	/**
 	 * 	Image to draw when the stick is pressed (inner circle).
-	 *	!pressedImg: Drawable;
+	 *	!pressedImgInner: Drawable;
 	 */
 	pressedImgInner: null,
 
@@ -179,7 +179,6 @@ export default Group.extend
 	__dtor: function ()
 	{
 		this._super.Group.__dtor();
-		this.hitbox.free();
 		ScreenControls.remove(this);
 	},
 
@@ -419,7 +418,7 @@ export default Group.extend
 
 	/**
 	 * 	Key down event, handles the keys that control the direction of the stick.
-	 * 	!keyDown (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	 * 	!keyDown (keyCode: KeyCode, keyArgs: object) : boolean|null;
 	 */
 	keyDown: function (keyCode, keyArgs)
 	{
@@ -446,7 +445,7 @@ export default Group.extend
 
 	/**
 	 * 	Key up event, handles the keys that control the direction of the stick.
-	 * 	!keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	 * 	!keyUp (keyCode: KeyCode, keyArgs: object) : boolean|null;
 	 */
 	keyUp: function (keyCode, keyArgs)
 	{
@@ -474,7 +473,7 @@ export default Group.extend
 
 	/**
 	 * 	Sets the handler for the on-change event. Executed after any change in the direction of the stick.
-	 * 	!onChange: (callback: (dirx: number, diry: number, magnitude: number, angle: number, stick: Stick) => void) => Stick;
+	 * 	!onChange (callback: (dirx: number, diry: number, magnitude: number, angle: number, stick: Stick) => void) : Stick;
 	 */
 	onChange: function (callback)
 	{

@@ -762,6 +762,11 @@ export class Shader
 	constructor (id: string, type: Shader.Type);
 
 	/**
+	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
+	 */
+	constructor (type: Shader.Type);
+
+	/**
 	 * 	Appends GLSL code to the shader's source code buffer.
 	 */
 	source (value: string) : Shader;
@@ -769,7 +774,7 @@ export class Shader
 	/**
 	 * 	Compiles the shader. Errors can be obtained using getError() method.
 	 */
-	compile() : void;
+	compile() : Shader;
 
 	/**
 	 * 	Returns the error of the last compile operation.
@@ -792,32 +797,70 @@ export namespace Shader
 
 }
 
+export namespace gl
+{
+	enum BufferTarget
+	{
+		ARRAY_BUFFER,
+		ELEMENT_ARRAY_BUFFER,
+		COPY_READ_BUFFER,
+		COPY_WRITE_BUFFER,
+		TRANSFORM_FEEDBACK_BUFFER,
+		UNIFORM_BUFFER,
+		PIXEL_PACK_BUFFER,
+		PIXEL_UNPACK_BUFFER,
+	}
+
+	enum BufferUsage
+	{
+		STATIC_DRAW,
+		DYNAMIC_DRAW,
+		STREAM_DRAW,
+		STATIC_READ,
+		DYNAMIC_READ,
+		STREAM_READ,
+		STATIC_COPY,
+		DYNAMIC_COPY,
+		STREAM_COPY,
+	}
+
+}
+
+export class gl
+{
+	/**
+	 * WebGL rendering context.
+	 */
+	static readonly gl: WebGL2RenderingContext;
+
+	/**
+	 * Sets the WebGL rendering context.
+	 */
+	static setContext (context: WebGL2RenderingContext) : gl;
+
+	/**
+	 * Returns the value of a GL parameter.
+	 */
+	static getParameter (name: string) : any;
+
+	/**
+	 * Returns a slice of an array as a Float32Array.
+	 */
+	static getFloat32Array (data: any, offset: number, length: number) : Float32Array;
+
+	/**
+	 * Creates a buffer from the specified array.
+	 * @param {BufferTarget} target Defaults to ARRAY_BUFFER.
+	 * @param {BufferUsage} usage Defaults to STATIC_DRAW.
+	 */
+	static createBufferFrom (data: any, target?: gl.BufferTarget, usage?: gl.BufferUsage, offset?: number, length?: number) : WebGLBuffer;
+
+}
 /**
  * 	Describes a shader program.
  */
 export class ShaderProgram
 {
-	/**
-	 * 	Locations of the generic uniforms.
-	 */
-	readonly uniform_location_matrix: number; // m_location
-	readonly uniform_transform_matrix: number; // m_transform
-	readonly uniform_texture_matrix: number; // m_texture
-	readonly uniform_resolution: number; // v_resolution
-	readonly uniform_texture_size: number; // v_texture_size
-	readonly uniform_frame_size: number; // v_frame_size
-	readonly uniform_base_color: number; // v_base_color
-	readonly uniform_time: number; // f_time
-	readonly uniform_depth: number; // f_depth
-	readonly uniform_scale: number; // f_scale
-	readonly uniform_alpha: number; // f_alpha
-	readonly uniform_texture_0: number; // texture0
-
-	/**
-	 * 	Locations of the generic attributes.
-	 */
-	readonly attrib_location: number;
-
 	/**
 	 * 	Identifier of the program.
 	 */
@@ -836,7 +879,14 @@ export class ShaderProgram
 	/**
 	 *	Constructs an empty shader program with the specified identifier. Attach shaders by using the `attach` method.
 	 */
-	constructor (id: string);
+	constructor (id?: string);
+
+	/**
+	 * Sets the uniform setter function.
+	 * @param { (pgm:ShaderProgram) => void } uniformSetter
+	 * @returns {Element}
+	 */
+	uniformSetter (uniformSetter: (pgm:ShaderProgram) => void) : ShaderProgram;
 
 	/**
 	 * 	Attaches a shader to the shader program.
@@ -844,14 +894,29 @@ export class ShaderProgram
 	attach (shader: Shader|string) : ShaderProgram;
 
 	/**
-	 * 	Binds the attribute locations to their predefined values.
+	 * Returns the location of an attribute.
 	 */
-	bindLocations (gl: WebGL2RenderingContext) : void;
+	getAttribLocation (name: string) : object;
 
 	/**
-	 * 	Loads the locations of the predefined uniforms and attributes.
+	 * Returns the location of a uniform variable.
 	 */
-	loadLocations (gl: WebGL2RenderingContext) : void;
+	getUniformLocation (name: string) : object;
+
+	/**
+	 * Returns the location of a uniform block.
+	 */
+	getUniformBlockLocation (name: string) : object;
+
+	/**
+	 * Returns the size of a uniform block.
+	 */
+	getUniformBlockSize (uniformBlock: string|object) : number;
+
+	/**
+	 * Creates a buffer for a uniform block.
+	 */
+	createUniformBlockBuffer (uniformBlock: string|object) : Float32Array;
 
 	/**
 	 * 	Links the shaders into the shader program. Completion can be obtained by calling `getStatus`.
@@ -859,9 +924,9 @@ export class ShaderProgram
 	link() : ShaderProgram;
 
 	/**
-	 * 	Enables the shader program to be used in the subsequent drawing operations.
+	 * 	Activates the shader program to be used in the subsequent drawing operations.
 	 */
-	use() : void;
+	activate() : void;
 
 	/**
 	 * 	Returns the link status of the program.
@@ -879,6 +944,86 @@ export class ShaderProgram
 	getAllErrors() : string;
 
 	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform1f (location: string|object, v0: number) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform1fv (location: string|object, value: any) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform1i (location: string|object, v0: number) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform1iv (location: string|object, value: any) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform2f (location: string|object, v0: number, v1: number) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform2fv (location: string|object, value: any) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform2i (location: string|object, v0: number, v1: number) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform2iv (location: string|object, value: any) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform3f (location: string|object, v0: number, v1: number, v2: number) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform3fv (location: string|object, value: any) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform3i (location: string|object, v0: number, v1: number, v2: number) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform3iv (location: string|object, value: any) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform4f (location: string|object, v0: number, v1: number, v2: number, v3: number) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform4fv (location: string|object, value: any) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform4i (location: string|object, v0: number, v1: number, v2: number, v3: number) : ShaderProgram;
+
+	/**
+	 * Sets the value of a uniform.
+	 */
+	uniform4iv (location: string|object, value: any) : ShaderProgram;
+
+	/**
 	 * 	Puts a shader program in the global program list under the specified identifier.
 	 */
 	static put (id: string, shaderProgram: ShaderProgram) : void;
@@ -894,6 +1039,7 @@ export class ShaderProgram
 	static remove (id: string) : void;
 
 }
+
 
 
 
@@ -1804,6 +1950,10 @@ export class Bounds2
 
 	/**
 	 */
+	constructor ();
+
+	/**
+	 */
 	constructor (bounds: Bounds2);
 
 	/**
@@ -1816,7 +1966,7 @@ export class Bounds2
 
 	/**
 	 */
-	constructor (x1: number, y1: number, x2: number, y2: number, upscaled:boolean=false);
+	constructor (x1: number, y1: number, x2: number, y2: number, upscaled?: boolean|false);
 
 	/**
 	 * Truncates the components to remove fractional parts.
@@ -1851,7 +2001,13 @@ export class Bounds2
 	/**
 	 * Translates the bounds by the given deltas.
 	 */
-	translate (dx: number, dy: number, upscaled:boolean=false) : Bounds2;
+	translate (dx: number, dy: number, upscaled?: boolean) : Bounds2;
+
+	/**
+	 * Resizes the bounds to the given size using center or top-left as reference.
+	 * @param {boolean} topLeftRelative @default `false`
+	 */
+	resize (width:number, height:number, topLeftRelative?:boolean) : Bounds2;
 
 	/**
 	 * Returns the width of the bounds.
@@ -1871,12 +2027,12 @@ export class Bounds2
 	/**
 	 * Returns true if the specified point is within the bounds. The `tol` parameter is used to specify a tolerance value.
 	 */
-	containsPoint (x: number, y: number, tol:number=0) : boolean;
+	containsPoint (x: number, y: number, tol?: number) : boolean;
 
 	/**
 	 * Returns the area of the bounds. When strict is true, the area will be returned only if the bounds are forward.
 	 */
-	area (strict:boolean=false) : number;
+	area (strict?: boolean|false) : number;
 
 	/**
 	 * Returns the string representation of the rect coordinates.
@@ -2161,9 +2317,14 @@ export class Viewport
 export namespace globals
 {
 	/**
-	 * 	Renderer's GL context.
+	 * Renderer's GL context.
 	 */
 	let gl: WebGL2RenderingContext;
+
+	/**
+	 * Currently active shader program.
+	 */
+	let shaderProgram: ShaderProgram;
 
 	/**
 	 * 	Global system time, updated once per frame. Mirrors the `System.frameTime` property.
@@ -2586,7 +2747,7 @@ export class PriorityQueue
 	/**
 	 * 	Adds an object to the priority queue.
 	 */
-	add (obj: { priority: number }) : object;
+	add (obj: object) : object;
 
 	/**
 	 * 	Marks an object to be removed from the priority queue. Use `cleanup` to actually remove them.
@@ -3276,7 +3437,7 @@ export class GridElement
 	 * @param {boolean} value - New visibility value.
 	 * @param {boolean} forced - When `true` forces to ignore the VISIBLE_LOCK flag.
 	 */
-	visible (value: boolean, forced: boolean=false) : GridElement;
+	visible (value: boolean, forced?: boolean|false) : GridElement;
 
 	/**
 	 * Returns the visible flag.
@@ -3576,134 +3737,6 @@ export class Container
 }
 
 /**
- * 	Describes an object that can be drawn to a Canvas.
- */
-export class Drawable
-{
-	/**
-	 * Image resource.
-	 * @protected
-	 */
-	readonly resource: HTMLImageElement|Canvas;
-
-	/**
-	 * Width of the drawable.
-	 * @protected
-	 */
-	readonly width: number;
-
-	/**
-	 * Height of the drawable.
-	 * @protected
-	 */
-	readonly height: number;
-
-	/**
-	 * Frame X-position.
-	 * @protected
-	 */
-	readonly x: number;
-
-	/**
-	 * Frame Y-position.
-	 * @protected
-	 */
-	readonly y: number;
-
-	/**
-	 * Initializes the instance.
-	 */
-	construct();
-
-	/**
-	 * Returns the actual independent drawable object.
-	 */
-	getDrawable(): Drawable;
-
-	/**
-	 * Returns the underlying Image object, can be used directly with Canvas.drawImage.
-	 */
-	getImage(): HTMLImageElement|Canvas;
-
-	/**
-	 * Draws the drawable on the given canvas.
-	 */
-	draw (g: Canvas, x?: number, y?: number, width?: number, height?: number) : void;
-
-	/**
-	 * Renders the drawable for the specified element.
-	 */
-	render (g: Canvas, elem: Element) : void;
-
-	/**
-	 * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
-	 */
-	static nineSlice (spritesheet: Spritesheet, startingIndex?:number=0) : Drawable;
-
-	/**
-	 * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
-	 */
-	nineSlice (startingIndex?:number=0) : Drawable;
-
-	/**
-	 * Drawable tiles to the target size.
-	 */
-	static repeated (drawable: Drawable) : Drawable;
-
-	/**
-	 * Drawable tiles to the target size.
-	 */
-	repeated () : Drawable;
-
-	/**
-	 * Drawable clipped to the target size.
-	 */
-	static clipped (drawable: Drawable) : Drawable;
-
-	/**
-	 * Drawable clipped to the target size.
-	 */
-	clipped () : Drawable;
-
-	/**
-	 * Drawable centered to the target rectangle.
-	 */
-	static centered (drawable: Drawable, offsX?: number, offsY?: number) : Drawable;
-
-	/**
-	 * Drawable centered to the target rectangle.
-	 */
-	centered (offsX?: number, offsY?: number) : Drawable;
-
-	/**
-	 * Drawable as-is without stretching it.
-	 */
-	static static (drawable: Drawable, offsX?: number, offsY?: number) : Drawable;
-
-	/**
-	 * Drawable as-is without stretching it.
-	 */
-	static (offsX?: number, offsY?: number) : Drawable;
-
-	/**
-	 * Creates a drawable group.
-	 */
-	static group (...args) : Drawable;
-
-}
-
-export namespace Drawable
-{
-	export namespace Pool
-	{
-		/**
-		 * Allocates a drawable object.
-		 */
-		function alloc () : Drawable;
-
-	}
-}
-/**
  * Describes an element that can be rendered to the screen.
  */
 export class Element extends GridElement
@@ -3789,14 +3822,14 @@ export class Element extends GridElement
 	 * @param {ShaderProgram} shaderProgram
 	 * @returns {Element}
 	 */
-	shaderProgram (shaderProgram: ShaderProgram) : Element;
+	shaderProgram (shaderProgram: ShaderProgram|string) : Element;
 
 	/**
 	 * Sets the uniform setter function.
-	 * @param { (elem:Element, gl:WebGLRenderingContext, pgm:ShaderProgram) => void } uniformSetter
+	 * @param { (pgm:ShaderProgram, elem:Element, gl:WebGLRenderingContext) => void } uniformSetter
 	 * @returns {Element}
 	 */
-	uniformSetter (uniformSetter: (elem:Element, gl:WebGLRenderingContext, pgm:ShaderProgram) => void) : Element;
+	uniformSetter (uniformSetter: (pgm:ShaderProgram, elem:Element, gl:WebGLRenderingContext) => void) : Element;
 
 	/**
 	 * Colors for the bounds debugging.
@@ -3835,6 +3868,11 @@ export namespace Element
 export class Group extends Element
 {
 	/**
+	 * List of elements in the group.
+	 */
+	readonly children: List;
+
+	/**
 	 * 	Virtual zero reference point.
 	 */
 	readonly ref: Point2;
@@ -3860,6 +3898,19 @@ export class Group extends Element
 	reset() : Group;
 
 	/**
+	 * Returns the wrapExtents flag of the group.
+	 * @returns {boolean}
+	 */
+	wrapExtents () : boolean;
+
+	/**
+	 * Sets the wrapExtents flag of the group.
+	 * @param {boolean} value
+	 * @returns {Group}
+	 */
+	wrapExtents (value: boolean) : Group;
+
+	/**
 	 * 	Adds a child element to the group. If the element has its `id` property set, it will be added to the group as a
 	 * 	property, which can be accessed directly using the element identifier or using the `getChild` method.
 	 */
@@ -3876,7 +3927,7 @@ export class Group extends Element
 	removeChild (elem: Element) : Element;
 
 	/**
-	 * 	Local group translation, moves only the group by the specified deltas. Child element remain in position.
+	 * 	Local group translation, moves only the group by the specified deltas. Child elements remain in position.
 	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
 	 */
 	ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
@@ -3908,12 +3959,25 @@ export class Group extends Element
 	 * @param {boolean} value - New visibility value.
 	 * @param {boolean} forced - When `true` forces to ignore the VISIBLE_LOCK flag.
 	 */
-	visible (value: boolean, forced: boolean=false) : GridElement;
+	visible (value: boolean, forced?: boolean|false) : GridElement;
 
 	/**
 	 * Returns the visible flag.
 	 */
 	visible() : boolean;
+
+	/**
+	 * Returns the alpha value of the group.
+	 * @returns {number}
+	 */
+	alpha () : number;
+
+	/**
+	 * Sets the alpha value of the group and all children.
+	 * @param {number} value
+	 * @returns {Element}
+	 */
+	alpha (value: number) : Element;
 
 }
 
@@ -4255,7 +4319,151 @@ export class GridContainer extends Container
 
 }
 
+/**
+ * 	Describes an object that can be drawn to a Canvas.
+ */
+export class Drawable
+{
+	/**
+	 * Image resource.
+	 * @protected
+	 */
+	readonly resource: HTMLImageElement|Canvas;
 
+	/**
+	 * Logical width of the drawable.
+	 * @protected
+	 */
+	readonly width: number;
+
+	/**
+	 * Logical height of the drawable.
+	 * @protected
+	 */
+	readonly height: number;
+
+	/**
+	 * Frame source X-offset in physical units.
+	 * @protected
+	 */
+	readonly sx: number;
+
+	/**
+	 * Frame source Y-position in physical units.
+	 * @protected
+	 */
+	readonly sy: number;
+
+	/**
+	 * Frame source width in physical units.
+	 * @protected
+	 */
+	readonly swidth: number;
+
+	/**
+	 * Frame source height in physical units.
+	 * @protected
+	 */
+	readonly sheight: number;
+
+	/**
+	 * Initializes the instance.
+	 */
+	constructor();
+
+	/**
+	 * Returns the actual independent drawable object.
+	 */
+	getDrawable(): Drawable;
+
+	/**
+	 * Returns the underlying Image object, can be used directly with Canvas.drawImage.
+	 */
+	getImage(): HTMLImageElement|Canvas;
+
+	/**
+	 * Draws the drawable on the canvas.
+	 */
+	draw (g: Canvas, x: number, y: number, width?: number|null, height?: number|null) : void;
+
+	/**
+	 * Draws a section of the drawable on the canvas using full parameters.
+	 */
+	drawf (g: Canvas, sx:number, sy:number, swidth:number, sheight:number, tx:number, ty:number, twidth:number, theight:number, fwidth?:number|null, fheight?:number|null) : void;
+
+	/**
+	 * Renders the drawable for the specified element.
+	 */
+	render (g: Canvas, elem: Element) : void;
+
+	/**
+	 * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
+	 */
+	static nineSlice (spritesheet: Spritesheet, startingIndex?:number|0) : Drawable;
+
+	/**
+	 * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
+	 */
+	nineSlice (startingIndex?:number|0) : Drawable;
+
+	/**
+	 * Drawable tiles to the target size.
+	 */
+	static repeated (drawable: Drawable) : Drawable;
+
+	/**
+	 * Drawable tiles to the target size.
+	 */
+	repeated () : Drawable;
+
+	/**
+	 * Drawable clipped to the target size.
+	 */
+	static clipped (drawable: Drawable) : Drawable;
+
+	/**
+	 * Drawable clipped to the target size.
+	 */
+	clipped () : Drawable;
+
+	/**
+	 * Drawable centered to the target rectangle.
+	 */
+	static centered (drawable: Drawable, offsX?: number, offsY?: number) : Drawable;
+
+	/**
+	 * Drawable centered to the target rectangle.
+	 */
+	centered (offsX?: number, offsY?: number) : Drawable;
+
+	/**
+	 * Drawable as-is without stretching it.
+	 */
+	static static (drawable: Drawable, offsX?: number, offsY?: number) : Drawable;
+
+	/**
+	 * Drawable as-is without stretching it.
+	 */
+	static (offsX?: number, offsY?: number) : Drawable;
+
+	/**
+	 * Creates a drawable group.
+	 */
+	static group (...args: Array<Drawable>) : Drawable;
+
+}
+
+export namespace Drawable
+{
+	export namespace Pool
+	{
+		/**
+		 * Allocates a drawable object.
+		 */
+		function alloc () : Drawable;
+
+	}
+}
 
 /**
  * 	Describes an element mask. Used for collision detection.
@@ -4298,12 +4506,22 @@ export class Label extends Element
 	/**
 	 * 	Text to render.
 	 */
-	text: string;
+	readonly text: string;
 
 	/**
 	 * 	Spritefont resource.
 	 */
-	font: object;
+	readonly font: Spritefont;
+
+	/**
+	 * Current text width.
+	 */
+	readonly textWidth: number;
+
+	/**
+	 * Current text height.
+	 */
+	readonly textHeight: number;
 
 	/**
 	 * 	Constructs a label element at the specified position with the given text.
@@ -4324,15 +4542,13 @@ export class Label extends Element
 
 	/**
 	 * 	Sets the text value of the label.
-	 * 	@param value
 	 */
 	setText (value: string) : Label;
 
 	/**
-	 * 	Sets the font to use.
-	 * 	@param font
+	 * 	Sets the font resource to use.
 	 */
-	setFont (value: object) : Label;
+	setFont (font: Spritefont) : Label;
 
 }
 
@@ -4368,12 +4584,12 @@ export class KeyboardHandler
 	/**
 	 * 	Registers a new keyboard event handler.
 	 */
-	register (handler: KeyboardHandler.EventHandler) : KeyboardHandler.EventHandler;
+	static register (handler: KeyboardHandler.EventHandler) : KeyboardHandler.EventHandler;
 
 	/**
 	 * 	Removes a keyboard event handler.
 	 */
-	unregister (handler: KeyboardHandler.EventHandler) : void;
+	static unregister (handler: KeyboardHandler.EventHandler) : void;
 
 }
 export namespace PointerHandler
@@ -4397,12 +4613,12 @@ export class PointerHandler
 	/**
 	 * 	Registers a new pointer event handler.
 	 */
-	register (handler: PointerHandler.EventHandler) : PointerHandler.EventHandler;
+	static register (handler: PointerHandler.EventHandler) : PointerHandler.EventHandler;
 
 	/**
 	 * 	Removes a pointer event handler.
 	 */
-	unregister (handler: PointerHandler.EventHandler) : void;
+	static unregister (handler: PointerHandler.EventHandler) : void;
 
 }
 
@@ -4444,7 +4660,7 @@ export class Button extends Group
 	 * 	Key code related to the button. Used only if not `null`.
 	 * 	@default null
 	 */
-	keyCode: System.KeyCode;
+	keyCode: KeyCode;
 
 	/**
 	 * 	Hitbox element.
@@ -4469,12 +4685,12 @@ export class Button extends Group
 	/**
 	 * 	Changes the pressed/unpressed images of the button.
 	 */
-	setImage (unpressedImg: Drawable, pressedImg?: Drawable);
+	setImage (unpressedImg: Drawable, pressedImg?: Drawable) : Button;
 
 	/**
 	 * 	Changes the key code of the button.
 	 */
-	setKeyCode (value: System.KeyCode) : Button;
+	setKeyCode (value: KeyCode) : Button;
 
 	/**
 	 * 	Resets the button to its initial state.
@@ -4519,33 +4735,33 @@ export class Button extends Group
 	/**
 	 * 	Key down event, handles the keys that control the button.
 	 */
-	keyDown (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	keyDown (keyCode: KeyCode, keyArgs: object) : boolean|null;
 
 	/**
 	 * 	Key up event, handles the keys that control the button.
 	 */
-	keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	keyUp (keyCode: KeyCode, keyArgs: object) : boolean|null;
 
 	/**
 	 * 	Sets the handler for the on-change event. Executed when the button state changes. Setting this callback will cause onButtonDown,
 	 * 	onButtonUp and onTap to no longer work. Set the callback to `null` to return it to the default state.
 	 */
-	onChange: (callback: (isPressed: boolean, wasPressed: boolean, buttons: Button) => void) => Button;
+	onChange (callback: (isPressed: boolean, wasPressed: boolean, buttons: Button) => void) : Button;
 
 	/**
 	 * 	Sets the handler for the button-down event. Executed when the button is pressed. Fired only if the `onChange` method was not overriden.
 	 */
-	onButtonDown: (callback: () => void) => Button;
+	onButtonDown (callback: () => void) : Button;
 
 	/**
 	 * 	Sets the handler for the button-up event. Executed when the button is released. Fired only if the `onChange` method was not overriden.
 	 */
-	onButtonUp: (callback: () => void) => Button;
+	onButtonUp (callback: () => void) : Button;
 
 	/**
 	 * 	Sets the handler for the on-tap event. Executed when the button is tapped (pressed and then released). Fired only if the `onChange` method was not overriden.
 	 */
-	onTap: (callback: () => void) => Button;
+	onTap (callback: () => void) : Button;
 
 }
 export class Stick extends Group
@@ -4585,12 +4801,12 @@ export class Stick extends Group
 	/**
 	 * 	Image to draw when the stick is unpressed (inner circle).
 	 */
-	unpressedImg: Drawable;
+	unpressedImgInner: Drawable;
 
 	/**
 	 * 	Image to draw when the stick is pressed (inner circle).
 	 */
-	pressedImg: Drawable;
+	pressedImgInner: Drawable;
 
 	/**
 	 * 	Number of steps for the angle. Used to snap the stick movement to discrete steps.
@@ -4676,17 +4892,17 @@ export class Stick extends Group
 	/**
 	 * 	Key down event, handles the keys that control the direction of the stick.
 	 */
-	keyDown (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	keyDown (keyCode: KeyCode, keyArgs: object) : boolean|null;
 
 	/**
 	 * 	Key up event, handles the keys that control the direction of the stick.
 	 */
-	keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	keyUp (keyCode: KeyCode, keyArgs: object) : boolean|null;
 
 	/**
 	 * 	Sets the handler for the on-change event. Executed after any change in the direction of the stick.
 	 */
-	onChange: (callback: (dirx: number, diry: number, magnitude: number, angle: number, stick: Stick) => void) => Stick;
+	onChange (callback: (dirx: number, diry: number, magnitude: number, angle: number, stick: Stick) => void) : Stick;
 
 }
 export namespace fxl
@@ -4751,27 +4967,27 @@ export namespace fxl
 	/**
 	 * Pauses the system.
 	 */
-	static pause (fromExternalEvent:boolean=false) : void;
+	static pause (fromExternalEvent?: boolean|false) : void;
 
 	/**
 	 * Resumes the system.
 	 */
-	static resume (fromExternalEvent:boolean=false) : void;
+	static resume (fromExternalEvent?: boolean|false) : void;
 
 	/**
 	 * Creates a timeout callback.
 	 */
-	static timeout (duration: number, callback: function, arg0?: any, arg1?: any, arg2?: any, arg3?: any) : void;
+	static timeout (duration: number, callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any) : void;
 
 	/**
 	 * Creates an interval callback.
 	 */
-	static interval (period: number, callback: function, arg0?: any, arg1?: any, arg2?: any) : void;
+	static interval (period: number, callback: Function, arg0?: any, arg1?: any, arg2?: any) : void;
 
 	/**
 	 * Creates a a time-span callback.
 	 */
-	static span (period: number, callback: function, arg0?: any, arg1?: any, arg2?: any) : void;
+	static span (period: number, callback: (t:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : void;
 
 }
 	/**
@@ -4782,35 +4998,35 @@ export class world
 	/**
 	 * World scene constants.
 	 */
-	static const SCENE_MAIN: number;
-	static const SCENE_HUD: number;
+	static readonly SCENE_MAIN: number;
+	static readonly SCENE_HUD: number;
 
 	/**
 	 * Default layers for the SCENE_MAIN scene.
 	 */
-	static const LAYER_BG0: number;
-	static const LAYER_BG1: number;
-	static const LAYER_BG2: number;
-	static const LAYER_BG3: number;
-	static const LAYER_BG4: number;
-	static const LAYER_MAIN: number;
-	static const LAYER_FG0: number;
-	static const LAYER_FG1: number;
-	static const LAYER_FG2: number;
-	static const LAYER_FG3: number;
-	static const LAYER_FG4: number;
-	static const LAYER_MASK: number;
+	static readonly LAYER_BG0: number;
+	static readonly LAYER_BG1: number;
+	static readonly LAYER_BG2: number;
+	static readonly LAYER_BG3: number;
+	static readonly LAYER_BG4: number;
+	static readonly LAYER_MAIN: number;
+	static readonly LAYER_FG0: number;
+	static readonly LAYER_FG1: number;
+	static readonly LAYER_FG2: number;
+	static readonly LAYER_FG3: number;
+	static readonly LAYER_FG4: number;
+	static readonly LAYER_MASK: number;
 
 	/**
 	 * Default layers for the SCENE_HUD scene.
 	 */
-	static const LAYER_HUD_BG0: number;
-	static const LAYER_HUD_BG1: number;
-	static const LAYER_HUD_BG2: number;
-	static const LAYER_HUD_MAIN: number;
-	static const LAYER_HUD_FG0: number;
-	static const LAYER_HUD_FG1: number;
-	static const LAYER_HUD_FG2: number;
+	static readonly LAYER_HUD_BG0: number;
+	static readonly LAYER_HUD_BG1: number;
+	static readonly LAYER_HUD_BG2: number;
+	static readonly LAYER_HUD_MAIN: number;
+	static readonly LAYER_HUD_FG0: number;
+	static readonly LAYER_HUD_FG1: number;
+	static readonly LAYER_HUD_FG2: number;
 
 	/**
 	 * Active scene set by `selectScene`.
@@ -4901,7 +5117,7 @@ export class world
 	/**
 	 * Changes the visibility of the LAYER_MASK to enable (or disable) mask bounds rendering.
 	 * @param {boolean} value
-	 * @param {boolean} allMasks When `true` the `debugMasks` of `globals` will be set to the `value` parameter. When `false` only masks having `debugBounds` to non-false will be drawn.
+	 * @param {boolean} allMasks If set to `false` only masks having `debugBounds` to non-false will be drawn.
 	 */
 	static showMasks (value: boolean, allMasks?: boolean) : void;
 
@@ -4954,7 +5170,7 @@ export class world
 	/**
  * Registered resources. Initially these are resource descriptors, but after a call to `res.load` these will be fully loaded resources.
  */
-declare const r : { [key: string]: any };
+const r : { [key: string]: any };
 	export class res
 {
 	/**
@@ -5087,12 +5303,12 @@ declare const r : { [key: string]: any };
 	/**
 	 * Creates a new stick control and adds it to the gamepad.
 	 */
-	addStick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius:number=0) : Stick;
+	addStick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius?: number|0) : Stick;
 
 	/**
 	 * Creates a new button control and adds it to the gamepad.
 	 */
-	addButton (id: string, x: number, y: number, unpressedDrawable?: Drawable, pressedDrawable?: Drawable) : Button;
+	addButton (id: string, x: number, y: number, unpressedDrawable?: Drawable|null, pressedDrawable?: Drawable|null) : Button;
 
 	/**
 	 * Returns the `visible` property of the gamepad.
@@ -5152,12 +5368,12 @@ export class input
 	/**
 	 * Adds an stick control to the active gamepad.
 	 */
-	static stick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius?: number) : Stick;
+	static stick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius?: number|0) : Stick;
 
 	/**
 	 * Adds a button control to the active gamepad.
 	 */
-	static button (id: string, x: number, y: number, unpressedDrawable?: Drawable, pressedDrawable?: Drawable) : Button;
+	static button (id: string, x: number, y: number, unpressedDrawable?: Drawable|null, pressedDrawable?: Drawable|null) : Button;
 
 }
 	export class collider

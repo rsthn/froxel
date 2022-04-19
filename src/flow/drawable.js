@@ -77,7 +77,7 @@ const Drawable = Class.extend
 
 	/**
 	 * Initializes the instance.
-	 * !construct();
+	 * !constructor();
 	 */
 	__ctor: function (resource=null, width=null, height=null)
 	{
@@ -140,7 +140,7 @@ const Drawable = Class.extend
 
 	/**
 	 * Draws the drawable on the canvas.
-	 * !draw (g: Canvas, x: number, y: number, width?: number, height?: number) : void;
+	 * !draw (g: Canvas, x: number, y: number, width?: number|null, height?: number|null) : void;
 	 */
 	draw: function (g, x, y, width=null, height=null)
 	{
@@ -152,7 +152,7 @@ const Drawable = Class.extend
 
 	/**
 	 * Draws a section of the drawable on the canvas using full parameters.
-	 * !drawf (g: Canvas, sx:number, sy:number, swidth:number, sheight:number, tx:number, ty:number, twidth:number, theight:number, fwidth:number=null, fheight:number=null) : void;
+	 * !drawf (g: Canvas, sx:number, sy:number, swidth:number, sheight:number, tx:number, ty:number, twidth:number, theight:number, fwidth?:number|null, fheight?:number|null) : void;
 	 */
 	drawf: function (g, sx, sy, swidth, sheight, tx, ty, twidth, theight, fwidth=null, fheight=null)
 	{
@@ -432,12 +432,12 @@ Recycler.createPool(Group, 512);
 
 /**
  * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
- * !static nineSlice (spritesheet: Spritesheet, startingIndex?:number=0) : Drawable;
+ * !static nineSlice (spritesheet: Spritesheet, startingIndex?:number|0) : Drawable;
  */
 Drawable.nineSlice = function (spritesheet, startingIndex=0) { return NineSlice.Pool.alloc(spritesheet, startingIndex); }
 /**
  * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
- * !nineSlice (startingIndex?:number=0) : Drawable;
+ * !nineSlice (startingIndex?:number|0) : Drawable;
  */
 Drawable.prototype.nineSlice = function(startingIndex=0) { return NineSlice.Pool.alloc(this, startingIndex); }
 
@@ -487,7 +487,7 @@ Drawable.prototype.static = function (offsX, offsY) { return Static.Pool.alloc(t
 
 /**
  * Creates a drawable group.
- * !static group (...args) : Drawable;
+ * !static group (...args: Array<Drawable>) : Drawable;
  */
 Drawable.group = function (...args) { return Group.Pool.alloc(args); }
 

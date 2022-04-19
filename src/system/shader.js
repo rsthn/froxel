@@ -54,8 +54,18 @@ const Shader = Class.extend
 	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
 	 * 	!constructor (id: string, type: Shader.Type);
 	 */
-	__ctor: function (id, type)
+	/**
+	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
+	 * 	!constructor (type: Shader.Type);
+	 */
+	__ctor: function (id, type=null)
 	{
+		if (type === null)
+		{
+			type = id;
+			id = null;
+		}
+
 		this.id = id;
 		this.type = type;
 
@@ -89,17 +99,19 @@ const Shader = Class.extend
 
 	/**
 	 * 	Compiles the shader. Errors can be obtained using getError() method.
-	 * 	!compile() : void;
+	 * 	!compile() : Shader;
 	 */
 	compile: function ()
 	{
 		let gl = globals.gl;
-		if (!gl) return;
+		if (!gl) return this;
 
 		this.shaderId = gl.createShader (this.type === Shader.Type.VERTEX ? gl.VERTEX_SHADER : (this.type === Shader.Type.FRAGMENT ? gl.FRAGMENT_SHADER : gl.GEOMETRY_SHADER));
 
 		gl.shaderSource(this.shaderId, this.sourceCode);
 		gl.compileShader(this.shaderId);
+
+		return this;
 	},
 
 	/**
@@ -131,7 +143,7 @@ Shader.shaders = { };
  */
 Shader.put = function (id, shader)
 {
-	this.shaders[id] = shader;
+	if (id) this.shaders[id] = shader;
 };
 
 /**

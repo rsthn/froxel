@@ -227,7 +227,7 @@ const input =
 
 	/**
 	 * Adds an stick control to the active gamepad.
-	 * !static stick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius?: number) : Stick;
+	 * !static stick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius?: number|0) : Stick;
 	 */
 	stick: function (id, x, y, outerDrawable, innerDrawable, maxRadius=0)
 	{
@@ -239,7 +239,7 @@ const input =
 
 	/**
 	 * Adds a button control to the active gamepad.
-	 * !static button (id: string, x: number, y: number, unpressedDrawable?: Drawable, pressedDrawable?: Drawable) : Button;
+	 * !static button (id: string, x: number, y: number, unpressedDrawable?: Drawable|null, pressedDrawable?: Drawable|null) : Button;
 	 */
 	button: function (id, x, y, unpressedDrawable=null, pressedDrawable=null)
 	{

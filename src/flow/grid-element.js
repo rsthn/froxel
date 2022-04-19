@@ -213,7 +213,7 @@ const GridElement = Class.extend
 	 * Sets the visible flag.
 	 * @param {boolean} value - New visibility value.
 	 * @param {boolean} forced - When `true` forces to ignore the VISIBLE_LOCK flag.
-	 * !visible (value: boolean, forced: boolean=false) : GridElement;
+	 * !visible (value: boolean, forced?: boolean|false) : GridElement;
 	 */
 	/**
 	 * Returns the visible flag.
@@ -411,6 +411,7 @@ GridElement.VISIBLE_LOCK 		= 	0x0004;
 GridElement.DIRTY 				= 	0x0008;
 GridElement.DEPTH_FLAG_ENABLED	= 	0x0010;
 GridElement.DEPTH_FLAG			= 	0x0020;
+GridElement.WRAP_EXTENTS		=	0x0040;
 
 GridElement.USERDEF		=	0x0100; /* Bits 8 to 30 : 23 flags  */
 GridElement.LAST_FLAG	=	0x0080;

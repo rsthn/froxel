@@ -72,6 +72,9 @@ const Bounds2 = Class.extend
 	ux2: 0, uy2: 0,
 
 	/**
+	 * !constructor ();
+	 */
+	/**
 	 * !constructor (bounds: Bounds2);
 	 */
 	/**
@@ -81,7 +84,7 @@ const Bounds2 = Class.extend
 	 * !constructor (width: number, height: number);
 	 */
 	/**
-	 * !constructor (x1: number, y1: number, x2: number, y2: number, upscaled:boolean=false);
+	 * !constructor (x1: number, y1: number, x2: number, y2: number, upscaled?: boolean|false);
 	 */
 	__ctor: function (x1=null, y1=null, x2=null, y2=null, upscaled=false)
 	{
@@ -177,7 +180,7 @@ const Bounds2 = Class.extend
 	 */
 	/**
 	 * Translates the bounds by the given deltas.
-	 * !translate (dx: number, dy: number, upscaled:boolean=false) : Bounds2;
+	 * !translate (dx: number, dy: number, upscaled?: boolean) : Bounds2;
 	 */
 	translate: function (dx, dy=null, upscaled=false)
 	{
@@ -510,11 +513,11 @@ const Bounds2 = Class.extend
 		return Math.max(0, this.uy2-this.uy1) * Math.max(0, this.ux2-this.ux1) > 0;
 	},
 
-	/*
-	**	Resizes the bounds to the given size using center or top-left as reference.	 
-	**
-	**	Bounds2 resize (float width, float height, bool topLeftRelative=false)
-	*/
+	/**
+	 * Resizes the bounds to the given size using center or top-left as reference.	 
+	 * @param {boolean} topLeftRelative @default `false`
+	 * !resize (width:number, height:number, topLeftRelative?:boolean) : Bounds2;
+	 */
 	resize: function (width, height, topLeftRelative=false)
 	{
 		width = width !== null ? upscale(width) : (this.ux2 - this.ux1);
@@ -597,7 +600,7 @@ const Bounds2 = Class.extend
 
 	/**
 	 * Returns true if the specified point is within the bounds. The `tol` parameter is used to specify a tolerance value.
-	 * !containsPoint (x: number, y: number, tol:number=0) : boolean;
+	 * !containsPoint (x: number, y: number, tol?: number) : boolean;
 	 */
 	containsPoint: function (x, y, tol=0)
 	{
@@ -610,7 +613,7 @@ const Bounds2 = Class.extend
 
 	/**
 	 * Returns the area of the bounds. When strict is true, the area will be returned only if the bounds are forward.
-	 * !area (strict:boolean=false) : number;
+	 * !area (strict?: boolean|false) : number;
 	 */
 	area: function (strict=false)
 	{

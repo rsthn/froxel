@@ -16,10 +16,11 @@
 
 import { Class } from 'rinn';
 import Shader from './shader.js';
-import globals from './globals.js';
+import glx from './glx.js';
 
 //![import "./shader"]
 //![import "./globals"]
+//![import "./glx"]
 
 //:/**
 //: * 	Describes a shader program.
@@ -30,43 +31,9 @@ import globals from './globals.js';
 const ShaderProgram = Class.extend
 ({
 	/**
-	 * 	Locations of the generic uniforms.
-	 * 
-	 *	!readonly uniform_location_matrix: number; // m_location
-	 *	!readonly uniform_transform_matrix: number; // m_transform
-	 *	!readonly uniform_texture_matrix: number; // m_texture
-	 *	!readonly uniform_resolution: number; // v_resolution
-	 *	!readonly uniform_texture_size: number; // v_texture_size
-	 *	!readonly uniform_frame_size: number; // v_frame_size
-	 *	!readonly uniform_base_color: number; // v_base_color
-	 *	!readonly uniform_time: number; // f_time
-	 *	!readonly uniform_depth: number; // f_depth
-	 *	!readonly uniform_scale: number; // f_scale
-	 *	!readonly uniform_alpha: number; // f_alpha
-	 *	!readonly uniform_texture_0: number; // texture0
+	 * Cache of locations.
 	 */
-
-	uniform_location_matrix: 0, /* mat3 */
-	uniform_transform_matrix: 0, /* mat3 */
-	uniform_texture_matrix: 0, /* mat3 */
-
-	uniform_resolution: 0, /* vec2 */
-	uniform_texture_size: 0, /* vec2 */
-	uniform_frame_size: 0, /* vec2 */
-	uniform_base_color: 0, /* vec4 */
-
-	uniform_time: 0, /* float */
-	uniform_depth: 0, /* float */
-	uniform_scale: 0, /* float */
-	uniform_alpha: 0, /* float */
-
-	uniform_texture_0: 0,
-
-	/**
-	 * 	Locations of the generic attributes.
-	 * 	!readonly attrib_location: number;
-	 */
-	attrib_location: 0x00, /* vec2 */
+	locations: null,
 
 	/**
 	 * 	Identifier of the program.
@@ -88,14 +55,18 @@ const ShaderProgram = Class.extend
 
 	/**
 	 *	Constructs an empty shader program with the specified identifier. Attach shaders by using the `attach` method.
-	 * 	!constructor (id: string);
+	 * 	!constructor (id?: string);
 	 */
-	__ctor: function (id)
+	__ctor: function (id=null)
 	{
 		this.id = id;
 
 		this.shaders = [];
 		this.programId = null;
+
+		this.locations = { };
+
+		this._uniformSetter = null;
 
 		ShaderProgram.put(id, this);
 	},
@@ -105,11 +76,23 @@ const ShaderProgram = Class.extend
 	 */
 	__dtor: function ()
 	{
-		let gl = globals.gl;
+		let gl = glx.gl;
 		if (!gl) return this;
 
 		gl.deleteProgram(this.programId);
 		ShaderProgram.remove(this.id);
+	},
+
+	/**
+	 * Sets the uniform setter function.
+	 * @param { (pgm:ShaderProgram) => void } uniformSetter
+	 * @returns {Element}
+	 * !uniformSetter (uniformSetter: (pgm:ShaderProgram) => void) : ShaderProgram;
+	 */
+	uniformSetter: function (uniformSetter)
+	{
+		this._uniformSetter = uniformSetter;
+		return this;
 	},
 
 	/**
@@ -130,33 +113,95 @@ const ShaderProgram = Class.extend
 
 	/**
 	 * 	Binds the attribute locations to their predefined values.
-	 * 	!bindLocations (gl: WebGL2RenderingContext) : void;
 	 */
-	bindLocations: function (gl)
+	bindLocations: function ()
 	{
-		gl.bindAttribLocation (this.programId, 0, 'location');
+		glx.gl.bindAttribLocation (this.programId, 0, 'location');
+	},
+
+	/**
+	 * Returns the location of an attribute.
+	 * !getAttribLocation (name: string) : object;
+	 */
+	getAttribLocation: function (name)
+	{
+		if (!this.locations.hasOwnProperty(name))
+			this.locations[name] = glx.gl.getAttribLocation (this.programId, name);
+
+		return this.locations[name];
+	},
+
+	/**
+	 * Returns the location of a uniform variable.
+	 * !getUniformLocation (name: string) : object;
+	 */
+	getUniformLocation: function (name)
+	{
+		if (!this.locations.hasOwnProperty(name))
+			this.locations[name] = glx.gl.getUniformLocation (this.programId, name);
+
+		return this.locations[name];
+	},
+
+	/**
+	 * Returns the location of a uniform block.
+	 * !getUniformBlockLocation (name: string) : object;
+	 */
+	getUniformBlockLocation: function (name)
+	{
+		if (!this.locations.hasOwnProperty(name))
+			this.locations[name] = glx.gl.getUniformBlockIndex (this.programId, name);
+
+		return this.locations[name];
+	},
+
+	/**
+	 * Returns the size of a uniform block.
+	 * !getUniformBlockSize (uniformBlock: string|object) : number;
+	 */
+	getUniformBlockSize: function (uniformBlock)
+	{
+		if (typeof(uniformBlock) === 'string')
+			uniformBlock = this.getUniformBlockLocation(uniformBlock);
+
+		return glx.gl.getActiveUniformBlockParameter(this.programId, uniformBlock, glx.gl.UNIFORM_BLOCK_DATA_SIZE);
+	},
+	
+	/**
+	 * Creates a buffer for a uniform block.
+	 * !createUniformBlockBuffer (uniformBlock: string|object) : Float32Array;
+	 */
+	createUniformBlockBuffer: function (uniformBlock)
+	{
+		if (typeof(uniformBlock) === 'string')
+			uniformBlock = this.getUniformBlockLocation(uniformBlock);
+
+		let size = this.getUniformBlockSize(uniformBlock);
+		let buff = glx.createBufferFrom (new Float32Array(size).fill(0), glx.BufferTarget.UNIFORM_BUFFER, glx.BufferUsage.DYNAMIC_DRAW);
+
+		glx.gl.bindBufferBase (glx.BufferTarget.UNIFORM_BUFFER, 0, buff);
 	},
 
 	/**
 	 * 	Loads the locations of the predefined uniforms and attributes.
-	 * 	!loadLocations (gl: WebGL2RenderingContext) : void;
 	 */
-	loadLocations: function (gl)
+	preloadLocations: function ()
 	{
-		this.uniform_location_matrix = gl.getUniformLocation (this.programId, 'm_location');
-		this.uniform_transform_matrix = gl.getUniformLocation (this.programId, 'm_transform');
-		this.uniform_texture_matrix = gl.getUniformLocation (this.programId, 'm_texture');
-		this.uniform_resolution = gl.getUniformLocation (this.programId, 'v_resolution');
-		this.uniform_texture_size = gl.getUniformLocation (this.programId, 'v_texture_size');
-		this.uniform_frame_size = gl.getUniformLocation (this.programId, 'v_frame_size');
-		this.uniform_base_color = gl.getUniformLocation (this.programId, 'v_base_color');
-		this.uniform_time = gl.getUniformLocation (this.programId, 'f_time');
-		this.uniform_depth = gl.getUniformLocation (this.programId, 'f_depth');
-		this.uniform_scale = gl.getUniformLocation (this.programId, 'f_scale');
-		this.uniform_alpha = gl.getUniformLocation (this.programId, 'f_alpha');
-		this.uniform_texture_0 = gl.getUniformLocation (this.programId, 'texture0');
+		this.getUniformLocation('m_transform');
+		this.getUniformLocation('v_resolution');
+		this.getUniformLocation('f_time');
+		this.getUniformLocation('f_scale');
 
-		this.attrib_location = gl.getAttribLocation (this.programId, 'location');
+		this.getUniformLocation('m_location');
+		this.getUniformLocation('m_texture');
+		this.getUniformLocation('v_texture_size');
+		this.getUniformLocation('v_frame_size');
+		this.getUniformLocation('v_base_color');
+		this.getUniformLocation('f_depth');
+		this.getUniformLocation('f_alpha');
+		this.getUniformLocation('texture0');
+
+		this.getAttribLocation('location');
 	},
 
 	/**
@@ -165,7 +210,7 @@ const ShaderProgram = Class.extend
 	 */
 	link: function ()
 	{
-		let gl = globals.gl;
+		let gl = glx.gl;
 		if (!gl) return this;
 
 		this.programId = gl.createProgram();
@@ -173,23 +218,26 @@ const ShaderProgram = Class.extend
 		for (let shader of this.shaders)
 			gl.attachShader (this.programId, shader.shaderId);
 
-		this.bindLocations(gl);
+		this.bindLocations();
 		gl.linkProgram (this.programId);
-		this.loadLocations(gl);
+		this.preloadLocations();
 
 		return this;
 	},
 
 	/**
-	 * 	Enables the shader program to be used in the subsequent drawing operations.
-	 * 	!use() : void;
+	 * 	Activates the shader program to be used in the subsequent drawing operations.
+	 * 	!activate() : void;
 	 */
-	use: function ()
+	activate: function ()
 	{
-		let gl = globals.gl;
+		let gl = glx.gl;
 		if (!gl) return;
 
 		gl.useProgram (this.programId);
+
+		if (this._uniformSetter !== null)
+			this._uniformSetter (this, gl);
 	},
 
 	/**
@@ -198,7 +246,7 @@ const ShaderProgram = Class.extend
 	 */
 	getStatus: function ()
 	{
-		let gl = globals.gl;
+		let gl = glx.gl;
 		if (!gl) return true;
 
 		return gl.getProgramParameter(this.programId, gl.LINK_STATUS);
@@ -210,7 +258,7 @@ const ShaderProgram = Class.extend
 	 */
 	getError: function ()
 	{
-		let gl = globals.gl;
+		let gl = glx.gl;
 		if (!gl) return '';
 
 		if (this.programId === null)
@@ -233,7 +281,218 @@ const ShaderProgram = Class.extend
 		}
 
 		return e;
-	}
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform1f (location: string|object, v0: number) : ShaderProgram;
+	 */
+	uniform1f: function (location, v0)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform1f (location, v0);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform1fv (location: string|object, value: any) : ShaderProgram;
+	 */
+	uniform1fv: function (location, value)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform1fv (location, value);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform1i (location: string|object, v0: number) : ShaderProgram;
+	 */
+	uniform1i: function (location, v0)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform1i (location, v0);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform1iv (location: string|object, value: any) : ShaderProgram;
+	 */
+	uniform1iv: function (location, value)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform1iv (location, value);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform2f (location: string|object, v0: number, v1: number) : ShaderProgram;
+	 */
+	uniform2f: function (location, v0, v1)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform2f (location, v0, v1);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform2fv (location: string|object, value: any) : ShaderProgram;
+	 */
+	uniform2fv: function (location, value)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform2fv (location, value);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform2i (location: string|object, v0: number, v1: number) : ShaderProgram;
+	 */
+	uniform2i: function (location, v0, v1)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform2i (location, v0, v1);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform2iv (location: string|object, value: any) : ShaderProgram;
+	 */
+	uniform2iv: function (location, value)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform2iv (location, value);
+		return this;
+	},
+
+	
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform3f (location: string|object, v0: number, v1: number, v2: number) : ShaderProgram;
+	 */
+	uniform3f: function (location, v0, v1, v2)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform3f (location, v0, v1, v2);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform3fv (location: string|object, value: any) : ShaderProgram;
+	 */
+	uniform3fv: function (location, value)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform3fv (location, value);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform3i (location: string|object, v0: number, v1: number, v2: number) : ShaderProgram;
+	 */
+	uniform3i: function (location, v0, v1, v2)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform3i (location, v0, v1, v2);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform3iv (location: string|object, value: any) : ShaderProgram;
+	 */
+	uniform3iv: function (location, value)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform3iv (location, value);
+		return this;
+	},
+
+	
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform4f (location: string|object, v0: number, v1: number, v2: number, v3: number) : ShaderProgram;
+	 */
+	uniform4f: function (location, v0, v1, v2, v3)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform4f (location, v0, v1, v2, v3);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform4fv (location: string|object, value: any) : ShaderProgram;
+	 */
+	uniform4fv: function (location, value)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform4fv (location, value);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform4i (location: string|object, v0: number, v1: number, v2: number, v3: number) : ShaderProgram;
+	 */
+	uniform4i: function (location, v0, v1, v2, v3)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform4i (location, v0, v1, v2, v3);
+		return this;
+	},
+
+	/**
+	 * Sets the value of a uniform.
+	 * !uniform4iv (location: string|object, value: any) : ShaderProgram;
+	 */
+	uniform4iv: function (location, value)
+	{
+		if (typeof(location) === 'string')
+			location = this.getUniformLocation(location);
+
+		glx.gl.uniform4iv (location, value);
+		return this;
+	},
+
 });
 
 /**
@@ -247,7 +506,7 @@ ShaderProgram.programs = { };
  */
 ShaderProgram.put = function (id, shaderProgram)
 {
-	this.programs[id] = shaderProgram;
+	if (id) this.programs[id] = shaderProgram;
 };
 
 /**

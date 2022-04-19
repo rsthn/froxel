@@ -38,7 +38,7 @@ export default Class.extend
 
 	/**
 	 * 	Adds an object to the priority queue.
-	 * 	!add (obj: { priority: number }) : object;
+	 * 	!add (obj: object) : object;
 	 */
 	add: function (object)
 	{
@@ -46,7 +46,7 @@ export default Class.extend
 			return null;
 
 		if (!('priority' in object))
-			throw new Error ('PriorityQueue (add): Object has no `priority` property.');
+			object.priority = 50;
 
 		if (!(object.priority in this.queue))
 		{
@@ -72,7 +72,7 @@ export default Class.extend
 			return null;
 
 		if (!('priority' in object))
-			throw new Error ('PriorityQueue (remove): Object has no `priority` property.');
+			object.priority = 50;
 
 		if (!(object.priority in this.queue))
 			return object;

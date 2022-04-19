@@ -60,7 +60,7 @@ export default Boot.Module.create
 
 	/**
 	 * 	Registers a new keyboard event handler.
-	 * 	!register (handler: KeyboardHandler.EventHandler) : KeyboardHandler.EventHandler;
+	 * 	!static register (handler: KeyboardHandler.EventHandler) : KeyboardHandler.EventHandler;
 	 */
 	register: function (handler)
 	{
@@ -79,7 +79,7 @@ export default Boot.Module.create
 
 	/**
 	 * 	Removes a keyboard event handler.
-	 * 	!unregister (handler: KeyboardHandler.EventHandler) : void;
+	 * 	!static unregister (handler: KeyboardHandler.EventHandler) : void;
 	 */
 	unregister: function (handler)
 	{

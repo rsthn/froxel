@@ -71,7 +71,7 @@ export default Group.extend
 	/**
 	 * 	Key code related to the button. Used only if not `null`.
 	 * 	@default null
-	 *	!keyCode: System.KeyCode;
+	 *	!keyCode: KeyCode;
 	 */
 	keyCode: null,
 
@@ -124,7 +124,6 @@ export default Group.extend
 	__dtor: function ()
 	{
 		this._super.Group.__dtor();
-		this.hitbox.free();
 		ScreenControls.remove(this);
 	},
 
@@ -158,7 +157,7 @@ export default Group.extend
 
 	/**
 	 * 	Changes the pressed/unpressed images of the button.
-	 * 	!setImage (unpressedImg: Drawable, pressedImg?: Drawable);
+	 * 	!setImage (unpressedImg: Drawable, pressedImg?: Drawable) : Button;
 	 */
 	setImage: function (unpressedImg, pressedImg=null)
 	{
@@ -171,7 +170,7 @@ export default Group.extend
 
 	/**
 	 * 	Changes the key code of the button.
-	 * 	!setKeyCode (value: System.KeyCode) : Button;
+	 * 	!setKeyCode (value: KeyCode) : Button;
 	 */
 	setKeyCode: function (value)
 	{
@@ -275,7 +274,7 @@ export default Group.extend
 
 	/**
 	 * 	Key down event, handles the keys that control the button.
-	 * 	!keyDown (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	 * 	!keyDown (keyCode: KeyCode, keyArgs: object) : boolean|null;
 	 */
 	keyDown: function (keyCode, keyArgs)
 	{
@@ -288,7 +287,7 @@ export default Group.extend
 
 	/**
 	 * 	Key up event, handles the keys that control the button.
-	 * 	!keyUp (keyCode: System.KeyCode, keyArgs: object) : boolean|null;
+	 * 	!keyUp (keyCode: KeyCode, keyArgs: object) : boolean|null;
 	 */
 	keyUp: function (keyCode, keyArgs)
 	{
@@ -303,7 +302,7 @@ export default Group.extend
 	 * 	Sets the handler for the on-change event. Executed when the button state changes. Setting this callback will cause onButtonDown,
 	 * 	onButtonUp and onTap to no longer work. Set the callback to `null` to return it to the default state.
 	 * 
-	 * 	!onChange: (callback: (isPressed: boolean, wasPressed: boolean, buttons: Button) => void) => Button;
+	 * 	!onChange (callback: (isPressed: boolean, wasPressed: boolean, buttons: Button) => void) : Button;
 	 */
 	onChange: function (callback)
 	{
@@ -313,7 +312,7 @@ export default Group.extend
 
 	/**
 	 * 	Sets the handler for the button-down event. Executed when the button is pressed. Fired only if the `onChange` method was not overriden.
-	 * 	!onButtonDown: (callback: () => void) => Button;
+	 * 	!onButtonDown (callback: () => void) : Button;
 	 */
 	onButtonDown: function (callback)
 	{
@@ -323,7 +322,7 @@ export default Group.extend
 
 	/**
 	 * 	Sets the handler for the button-up event. Executed when the button is released. Fired only if the `onChange` method was not overriden.
-	 * 	!onButtonUp: (callback: () => void) => Button;
+	 * 	!onButtonUp (callback: () => void) : Button;
 	 */
 	onButtonUp: function (callback)
 	{
@@ -333,7 +332,7 @@ export default Group.extend
 
 	/**
 	 * 	Sets the handler for the on-tap event. Executed when the button is tapped (pressed and then released). Fired only if the `onChange` method was not overriden.
-	 * 	!onTap: (callback: () => void) => Button;
+	 * 	!onTap (callback: () => void) : Button;
 	 */
 	onTap: function (callback)
 	{

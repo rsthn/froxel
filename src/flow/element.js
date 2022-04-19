@@ -19,12 +19,14 @@ import G from '../system/globals.js';
 import Recycler from '../utils/recycler.js';
 import System from '../system/system.js';
 import Canvas from '../system/canvas.js';
-import Drawable from './drawable.js';
+import ShaderProgram from '../system/shader-program.js';
 
 //![import "./grid-element"]
 //![import "../system/globals"]
 //![import "../utils/recycler"]
-//![import "./drawable"]
+//![import "../system/system"]
+//![import "../system/canvas"]
+//![import "../system/shader-program"]
 
 //:/**
 //: * Describes an element that can be rendered to the screen.
@@ -219,12 +221,15 @@ const Element = GridElement.extend
 	 * Sets the shader program of the element.
 	 * @param {ShaderProgram} shaderProgram
 	 * @returns {Element}
-	 * !shaderProgram (shaderProgram: ShaderProgram) : Element;
+	 * !shaderProgram (shaderProgram: ShaderProgram|string) : Element;
 	 */
 	shaderProgram: function (shaderProgram=false)
 	{
 		if (shaderProgram === false)
 			return this._shaderProgram;
+
+		if (typeof(shaderProgram) === 'string')
+			shaderProgram = ShaderProgram.get(shaderProgram);
 
 		this._shaderProgram = shaderProgram;
 		return this;
@@ -232,9 +237,9 @@ const Element = GridElement.extend
 
 	/**
 	 * Sets the uniform setter function.
-	 * @param { (elem:Element, gl:WebGLRenderingContext, pgm:ShaderProgram) => void } uniformSetter
+	 * @param { (pgm:ShaderProgram, elem:Element, gl:WebGLRenderingContext) => void } uniformSetter
 	 * @returns {Element}
-	 * !uniformSetter (uniformSetter: (elem:Element, gl:WebGLRenderingContext, pgm:ShaderProgram) => void) : Element;
+	 * !uniformSetter (uniformSetter: (pgm:ShaderProgram, elem:Element, gl:WebGLRenderingContext) => void) : Element;
 	 */
 	uniformSetter: function (uniformSetter)
 	{
@@ -255,7 +260,7 @@ const Element = GridElement.extend
 		let depthFlagChanged = this.depthFlagEnabled() ? g.pushDepthFlag(this.depthFlag()) : false;
 
 		if (this._shaderProgram !== null && this._uniformSetter !== null && g.gl !== null)
-			this._uniformSetter (this, g.gl, g.getShaderProgram());
+			this._uniformSetter (g.getShaderProgram(), this, g.gl);
 
 		g.zvalue = this.__zvalue;
 

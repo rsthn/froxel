@@ -32,13 +32,13 @@ const Label = Element.extend
 
 	/**
 	 * 	Text to render.
-	 * 	!text: string;
+	 * 	!readonly text: string;
 	 */
 	text: null,
 
 	/**
 	 * 	Spritefont resource.
-	 * 	!font: object;
+	 * 	!readonly font: Spritefont;
 	 */
 	font: null,
 
@@ -48,9 +48,15 @@ const Label = Element.extend
 	_dirty: false,
 
 	/**
-	 * 	Current text dimensions.
+	 * Current text width.
+	 * !readonly textWidth: number;
 	 */
 	textWidth: null,
+
+	/**
+	 * Current text height.
+	 * !readonly textHeight: number;
+	 */
 	textHeight: null,
 
 	/**
@@ -88,7 +94,7 @@ const Label = Element.extend
 	 * 	@param value - Use -1 for LEFT, 0 for CENTER, and 1 for RIGHT.
 	 * 	!align (value: number) : Label;
 	 */
-	align: function(value)
+	align: function (value)
 	{
 		if (this._align === value)
 			return this;
@@ -115,10 +121,9 @@ const Label = Element.extend
 
 	/**
 	 * 	Sets the text value of the label.
-	 * 	@param value
 	 * 	!setText (value: string) : Label;
 	 */
-	setText: function(value)
+	setText: function (value)
 	{
 		if (this.text === value)
 			return this;
@@ -129,11 +134,10 @@ const Label = Element.extend
 	},
 
 	/**
-	 * 	Sets the font to use.
-	 * 	@param font
-	 * 	!setFont (value: object) : Label;
+	 * 	Sets the font resource to use.
+	 * 	!setFont (font: Spritefont) : Label;
 	 */
-	setFont: function(font)
+	setFont: function (font)
 	{
 		if (this.font === font)
 			return this;
@@ -144,8 +148,8 @@ const Label = Element.extend
 	},
 
 	/**
-	 * 	Updates the text related properties (textWidth, textHeight, textOffsetX and textOffsetY). Automatically
-	 * 	called before the label is drawn. Recalculates only if text changed since last call.
+	 * Updates the text related properties (textWidth, textHeight, textOffsetX and textOffsetY). Automatically
+	 * called before the label is drawn. Recalculates only if text changed since last call.
 	 */
 	update: function()
 	{

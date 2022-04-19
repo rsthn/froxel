@@ -71,7 +71,7 @@ const Gamepad = Class.extend
 
 	/**
 	 * Creates a new stick control and adds it to the gamepad.
-	 * !addStick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius:number=0) : Stick;
+	 * !addStick (id: string, x: number, y: number, outerDrawable: Drawable, innerDrawable: Drawable, maxRadius?: number|0) : Stick;
 	 */
 	addStick: function (id, x, y, outerDrawable, innerDrawable, maxRadius=0)
 	{
@@ -88,7 +88,7 @@ const Gamepad = Class.extend
 
 	/**
 	 * Creates a new button control and adds it to the gamepad.
-	 * !addButton (id: string, x: number, y: number, unpressedDrawable?: Drawable, pressedDrawable?: Drawable) : Button;
+	 * !addButton (id: string, x: number, y: number, unpressedDrawable?: Drawable|null, pressedDrawable?: Drawable|null) : Button;
 	 */
 	addButton: function (id, x, y, unpressedDrawable=null, pressedDrawable=null)
 	{

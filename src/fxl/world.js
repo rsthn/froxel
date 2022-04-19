@@ -39,8 +39,8 @@ const world =
 	/**
 	 * World scene constants.
 	 *
-	 * !static const SCENE_MAIN: number;
-	 * !static const SCENE_HUD: number;
+	 * !static readonly SCENE_MAIN: number;
+	 * !static readonly SCENE_HUD: number;
 	 */
 	SCENE_MAIN: 0,
 	SCENE_HUD: 1,
@@ -48,18 +48,18 @@ const world =
 	/**
 	 * Default layers for the SCENE_MAIN scene.
 	 *
-	 * !static const LAYER_BG0: number;
-	 * !static const LAYER_BG1: number;
-	 * !static const LAYER_BG2: number;
-	 * !static const LAYER_BG3: number;
-	 * !static const LAYER_BG4: number;
-	 * !static const LAYER_MAIN: number;
-	 * !static const LAYER_FG0: number;
-	 * !static const LAYER_FG1: number;
-	 * !static const LAYER_FG2: number;
-	 * !static const LAYER_FG3: number;
-	 * !static const LAYER_FG4: number;
-	 * !static const LAYER_MASK: number;
+	 * !static readonly LAYER_BG0: number;
+	 * !static readonly LAYER_BG1: number;
+	 * !static readonly LAYER_BG2: number;
+	 * !static readonly LAYER_BG3: number;
+	 * !static readonly LAYER_BG4: number;
+	 * !static readonly LAYER_MAIN: number;
+	 * !static readonly LAYER_FG0: number;
+	 * !static readonly LAYER_FG1: number;
+	 * !static readonly LAYER_FG2: number;
+	 * !static readonly LAYER_FG3: number;
+	 * !static readonly LAYER_FG4: number;
+	 * !static readonly LAYER_MASK: number;
 	 */
 	LAYER_BG0: 0,
 	LAYER_BG1: 1,
@@ -77,13 +77,13 @@ const world =
 	/**
 	 * Default layers for the SCENE_HUD scene.
 	 *
-	 * !static const LAYER_HUD_BG0: number;
-	 * !static const LAYER_HUD_BG1: number;
-	 * !static const LAYER_HUD_BG2: number;
-	 * !static const LAYER_HUD_MAIN: number;
-	 * !static const LAYER_HUD_FG0: number;
-	 * !static const LAYER_HUD_FG1: number;
-	 * !static const LAYER_HUD_FG2: number;
+	 * !static readonly LAYER_HUD_BG0: number;
+	 * !static readonly LAYER_HUD_BG1: number;
+	 * !static readonly LAYER_HUD_BG2: number;
+	 * !static readonly LAYER_HUD_MAIN: number;
+	 * !static readonly LAYER_HUD_FG0: number;
+	 * !static readonly LAYER_HUD_FG1: number;
+	 * !static readonly LAYER_HUD_FG2: number;
 	 */
  	LAYER_HUD_BG0: 0,
 	LAYER_HUD_BG1: 1,
