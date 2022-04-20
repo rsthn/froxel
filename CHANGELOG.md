@@ -1,3 +1,54 @@
+# v2.2.2 - Apr 19th 2022
+
+#### Element
+- Changed signature of callback for `uniformSetter`.
+- 🌿 Method `shaderProgram` now allows a string (name of registered shader program) to be passed.
+- Added method `getDebugColor`, returns a color given the `debugBounds` value. Valid values are boolean or number from 0 to 7.
+- Added static array `debugColors` with the eight color values supported.
+- 🌿 New method `debug` can be used to set/get the `debugBounds` property.
+
+#### GridElement
+- Added new flag `WRAP_EXTENTS` to be used by Group.
+
+#### Group
+- 🌿 Added method `wrapExtents` to read/set the `WRAP_EXTENTS` flag, used make the group bounds extend to wrap all children, defaults to `false`.
+- ⚠ Method `alpha` now sets alpha on all children as well.
+
+#### ShaderProgram
+- 🔻 Removed all uniform_* variables, replaced by single map `locations` which contains the cached locations of uniforms, uniform blocks and attributes.
+- 🌿 Added methods `getAttribLocation`, and `getUniformLocation`.
+- Method `use` renamed to `activate` to be more accurate with what it actually does.
+- Added set of uniform* methods to set uniform values directly from the program object.
+- Added method `uniformSetter` to get/set the uniform-setter function of the program.
+
+#### Drawable
+- ⚠ Renamed properties `x` and `y` to `sx` and `sy` to denote source coordinates.
+- Added properties `swidth` and `sheight` to represent source width/height in physical image units.
+- Added method `drawf` to draw the drawable using full parameters.
+- Optimized `Repeated` class to use new `drawf` method instead of multiple `draw` calls.
+
+#### Stick
+- Added `refX` and `refY` parameters, used as center of the stick when the pointer is activated.
+- Constructor now calls `debug(2)` on the hitbox to set its mask color.
+
+#### Canvas
+- Removed `repeat` shader program and merged its functionality in the default shader.
+
+#### Button
+- Constructor now calls `debug(2)` on the hitbox to set its mask color.
+
+#### Mask
+- Method `draw` now uses Element's `getDebugColor` to pick the right color for the mask bounds.
+
+#### fxl.world
+- 🌿 Added method `showMasks` to easily enable/disable mask rendering.
+
+#### global
+- Added property `debugMasks` to control drawing masks for debugging purposes.
+- Added property `shaderProgram` with the currently active program. Updated Canvas to use this new property.
+
+<br/>
+
 # v2.2.1 - April 6th 2022
 
 #### General
