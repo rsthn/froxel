@@ -311,11 +311,20 @@ export default Group.extend
 	},
 
 	/**
-	 * 	Sets the handler for the button-down event. Executed when the button is pressed. Fired only if the `onChange` method was not overriden.
-	 * 	!onButtonDown (callback: () => void) : Button;
+	 * Sets the handler for the button-down event. Executed when the button is pressed. Fired only if the `onChange` method was not overriden.
+	 * !onButtonDown (callback: () => void) : Button;
 	 */
-	onButtonDown: function (callback)
+	/**
+	 * Executes the onButtonDown handler.
+	 * !onButtonDown() : void;
+	 */
+	onButtonDown: function (callback=true)
 	{
+		if (callback === true) {
+			if (this._onButtonDown) this._onButtonDown();
+			return;
+		}
+
 		this._onButtonDown = callback;
 		return this;
 	},
@@ -324,8 +333,17 @@ export default Group.extend
 	 * 	Sets the handler for the button-up event. Executed when the button is released. Fired only if the `onChange` method was not overriden.
 	 * 	!onButtonUp (callback: () => void) : Button;
 	 */
-	onButtonUp: function (callback)
+	/**
+	 * Executes the onButtonUp handler.
+	 * !onButtonUp() : void;
+	 */
+	onButtonUp: function (callback=true)
 	{
+		if (callback === true) {
+			if (this._onButtonUp) this._onButtonUp();
+			return;
+		}
+
 		this._onButtonUp = callback;
 		return this;
 	},
@@ -334,8 +352,17 @@ export default Group.extend
 	 * 	Sets the handler for the on-tap event. Executed when the button is tapped (pressed and then released). Fired only if the `onChange` method was not overriden.
 	 * 	!onTap (callback: () => void) : Button;
 	 */
-	onTap: function (callback)
+	/**
+	 * Executes the onTap handler.
+	 * !onTap() : void;
+	 */
+	onTap: function (callback=true)
 	{
+		if (callback === true) {
+			if (this._onTap) this._onTap();
+			return;
+		}
+
 		this._onTap = callback;
 		return this;
 	}

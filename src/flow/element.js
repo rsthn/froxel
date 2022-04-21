@@ -315,11 +315,11 @@ const Element = GridElement.extend
 Element.debugColors = [
 	'rgba(0,255,255,0.35)', // Cyan
 	'rgba(255,255,0,0.35)', // Yellow
+	'rgba(255,0,255,0.35)', // Magenta
+	'rgba(255,255,255,0.35)', // White
 	'rgba(255,0,0,0.35)', // Red
 	'rgba(0,255,0,0.35)', // Green
 	'rgba(0,0,255,0.35)', // Blue
-	'rgba(255,0,255,0.35)', // Magenta
-	'rgba(255,255,255,0.35)', // White
 	'rgba(128,128,128,0.35)' // Gray
 ];
 
