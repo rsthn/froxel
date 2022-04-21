@@ -401,6 +401,18 @@ const Group = Drawable.extend
 		this._super.Drawable.__ctor();
 
 		this.list = list;
+
+		this.width = 0;
+		this.height = 0;
+
+		for (let i = 0; i < this.list.length; i++)
+		{
+			if (this.list[i].width > this.width) this.width = this.list[i].width;
+			if (this.list[i].height > this.height) this.height = this.list[i].height;
+		}
+
+		this.swidth = this.width;
+		this.sheight = this.height;
 	},
 
 	__dtor: function()

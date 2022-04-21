@@ -2528,6 +2528,7 @@ declare global
 
 
 
+
 export class Perf
 {
 	/**

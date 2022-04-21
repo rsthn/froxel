@@ -29,6 +29,9 @@ export const Template = rinn.Template;
 //![import "system/globals"]
 import _globals from './system/globals.js'; export const globals = _globals;
 
+//![import "system/glx"]
+import _glx from './system/glx.js'; export const glx = _glx;
+
 //![import "system/system"]
 import _System from './system/system.js'; export const System = _System;
 

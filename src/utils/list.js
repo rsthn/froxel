@@ -311,7 +311,7 @@ const List = Class.extend
 	 * 	@param fn - Callback to execute, return `false` to stop the loop immediately.
 	 * 	!forEach(fn: (value: any, node: Linkable, list: List, context: object) => boolean, context?: object) : boolean;
 	 */
-	forEach: function(fn, context=null)
+	forEach: function (fn, context=null)
 	{
 		let ni;
 	
@@ -329,7 +329,7 @@ const List = Class.extend
 	 * 	@param fn - Callback to execute, return `false` to stop the loop immediately.
 	 * 	!forEachRev(fn: (value: any, node: Linkable, list: List, context: object) => boolean, context?: object) : boolean;
 	 */
-	forEachRev: function(fn, context=null)
+	forEachRev: function (fn, context=null)
 	{
 		let ni;
 	

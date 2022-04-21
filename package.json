@@ -45,12 +45,12 @@
     "homepage": "https://github.com/rsthn/froxel#readme",
     "devDependencies": {
         "filereader": "^0.10.3",
-        "fs-extra": "^10.0.1",
+        "fs-extra": "^10.1.0",
         "image-size": "^1.0.1",
-        "parcel": "^2.4.1"
+        "parcel": "^2.5.0"
     },
     "dependencies": {
-        "rinn": "^2.0.41"
+        "rinn": "^2.0.42"
     },
     "files": [
         "dist/",
