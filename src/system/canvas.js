@@ -364,6 +364,61 @@ Canvas.prototype.initGl = function ()
 	.compile();
 
 	/**
+	 * 	Create the quick shader program.
+	 */
+	this.glQuickProgram = new ShaderProgram('quick');
+
+	(new Shader ('quick-vert', Shader.Type.VERTEX))
+	.source(
+		`#version 300 es
+		precision highp float;
+
+		uniform mat3 m_location;
+		uniform mat3 m_transform;
+		uniform mat3 m_texture;
+
+		uniform vec2 v_resolution;
+		uniform vec2 v_texture_size;
+		uniform vec2 v_frame_size;
+
+		uniform float f_time;
+		uniform float f_depth;
+
+		uniform sampler2D texture0;
+
+		in vec2 location;
+		out vec2 texcoords;
+
+		void main()
+		{
+			gl_Position = vec4(((vec2(m_transform * m_location * vec3(location, 1.0)) / v_resolution)*2.0 - vec2(1.0, 1.0)) * vec2(1.0, -1.0), f_depth / 16777216.0, 1.0);
+			texcoords = vec2(m_texture * vec3(location, 1.0)) / v_texture_size;
+		}
+	`)
+	.compile();
+
+	(new Shader ('quick-frag', Shader.Type.FRAGMENT))
+	.source(
+		`#version 300 es
+		precision highp float;
+
+		uniform sampler2D texture0;
+		uniform float f_alpha;
+		in vec2 texcoords;
+
+		out vec4 color;
+
+		void main()
+		{
+			color = texture(texture0, texcoords);
+			color.a *= f_alpha;
+
+			if (color.a == 0.0) discard;
+		}
+	`)
+	.compile();
+
+	/**
 	 * 	Create the frame buffer blit shader program.
 	 */
 	this.glBlitProgram = new ShaderProgram('blit');
@@ -415,10 +470,14 @@ Canvas.prototype.initGl = function ()
 	this.glDefaultProgram.attach('def-vert');
 	this.glDefaultProgram.attach('def-frag');
 
+	this.glQuickProgram.attach('quick-vert');
+	this.glQuickProgram.attach('quick-frag');
+
 	this.glBlitProgram.attach('blit-vert');
 	this.glBlitProgram.attach('blit-frag');
 
 	this.glDefaultProgram.link();
+	this.glQuickProgram.link();
 	this.glBlitProgram.link();
 
 	if (!this.glDefaultProgram.getStatus())

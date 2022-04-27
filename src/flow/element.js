@@ -168,7 +168,7 @@ const Element = GridElement.extend
 		if (value === null)
 			return this.debugBounds;
 
-		this.debugBounds = value;
+		this.debugBounds = value === 0 ? true : value;
 		return this;
 	},
 
