@@ -2327,27 +2327,27 @@ export namespace globals
 	let shaderProgram: ShaderProgram;
 
 	/**
-	 * 	Global system time, updated once per frame. Mirrors the `System.frameTime` property.
+	 * Global system time, updated once per frame. Mirrors the `System.frameTime` property.
 	 */
 	let time: number;
 
 	/**
-	 * 	Active viewport (if any). Set by the `draw` method of the `Scene` class.
+	 * Active viewport (if any). Set by the `draw` method of the `Scene` class.
 	 */
 	let viewport: Viewport;
 
 	/**
-	 * 	Indicates if the element bounds should be drawn. Used by the `Element` class.
+	 * Indicates if the element bounds should be drawn. Used by the `Element` class.
 	 */
 	let debugBounds: boolean;
 
 	/**
-	 * 	Indicates if the mask bounds should be drawn. Used by the `Mask` class.
+	 * Indicates if the mask bounds should be drawn. Used by the `Mask` class.
 	 */
 	let debugMasks: boolean;
 
 	/**
-	 * 	Global random generators. Only `rand0` is used by the global random functions. The `rand1` and `rand2` can be used manually if desired.
+	 * Global random generators. Only `rand0` is used by the global random functions. The `rand1` and `rand2` can be used manually if desired.
 	 */
 	const rand0: Random;
 	const rand1: Random;
@@ -2358,169 +2358,184 @@ export namespace globals
 declare global
 {
 	/**
-	 * 	Converts the given pixel-value to actual screen pixels taking into account the current scale.
+	 * Converts the given pixel-value to actual screen pixels taking into account the current scale.
 	 */
 	function px (value: number) : number;
 
 	/**
-	 * 	Disposes an object by running the first method that is found in the following order: `free`, `dispose` and finally `__dtor`.
+	 * Disposes an object by running the first method that is found in the following order: `free`, `dispose` and finally `__dtor`.
 	 */
 	function dispose (obj: object) : void;
 
 	/**
-	 * 	Global audio context obtained when the system is initialized.
+	 * Global audio context obtained when the system is initialized.
 	 */
 	let audioContext: AudioContext;
 
 	/**
-	 * 	Similar to `fetch` but uses XMLHttpRequest because in some mobile browsers regular mode does not work well with ArrayBuffers.
+	 * Similar to `fetch` but uses XMLHttpRequest because in some mobile browsers regular mode does not work well with ArrayBuffers.
 	 */
 	function fetchd (url: string, options?: object) : Promise<object>;
 
 	/**
-	 * 	Loads an arraybuffer from the specified URL and converts it to a AudioBuffer using the global audioContext.
+	 * Loads an arraybuffer from the specified URL and converts it to a AudioBuffer using the global audioContext.
 	 */
 	function fetchAudioBuffer (url: string) : Promise<AudioBuffer>;
 
 	/**
-	 * 	Returns the value as an integer.
+	 * Returns the value as an integer.
 	 */
 	function int (value: number|string) : number;
 
 	/**
-	 * 	Returns the value as a boolean.
+	 * Returns the value as a boolean.
 	 */
 	function bool (value: number|string|boolean) : number;
 
 	/**
-	 * 	Returns the value as a floating point number.
+	 * Returns the value as a floating point number.
 	 */
 	function float (value: number|string) : number;
 
 	/**
-	 * 	Returns the value truncated to 2 digits of precision.
+	 * Returns the value truncated to 2 digits of precision.
 	 */
 	function float2 (value: number) : number;
 
 	/**
-	 * 	Returns the value truncated to 3 digits of precision.
+	 * Returns the value truncated to 3 digits of precision.
 	 */
 	function float3 (value: number) : number;
 
 	/**
-	 * 	Returns the value truncated to 4 digits of precision.
+	 * Returns the value truncated to 4 digits of precision.
 	 */
 	function float4 (value: number) : number;
 
 	/**
-	 * 	Converts the given value to radians.
+	 * Converts the given value to radians.
 	 */
 	function rad (value: number) : number;
 
 	/**
-	 * 	Converts the given value to degrees.
+	 * Converts the given value to degrees.
 	 */
 	function deg (value: number) : number;
 
 	/**
-	 * 	Returns a random integer value from 0 to 0xFFFF (inclusive).
+	 * Returns a random integer value from 0 to 0xFFFF (inclusive).
 	 */
 	function rand() : number;
 
 	/**
-	 * 	Returns a random float from 0 to 1 (inclusive).
+	 * Returns a random float from 0 to 1 (inclusive).
 	 */
 	function randf() : number;
 
 	/**
-	 * 	Returns a random float within the given (inclusive) range.
+	 * Returns a random float within the given (inclusive) range.
 	 */
 	function randrf (startValue: number, endValue: number) : number;
 
 	/**
-	 * 	Returns a random integer within the given range (inclusive).
+	 * Returns a random integer within the given range (inclusive).
 	 */
 	function randr (startValue: number, endValue: number) : number;
 
 	/**
-	 * 	Returns a table (array) of N random float numbers within the given range (inclusive).
+	 * Returns a table (array) of N random float numbers within the given range (inclusive).
 	 */
 	function randtf (startValue: number, endValue: number, n: number) : Array<number>;
 
 	/**
-	 * 	Returns the high-resolution `now` counter in milliseconds (includes possibly microseconds in fractional part).
+	 * Returns the high-resolution `now` counter in milliseconds (includes possibly microseconds in fractional part).
 	 */
 	function hrnow () : number;
 
 	/**
-	 * 	Returns a function that when called produces a random integer value within the given (inclusive) range.
+	 * Returns a function that when called produces a random integer value within the given (inclusive) range.
 	 */
 	function randvar (startValue: number, endValue: number) : () => number;
 
 	/**
-	 * 	Returns a function that when called returns an item from the specified array at some random index within the (inclusive) range.
+	 * Returns a function that when called returns an item from the specified array at some random index within the (inclusive) range.
 	 */
 	function randitem (arr: Array<any>, startValue?: number, endValue?: number) : () => any;
 
 	/**
-	 * 	Returns the parameter 't' where two line segments intersect.
+	 * Returns the parameter 't' where two line segments intersect.
 	 */
 	function getLineSegmentIntersection (ls1_x1: number, ls1_y1: number, ls1_x2: number, ls1_y2: number, ls2_x1: number, ls2_y1: number, ls2_x2: number, ls2_y2: number) : number;
 
 	/**
-	 * 	Returns boolean indicating if the line segments intersect.
+	 * Returns boolean indicating if the line segments intersect.
 	 */
 	function lineSegmentIntersects (ls1_x1: number, ls1_y1: number, ls1_x2: number, ls1_y2: number, ls2_x1: number, ls2_y1: number, ls2_x2: number, ls2_y2: number) : boolean;
 
 	/**
-	 * 	Rotates a point (2d) by the given angle and returns an object having x and y properties.
+	 * Rotates a point (2d) by the given angle and returns an object having x and y properties.
 	 */
 	function rotatePoint (angle: number, x: number, y: number) : { x: number, y: number };
 
 	/**
-	 * 	Returns a value snapped to a step within the given range.
+	 * Returns a value snapped to a step within the given range.
 	 */
 	function stepValue (value: number, minValue: number, maxValue: number, numSteps: number) : number;
 
 	/**
-	 * 	Returns a value that is a factor of the specified step.
+	 * Returns a value that is a factor of the specified step.
 	 */
 	function alignValue (value: number, step: number) : number;
 
 	/**
-	 * 	Number of bits for fixed-point number (default is 8).
+	 * Number of bits for fixed-point number (default is 8).
 	 */
 	let FIXED_POINT_BITS : number;
 
 	/**
-	 * 	Returns a fixed-point upscaled value.
+	 * Returns a fixed-point upscaled value.
 	 */
 	function upscale (value: number) : number;
 
 	/**
-	 * 	Downscales a fixed-point value to its integer part.
+	 * Downscales a fixed-point value to its integer part.
 	 */
 	function downscale (value: number) : number;
 
 	/**
-	 * 	Downscales a fixed-point value to floating point.
+	 * Downscales a fixed-point value to floating point.
 	 */
 	function downscalef (value: number) : number;
 
 	/**
-	 * 	Aligns a value to its fixed point floating point representation such that downscaling results in an integer.
+	 * Aligns a value to its fixed point floating point representation such that downscaling results in an integer.
 	 */
 	function falign (value: number) : number;
 
 	/**
-	 * 	Returns the value having the minimum absolute value.
+	 * Returns the value having the minimum absolute value.
 	 */
 	function absmin (a: number, b: number) : number;
 
 	/**
-	 * 	Returns the value having the maximum absolute value.
+	 * Returns the value having the maximum absolute value.
 	 */
 	function absmax (a: number, b: number) : number;
+
+	/**
+	 * Repeats a string a number of times.
+	 */
+	function repeat (str: string, count: number) : string;
+
+	/**
+	 * Pads the given value with a character (added to the left) until the specified size is reached.
+	 */
+	function lpad (val: any, size: number, char?: string) : string;
+
+	/**
+	 * Pads the given value with a character (added to the right) until the specified size is reached.
+	 */
+	function rpad (val: any, size: number, char?: string) : string;
 
 }
 
@@ -4750,9 +4765,14 @@ export class Button extends Group
 	onChange (callback: (isPressed: boolean, wasPressed: boolean, buttons: Button) => void) : Button;
 
 	/**
-	 * 	Sets the handler for the button-down event. Executed when the button is pressed. Fired only if the `onChange` method was not overriden.
+	 * Sets the handler for the button-down event. Executed when the button is pressed. Fired only if the `onChange` method was not overriden.
 	 */
 	onButtonDown (callback: () => void) : Button;
+
+	/**
+	 * Executes the onButtonDown handler.
+	 */
+	onButtonDown() : void;
 
 	/**
 	 * 	Sets the handler for the button-up event. Executed when the button is released. Fired only if the `onChange` method was not overriden.
@@ -4760,9 +4780,19 @@ export class Button extends Group
 	onButtonUp (callback: () => void) : Button;
 
 	/**
+	 * Executes the onButtonUp handler.
+	 */
+	onButtonUp() : void;
+
+	/**
 	 * 	Sets the handler for the on-tap event. Executed when the button is tapped (pressed and then released). Fired only if the `onChange` method was not overriden.
 	 */
 	onTap (callback: () => void) : Button;
+
+	/**
+	 * Executes the onTap handler.
+	 */
+	onTap() : void;
 
 }
 export class Stick extends Group

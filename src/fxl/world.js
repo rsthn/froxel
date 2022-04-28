@@ -362,7 +362,7 @@ const world =
 			throw new Error ('createGroup: use selectScene first to select the active scene.');
 
 		this.activeGroup = Group.Pool.alloc(id);
-		this.activeScene.addGroup (this.activeGroup);
+		this.activeScene.addGroup(this.activeGroup);
 
 		return this.activeGroup;
 	},

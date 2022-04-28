@@ -253,46 +253,45 @@ const Element = GridElement.extend
 	 */
 	draw: function(g)
 	{
-		if (this.img === null && this.render === null)
-			return;
-
-		let shaderChanged = this._shaderProgram !== null ? g.pushShaderProgram(this._shaderProgram) : false;
-		let depthFlagChanged = this.depthFlagEnabled() ? g.pushDepthFlag(this.depthFlag()) : false;
-
-		if (this._shaderProgram !== null && this._uniformSetter !== null && g.gl !== null)
-			this._uniformSetter (g.getShaderProgram(), this, g.gl);
-
-		g.zvalue = this.__zvalue;
-
-		if (this._alpha != 1.0)
+		if (this.img !== null || this.render !== null)
 		{
-			g.pushAlpha();
-			g.alpha(this._alpha);
+			let shaderChanged = this._shaderProgram !== null ? g.pushShaderProgram(this._shaderProgram) : false;
+			let depthFlagChanged = this.depthFlagEnabled() ? g.pushDepthFlag(this.depthFlag()) : false;
+
+			if (this._shaderProgram !== null && this._uniformSetter !== null && g.gl !== null)
+				this._uniformSetter (g.getShaderProgram(), this, g.gl);
+
+			g.zvalue = this.__zvalue;
+
+			if (this._alpha != 1.0)
+			{
+				g.pushAlpha();
+				g.alpha(this._alpha);
+			}
+
+			if (this.render !== null)
+				this.render(g, this, this.img);
+			else
+				this.img.render(g, this);
+
+			if (depthFlagChanged) g.popDepthFlag();
+			if (shaderChanged) g.popShaderProgram();
+
+			if (this._alpha != 1.0)
+				g.popAlpha();
 		}
-
-		if (this.render !== null)
-			this.render(g, this, this.img);
-		else
-			this.img.render(g, this);
-
-		if (depthFlagChanged) g.popDepthFlag();
-		if (shaderChanged) g.popShaderProgram();
-
-		if (this._alpha != 1.0)
-			g.popAlpha();
 
 		/* *********** */
 		if (G.debugBounds || this.debugBounds)
 		{
-			let g2 = System.displayBuffer2;
-
-			g2.pushMatrix();
-			g2.loadMatrix(g.getMatrix());
-
-			g2.fillStyle(Element.getDebugColor(this.debugBounds));
-			g2.fillRect(this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height());
-
-			g2.popMatrix();
+			let m = g.getMatrix();
+			g = System.displayBuffer2;
+	
+			g.pushMatrix();
+			g.loadMatrix(m);
+			g.fillStyle(Element.getDebugColor(this.debugBounds));
+			g.fillRect(this.bounds.x1, this.bounds.y1, this.bounds.width(), this.bounds.height());
+			g.popMatrix();
 		}
 	},
 

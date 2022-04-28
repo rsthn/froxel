@@ -45,35 +45,35 @@ const globals =
 	shaderProgram: null,
 
 	/**
-	 * 	Global system time, updated once per frame. Mirrors the `System.frameTime` property.
-	 *	!let time: number;
+	 * Global system time, updated once per frame. Mirrors the `System.frameTime` property.
+	 * !let time: number;
 	 */
 	time: 0,
 
 	/**
-	 * 	Active viewport (if any). Set by the `draw` method of the `Scene` class.
-	 * 	!let viewport: Viewport;
+	 * Active viewport (if any). Set by the `draw` method of the `Scene` class.
+	 * !let viewport: Viewport;
 	 */
 	viewport: null,
 
 	/**
-	 * 	Indicates if the element bounds should be drawn. Used by the `Element` class.
-	 * 	!let debugBounds: boolean;
+	 * Indicates if the element bounds should be drawn. Used by the `Element` class.
+	 * !let debugBounds: boolean;
 	 */
 	debugBounds: false,
 
 	/**
-	 * 	Indicates if the mask bounds should be drawn. Used by the `Mask` class.
-	 * 	!let debugMasks: boolean;
+	 * Indicates if the mask bounds should be drawn. Used by the `Mask` class.
+	 * !let debugMasks: boolean;
 	 */
 	debugMasks: false,
 
 	/**
-	 * 	Global random generators. Only `rand0` is used by the global random functions. The `rand1` and `rand2` can be used manually if desired.
+	 * Global random generators. Only `rand0` is used by the global random functions. The `rand1` and `rand2` can be used manually if desired.
 	 *
-	 * 	!const rand0: Random;
-	 * 	!const rand1: Random;
-	 * 	!const rand2: Random;
+	 * !const rand0: Random;
+	 * !const rand1: Random;
+	 * !const rand2: Random;
 	 */
 	rand0: new Random(),
 	rand1: new Random(),
@@ -87,9 +87,8 @@ export default globals;
 //!declare global
 
 /**
- * 	Converts the given pixel-value to actual screen pixels taking into account the current scale.
- *
- * 	!function px (value: number) : number;
+ * Converts the given pixel-value to actual screen pixels taking into account the current scale.
+ * !function px (value: number) : number;
  */
 global.px = function(value)
 {
@@ -97,9 +96,8 @@ global.px = function(value)
 };
 
 /**
- * 	Disposes an object by running the first method that is found in the following order: `free`, `dispose` and finally `__dtor`.
- *
- *	!function dispose (obj: object) : void;
+ * Disposes an object by running the first method that is found in the following order: `free`, `dispose` and finally `__dtor`.
+ * !function dispose (obj: object) : void;
  */
 global.dispose = function (obj)
 {
@@ -117,9 +115,8 @@ global.dispose = function (obj)
 };
 
 /**
- * 	Global audio context obtained when the system is initialized.
- *
- * 	!let audioContext: AudioContext;
+ * Global audio context obtained when the system is initialized.
+ * !let audioContext: AudioContext;
  */
 if ('AudioContext' in global)
 {
@@ -130,9 +127,8 @@ else
 	global.audioContext = null;
 
 /**
- * 	Similar to `fetch` but uses XMLHttpRequest because in some mobile browsers regular mode does not work well with ArrayBuffers.
- *
- * 	!function fetchd (url: string, options?: object) : Promise<object>;
+ * Similar to `fetch` but uses XMLHttpRequest because in some mobile browsers regular mode does not work well with ArrayBuffers.
+ * !function fetchd (url: string, options?: object) : Promise<object>;
  */
 global.fetchd = function (url, options)
 {
@@ -159,9 +155,8 @@ global.fetchd = function (url, options)
 };
 
 /**
- * 	Loads an arraybuffer from the specified URL and converts it to a AudioBuffer using the global audioContext.
- *
- * 	!function fetchAudioBuffer (url: string) : Promise<AudioBuffer>;
+ * Loads an arraybuffer from the specified URL and converts it to a AudioBuffer using the global audioContext.
+ * !function fetchAudioBuffer (url: string) : Promise<AudioBuffer>;
  */
 global.fetchAudioBuffer = function (url)
 {
@@ -182,9 +177,8 @@ global.fetchAudioBuffer = function (url)
 
 
 /**
- * 	Returns the value as an integer.
- *
- *	!function int (value: number|string) : number;
+ * Returns the value as an integer.
+ * !function int (value: number|string) : number;
  */
 global.int = function (value)
 {
@@ -192,9 +186,8 @@ global.int = function (value)
 };
 
 /**
- * 	Returns the value as a boolean.
- *
- * 	!function bool (value: number|string|boolean) : number;
+ * Returns the value as a boolean.
+ * !function bool (value: number|string|boolean) : number;
  */
 global.bool = function (value)
 {
@@ -211,9 +204,8 @@ global.bool = function (value)
 };
 
 /**
- * 	Returns the value as a floating point number.
- *
- * 	!function float (value: number|string) : number;
+ * Returns the value as a floating point number.
+ * !function float (value: number|string) : number;
  */
 global.float = function (value)
 {
@@ -221,9 +213,8 @@ global.float = function (value)
 };
 
 /**
- * 	Returns the value truncated to 2 digits of precision.
- *
- * 	!function float2 (value: number) : number;
+ * Returns the value truncated to 2 digits of precision.
+ * !function float2 (value: number) : number;
  */
 global.float2 = function (value)
 {
@@ -231,9 +222,8 @@ global.float2 = function (value)
 };
 
 /**
- * 	Returns the value truncated to 3 digits of precision.
- *
- * 	!function float3 (value: number) : number;
+ * Returns the value truncated to 3 digits of precision.
+ * !function float3 (value: number) : number;
  */
 global.float3 = function (value)
 {
@@ -241,9 +231,8 @@ global.float3 = function (value)
 };
 
 /**
- * 	Returns the value truncated to 4 digits of precision.
- *
- * 	!function float4 (value: number) : number;
+ * Returns the value truncated to 4 digits of precision.
+ * !function float4 (value: number) : number;
  */
 global.float4 = function (value)
 {
@@ -251,9 +240,8 @@ global.float4 = function (value)
 };
 
 /**
- * 	Converts the given value to radians.
- *
- * 	!function rad (value: number) : number;
+ * Converts the given value to radians.
+ * !function rad (value: number) : number;
  */
 global.rad = function (value)
 {
@@ -261,9 +249,8 @@ global.rad = function (value)
 };
 
 /**
- * 	Converts the given value to degrees.
- *
- * 	!function deg (value: number) : number;
+ * Converts the given value to degrees.
+ * !function deg (value: number) : number;
  */
 global.deg = function (value)
 {
@@ -271,9 +258,8 @@ global.deg = function (value)
 };
 
 /**
- * 	Returns a random integer value from 0 to 0xFFFF (inclusive).
- *
- * 	!function rand() : number;
+ * Returns a random integer value from 0 to 0xFFFF (inclusive).
+ * !function rand() : number;
  */
 global.rand = function ()
 {
@@ -281,9 +267,8 @@ global.rand = function ()
 };
 
 /**
- * 	Returns a random float from 0 to 1 (inclusive).
- *
- * 	!function randf() : number;
+ * Returns a random float from 0 to 1 (inclusive).
+ * !function randf() : number;
  */
 global.randf = function ()
 {
@@ -291,9 +276,8 @@ global.randf = function ()
 };
 
 /**
- * 	Returns a random float within the given (inclusive) range.
- *
- * 	!function randrf (startValue: number, endValue: number) : number;
+ * Returns a random float within the given (inclusive) range.
+ * !function randrf (startValue: number, endValue: number) : number;
  */
 global.randrf = function (a, b)
 {
@@ -302,9 +286,8 @@ global.randrf = function (a, b)
 };
 
 /**
- * 	Returns a random integer within the given range (inclusive).
- *
- * 	!function randr (startValue: number, endValue: number) : number;
+ * Returns a random integer within the given range (inclusive).
+ * !function randr (startValue: number, endValue: number) : number;
  */
 global.randr = function (a, b)
 {
@@ -313,9 +296,8 @@ global.randr = function (a, b)
 };
 
 /**
- * 	Returns a table (array) of N random float numbers within the given range (inclusive).
- *
- * 	!function randtf (startValue: number, endValue: number, n: number) : Array<number>;
+ * Returns a table (array) of N random float numbers within the given range (inclusive).
+ * !function randtf (startValue: number, endValue: number, n: number) : Array<number>;
  */
 global.randtf = function (a, b, n)
 {
@@ -328,9 +310,8 @@ global.randtf = function (a, b, n)
 };
 
 /**
- * 	Returns the high-resolution `now` counter in milliseconds (includes possibly microseconds in fractional part).
- *
- * 	!function hrnow () : number;
+ * Returns the high-resolution `now` counter in milliseconds (includes possibly microseconds in fractional part).
+ * !function hrnow () : number;
  */
 global.hrnow = function ()
 {
@@ -338,9 +319,8 @@ global.hrnow = function ()
 };
 
 /**
- * 	Returns a function that when called produces a random integer value within the given (inclusive) range.
- *
- * 	!function randvar (startValue: number, endValue: number) : () => number;
+ * Returns a function that when called produces a random integer value within the given (inclusive) range.
+ * !function randvar (startValue: number, endValue: number) : () => number;
  */
 global.randvar = function (a, b)
 {
@@ -348,9 +328,8 @@ global.randvar = function (a, b)
 };
 
 /**
- * 	Returns a function that when called returns an item from the specified array at some random index within the (inclusive) range.
- *
- * 	!function randitem (arr: Array<any>, startValue?: number, endValue?: number) : () => any;
+ * Returns a function that when called returns an item from the specified array at some random index within the (inclusive) range.
+ * !function randitem (arr: Array<any>, startValue?: number, endValue?: number) : () => any;
  */
 global.randitem = function (arr, a=null, b=null)
 {
@@ -361,9 +340,8 @@ global.randitem = function (arr, a=null, b=null)
 };
 
 /**
- * 	Returns the parameter 't' where two line segments intersect.
- *
- * 	!function getLineSegmentIntersection (ls1_x1: number, ls1_y1: number, ls1_x2: number, ls1_y2: number, ls2_x1: number, ls2_y1: number, ls2_x2: number, ls2_y2: number) : number;
+ * Returns the parameter 't' where two line segments intersect.
+ * !function getLineSegmentIntersection (ls1_x1: number, ls1_y1: number, ls1_x2: number, ls1_y2: number, ls2_x1: number, ls2_y1: number, ls2_x2: number, ls2_y2: number) : number;
  */
 global.getLineSegmentIntersection = function (ls1_x1, ls1_y1, ls1_x2, ls1_y2, ls2_x1, ls2_y1, ls2_x2, ls2_y2)
 {
@@ -432,9 +410,8 @@ global.getLineSegmentIntersection = function (ls1_x1, ls1_y1, ls1_x2, ls1_y2, ls
 };
 
 /**
- * 	Returns boolean indicating if the line segments intersect.
- *
- * 	!function lineSegmentIntersects (ls1_x1: number, ls1_y1: number, ls1_x2: number, ls1_y2: number, ls2_x1: number, ls2_y1: number, ls2_x2: number, ls2_y2: number) : boolean;
+ * Returns boolean indicating if the line segments intersect.
+ * !function lineSegmentIntersects (ls1_x1: number, ls1_y1: number, ls1_x2: number, ls1_y2: number, ls2_x1: number, ls2_y1: number, ls2_x2: number, ls2_y2: number) : boolean;
  */
 global.lineSegmentIntersects = function (ls1_x1, ls1_y1, ls1_x2, ls1_y2, ls2_x1, ls2_y1, ls2_x2, ls2_y2)
 {
@@ -443,9 +420,8 @@ global.lineSegmentIntersects = function (ls1_x1, ls1_y1, ls1_x2, ls1_y2, ls2_x1,
 };
 
 /**
- * 	Rotates a point (2d) by the given angle and returns an object having x and y properties.
- * 
- * 	!function rotatePoint (angle: number, x: number, y: number) : { x: number, y: number };
+ * Rotates a point (2d) by the given angle and returns an object having x and y properties.
+ * !function rotatePoint (angle: number, x: number, y: number) : { x: number, y: number };
  */
 global.rotatePoint = function (angle, x, y)
 {
@@ -453,9 +429,8 @@ global.rotatePoint = function (angle, x, y)
 };
 
 /**
- * 	Returns a value snapped to a step within the given range.
- * 
- * 	!function stepValue (value: number, minValue: number, maxValue: number, numSteps: number) : number;
+ * Returns a value snapped to a step within the given range.
+ * !function stepValue (value: number, minValue: number, maxValue: number, numSteps: number) : number;
  */
 global.stepValue = function (value, minValue, maxValue, numSteps)
 {
@@ -463,9 +438,8 @@ global.stepValue = function (value, minValue, maxValue, numSteps)
 };
 
 /**
- * 	Returns a value that is a factor of the specified step.
- * 
- * 	!function alignValue (value: number, step: number) : number;
+ * Returns a value that is a factor of the specified step.
+ * !function alignValue (value: number, step: number) : number;
  */
 global.alignValue = function (value, step)
 {
@@ -473,16 +447,14 @@ global.alignValue = function (value, step)
 };
 
 /**
- * 	Number of bits for fixed-point number (default is 8).
- * 
- * 	!let FIXED_POINT_BITS : number;
+ * Number of bits for fixed-point number (default is 8).
+ * !let FIXED_POINT_BITS : number;
 */
 global.FIXED_POINT_BITS = 8;
 
 /**
- * 	Returns a fixed-point upscaled value.
- * 
- * 	!function upscale (value: number) : number;
+ * Returns a fixed-point upscaled value.
+ * !function upscale (value: number) : number;
  */
 global.upscale = function (value)
 {
@@ -490,9 +462,8 @@ global.upscale = function (value)
 };
 
 /**
- * 	Downscales a fixed-point value to its integer part.
- * 
- * 	!function downscale (value: number) : number;
+ * Downscales a fixed-point value to its integer part.
+ * !function downscale (value: number) : number;
  */
 global.downscale = function (value)
 {
@@ -500,9 +471,8 @@ global.downscale = function (value)
 };
 
 /**
- * 	Downscales a fixed-point value to floating point.
- * 
- * 	!function downscalef (value: number) : number;
+ * Downscales a fixed-point value to floating point.
+ * !function downscalef (value: number) : number;
  */
 global.downscalef = function (value)
 {
@@ -510,9 +480,8 @@ global.downscalef = function (value)
 };
 
 /**
- * 	Aligns a value to its fixed point floating point representation such that downscaling results in an integer.
- * 
- * 	!function falign (value: number) : number;
+ * Aligns a value to its fixed point floating point representation such that downscaling results in an integer.
+ * !function falign (value: number) : number;
  */
 global.falign = function (value)
 {
@@ -520,9 +489,8 @@ global.falign = function (value)
 };
 
 /**
- * 	Returns the value having the minimum absolute value.
- * 
- * 	!function absmin (a: number, b: number) : number;
+ * Returns the value having the minimum absolute value.
+ * !function absmin (a: number, b: number) : number;
  */
 global.absmin = function(a, b)
 {
@@ -530,11 +498,44 @@ global.absmin = function(a, b)
 };
 
 /**
- * 	Returns the value having the maximum absolute value.
- * 
- * 	!function absmax (a: number, b: number) : number;
+ * Returns the value having the maximum absolute value.
+ * !function absmax (a: number, b: number) : number;
  */
 global.absmax = function(a, b)
 {
 	return Math.abs(a) > Math.abs(b) ? a : b;
+};
+
+/**
+ * Repeats a string a number of times.
+ * !function repeat (str: string, count: number) : string;
+ */
+global.repeat = function (str, count)
+{
+	let out = '';
+
+	while (count-- > 0)
+		out += str;
+
+	return out;
+};
+
+/**
+ * Pads the given value with a character (added to the left) until the specified size is reached.
+ * !function lpad (val: any, size: number, char?: string) : string;
+ */
+global.lpad = function (val, size, char='0')
+{
+	val = val.toString();
+	return repeat(char.charAt(0), size-val.length) + val;
+};
+
+/**
+ * Pads the given value with a character (added to the right) until the specified size is reached.
+ * !function rpad (val: any, size: number, char?: string) : string;
+ */
+global.rpad = function (val, size, char='0')
+{
+	val = val.toString();
+	return val + repeat(char.charAt(0), size-val.length);
 };
