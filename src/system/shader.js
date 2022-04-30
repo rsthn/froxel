@@ -15,12 +15,14 @@
 */
 
 import { Class } from 'rinn';
-import globals from './globals.js';
+import glx from './glx.js';
+import glsl from './glsl.js';
 
-//![import "./globals"]
+//![import "./glx"]
+//![import "./glsl"]
 
 //:/**
-//: * 	Describes a shader object. The actual shader type is specified at construction.
+//: * Describes a shader object. The actual shader type is specified at construction.
 //: */
 
 //!class Shader
@@ -28,51 +30,60 @@ import globals from './globals.js';
 const Shader = Class.extend
 ({
 	/**
-	 * 	Identifier of the shader.
-	 * 	!readonly id: string;
+	 * Identifier of the shader.
+	 * !readonly id: string;
 	 */
 	id: null,
 
 	/**
-	 * 	Type of the shader.
-	 * 	!readonly type: Shader.Type;
+	 * Type of the shader.
+	 * !readonly type: Shader.Type;
 	 */
 	type: 0,
 
 	/**
-	 * 	Source code of the shader.
-	 */
-	sourceCode: null,
-
-	/**
-	 * 	Shader GL identifier.
-	 * 	!readonly shaderId: number;
+	 * Shader GL identifier.
+	 * !readonly shaderId: number;
 	 */
 	shaderId: null,
 
 	/**
-	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
-	 * 	!constructor (id: string, type: Shader.Type);
+	 * Constructs a shader and registers with the specified id. Compile its GLSL code using the `compile` method.
+	 * !constructor (id: string, type: Shader.Type);
 	 */
 	/**
-	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
-	 * 	!constructor (type: Shader.Type);
+	 * Constructs a shader, compile its GLSL code using the `compile` method.
+	 * !constructor (type: Shader.Type);
 	 */
-	__ctor: function (id, type=null)
+	/**
+	 * Constructs a shader with the specified GLSL code and registers with the specified id.
+	 * !constructor (id: string, type: Shader.Type, source: string);
+	 */
+	/**
+	 * Constructs a shader with the specified GLSL code.
+	 * !constructor (type: Shader.Type, source: string);
+	 */
+	__ctor: function (id, type=null, source=null)
 	{
+		if (source === null && type !== null && typeof(type) === 'string')
+		{
+			source = type;
+			type = null;
+		}
+
 		if (type === null)
 		{
 			type = id;
 			id = null;
 		}
 
-		this.id = id;
+		Shader.put(this.id = id, this);
 		this.type = type;
 
-		this.sourceCode = '';
 		this.shaderId = null;
 
-		Shader.put(id, this);
+		if (source)
+			this.compile(source);
 	},
 
 	/**
@@ -80,53 +91,31 @@ const Shader = Class.extend
 	 */
 	__dtor: function ()
 	{
-		let gl = globals.gl;
-		if (!gl) return;
-
-		gl.deleteShader(this.shaderId);
+		glx.gl.deleteShader(this.shaderId);
 		Shader.remove(this.id);
 	},
 
 	/**
-	 * 	Appends GLSL code to the shader's source code buffer.
-	 * 	!source (value: string) : Shader;
+	 * Compiles the shader and throws an exception if any compilations error occur.
+	 * !compile (source: string) : Shader;
 	 */
-	source: function (value)
+	compile: function (source)
 	{
-		this.sourceCode += value;
-		return this;
-	},
-
-	/**
-	 * 	Compiles the shader. Errors can be obtained using getError() method.
-	 * 	!compile() : Shader;
-	 */
-	compile: function ()
-	{
-		let gl = globals.gl;
-		if (!gl) return this;
-
+		let gl = glx.gl;
 		this.shaderId = gl.createShader (this.type === Shader.Type.VERTEX ? gl.VERTEX_SHADER : (this.type === Shader.Type.FRAGMENT ? gl.FRAGMENT_SHADER : gl.GEOMETRY_SHADER));
 
-		gl.shaderSource(this.shaderId, this.sourceCode);
+		source = glsl.process(source);
+
+		gl.shaderSource(this.shaderId, source);
 		gl.compileShader(this.shaderId);
 
+		let error = gl.getShaderInfoLog(this.shaderId);
+		if (error) {
+			console.error(source.split("\n").map((i,index) => (index) + ": " + i).join("\n"));
+			throw new Error ((this.id ? '[' + this.id + '] ' : '') + error);
+		}
+
 		return this;
-	},
-
-	/**
-	 * 	Returns the error of the last compile operation.
-	 * 	!getError() : string;
-	 */
-	getError: function ()
-	{
-		let gl = globals.gl;
-		if (!gl) return '';
-
-		if (this.shaderId === null)
-			return 'Shader has not been compiled.';
-
-		return gl.getShaderInfoLog(this.shaderId);
 	}
 });
 

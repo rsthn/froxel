@@ -23,7 +23,7 @@ import glx from './glx.js';
 //![import "./glx"]
 
 //:/**
-//: * 	Describes a shader program.
+//: * Describes a shader program.
 //: */
 
 //!class ShaderProgram
@@ -36,26 +36,26 @@ const ShaderProgram = Class.extend
 	locations: null,
 
 	/**
-	 * 	Identifier of the program.
-	 * 	!readonly id: string;
+	 * Identifier of the program.
+	 * !readonly id: string;
 	 */
 	id: null,
 
 	/**
-	 * 	Shaders attached to the program.
-	 * 	!readonly shaders: Array<Shader>;
+	 * Shaders attached to the program.
+	 * !readonly shaders: Array<Shader>;
 	 */
 	shaders: null,
 
 	/**
-	 * 	Shader program GL identifier.
-	 * 	!readonly programId: number;
+	 * Shader program GL identifier.
+	 * !readonly programId: number;
 	 */
 	programId: null,
 
 	/**
-	 *	Constructs an empty shader program with the specified identifier. Attach shaders by using the `attach` method.
-	 * 	!constructor (id?: string);
+	 * Constructs an empty shader program with the specified identifier. Attach shaders by using the `attach` method.
+	 * !constructor (id?: string);
 	 */
 	__ctor: function (id=null)
 	{
@@ -72,7 +72,7 @@ const ShaderProgram = Class.extend
 	},
 
 	/**
-	 * 	Destroys the shader program.
+	 * Destroys the shader program.
 	 */
 	__dtor: function ()
 	{
@@ -96,8 +96,8 @@ const ShaderProgram = Class.extend
 	},
 
 	/**
-	 * 	Attaches a shader to the shader program.
-	 * 	!attach (shader: Shader|string) : ShaderProgram;
+	 * Attaches a shader to the shader program.
+	 * !attach (shader: Shader|string) : ShaderProgram;
 	 */
 	attach: function (shader)
 	{
@@ -112,7 +112,7 @@ const ShaderProgram = Class.extend
 	},
 
 	/**
-	 * 	Binds the attribute locations to their predefined values.
+	 * Binds the attribute locations to their predefined values.
 	 */
 	bindLocations: function ()
 	{
@@ -183,30 +183,32 @@ const ShaderProgram = Class.extend
 	},
 
 	/**
-	 * 	Loads the locations of the predefined uniforms and attributes.
+	 * Loads the locations of the predefined uniforms and attributes.
 	 */
 	preloadLocations: function ()
 	{
-		this.getUniformLocation('m_transform');
-		this.getUniformLocation('v_resolution');
 		this.getUniformLocation('f_time');
 		this.getUniformLocation('f_scale');
 
-		this.getUniformLocation('m_location');
+		this.getUniformLocation('m_transform');
 		this.getUniformLocation('m_texture');
-		this.getUniformLocation('v_texture_size');
+		this.getUniformLocation('m_quad');
+
+		this.getUniformLocation('v_resolution');
 		this.getUniformLocation('v_frame_size');
-		this.getUniformLocation('v_base_color');
+
 		this.getUniformLocation('f_depth');
 		this.getUniformLocation('f_alpha');
+		this.getUniformLocation('v_base_color');
+
 		this.getUniformLocation('texture0');
 
 		this.getAttribLocation('location');
 	},
 
 	/**
-	 * 	Links the shaders into the shader program. Completion can be obtained by calling `getStatus`.
-	 * 	!link() : ShaderProgram;
+	 * Links the shaders into the shader program. Completion can be obtained by calling `getStatus`.
+	 * !link() : ShaderProgram;
 	 */
 	link: function ()
 	{
@@ -226,8 +228,8 @@ const ShaderProgram = Class.extend
 	},
 
 	/**
-	 * 	Activates the shader program to be used in the subsequent drawing operations.
-	 * 	!activate() : void;
+	 * Activates the shader program to be used in the subsequent drawing operations.
+	 * !activate() : void;
 	 */
 	activate: function ()
 	{
@@ -241,8 +243,8 @@ const ShaderProgram = Class.extend
 	},
 
 	/**
-	 * 	Returns the link status of the program.
-	 * 	!getStatus() : boolean;
+	 * Returns the link status of the program.
+	 * !getStatus() : boolean;
 	 */
 	getStatus: function ()
 	{
@@ -253,8 +255,8 @@ const ShaderProgram = Class.extend
 	},
 
 	/**
-	 * 	Returns the error of the last link operation.
-	 * 	!getError() : string;
+	 * Returns the error of the last link operation.
+	 * !getError() : string;
 	 */
 	getError: function ()
 	{
@@ -265,22 +267,6 @@ const ShaderProgram = Class.extend
 			return 'Program has not been linked.';
 
 		return gl.getProgramInfoLog(this.programId);
-	},
-
-	/**
-	 * 	Returns the errors found in the program and all shaders.
-	 * 	!getAllErrors() : string;
-	 */
-	getAllErrors: function ()
-	{
-		let e = '>> PROGRAM:\n' + this.getError();
-
-		for (let shader of this.shaders)
-		{
-			e += '\n>> ' + (shader.type === Shader.Type.VERTEX ? 'vertex' : 'fragment').toUpperCase() + ':\n' + shader.getError();
-		}
-
-		return e;
 	},
 
 	/**
@@ -387,7 +373,6 @@ const ShaderProgram = Class.extend
 		return this;
 	},
 
-	
 	/**
 	 * Sets the value of a uniform.
 	 * !uniform3f (location: string|object, v0: number, v1: number, v2: number) : ShaderProgram;
@@ -439,7 +424,6 @@ const ShaderProgram = Class.extend
 		glx.gl.uniform3iv (location, value);
 		return this;
 	},
-
 	
 	/**
 	 * Sets the value of a uniform.
@@ -496,13 +480,13 @@ const ShaderProgram = Class.extend
 });
 
 /**
- * 	Global shader program list.
+ * Global shader program list.
  */
 ShaderProgram.programs = { };
 
 /**
- * 	Puts a shader program in the global program list under the specified identifier.
- * 	!static put (id: string, shaderProgram: ShaderProgram) : void;
+ * Puts a shader program in the global program list under the specified identifier.
+ * !static put (id: string, shaderProgram: ShaderProgram) : void;
  */
 ShaderProgram.put = function (id, shaderProgram)
 {
@@ -510,8 +494,8 @@ ShaderProgram.put = function (id, shaderProgram)
 };
 
 /**
- * 	Returns a shader program from the global program list given its identifier.
- * 	!static get (id: string) : ShaderProgram;
+ * Returns a shader program from the global program list given its identifier.
+ * !static get (id: string) : ShaderProgram;
  */
 ShaderProgram.get = function (id)
 {
@@ -519,8 +503,8 @@ ShaderProgram.get = function (id)
 };
 
 /**
- * 	Removes a shader program from the global program list.
- * 	!static remove (id: string) : void;
+ * Removes a shader program from the global program list.
+ * !static remove (id: string) : void;
  */
 ShaderProgram.remove = function (id)
 {

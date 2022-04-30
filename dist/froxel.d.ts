@@ -736,67 +736,6 @@ export namespace Matrix
 }
 
 
-/**
- * 	Describes a shader object. The actual shader type is specified at construction.
- */
-export class Shader
-{
-	/**
-	 * 	Identifier of the shader.
-	 */
-	readonly id: string;
-
-	/**
-	 * 	Type of the shader.
-	 */
-	readonly type: Shader.Type;
-
-	/**
-	 * 	Shader GL identifier.
-	 */
-	readonly shaderId: number;
-
-	/**
-	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
-	 */
-	constructor (id: string, type: Shader.Type);
-
-	/**
-	 *	Constructs an empty shader. Attach GLSL code by using the `source` method.
-	 */
-	constructor (type: Shader.Type);
-
-	/**
-	 * 	Appends GLSL code to the shader's source code buffer.
-	 */
-	source (value: string) : Shader;
-
-	/**
-	 * 	Compiles the shader. Errors can be obtained using getError() method.
-	 */
-	compile() : Shader;
-
-	/**
-	 * 	Returns the error of the last compile operation.
-	 */
-	getError() : string;
-
-}
-
-export namespace Shader
-{
-	/**
-	 * 	Shader types.
-	 */
-	enum Type
-	{
-		VERTEX,
-		FRAGMENT,
-		GEOMETRY,
-	}
-
-}
-
 export namespace gl
 {
 	enum BufferTarget
@@ -857,27 +796,114 @@ export class gl
 
 }
 /**
- * 	Describes a shader program.
+ * Provides pre-processing to reuse GLSL code.
  */
-export class ShaderProgram
+export class glsl
 {
 	/**
-	 * 	Identifier of the program.
+	 * Registers a snippet in the GLSL code library.
+	 */
+	static set (name: string, source: string) : void;
+
+	/**
+	 * Returns a snippet of code given its name.
+	 */
+	static get (name: string) : string;
+
+	/**
+	 * Processes GLSL code, returns a string of GLSL code ready to be compiled.
+	 *
+	 * - If "#version" not specified "#version 300 es" will be added.
+	 * - If "precision" not specified "precision highp float;" will be added.
+	 * - xasd
+	 */
+	static process (code: string) : string;
+
+}
+/**
+ * Describes a shader object. The actual shader type is specified at construction.
+ */
+export class Shader
+{
+	/**
+	 * Identifier of the shader.
 	 */
 	readonly id: string;
 
 	/**
-	 * 	Shaders attached to the program.
+	 * Type of the shader.
+	 */
+	readonly type: Shader.Type;
+
+	/**
+	 * Shader GL identifier.
+	 */
+	readonly shaderId: number;
+
+	/**
+	 * Constructs a shader and registers with the specified id. Compile its GLSL code using the `compile` method.
+	 */
+	constructor (id: string, type: Shader.Type);
+
+	/**
+	 * Constructs a shader, compile its GLSL code using the `compile` method.
+	 */
+	constructor (type: Shader.Type);
+
+	/**
+	 * Constructs a shader with the specified GLSL code and registers with the specified id.
+	 */
+	constructor (id: string, type: Shader.Type, source: string);
+
+	/**
+	 * Constructs a shader with the specified GLSL code.
+	 */
+	constructor (type: Shader.Type, source: string);
+
+	/**
+	 * Compiles the shader and throws an exception if any compilations error occur.
+	 */
+	compile (source: string) : Shader;
+
+}
+
+export namespace Shader
+{
+	/**
+	 * 	Shader types.
+	 */
+	enum Type
+	{
+		VERTEX,
+		FRAGMENT,
+		GEOMETRY,
+	}
+
+}
+
+
+/**
+ * Describes a shader program.
+ */
+export class ShaderProgram
+{
+	/**
+	 * Identifier of the program.
+	 */
+	readonly id: string;
+
+	/**
+	 * Shaders attached to the program.
 	 */
 	readonly shaders: Array<Shader>;
 
 	/**
-	 * 	Shader program GL identifier.
+	 * Shader program GL identifier.
 	 */
 	readonly programId: number;
 
 	/**
-	 *	Constructs an empty shader program with the specified identifier. Attach shaders by using the `attach` method.
+	 * Constructs an empty shader program with the specified identifier. Attach shaders by using the `attach` method.
 	 */
 	constructor (id?: string);
 
@@ -889,7 +915,7 @@ export class ShaderProgram
 	uniformSetter (uniformSetter: (pgm:ShaderProgram) => void) : ShaderProgram;
 
 	/**
-	 * 	Attaches a shader to the shader program.
+	 * Attaches a shader to the shader program.
 	 */
 	attach (shader: Shader|string) : ShaderProgram;
 
@@ -919,29 +945,24 @@ export class ShaderProgram
 	createUniformBlockBuffer (uniformBlock: string|object) : Float32Array;
 
 	/**
-	 * 	Links the shaders into the shader program. Completion can be obtained by calling `getStatus`.
+	 * Links the shaders into the shader program. Completion can be obtained by calling `getStatus`.
 	 */
 	link() : ShaderProgram;
 
 	/**
-	 * 	Activates the shader program to be used in the subsequent drawing operations.
+	 * Activates the shader program to be used in the subsequent drawing operations.
 	 */
 	activate() : void;
 
 	/**
-	 * 	Returns the link status of the program.
+	 * Returns the link status of the program.
 	 */
 	getStatus() : boolean;
 
 	/**
-	 * 	Returns the error of the last link operation.
+	 * Returns the error of the last link operation.
 	 */
 	getError() : string;
-
-	/**
-	 * 	Returns the errors found in the program and all shaders.
-	 */
-	getAllErrors() : string;
 
 	/**
 	 * Sets the value of a uniform.
@@ -1024,17 +1045,17 @@ export class ShaderProgram
 	uniform4iv (location: string|object, value: any) : ShaderProgram;
 
 	/**
-	 * 	Puts a shader program in the global program list under the specified identifier.
+	 * Puts a shader program in the global program list under the specified identifier.
 	 */
 	static put (id: string, shaderProgram: ShaderProgram) : void;
 
 	/**
-	 * 	Returns a shader program from the global program list given its identifier.
+	 * Returns a shader program from the global program list given its identifier.
 	 */
 	static get (id: string) : ShaderProgram;
 
 	/**
-	 * 	Removes a shader program from the global program list.
+	 * Removes a shader program from the global program list.
 	 */
 	static remove (id: string) : void;
 
@@ -2538,6 +2559,7 @@ declare global
 	function rpad (val: any, size: number, char?: string) : string;
 
 }
+
 
 
 

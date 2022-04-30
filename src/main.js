@@ -32,6 +32,9 @@ import _globals from './system/globals.js'; export const globals = _globals;
 //![import "system/glx"]
 import _glx from './system/glx.js'; export const glx = _glx;
 
+//![import "system/glsl"]
+import _glsl from './system/glsl.js'; export const glsl = _glsl;
+
 //![import "system/system"]
 import _System from './system/system.js'; export const System = _System;
 

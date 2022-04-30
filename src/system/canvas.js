@@ -299,172 +299,126 @@ Canvas.prototype.initGl = function ()
 	 */
 	this.glDefaultProgram = new ShaderProgram('def');
 
-	(new Shader ('def-vert', Shader.Type.VERTEX))
-	.source(
-		`#version 300 es
-		precision highp float;
-
-		uniform vec2 v_resolution;
+	new Shader ('def-vert', Shader.Type.VERTEX,
+	`
 		uniform mat3 m_transform;
-		uniform float f_time;
-
-		uniform mat3 m_location;
+		uniform mat3 m_quad;
+		uniform mat3 m_texture;
+		uniform vec2 v_resolution;
+		uniform vec4 v_frame_size;
 		uniform float f_depth;
-		uniform mat3 m_texture;
-		uniform vec2 v_texture_size;
-		uniform vec2 v_frame_size;
-		uniform sampler2D texture0;
 
-		in vec2 location;
-
+		in vec3 location;
 		out vec2 texcoords;
-		out vec2 texoffs;
-		out vec2 texsiz;
 
-		void main()
+		// --------------------------------
+		#use location2d, frameTexCoords
+
+		void main ()
 		{
-			gl_Position = vec4(((vec2(m_transform * m_location * vec3(location, 1.0)) / v_resolution)*2.0 - vec2(1.0, 1.0)) * vec2(1.0, -1.0), f_depth / 16777216.0, 1.0);
-
-			texcoords = vec2(
-				(location.x*m_texture[0][0]/v_texture_size[0])*(m_location[0][0] / v_frame_size[0]),
-				(location.y*m_texture[1][1]/v_texture_size[1])*(m_location[1][1] / v_frame_size[1])
-			);
-
-			texoffs = vec2(m_texture[2][0]/v_texture_size[0], m_texture[2][1]/v_texture_size[1]);
-			texsiz = vec2(m_texture[0][0]/v_texture_size[0], m_texture[1][1]/v_texture_size[1]);
+			gl_Position = location2d (location, f_depth);
+			texcoords = frameTexCoords(location);
 		}
-	`)
-	.compile();
+	`);
 
-	(new Shader ('def-frag', Shader.Type.FRAGMENT))
-	.source(
-		`#version 300 es
-		precision highp float;
-
-		uniform mat3 m_texture;
-		uniform vec2 v_texture_size;
-
+	new Shader ('def-frag', Shader.Type.FRAGMENT,
+	`
 		uniform sampler2D texture0;
+		uniform vec4 v_frame_size;
 		uniform float f_alpha;
 
 		in vec2 texcoords;
-		in vec2 texoffs;
-		in vec2 texsiz;
-
 		out vec4 color;
 
-		void main()
+		// --------------------------------
+		#use frameTex
+
+		void main ()
 		{
-			color = texture(texture0, mod(texcoords, texsiz) + texoffs);
+			color = frameTex(texcoords);
 
 			color.a *= f_alpha;
-			if (color.a == 0.0) discard;
+			if (color.a <= 0.0) discard;
 		}
-	`)
-	.compile();
+	`);
 
 	/**
 	 * 	Create the quick shader program.
 	 */
 	this.glQuickProgram = new ShaderProgram('quick');
 
-	(new Shader ('quick-vert', Shader.Type.VERTEX))
-	.source(
-		`#version 300 es
-		precision highp float;
-
-		uniform mat3 m_location;
+	new Shader ('quick-vert', Shader.Type.VERTEX,
+	`
 		uniform mat3 m_transform;
+		uniform mat3 m_quad;
 		uniform mat3 m_texture;
-
 		uniform vec2 v_resolution;
-		uniform vec2 v_texture_size;
-		uniform vec2 v_frame_size;
-
-		uniform float f_time;
 		uniform float f_depth;
 
-		uniform sampler2D texture0;
-
-		in vec2 location;
+		in vec3 location;
 		out vec2 texcoords;
 
-		void main()
+		// --------------------------------
+		#use location2d
+
+		void main ()
 		{
-			gl_Position = vec4(((vec2(m_transform * m_location * vec3(location, 1.0)) / v_resolution)*2.0 - vec2(1.0, 1.0)) * vec2(1.0, -1.0), f_depth / 16777216.0, 1.0);
-			texcoords = vec2(m_texture * vec3(location, 1.0)) / v_texture_size;
+			gl_Position = location2d (location, f_depth);
+			texcoords = vec2(m_texture * location);
 		}
-	`)
-	.compile();
+	`);
 
-	(new Shader ('quick-frag', Shader.Type.FRAGMENT))
-	.source(
-		`#version 300 es
-		precision highp float;
-
+	new Shader ('quick-frag', Shader.Type.FRAGMENT,
+	`
 		uniform sampler2D texture0;
 		uniform float f_alpha;
-		in vec2 texcoords;
 
+		in vec2 texcoords;
 		out vec4 color;
 
+		// --------------------------------
 		void main()
 		{
 			color = texture(texture0, texcoords);
-			color.a *= f_alpha;
 
-			if (color.a == 0.0) discard;
+			color.a *= f_alpha;
+			if (color.a <= 0.0) discard;
 		}
-	`)
-	.compile();
+	`);
 
 	/**
 	 * 	Create the frame buffer blit shader program.
 	 */
 	this.glBlitProgram = new ShaderProgram('blit');
 
-	(new Shader ('blit-vert', Shader.Type.VERTEX))
-	.source(
-		`#version 300 es
-		precision highp float;
-
+	new Shader ('blit-vert', Shader.Type.VERTEX,
+	`
 		uniform vec2 v_resolution;
-		uniform mat3 m_transform;
-		uniform float f_time;
-
-		uniform mat3 m_location;
+		uniform mat3 m_quad;
 		uniform mat3 m_texture;
-		uniform vec2 v_texture_size;
 
-		uniform sampler2D texture0;
-
-		in vec2 location;
+		in vec3 location;
 		out vec2 texcoords;
 
-		void main()
-		{
-			gl_Position = vec4(((vec2(m_location * vec3(location, 1.0)) / v_resolution)*2.0 - vec2(1.0, 1.0)) * vec2(1.0, 1.0), 0.0, 1.0);
-			texcoords = vec2(m_texture * vec3(location, 1.0)) / v_texture_size;
+		#use snorm
+
+		void main() {
+			gl_Position = vec4(snorm(vec2(m_quad * location) / v_resolution), 0.0, 1.0);
+			texcoords = vec2(m_texture * location);
 		}
-	`)
-	.compile();
+	`);
 
-	(new Shader ('blit-frag', Shader.Type.FRAGMENT))
-	.source(
-		`#version 300 es
-		precision highp float;
-
+	new Shader ('blit-frag', Shader.Type.FRAGMENT,
+	`
 		uniform sampler2D texture0;
 		in vec2 texcoords;
 
 		out vec4 color;
 
-		void main()
-		{
+		void main() {
 			color = texture(texture0, texcoords);
 		}
-	`)
-	.compile();
+	`);
 
 	/* ****** */
 	this.glDefaultProgram.attach('def-vert');
@@ -483,10 +437,13 @@ Canvas.prototype.initGl = function ()
 	if (!this.glDefaultProgram.getStatus())
 		throw new Error (this.glDefaultProgram.getAllErrors());
 
+	if (!this.glQuickProgram.getStatus())
+		throw new Error (this.glQuickProgram.getAllErrors());
+
 	if (!this.glBlitProgram.getStatus())
 		throw new Error (this.glBlitProgram.getAllErrors());
 
-	this.setShaderProgram(this.glDefaultProgram);
+	this.setShaderProgram(ShaderProgram.get('def'));
 
 	/**
 	 * 	Create the vertex buffer.
@@ -494,9 +451,9 @@ Canvas.prototype.initGl = function ()
 	this.vao0 = gl.createVertexArray();
 	gl.bindVertexArray(this.vao0);
 
-	glx.createBufferFrom([ 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0 ], glx.BufferTarget.ARRAY_BUFFER, glx.BufferUsage.STATIC_DRAW);
+	glx.createBufferFrom([ 0.0, 0.0, 1.0,  0.0, 1.0, 1.0,  1.0, 0.0, 1.0,  1.0, 1.0, 1.0 ], glx.BufferTarget.ARRAY_BUFFER, glx.BufferUsage.STATIC_DRAW);
 
-	gl.vertexAttribPointer(globals.shaderProgram.getAttribLocation('location'), 2, gl.FLOAT, gl.FALSE, 2*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
+	gl.vertexAttribPointer(globals.shaderProgram.getAttribLocation('location'), 3, gl.FLOAT, gl.FALSE, 3*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
 	gl.enableVertexAttribArray(globals.shaderProgram.getAttribLocation('location'));
 
 	/**
@@ -516,19 +473,16 @@ Canvas.prototype.initGl = function ()
 	 */
 
 	/* *** */
-	this.m_location = new Float32Array(9).fill(0);
+	this.m_quad = new Float32Array(9).fill(0);
 	this.m_texture = new Float32Array(9).fill(0);
 	this.v_resolution = new Float32Array(2).fill(0);
 	this.zvalue = 0;
 
-	Matrix.loadIdentity(this.m_location);
+	Matrix.loadIdentity(this.m_quad);
 	Matrix.loadIdentity(this.m_texture);
 
-	// drawImage (Image img, float x, float y);
-	// drawImage (Image img, float x, float y, float w, float h);
-	// drawImage (Image img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);
 	// drawImage (Image img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, float textureWidth, float textureHeight, float frameWidth, float frameHeight);
-	this.drawImage = function (img, sx=0, sy=0, sw=null, sh=null, dx=null, dy=null, dw=null, dh=null, textureWidth=null, textureHeight=null, frameWidth=null, frameHeight=null)
+	this.drawImage = function (img, sx, sy, sw, sh, dx, dy, dw, dh, textureWidth=null, textureHeight=null, frameWidth=null, frameHeight=null)
 	{
 		if (!img.glTextureReady)
 			return;
@@ -559,70 +513,24 @@ Canvas.prototype.initGl = function ()
 			gl.bindTexture (gl.TEXTURE_2D, img.glTextureId);
 
 			program.uniform1i ('texture0', 0);
-			program.uniform2f ('v_texture_size', textureWidth, textureHeight);
-			program.uniform2f ('v_frame_size', frameWidth, frameHeight);
+			program.uniform4f ('v_frame_size', frameWidth*img.rscale/textureWidth, frameHeight*img.rscale/textureHeight, frameWidth, frameHeight);
 
 			this.glActiveTextureId = img.glTextureId;
 			this.glActiveShader = program;
 		}
 
-		// [3] image, x, y
-		if (sw === null)
-		{
-			this.m_location[0] = textureWidth;
-			this.m_location[4] = textureHeight;
-			this.m_location[6] = sx;
-			this.m_location[7] = sy;
+		this.m_quad[0] = dw;
+		this.m_quad[4] = dh;
+		this.m_quad[6] = dx;
+		this.m_quad[7] = dy;
 
-			this.m_texture[0] = textureWidth;
-			this.m_texture[4] = textureHeight;
-			this.m_texture[6] = 0;
-			this.m_texture[7] = 0;
-
-			gl.uniformMatrix3fv (program.getUniformLocation('m_transform'), false, this.transform.data);
-			gl.uniformMatrix3fv (program.getUniformLocation('m_location'), false, this.m_location);
-			gl.uniformMatrix3fv (program.getUniformLocation('m_texture'), false, this.m_texture);
-			program.uniform1f ('f_depth', this.zvalue);
-			gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
-
-			return;
-		}
-
-		// [5] image, x, y, width, height
-		if (dx === null)
-		{
-			this.m_location[0] = sw;
-			this.m_location[4] = sh;
-			this.m_location[6] = sx;
-			this.m_location[7] = sy;
-
-			this.m_texture[0] = textureWidth;
-			this.m_texture[4] = textureHeight;
-			this.m_texture[6] = 0;
-			this.m_texture[7] = 0;
-
-			gl.uniformMatrix3fv (program.getUniformLocation('m_transform'), false, this.transform.data);
-			gl.uniformMatrix3fv (program.getUniformLocation('m_location'), false, this.m_location);
-			gl.uniformMatrix3fv (program.getUniformLocation('m_texture'), false, this.m_texture);
-			gl.uniform1f (program.getUniformLocation('f_depth'), this.zvalue);
-			gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
-
-			return;
-		}
-
-		// [9] image, sx, sy, sw, sh, dx, dy, dw, dh
-		this.m_location[0] = dw;
-		this.m_location[4] = dh;
-		this.m_location[6] = dx;
-		this.m_location[7] = dy;
-
-		this.m_texture[0] = sw;
-		this.m_texture[4] = sh;
-		this.m_texture[6] = sx;
-		this.m_texture[7] = sy;
+		this.m_texture[0] = sw / textureWidth;
+		this.m_texture[4] = sh / textureHeight;
+		this.m_texture[6] = sx / textureWidth;
+		this.m_texture[7] = sy / textureHeight;
 
 		gl.uniformMatrix3fv (program.getUniformLocation('m_transform'), false, this.transform.data);
-		gl.uniformMatrix3fv (program.getUniformLocation('m_location'), false, this.m_location);
+		gl.uniformMatrix3fv (program.getUniformLocation('m_quad'), false, this.m_quad);
 		gl.uniformMatrix3fv (program.getUniformLocation('m_texture'), false, this.m_texture);
 		gl.uniform1f (program.getUniformLocation('f_depth'), this.zvalue);
 		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
@@ -641,20 +549,18 @@ Canvas.prototype.initGl = function ()
 
 		this.glActiveTextureId = null;
 
-		program.uniform2f ('v_texture_size', w, h);
+		this.m_quad[0] = w;
+		this.m_quad[4] = h;
+		this.m_quad[6] = x;
+		this.m_quad[7] = y;
 
-		this.m_location[0] = w;
-		this.m_location[4] = h;
-		this.m_location[6] = x;
-		this.m_location[7] = y;
-
-		this.m_texture[0] = w;
-		this.m_texture[4] = h;
-		this.m_texture[6] = 0;
-		this.m_texture[7] = 0;
+		this.m_texture[0] = 1.0;
+		this.m_texture[4] = 1.0;
+		this.m_texture[6] = 0.0;
+		this.m_texture[7] = 0.0;
 
 		gl.uniformMatrix3fv (program.getUniformLocation('m_transform'), false, this.transform.data);
-		gl.uniformMatrix3fv (program.getUniformLocation('m_location'), false, this.m_location);
+		gl.uniformMatrix3fv (program.getUniformLocation('m_quad'), false, this.m_quad);
 		gl.uniformMatrix3fv (program.getUniformLocation('m_texture'), false, this.m_texture);
 		gl.uniform1f ('f_depth', this.zvalue);
 		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
@@ -1518,23 +1424,22 @@ Canvas.prototype.blit = function (texture, width, height, shaderProgram=null)
 		shaderProgram.uniform1f ('f_time', globals.time);
 		shaderProgram.uniform1f ('f_scale', this._globalScale);
 		shaderProgram.uniform1f ('f_alpha', this._alpha);
-		shaderProgram.uniform2f ('v_texture_size', width, height);
 
-		this.m_location[0] = this.width;
-		this.m_location[4] = this.height;
-		this.m_location[6] = 0;
-		this.m_location[7] = 0;
+		this.m_quad[0] = this.width;
+		this.m_quad[4] = this.height;
+		this.m_quad[6] = 0;
+		this.m_quad[7] = 0;
 
-		this.m_texture[0] = this.width;
-		this.m_texture[4] = this.height;
-		this.m_texture[6] = 0;
-		this.m_texture[7] = 0;
+		this.m_texture[0] = this.width / width;
+		this.m_texture[4] = this.height / height;
+		this.m_texture[6] = 0.0;
+		this.m_texture[7] = 0.0;
 
-		gl.uniformMatrix3fv (shaderProgram.getUniformLocation('m_location'), false, this.m_location);
+		gl.uniformMatrix3fv (shaderProgram.getUniformLocation('m_quad'), false, this.m_quad);
 		gl.uniformMatrix3fv (shaderProgram.getUniformLocation('m_texture'), false, this.m_texture);
 		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 
-	this.setShaderProgram(this.glDefaultProgram);
+	this.setShaderProgram(ShaderProgram.get('def'));
 	gl.enable (gl.DEPTH_TEST);
 };
 

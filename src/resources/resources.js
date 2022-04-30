@@ -184,6 +184,9 @@ Object.assign(Resources,
 						r.height = int(r.data.height*r.scale);
 					}
 
+					if (!r.hasOwnProperty('extraScale'))
+						r.extraScale = 0.0;
+
 					if (!r.width && !r.height)
 					{
 						r.width = r.data.width;
@@ -210,10 +213,10 @@ Object.assign(Resources,
 					if (!r.hasOwnProperty('original'))
 						r.original = Resources.original;
 
-					if ((r.data.width != r.width || r.data.height != r.height) && r.original !== true)
+					if ((r.data.width != r.width || r.data.height != r.height || r.extraScale != 0.0) && r.original !== true)
 					{
 //let t = hrnow();//violet
-						r.data = Resources.resizeImage (r, r.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), r.pixelated, true);
+						r.data = Resources.resizeImage (r, r.width * (r.extraScale + (r.pixelated ? System.integerScaleFactor : System.scaleFactor)), r.height * (r.extraScale + (r.pixelated ? System.integerScaleFactor : System.scaleFactor)), r.pixelated, true);
 //console.log((hrnow() - t) + ': resize to ' + (r.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor)) + 'x' + (r.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor)));
 					}
 
@@ -271,6 +274,7 @@ Object.assign(Resources,
 						return;
 					}
 
+					// violet :add support for extraScale
 					var tmp = { type: "image", width: r.width, height: r.height, scale: r.scale };
 
 					tmp.src = r.src.substr(0, d0) + ((r._i++) / Math.pow(10,dN)).toFixed(dN).substr(2) + r.src.substr(d1+1);

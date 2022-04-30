@@ -19,6 +19,7 @@
         "build:all": "pnpm build:module && pnpm build:browser",
         "build:browser": "parcel build --no-cache --target browser",
         "build:module": "parcel build --no-cache --target module",
+		"watch": "parcel watch --no-cache --target browser --no-hmr",
         "build": "pnpm build:browser"
     },
     "browserslist": "since 2020-01",
