@@ -1,3 +1,51 @@
+# v2.2.3 - Apr 30 2022
+
+#### General
+- Added `glx` to exports. A new static class that provides access to some WebGL features.
+- Upgraded rinn dependency to 2.0.42.
+
+#### Global
+- Added `repeat`, `lpad` and `rpad` functions.
+
+#### Drawable
+- Fixed bug causing groups to have zero width/height.
+
+#### Element
+- Updated `draw` to allow drawing the bounds when `debugBounds` is set even if there is no `img` nor `render` method attached (i.e. Groups).
+- Method `debug` now accepts value 0 as an alias of `true`.
+- Changed order of debugColors to make brighter ones first.
+
+#### Button
+- Methods `onButtonUp`, `onButtonDown` and `onTap` can now be called without parameters to trigger the handler.
+
+#### Canvas
+- Heavily updated shaders to improve performance.
+- Vertex buffer of the quad is now 3-component vector, with z as 1.0 to improve performance.
+- Renamed matrix `m_location` to `m_quad` in all shaders.
+- Removed no longer needed `v_texture_size`, and updated `v_frame_size` to be a 4-component vector.
+- Values of matrix `m_texture` are now passed as normalized values (in relation to the texture size).
+- Added regular quick shader program and respective shaders (quick-vert and quick-frag) that don't wrap the texture coordinates.
+
+#### glsl
+- New static class that allows processing of GLSL and reusing code snippets.
+- Methods `get` and `set` can be used to read and set snippets of GLSL code.
+- Method `process` used to replace special marks in GLSL code with their respective value.
+- Support for `#use xxx` added, where xxx is a comma separated list of names of GLSL snippets.
+- Snippets added: invertX, invertY, snorm, location2d, frameTexCoords, frameTex, rand and align.
+
+#### Shader
+- Method `source` has been removed, the GLSL source code must be passed to the `compile` method now.
+- Removed method `getError`, since now error is automatically thrown when calling the `compile` method.
+- GLSL source code can now be passed to the constructor to automatically compile the shader.
+
+#### ShaderProgram
+- Removed `getAllErrors` method, and removed pre-loading of several uniform locations no longer needed.
+
+#### Resources
+- Added option `extraScale` when loading images. Used to add the value to the calculated scale to achieve images with higher resolution but the same "target" resolution.
+
+<br/>
+
 # v2.2.2 - Apr 19th 2022
 
 #### Element
