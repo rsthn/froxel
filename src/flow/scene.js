@@ -42,114 +42,114 @@ const Scene = Class.extend
 	className: 'Scene',
 
 	/**
-	 * 	Minimum dimensions of the scene (smallest container size).
-	 * 	!readonly minWidth: number;
-	 * 	!readonly minHeight: number;
+	 * Minimum dimensions of the scene (smallest container size).
+	 * !readonly minWidth: number;
+	 * !readonly minHeight: number;
 	 */
 	minWidth: null,
 	minHeight: null,
 
 	/**
-	 * 	Maximum dimensions of the scene (largest container size).
-	 * 	!readonly maxWidth: number;
-	 * 	!readonly maxHeight: number;
+	 * Maximum dimensions of the scene (largest container size).
+	 * !readonly maxWidth: number;
+	 * !readonly maxHeight: number;
 	 */
 	maxWidth: null,
 	maxHeight: null,
 
 	/**
-	 * 	List of containers.
+	 * List of containers.
 	 */
 	containers: null,
 
 	/**
-	 * 	List of viewports.
+	 * List of viewports.
 	 */
 	viewports: null,
 
 	/**
-	 * 	Active viewport bounds, used to select items in a visible region.
-	 * 	!readonly viewportBounds: Bounds2;
+	 * Active viewport bounds, used to select items in a visible region.
+	 * !readonly viewportBounds: Bounds2;
 	 */
 	viewportBounds: null,
 
 	/**
-	 * 	List of Group elements.
+	 * List of Group elements.
 	 */
 	groupList: null,
 
 	/**
-	 * 	Named Group elements.
+	 * Named Group elements.
 	 */
 	groups: null,
 
 	/**
-	 * 	Disposal queue.
+	 * Disposal queue.
 	 */
 	disposalQueue: null,
 
 	/**
-	 * 	First updater. Runs before any other update calls.
-	 * 	!readonly fupdater: Handler;
+	 * First updater. Runs before any other update calls.
+	 * !readonly fupdater: Handler;
 	 */
 	fupdater: null,
 
 	/**
-	 * 	General updater. Runs after the first updater and before synchronizer.
-	 * 	!readonly updater: Handler;
+	 * General updater. Runs after the first updater and before synchronizer.
+	 * !readonly updater: Handler;
 	 */
 	updater: null,
 
 	/**
-	 * 	Synchronizer. Run after general updater, and before viewport synchronization.
-	 * 	!readonly synchronizer: Handler;
+	 * Synchronizer. Run after general updater, and before viewport synchronization.
+	 * !readonly synchronizer: Handler;
 	 */
 	synchronizer: null,
 
 	/**
-	 * 	Last updater. Runs after all other update calls.
-	 * 	!readonly lupdater: Handler;
+	 * Last updater. Runs after all other update calls.
+	 * !readonly lupdater: Handler;
 	 */
 	lupdater: null,
 
 	/**
-	 * 	Destroyer runs when the scene is destroyed.
-	 * 	!readonly destroyer: Handler;
+	 * Destroyer runs when the scene is destroyed.
+	 * !readonly destroyer: Handler;
 	 */
 	destroyer: null,
 
 	/**
-	 * 	Current delta time. Set upon entering the `update` method. Reflects the same value as System.frameDelta.
-	 * 	!readonly dt: number;
+	 * Current delta time. Set upon entering the `update` method. Reflects the same value as System.frameDelta.
+	 * !readonly dt: number;
 	 */
 	dt: 0,
 
 	/**
-	 * 	Flags of the object (see constants at the bottom of this file).
+	 * Flags of the object (see constants at the bottom of this file).
 	 */
 	flags: 0,
 
 	/**
-	 * 	Total number of elements drawn on the last draw operation.
-	 * 	!readonly drawCount: number;
+	 * Total number of elements drawn on the last draw operation.
+	 * !readonly drawCount: number;
 	 */
 	drawCount: 0,
 
 	/**
-	 * 	Scene object pointing to itself.
+	 * Scene object pointing to itself.
 	 */
 	scene: null,
 
 	/**
-	 * 	Base depth (z-value) of the scene.
-	 * 	!readonly zvalue: number;
+	 * Base depth (z-value) of the scene.
+	 * !readonly zvalue: number;
 	 */
 	zvalue: null,
 
 	/**
-	 * 	Constructs an empty scene with the specified index.
-	 * 	@param index - Index for the scene. Used to calculate the base z-value of the scene. Valid range is from 0 to 3.
-	 * 	!constructor (index: number);
+	 * Constructs an empty scene with the specified index.
+	 * @param index - Index for the scene. Used to calculate the base z-value of the scene. Valid range is from 0 to 3.
+	 * !constructor (index: number);
 	 */
 	__ctor: function(index)
 	{
@@ -182,7 +182,7 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Destroys the instance along with all containers, viewports and groups.
+	 * Destroys the instance along with all containers, viewports and groups.
 	 */
 	__dtor: function()
 	{
@@ -229,8 +229,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Clears the scene leaving only viewports.
-	 * 	!clear() : void;
+	 * Clears the scene leaving only viewports.
+	 * !clear() : void;
 	 */
 	clear: function()
 	{
@@ -253,12 +253,12 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Returns the value of the `visible` flag.
-	 * 	!visible() : boolean;
+	 * Returns the value of the `visible` flag.
+	 * !visible() : boolean;
 	 */
 	/**
-	 * 	Sets the value of the `visible` flag.
-	 * 	!visible(value: boolean) : Container;
+	 * Sets the value of the `visible` flag.
+	 * !visible(value: boolean) : Container;
 	 */
 	visible: function (value=null)
 	{
@@ -272,9 +272,9 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Sets a container at the specified index.
-	 * 	@param index - Index of the container, valid range is from 0 to 15.
-	 * 	!setContainer (index: number, container: Container) : Scene;
+	 * Sets a container at the specified index.
+	 * @param index - Index of the container, valid range is from 0 to 15.
+	 * !setContainer (index: number, container: Container) : Scene;
 	 */
 	setContainer: function (index, container)
 	{
@@ -304,8 +304,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Returns the container at the specified index.
-	 * 	!getContainer (index: number) : Container;
+	 * Returns the container at the specified index.
+	 * !getContainer (index: number) : Container;
 	 */
 	getContainer: function (index)
 	{
@@ -313,8 +313,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Sets a viewport at the specified index.
-	 * 	!setViewport (index: number, viewport: Viewport) : Scene;
+	 * Sets a viewport at the specified index.
+	 * !setViewport (index: number, viewport: Viewport) : Scene;
 	 */
 	setViewport: function (index, viewport)
 	{
@@ -328,8 +328,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Returns the viewport at the specified index.
-	 * 	!getViewport (index: number) : Viewport;
+	 * Returns the viewport at the specified index.
+	 * !getViewport (index: number) : Viewport;
 	 */
 	getViewport: function (index)
 	{
@@ -337,8 +337,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Adds the given element to the disposal queue. To be destroyed on the next call to `disposeQueued`.
-	 * 	!disposeLater (elem: Element) : void;
+	 * Adds the given element to the disposal queue. To be destroyed on the next call to `disposeQueued`.
+	 * !disposeLater (elem: Element) : void;
 	 */
 	disposeLater: function (elem)
 	{
@@ -349,8 +349,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Disposes all elements in the disposal queue.
-	 * 	!disposeQueued() : void;
+	 * Disposes all elements in the disposal queue.
+	 * !disposeQueued() : void;
 	 */
 	disposeQueued: function ()
 	{
@@ -361,8 +361,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Adds a group to the scene.
-	 * 	!addGroup (group: Group) : boolean;
+	 * Adds a group to the scene.
+	 * !addGroup (group: Group) : boolean;
 	 */
 	addGroup: function (group)
 	{
@@ -381,7 +381,7 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Callback to remove a group from the scene (called by Handler).
+	 * Callback to remove a group from the scene (called by Handler).
 	 */
 	_removeGroup: function (group, self, node)
 	{
@@ -395,8 +395,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Removes a group from the scene.
-	 * 	!removeGroup (group: Group) : Group;
+	 * Removes a group from the scene.
+	 * !removeGroup (group: Group) : Group;
 	 */
 	removeGroup: function (group)
 	{
@@ -405,8 +405,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Syncs the actual location of the specified element with its storage location. Returns `true` if successful.
-	 * 	!sync (group: Group) : boolean;
+	 * Syncs the actual location of the specified element with its storage location. Returns `true` if successful.
+	 * !sync (group: Group) : boolean;
 	 */
 	sync: function (group)
 	{
@@ -414,9 +414,9 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Draws the scene, by executing the `draw` method on each container. The entire scene will be drawn once for each viewport, and
-	 * 	the visible region rules of each viewport will be applied.
-	 * 	!draw (g: Canvas) : void;
+	 * Draws the scene, by executing the `draw` method on each container. The entire scene will be drawn once for each viewport, and
+	 * the visible region rules of each viewport will be applied.
+	 * !draw (g: Canvas) : void;
 	 */
 	draw: function (g)
 	{
@@ -452,8 +452,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Draws the scene containers and passes the specified viewport bounds to the container.
-	 * 	!drawContainers (g: Canvas, viewportBounds: Bounds2) : void;
+	 * Draws the scene containers and passes the specified viewport bounds to the container.
+	 * !drawContainers (g: Canvas, viewportBounds: Bounds2) : void;
 	 */
 	drawContainers: function (g, viewportBounds)
 	{
@@ -479,7 +479,7 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Updates the scene viewports.
+	 * Updates the scene viewports.
 	 */
 	updateViewports: function ()
 	{
@@ -493,8 +493,8 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * 	Runs a scene update cycle.
-	 * 	!update (dt: number) : void;
+	 * Runs a scene update cycle.
+	 * !update (dt: number) : void;
 	 */
 	update: function (dt)
 	{

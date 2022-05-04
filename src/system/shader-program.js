@@ -485,6 +485,108 @@ const ShaderProgram = Class.extend
 ShaderProgram.programs = { };
 
 /**
+ * Creates a new shader program. The specified source code allows the use of "//@vert", "//@frag" and "//@geom" directives to specify the code
+ * blocks of the vertex, fragment and geometry shader respectively.
+ * !static create (id: string, source: string) : ShaderProgram;
+ */
+ShaderProgram.create = function (id, source)
+{
+	let vs = null, vsName = null;
+	let fs = null, fsName = null;
+	let gs = null, gsName = null;
+
+	let active = null;
+
+	for (let i of source.split('\n'))
+	{
+		let v = i.trim();
+
+		if (v.startsWith('//'))
+		{
+			v = v.split(' ').map(i => i.trim());
+
+			if (v[0] === '//@vert') {
+				if (v.length > 1) vsName = v[1];
+				if (vs === null) vs = [];
+				active = vs;
+				continue;
+			}
+
+			if (v[0] === '//@frag') {
+				if (v.length > 1) fsName = v[1];
+				if (fs === null) fs = [];
+				active = fs;
+				continue;
+
+			}
+
+			if (v[0] === '//@geom') {
+				if (v.length > 1) gsName = v[1];
+				if (gs === null) gs = [];
+				active = gs;
+				continue;
+			}
+		}
+
+		if (active !== null)
+			active.push(i);
+	}
+
+	let pgm = new ShaderProgram(id);
+
+	// Convert to string.
+	if (vs !== null) vs = vs.join('\n').trim();
+	if (fs !== null) fs = fs.join('\n').trim();
+	if (gs !== null) gs = gs.join('\n').trim();
+
+	// Load shaders from name if name specified without any source code.
+	if (vs !== null && vs.length === 0)
+	{
+		vs = Shader.get(vsName);
+		if (vs === null) throw new Error('Vertex shader not found: ' + vsName);
+	}
+	else if (vs === null || vs.length === 0)
+		vs = null;
+
+	if (fs !== null && fs.length === 0)
+	{
+		fs = Shader.get(fsName);
+		if (fs === null) throw new Error('Fragment shader not found: ' + fsName);
+	}
+	else if (fs === null || fs.length === 0)
+		fs = null;
+
+	if (gs !== null && gs.length === 0)
+	{
+		gs = Shader.get(gsName);
+		if (gs === null) throw new Error('Geometry shader not found: ' + gsName);
+	}
+	else if (gs === null || gs.length === 0)
+		gs = null;
+
+	// Load default if none specified.
+	if (vs === null) vs = Shader.get('def-vert');
+	if (fs === null) fs = Shader.get('def-frag');
+
+	// Compile source if GLSL source specified.
+	if (vs !== null && typeof(vs) === 'string')
+		vs = new Shader (vsName, Shader.Type.VERTEX, vs);
+
+	if (fs !== null && typeof(fs) === 'string')
+		fs = new Shader (fsName, Shader.Type.FRAGMENT, fs);
+
+	if (gs !== null && typeof(gs) === 'string')
+		gs = new Shader (gsName, Shader.Type.GEOMETRY, gs);
+
+	// Attach programs and link.
+	if (vs !== null) pgm.attach(vs);
+	if (fs !== null) pgm.attach(fs);
+	if (gs !== null) pgm.attach(gs);
+
+	return pgm.link();
+};
+
+/**
  * Puts a shader program in the global program list under the specified identifier.
  * !static put (id: string, shaderProgram: ShaderProgram) : void;
  */

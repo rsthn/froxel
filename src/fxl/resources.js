@@ -22,7 +22,7 @@ const res =
 
 	/**
 	 * 	Loads all registered resources that have not been loaded yet.
-	 * 	!static load (progressCallback?: (level: number, resourceName: string) => void) : Promise<void>;
+	 * 	!static load (progressCallback?: (t: number, name: string) => void) : Promise<void>;
 	 */
 	load: function(progressCallback=null)
 	{

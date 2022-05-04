@@ -151,7 +151,7 @@ const system =
 		 * 	Indicates if recycler pool preallocation should be automatically executed. Additionally if this value is a number, it will be used as
 		 * 	maximum preallocation parameter for the recycler.
 		 */
-		preallocate: true
+		preallocate: false
 	},
 
 	/**
@@ -285,7 +285,7 @@ const system =
 
 	/**
 	 * Creates a a time-span callback.
-	 * !static span (period: number, callback: (t:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : void;
+	 * !static span (period: number, callback: (t:number, dt:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : void;
 	 */
 	span: function (duration, callback, arg0=null, arg1=null, arg2=null)
 	{
@@ -295,9 +295,12 @@ const system =
 	_updateSpan: function (dt, _0, _1, callback, arg0, arg1, arg2)
 	{
 		this.arg0 += dt;
-		if (this.arg0 > this.arg1) this.arg0 = this.arg1;
+		if (this.arg0 > this.arg1) {
+			dt -= this.arg0 - this.arg1;
+			this.arg0 = this.arg1;
+		}
 
-		if (callback (this.arg0/this.arg1, arg0, arg1, arg2) === false)
+		if (callback (this.arg0/this.arg1, dt, arg0, arg1, arg2) === false)
 			return false;
 
 		return this.arg0 !== this.arg1;

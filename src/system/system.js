@@ -123,7 +123,7 @@ import Recycler from '../utils/recycler.js';
 		/**
 		 * 	Indicates if recycler pool preallocation should be automatically executed. Additionally if this value is a number, it will be used as
 		 * 	maximum preallocation parameter for the recycler.
-		 * 	@default true
+		 * 	@default false
 		 * 	!preallocate?: boolean|number;
 		 */
 
@@ -223,7 +223,7 @@ const System =
 	displayBuffer3: null,
 
 	/**
-	 * 	Small (320x240) temporal display buffer. Used to preload images.
+	 * 	Temporal display buffer (640x480). Used to preload images.
 	 */
 	tempDisplayBuffer: null,
 
@@ -374,7 +374,7 @@ const System =
 		this.displayBuffer3 = new Canvas ({ gl: false, elem: null, absolute: true, hidden: false, antialias: o.antialias, background: 'none' });
 		this.displayBuffer3.elem.style.pointerEvents = 'none';
 
-		this.tempDisplayBuffer = new Canvas ({ hidden: true, antialias: o.antialias }).resize(320, 240);
+		this.tempDisplayBuffer = new Canvas ({ hidden: true, antialias: o.antialias }).resize(640, 480);
 
 		let display0 = this.renderer.elem;
 

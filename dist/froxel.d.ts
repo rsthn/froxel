@@ -815,7 +815,7 @@ export class glsl
 	 *
 	 * - If "#version" not specified "#version 300 es" will be added.
 	 * - If "precision" not specified "precision highp float;" will be added.
-	 * - xasd
+	 * - Directive "//@use" will be replaced with the appropriate snippet(s).
 	 */
 	static process (code: string) : string;
 
@@ -1043,6 +1043,12 @@ export class ShaderProgram
 	 * Sets the value of a uniform.
 	 */
 	uniform4iv (location: string|object, value: any) : ShaderProgram;
+
+	/**
+	 * Creates a new shader program. The specified source code allows the use of "//@vert", "//@frag" and "//@geom" directives to specify the code
+	 * blocks of the vertex, fragment and geometry shader respectively.
+	 */
+	static create (id: string, source: string) : ShaderProgram;
 
 	/**
 	 * Puts a shader program in the global program list under the specified identifier.
@@ -1298,7 +1304,7 @@ export namespace System
 		/**
 		 * 	Indicates if recycler pool preallocation should be automatically executed. Additionally if this value is a number, it will be used as
 		 * 	maximum preallocation parameter for the recycler.
-		 * 	@default true
+		 * 	@default false
 		 */
 		preallocate?: boolean|number;
 
@@ -2026,9 +2032,14 @@ export class Bounds2
 
 	/**
 	 * Resizes the bounds to the given size using center or top-left as reference.
-	 * @param {boolean} topLeftRelative @default `false`
+	 * @param {boolean} topLeftRelative (default `false`)
 	 */
-	resize (width:number, height:number, topLeftRelative?:boolean) : Bounds2;
+	resize (width: number|boolean|null, height: number|boolean|null, topLeftRelative?: boolean) : Bounds2;
+
+	/**
+	 * Resizes the bounds using the specified deltas (using the center or top-left corner as reference).
+	 */
+	resizeBy (dWidth: number|boolean, dHeight: number|boolean, topLeftRelative?: boolean) : Bounds2;
 
 	/**
 	 * Returns the width of the bounds.
@@ -2039,6 +2050,11 @@ export class Bounds2
 	 * Returns the height of the bounds.
 	 */
 	height(): number
+
+	/**
+	 * Returns the aspect ratio (width divided by height).
+	 */
+	ratio(): number
 
 	/**
 	 * Returns true if the bounds are in forward position (x1 < x2 and y1 < y2).
@@ -2891,7 +2907,7 @@ export class Handler
 	/**
 	 * 	Executes all callbacks in the handler.
 	 */
-	exec(host?: any) : void;
+	exec (host?: any) : void;
 
 	/**
 	 * 	Executes the first callback matching the specified arguments.
@@ -3545,12 +3561,12 @@ export class GridElement
 	/**
 	 * 	Sets the width and height of the element.
 	 */
-	resize (width: number, height: number) : GridElement;
+	resize (width: number|boolean|null, height: number|boolean|null) : GridElement;
 
 	/**
 	 * 	Resizes the element by the specified deltas.
 	 */
-	resizeBy (deltaWidth: number, deltaHeight: number) : GridElement;
+	resizeBy (deltaWidth: number|boolean, deltaHeight: number|boolean) : GridElement;
 
 	/**
 	 * 	Moves the element by the specified deltas.
@@ -3653,122 +3669,127 @@ export class Grid
 export class Container
 {
 	/**
-	 * 	Viewport bounds currently active. Set by the Scene class before calling `draw`.
+	 * Viewport bounds currently active. Set by the Scene class before calling `draw`.
 	 */
 	viewportBounds: Bounds2;
 
 	/**
-	 * 	Width of the container.
+	 * Width of the container.
 	 */
 	width: number;
 
 	/**
-	 * 	Height of the container.
+	 * Height of the container.
 	 */
 	height: number;
 
 	/**
-	 * 	Depth (z-value) of the container, calculated by the scene.
+	 * Depth (z-value) of the container, calculated by the scene.
 	 */
 	zvalue: number;
 
 	/**
-	 * 	Scene object to which this container belongs.
+	 * Scene object to which this container belongs.
 	 */
 	scene: Scene;
 
 	/**
-	 * 	Flags of the object (see constants at the bottom of this file).
+	 * Flags of the object (see constants at the bottom of this file).
 	 */
 	flags: number;
 
 	/**
-	 * 	Currently active display buffer for rendering operations (used by drawElement).
+	 * Currently active display buffer for rendering operations (used by drawElement).
 	 */
 	g: Canvas;
 
 	/**
-	 * 	Total number of elements in the container.
+	 * Total number of elements in the container.
 	 */
 	readonly elementCount: number;
 
 	/**
-	 * 	Total number of elements drawn on the last draw operation.
+	 * Total number of elements drawn on the last draw operation.
 	 */
 	readonly drawCount: number;
 
 	/**
-	 * 	Constructs the container with the specified size.
+	 * Constructs the container with the default size (32768 x 32768).
+	 */
+	constructor ();
+
+	/**
+	 * Constructs the container with the specified size.
 	 */
 	constructor (width: number, height: number);
 
 	/**
-	 * 	Returns the value of the `visible` flag.
+	 * Returns the value of the `visible` flag.
 	 */
 	visible() : boolean;
 
 	/**
-	 * 	Sets the value of the `visible` flag.
+	 * Sets the value of the `visible` flag.
 	 */
 	visible(value: boolean) : Container;
 
 	/**
-	 * 	Returns the value of the `depthFlag` flag.
+	 * Returns the value of the `depthFlag` flag.
 	 */
 	depthFlag() : boolean;
 
 	/**
-	 * 	Sets the value of the `depthFlag` flag.
+	 * Sets the value of the `depthFlag` flag.
 	 */
 	depthFlag(value: boolean) : Container;
 
 	/**
-	 * 	Sets the active viewport bounds.
+	 * Sets the active viewport bounds.
 	 */
 	setViewportBounds (bounds: Bounds2) : Container;
 
 	/**
-	 * 	Draws the specified element.
+	 * Draws the specified element.
 	 */
 	drawElement (elem: Element, self: Container) : boolean;
 
 	/**
-	 * 	Updates the Z-value of the specified element. Should be called after adding an element and after/before every sync.
+	 * Updates the Z-value of the specified element. Should be called after adding an element and after/before every sync.
 	 */
 	syncZ (elem: Element) : void;
 
 	/**
-	 * 	Syncs the actual location of the specified element with its storage location. Returns true if successful.
+	 * Syncs the actual location of the specified element with its storage location. Returns true if successful.
 	 */
 	sync (elem: Element) : boolean;
 
 	/**
-	 * 	Clears the container to empty. All contained elements will be destroyed.
+	 * Clears the container to empty. All contained elements will be destroyed.
 	 */
 	clear() : void;
 
 	/**
-	 * 	Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
+	 * Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
 	 */
 	reset() : void;
 
 	/**
-	 * 	Adds an element to the container. Returns boolean indicating if successful.
+	 * Adds an element to the container. Returns boolean indicating if successful.
 	 */
 	add (elem: Element) : boolean;
 
 	/**
-	 * 	Removes an element from the container and returns it.
+	 * Removes an element from the container and returns it.
 	 */
 	remove (elem: Element) : Element;
 
 	/**
-	 * 	Prepares the canvas with depth flag configuration and Z-value to draw the contained elements.
+	 * Prepares the canvas with depth flag configuration and Z-value to draw the contained elements.
 	 */
 	draw (g: Canvas) : void;
 
 	/**
-	 * 	Actually draws the contained elements.
+	 * Actually draws the contained elements.
 	 */
 	render() : void;
 
@@ -4040,142 +4061,147 @@ export namespace Group
 export class Scene
 {
 	/**
-	 * 	Minimum dimensions of the scene (smallest container size).
+	 * Minimum dimensions of the scene (smallest container size).
 	 */
 	readonly minWidth: number;
 	readonly minHeight: number;
 
 	/**
-	 * 	Maximum dimensions of the scene (largest container size).
+	 * Maximum dimensions of the scene (largest container size).
 	 */
 	readonly maxWidth: number;
 	readonly maxHeight: number;
 
 	/**
-	 * 	Active viewport bounds, used to select items in a visible region.
+	 * Active viewport bounds, used to select items in a visible region.
 	 */
 	readonly viewportBounds: Bounds2;
 
 	/**
-	 * 	First updater. Runs before any other update calls.
+	 * First updater. Runs before any other update calls.
 	 */
 	readonly fupdater: Handler;
 
 	/**
-	 * 	General updater. Runs after the first updater and before synchronizer.
+	 * General updater. Runs after the first updater and before synchronizer.
 	 */
 	readonly updater: Handler;
 
 	/**
-	 * 	Synchronizer. Run after general updater, and before viewport synchronization.
+	 * Synchronizer. Run after general updater, and before viewport synchronization.
 	 */
 	readonly synchronizer: Handler;
 
 	/**
-	 * 	Last updater. Runs after all other update calls.
+	 * Last updater. Runs after all other update calls.
 	 */
 	readonly lupdater: Handler;
 
 	/**
-	 * 	Destroyer runs when the scene is destroyed.
+	 * Draw handler executed after the scene is drawn.
+	 */
+	readonly ldraw: Handler;
+
+	/**
+	 * Destroyer runs when the scene is destroyed.
 	 */
 	readonly destroyer: Handler;
 
 	/**
-	 * 	Current delta time. Set upon entering the `update` method. Reflects the same value as System.frameDelta.
+	 * Current delta time. Set upon entering the `update` method. Reflects the same value as System.frameDelta.
 	 */
 	readonly dt: number;
 
 	/**
-	 * 	Total number of elements drawn on the last draw operation.
+	 * Total number of elements drawn on the last draw operation.
 	 */
 	readonly drawCount: number;
 
 	/**
-	 * 	Base depth (z-value) of the scene.
+	 * Base depth (z-value) of the scene.
 	 */
 	readonly zvalue: number;
 
 	/**
-	 * 	Constructs an empty scene with the specified index.
-	 * 	@param index - Index for the scene. Used to calculate the base z-value of the scene. Valid range is from 0 to 3.
+	 * Constructs an empty scene with the specified index.
+	 * @param index - Index for the scene. Used to calculate the base z-value of the scene. Valid range is from 0 to 3.
 	 */
 	constructor (index: number);
 
 	/**
-	 * 	Clears the scene leaving only viewports.
+	 * Clears the scene leaving only viewports.
 	 */
 	clear() : void;
 
 	/**
-	 * 	Returns the value of the `visible` flag.
+	 * Returns the value of the `visible` flag.
 	 */
 	visible() : boolean;
 
 	/**
-	 * 	Sets the value of the `visible` flag.
+	 * Sets the value of the `visible` flag.
 	 */
 	visible(value: boolean) : Container;
 
 	/**
-	 * 	Sets a container at the specified index.
-	 * 	@param index - Index of the container, valid range is from 0 to 15.
+	 * Sets a container at the specified index.
+	 * @param index - Index of the container, valid range is from 0 to 15.
 	 */
 	setContainer (index: number, container: Container) : Scene;
 
 	/**
-	 * 	Returns the container at the specified index.
+	 * Returns the container at the specified index.
 	 */
 	getContainer (index: number) : Container;
 
 	/**
-	 * 	Sets a viewport at the specified index.
+	 * Sets a viewport at the specified index.
 	 */
 	setViewport (index: number, viewport: Viewport) : Scene;
 
 	/**
-	 * 	Returns the viewport at the specified index.
+	 * Returns the viewport at the specified index.
 	 */
 	getViewport (index: number) : Viewport;
 
 	/**
-	 * 	Adds the given element to the disposal queue. To be destroyed on the next call to `disposeQueued`.
+	 * Adds the given element to the disposal queue. To be destroyed on the next call to `disposeQueued`.
 	 */
 	disposeLater (elem: Element) : void;
 
 	/**
-	 * 	Disposes all elements in the disposal queue.
+	 * Disposes all elements in the disposal queue.
 	 */
 	disposeQueued() : void;
 
 	/**
-	 * 	Adds a group to the scene.
+	 * Adds a group to the scene.
 	 */
 	addGroup (group: Group) : boolean;
 
 	/**
-	 * 	Removes a group from the scene.
+	 * Removes a group from the scene.
 	 */
 	removeGroup (group: Group) : Group;
 
 	/**
-	 * 	Syncs the actual location of the specified element with its storage location. Returns `true` if successful.
+	 * Syncs the actual location of the specified element with its storage location. Returns `true` if successful.
 	 */
 	sync (group: Group) : boolean;
 
 	/**
-	 * 	Draws the scene, by executing the `draw` method on each container. The entire scene will be drawn once for each viewport, and
-	 * 	the visible region rules of each viewport will be applied.
+	 * Draws the scene, by executing the `draw` method on each container. The entire scene will be drawn once for each viewport, and
+	 * the visible region rules of each viewport will be applied.
 	 */
 	draw (g: Canvas) : void;
 
 	/**
-	 * 	Draws the scene containers and passes the specified viewport bounds to the container.
+	 * Draws the scene containers and passes the specified viewport bounds to the container.
 	 */
 	drawContainers (g: Canvas, viewportBounds: Bounds2) : void;
 
 	/**
-	 * 	Runs a scene update cycle.
+	 * Runs a scene update cycle.
 	 */
 	update (dt: number) : void;
 
@@ -5234,7 +5260,7 @@ const r : { [key: string]: any };
 	/**
 	 * 	Loads all registered resources that have not been loaded yet.
 	 */
-	static load (progressCallback?: (level: number, resourceName: string) => void) : Promise<void>;
+	static load (progressCallback?: (t: number, name: string) => void) : Promise<void>;
 
 	/**
 	 * 	Returns a resource given its identifier.

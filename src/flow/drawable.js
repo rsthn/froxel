@@ -139,6 +139,26 @@ const Drawable = Class.extend
 	},
 
 	/**
+	 * Resizes the logical dimensions of the drawable.
+	 * !resize (width: number|boolean|null, height: number|boolean|null) : Drawable;
+	 */
+	resize: function (width, height)
+	{
+		width = width !== null ? (width !== true ? width : true) : this.width;
+		height = height !== null ? (height !== true ? height : true)  : this.height;
+
+		if (width === true)
+			width = height*(this.width/this.height);
+		else if (height === true)
+			height = width*(this.height/this.width);
+
+		this.width = width;
+		this.height = height;
+
+		return this;
+	},
+
+	/**
 	 * Draws the drawable on the canvas.
 	 * !draw (g: Canvas, x: number, y: number, width?: number|null, height?: number|null) : void;
 	 */

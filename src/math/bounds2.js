@@ -515,13 +515,18 @@ const Bounds2 = Class.extend
 
 	/**
 	 * Resizes the bounds to the given size using center or top-left as reference.	 
-	 * @param {boolean} topLeftRelative @default `false`
-	 * !resize (width:number, height:number, topLeftRelative?:boolean) : Bounds2;
+	 * @param {boolean} topLeftRelative (default `false`)
+	 * !resize (width: number|boolean|null, height: number|boolean|null, topLeftRelative?: boolean) : Bounds2;
 	 */
 	resize: function (width, height, topLeftRelative=false)
 	{
-		width = width !== null ? upscale(width) : (this.ux2 - this.ux1);
-		height = height !== null ? upscale(height) : (this.uy2 - this.uy1);
+		width = width !== null ? (width !== true ? upscale(width) : true) : this.ux2 - this.ux1;
+		height = height !== null ? (height !== true ? upscale(height) : true)  : this.uy2 - this.uy1;
+
+		if (width === true)
+			width = height*this.ratio();
+		else if (height === true)
+			height = width/this.ratio();
 
 		if (topLeftRelative === true)
 		{
@@ -542,30 +547,34 @@ const Bounds2 = Class.extend
 		return this.downscale();
 	},
 
-	/*
-	**	Resizes the bounds using the specified deltas (using the center or top-left corner as reference).
-	**
-	**	Bounds2 resizeBy (float dwidth, float dheight, bool topLeftRelative=false)
-	*/
-	resizeBy: function (dwidth, dheight, topLeftRelative=false)
+	/**
+	 * Resizes the bounds using the specified deltas (using the center or top-left corner as reference).
+	 * !resizeBy (dWidth: number|boolean, dHeight: number|boolean, topLeftRelative?: boolean) : Bounds2;
+	 */
+	resizeBy: function (dWidth, dHeight, topLeftRelative=false)
 	{
-		dwidth = upscale(dwidth);
-		dheight = upscale(dheight);
+		dWidth = dWidth !== true ? upscale(dWidth) : true;
+		dHeight = dHeight !== true ? upscale(dHeight) : true;
+
+		if (dWidth === true)
+			dWidth = dHeight*this.ratio();
+		else if (dHeight === true)
+			dHeight = dWidth/this.ratio();
 
 		if (topLeftRelative === true)
 		{
-			this.ux2 += dwidth;
-			this.uy2 += dheight;
+			this.ux2 += dWidth;
+			this.uy2 += dHeight;
 
 			this.ucx = (this.ux1 + this.ux2) >> 1;
 			this.ucy = (this.uy1 + this.uy2) >> 1;
 		}
 		else
 		{
-			dwidth >>= 1; dheight >>= 1;
+			dWidth >>= 1; dHeight >>= 1;
 
-			this.ux1 -= dwidth; this.uy1 -= dheight;
-			this.ux2 += dwidth; this.uy2 += dheight;
+			this.ux1 -= dWidth; this.uy1 -= dHeight;
+			this.ux2 += dWidth; this.uy2 += dHeight;
 		}
 
 		return this.downscale();
@@ -587,6 +596,15 @@ const Bounds2 = Class.extend
 	height: function ()
 	{
 		return this.y2 - this.y1;
+	},
+
+	/**
+	 * Returns the aspect ratio (width divided by height).
+	 * !ratio(): number
+	 */
+	ratio: function ()
+	{
+		return (this.x2 - this.x1) / (this.y2 - this.y1);
 	},
 
 	/**

@@ -56,11 +56,11 @@ const glsl =
 		{
 			let value = code[i].trim();
 
-			if (value.startsWith('#use '))
+			if (value.startsWith('//@use '))
 			{
 				let str = '';
 
-				for (let name of value.substring(5).split(','))
+				for (let name of value.substring(7).split(','))
 				{
 					name = name.trim();
 
@@ -84,7 +84,7 @@ const glsl =
 	 *
 	 * - If "#version" not specified "#version 300 es" will be added.
 	 * - If "precision" not specified "precision highp float;" will be added.
-	 * - xasd
+	 * - Directive "//@use" will be replaced with the appropriate snippet(s).
 	 *
 	 * !static process (code: string) : string;
 	 */
@@ -110,6 +110,27 @@ export default glsl;
  * Reusable GLSL snippets.
  */
 
+glsl.set('vert-defs', `
+	uniform mat3 m_transform;
+	uniform mat3 m_quad;
+	uniform mat3 m_texture;
+	uniform vec2 v_resolution;
+	uniform vec4 v_frame_size;
+	uniform float f_depth;
+
+	in vec3 location;
+	out vec2 texcoords;
+`);
+
+glsl.set('frag-defs', `
+	uniform vec4 v_frame_size;
+	uniform float f_alpha;
+	uniform sampler2D texture0;
+
+	in vec2 texcoords;
+	out vec4 color;
+`);
+
 glsl.set('invertX', `
 	vec2 invertX (vec2 value) {
 		return value * vec2(-1.0, 1.0);
@@ -122,14 +143,28 @@ glsl.set('invertY', `
 	}
 `);
 
+glsl.set('norm', `
+	vec2 norm (vec2 value) {
+		return (value + 1.0) * 0.5;
+	}
+
+	vec3 norm (vec3 value) {
+		return (value + 1.0) * 0.5;
+	}
+`);
+
 glsl.set('snorm', `
 	vec2 snorm (vec2 value) {
+		return value * 2.0 - 1.0;
+	}
+
+	vec3 snorm (vec3 value) {
 		return value * 2.0 - 1.0;
 	}
 `);
 
 glsl.set('location2d', `
-	#use invertY, snorm
+	//@use invertY, snorm
 
 	vec4 location2d (vec3 location, float depth)
 	{

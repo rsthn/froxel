@@ -155,7 +155,7 @@ const Handler = Class.extend
 
 	/**
 	 * 	Executes all callbacks in the handler.
-	 * 	!exec(host?: any) : void;
+	 * 	!exec (host?: any) : void;
 	 */
 	exec: function (host=null)
 	{

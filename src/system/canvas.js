@@ -295,11 +295,11 @@ Canvas.prototype.initGl = function ()
 	let gl = this.gl;
 
 	/**
-	 * 	Create the default shader program.
+	 * 	Create the frame-wrap shader program.
 	 */
-	this.glDefaultProgram = new ShaderProgram('def');
+	this.glFWrapProgram = new ShaderProgram('fwrap');
 
-	new Shader ('def-vert', Shader.Type.VERTEX,
+	new Shader ('fwrap-vert', Shader.Type.VERTEX,
 	`
 		uniform mat3 m_transform;
 		uniform mat3 m_quad;
@@ -311,8 +311,7 @@ Canvas.prototype.initGl = function ()
 		in vec3 location;
 		out vec2 texcoords;
 
-		// --------------------------------
-		#use location2d, frameTexCoords
+		//@use location2d, frameTexCoords
 
 		void main ()
 		{
@@ -321,7 +320,7 @@ Canvas.prototype.initGl = function ()
 		}
 	`);
 
-	new Shader ('def-frag', Shader.Type.FRAGMENT,
+	new Shader ('fwrap-frag', Shader.Type.FRAGMENT,
 	`
 		uniform sampler2D texture0;
 		uniform vec4 v_frame_size;
@@ -330,8 +329,7 @@ Canvas.prototype.initGl = function ()
 		in vec2 texcoords;
 		out vec4 color;
 
-		// --------------------------------
-		#use frameTex
+		//@use frameTex
 
 		void main ()
 		{
@@ -343,11 +341,11 @@ Canvas.prototype.initGl = function ()
 	`);
 
 	/**
-	 * 	Create the quick shader program.
+	 * 	Create the default shader program.
 	 */
-	this.glQuickProgram = new ShaderProgram('quick');
+	this.glDefaultProgram = new ShaderProgram('def');
 
-	new Shader ('quick-vert', Shader.Type.VERTEX,
+	new Shader ('def-vert', Shader.Type.VERTEX,
 	`
 		uniform mat3 m_transform;
 		uniform mat3 m_quad;
@@ -358,8 +356,7 @@ Canvas.prototype.initGl = function ()
 		in vec3 location;
 		out vec2 texcoords;
 
-		// --------------------------------
-		#use location2d
+		//@use location2d
 
 		void main ()
 		{
@@ -368,7 +365,7 @@ Canvas.prototype.initGl = function ()
 		}
 	`);
 
-	new Shader ('quick-frag', Shader.Type.FRAGMENT,
+	new Shader ('def-frag', Shader.Type.FRAGMENT,
 	`
 		uniform sampler2D texture0;
 		uniform float f_alpha;
@@ -376,7 +373,6 @@ Canvas.prototype.initGl = function ()
 		in vec2 texcoords;
 		out vec4 color;
 
-		// --------------------------------
 		void main()
 		{
 			color = texture(texture0, texcoords);
@@ -400,7 +396,7 @@ Canvas.prototype.initGl = function ()
 		in vec3 location;
 		out vec2 texcoords;
 
-		#use snorm
+		//@use snorm
 
 		void main() {
 			gl_Position = vec4(snorm(vec2(m_quad * location) / v_resolution), 0.0, 1.0);
@@ -424,21 +420,21 @@ Canvas.prototype.initGl = function ()
 	this.glDefaultProgram.attach('def-vert');
 	this.glDefaultProgram.attach('def-frag');
 
-	this.glQuickProgram.attach('quick-vert');
-	this.glQuickProgram.attach('quick-frag');
+	this.glFWrapProgram.attach('fwrap-vert');
+	this.glFWrapProgram.attach('fwrap-frag');
 
 	this.glBlitProgram.attach('blit-vert');
 	this.glBlitProgram.attach('blit-frag');
 
 	this.glDefaultProgram.link();
-	this.glQuickProgram.link();
+	this.glFWrapProgram.link();
 	this.glBlitProgram.link();
 
 	if (!this.glDefaultProgram.getStatus())
 		throw new Error (this.glDefaultProgram.getAllErrors());
 
-	if (!this.glQuickProgram.getStatus())
-		throw new Error (this.glQuickProgram.getAllErrors());
+	if (!this.glFWrapProgram.getStatus())
+		throw new Error (this.glFWrapProgram.getAllErrors());
 
 	if (!this.glBlitProgram.getStatus())
 		throw new Error (this.glBlitProgram.getAllErrors());
@@ -580,25 +576,46 @@ Canvas.prototype.prepareImage = function (image)
 	let texture = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 
-	gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, image.width, image.height);
-	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
 	if (!image.filter)
 		image.filter = 'NEAREST';
 
-	if (image.filter === 'NEAREST')
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+	if (image.mipmap === true)
 	{
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		gl.texStorage2D(gl.TEXTURE_2D, image.levels, gl.RGBA8, image.width, image.height);
+		gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+		gl.generateMipmap(gl.TEXTURE_2D);
+
+		if (image.filter === 'NEAREST')
+		{
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		}
+		else
+		{
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		}
 	}
 	else
 	{
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	}
+		gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, image.width, image.height);
+		gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		if (image.filter === 'NEAREST')
+		{
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		}
+		else
+		{
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		}
+	}
 
 	image.glTextureId = texture;
 	image.glTextureReady = true;
@@ -1683,7 +1700,7 @@ Canvas.prototype.appendMatrix = function (matr)
 **	>> Canvas scale (float sx, float sy, bool useNative=false);
 */
 
-Canvas.prototype.scale = function (sx, sy, useNative)
+Canvas.prototype.scale = function (sx, sy, useNative=false)
 {
 	if (useNative) {
 		this.context.scale (sx, sy);
@@ -1702,7 +1719,7 @@ Canvas.prototype.scale = function (sx, sy, useNative)
 **	>> Canvas rotate (float angle, bool useNative=false);
 */
 
-Canvas.prototype.rotate = function (angle, useNative)
+Canvas.prototype.rotate = function (angle, useNative=false)
 {
 	if (useNative) {
 		this.context.rotate (angle);
@@ -1721,7 +1738,7 @@ Canvas.prototype.rotate = function (angle, useNative)
 **	>> Canvas translate (float x, float y, bool useNative=false);
 */
 
-Canvas.prototype.translate = function (x, y, useNative)
+Canvas.prototype.translate = function (x, y, useNative=false)
 {
 	if (useNative) {
 		this.context.translate(x, y);
@@ -1943,24 +1960,59 @@ Canvas.prototype.removePointerHandler = function (id)
 
 /**
  * 	Executes the `draw` function on a new canvas of the specified width and height. Renders it into an image and runs the completed callback with the ready HTMLImageElement object.
- * 	!static renderImage (width: number, height: number, filter: 'NEAREST'|'LINEAR', draw: (g: Canvas) => void, completed: (img: HTMLImageElement) => void) : void;
+ * 	!static renderImage (width: number, height: number, draw: (g: Canvas) => void, completed: (img: HTMLImageElement, url: string) => void) : void;
  */
 Canvas.renderImage = function (width, height, draw, completed)
 {
-	let g = new Canvas({ width: width, height: height });
+	let g = new Canvas({ hidden: true, width: width, height: height, antialias: System.options.antialias });
 
 	draw(g);
+	let url = g.toDataUrl();
 
 	let img = new Image();
-	img.onload = () => {
-		//Violet: set other image properties.
-		img.filter = 'NEAREST';
+	img.onload = () =>
+	{
+		img.filter = System.options.antialias ? 'LINEAR' : 'NEAREST';
 		img.rscale = 1.0;
+		img.targetWidth = width;
+		img.targetHeight = height;
+
 		System.renderer.prepareImage(img);
-		completed(img);
+		completed(img, url);
 	};
 
-	img.src = g.toDataUrl();
+	img.src = url;
+	g.dispose();
+};
+
+/**
+ * Executes the `draw` function on a new canvas of the specified width and height. Renders it into an image and runs the completed callback with the ready HTMLImageElement object,
+ * note that this function will generate mipmap images.
+ * !static renderImageMipmap (levels: number, width: number, height: number, draw: (g: Canvas) => void, completed: (img: HTMLImageElement, url: string) => void) : void;
+ */
+Canvas.renderImageMipmap = function (levels, width, height, draw, completed)
+{
+	let g = new Canvas({ hidden: true, width: width, height: height, antialias: System.options.antialias });
+
+	draw(g);
+	let url = g.toDataUrl();
+
+	let img = new Image();
+	img.onload = () =>
+	{
+		img.filter = System.options.antialias ? 'LINEAR' : 'NEAREST';
+		img.rscale = 1.0;
+		img.targetWidth = width;
+		img.targetHeight = height;
+
+		img.mipmap = true;
+		img.levels = levels;
+
+		System.renderer.prepareImage(img);
+		completed(img, url);
+	};
+
+	img.src = url;
 	g.dispose();
 };
 

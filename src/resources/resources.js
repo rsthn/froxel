@@ -155,7 +155,7 @@ Object.assign(Resources,
 			index++;
 
 		if (progressCallback)
-			progressCallback (index, keyList.length, index / keyList.length, keyList[index]);
+			progressCallback (index, keyList.length, index / keyList.length, index < keyList.length ? keyList[index] : null);
 
 		if (index == keyList.length)
 		{

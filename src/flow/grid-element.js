@@ -353,22 +353,24 @@ const GridElement = Class.extend
 
 	/**
 	 * 	Sets the width and height of the element.
-	 * 	!resize (width: number, height: number) : GridElement;
+	 * 	!resize (width: number|boolean|null, height: number|boolean|null) : GridElement;
 	 */
 	resize: function (width, height)
 	{
 		this.flags |= GridElement.DIRTY;
-		this.bounds.resize (width ?? this.bounds.width(), height ?? this.bounds.height(), true);
+		this.bounds.resize (width, height, true);
 		return this;
 	},
 
 	/**
 	 * 	Resizes the element by the specified deltas.
-	 * 	!resizeBy (deltaWidth: number, deltaHeight: number) : GridElement;
+	 * 	!resizeBy (deltaWidth: number|boolean, deltaHeight: number|boolean) : GridElement;
 	 */
 	resizeBy: function (dWidth, dHeight)
 	{
-		return this.resize(this.bounds.width() + dWidth, this.bounds.height() + dHeight);
+		this.flags |= GridElement.DIRTY;
+		this.bounds.resizeBy (dWidth, dHeight, true);
+		return this;
 	},
 
 	/**

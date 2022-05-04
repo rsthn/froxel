@@ -15,6 +15,7 @@
 */
 
 import { Class } from 'rinn';
+import Handler from '../utils/handler';
 
 //:/**
 //: * 	A container is responsible to store elements for their subsequent rendering. The actual storage mechanism used can vary and must be implemented by derived
@@ -28,66 +29,72 @@ const Container = Class.extend
 	className: 'Container',
 
 	/**
-	 * 	Viewport bounds currently active. Set by the Scene class before calling `draw`.
-	 * 	!viewportBounds: Bounds2;
+	 * Viewport bounds currently active. Set by the Scene class before calling `draw`.
+	 * !viewportBounds: Bounds2;
 	 */
 	viewportBounds: null,
 
 	/**
-	 * 	Width of the container.
-	 * 	!width: number;
+	 * Width of the container.
+	 * !width: number;
 	 */
 	width: 0,
 
 	/**
-	 * 	Height of the container.
-	 * 	!height: number;
+	 * Height of the container.
+	 * !height: number;
 	 */
 	height: 0,
 
 	/**
-	 * 	Depth (z-value) of the container, calculated by the scene.
-	 * 	!zvalue: number;
+	 * Depth (z-value) of the container, calculated by the scene.
+	 * !zvalue: number;
 	 */
 	zvalue: 0,
 
 	/**
-	 * 	Scene object to which this container belongs.
-	 * 	!scene: Scene;
+	 * Scene object to which this container belongs.
+	 * !scene: Scene;
 	 */
 	scene: null,
 
 	/**
-	 * 	Flags of the object (see constants at the bottom of this file).
-	 * 	!flags: number;
+	 * Flags of the object (see constants at the bottom of this file).
+	 * !flags: number;
 	 */
 	flags: 0,
 
 	/**
-	 * 	Currently active display buffer for rendering operations (used by drawElement).
-	 * 	!g: Canvas;
+	 * Currently active display buffer for rendering operations (used by drawElement).
+	 * !g: Canvas;
 	 */
 	g: null,
 
 	/**
-	 * 	Total number of elements in the container.
-	 * 	!readonly elementCount: number;
+	 * Total number of elements in the container.
+	 * !readonly elementCount: number;
 	 */
 	elementCount: 0,
 
 	/**
-	 * 	Total number of elements drawn on the last draw operation.
-	 * 	!readonly drawCount: number;
+	 * Total number of elements drawn on the last draw operation.
+	 * !readonly drawCount: number;
 	 */
 	drawCount: 0,
 
 	/**
-	 * 	Constructs the container with the default size (32768 x 32768).
-	 * 	constructor ();
+	 * Draw handler executed after the scene is drawn.
+	 * !readonly ldraw: Handler;
+	 */
+	ldraw: null,
+
+	/**
+	 * Constructs the container with the default size (32768 x 32768).
+	 * !constructor ();
 	 */
 	/**
-	 * 	Constructs the container with the specified size.
-	 * 	!constructor (width: number, height: number);
+	 * Constructs the container with the specified size.
+	 * !constructor (width: number, height: number);
 	 */
 	__ctor: function (width=32768, height=32768)
 	{
@@ -95,22 +102,24 @@ const Container = Class.extend
 		this.height = height;
 
 		this.flags = Container.VISIBLE | Container.DEPTH_FLAG;
+		this.ldraw = Handler.Pool.alloc(this);
 	},
 
 	/**
-	 * 	Destroys the container.
+	 * Destroys the container.
 	 */
 	__dtor: function()
 	{
+		this.ldraw.free();
 	},
 
 	/**
-	 * 	Returns the value of the `visible` flag.
-	 * 	!visible() : boolean;
+	 * Returns the value of the `visible` flag.
+	 * !visible() : boolean;
 	 */
 	/**
-	 * 	Sets the value of the `visible` flag.
-	 * 	!visible(value: boolean) : Container;
+	 * Sets the value of the `visible` flag.
+	 * !visible(value: boolean) : Container;
 	 */
 	visible: function (value=null)
 	{
@@ -124,12 +133,12 @@ const Container = Class.extend
 	},
 
 	/**
-	 * 	Returns the value of the `depthFlag` flag.
-	 * 	!depthFlag() : boolean;
+	 * Returns the value of the `depthFlag` flag.
+	 * !depthFlag() : boolean;
 	 */
 	/**
-	 * 	Sets the value of the `depthFlag` flag.
-	 * 	!depthFlag(value: boolean) : Container;
+	 * Sets the value of the `depthFlag` flag.
+	 * !depthFlag(value: boolean) : Container;
 	 */
 	depthFlag: function (value=null)
 	{
@@ -143,8 +152,8 @@ const Container = Class.extend
 	},
 
 	/**
-	 * 	Sets the active viewport bounds.
-	 * 	!setViewportBounds (bounds: Bounds2) : Container;
+	 * Sets the active viewport bounds.
+	 * !setViewportBounds (bounds: Bounds2) : Container;
 	 */
 	setViewportBounds: function (bounds)
 	{
@@ -153,8 +162,8 @@ const Container = Class.extend
 	},
 
 	/**
-	 * 	Draws the specified element.
-	 * 	!drawElement (elem: Element, self: Container) : boolean;
+	 * Draws the specified element.
+	 * !drawElement (elem: Element, self: Container) : boolean;
 	 */
 	drawElement: function (elem, self)
 	{
@@ -163,8 +172,8 @@ const Container = Class.extend
 	},
 
 	/**
-	 * 	Updates the Z-value of the specified element. Should be called after adding an element and after/before every sync.
-	 * 	!syncZ (elem: Element) : void;
+	 * Updates the Z-value of the specified element. Should be called after adding an element and after/before every sync.
+	 * !syncZ (elem: Element) : void;
 	 */
 	syncZ: function (elem)
 	{
@@ -173,8 +182,8 @@ const Container = Class.extend
 	},
 
 	/**
-	 * 	Syncs the actual location of the specified element with its storage location. Returns true if successful.
-	 * 	!sync (elem: Element) : boolean;
+	 * Syncs the actual location of the specified element with its storage location. Returns true if successful.
+	 * !sync (elem: Element) : boolean;
 	 */
 	sync: function (elem)
 	{
@@ -182,8 +191,8 @@ const Container = Class.extend
 	},
 
 	/**
-	 * 	Clears the container to empty. All contained elements will be destroyed.
-	 * 	!clear() : void;
+	 * Clears the container to empty. All contained elements will be destroyed.
+	 * !clear() : void;
 	 */
 	clear: function() /* @override */
 	{
@@ -191,8 +200,8 @@ const Container = Class.extend
 	},
 
 	/**
-	 * 	Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
-	 * 	!reset() : void;
+	 * Resets the container to empty. Contained elements are not destroyed. Use `clear` if that is your intention.
+	 * !reset() : void;
 	 */
 	reset: function() /* @override */
 	{
@@ -200,8 +209,8 @@ const Container = Class.extend
 	},
 
 	/**
-	 * 	Adds an element to the container. Returns boolean indicating if successful.
-	 * 	!add (elem: Element) : boolean;
+	 * Adds an element to the container. Returns boolean indicating if successful.
+	 * !add (elem: Element) : boolean;
 	 */
 	add: function (elem) /* @override */
 	{
@@ -209,8 +218,8 @@ const Container = Class.extend
 	},
 
 	/**
-	 * 	Removes an element from the container and returns it.
-	 * 	!remove (elem: Element) : Element;
+	 * Removes an element from the container and returns it.
+	 * !remove (elem: Element) : Element;
 	 */
 	remove: function (elem) /* @override */
 	{
@@ -218,8 +227,8 @@ const Container = Class.extend
 	},
 
 	/**
-	 * 	Prepares the canvas with depth flag configuration and Z-value to draw the contained elements.
-	 * 	!draw (g: Canvas) : void;
+	 * Prepares the canvas with depth flag configuration and Z-value to draw the contained elements.
+	 * !draw (g: Canvas) : void;
 	 */
 	draw: function(g)
 	{
@@ -233,13 +242,14 @@ const Container = Class.extend
 		this.g = g;
 
 		this.render();
+		this.ldraw.exec(g);
 
 		if (depthFlagChanged) g.popDepthFlag();
 	},
 
 	/**
-	 * 	Actually draws the contained elements.
-	 * 	!render() : void;
+	 * Actually draws the contained elements.
+	 * !render() : void;
 	 */
 	render: function()
 	{
