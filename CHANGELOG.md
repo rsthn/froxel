@@ -1,3 +1,42 @@
+# v2.2.4 - May 09 2022
+
+#### Bounds2
+- Added method `ratio` returning the aspect ratio of the bounds.
+- Parameters `width` and `height` of method `resize` and `resizeBy` and can now be set to `true` to automatically calculate the respective dimension keeping aspect ratio.
+
+#### fxl.sys
+- Option `preallocate` now defaults to `false`, since only high performance applications need preallocation.
+- Method `span` now sends parameter `dt` right after `t`.
+
+#### glsl
+- Directive '#use' replaced with '//@use' for cleaner syntax.
+- Added snippets `vert-defs` and `frag-defs` to include default uniforms and in/out for the vertex and fragment shaders.
+- Added function `norm` to normalize from [-1,1] to [0,1].
+- Updated snippets to reflect the changes to the v_resolution uniform.
+
+#### ShaderProgram
+- Added static method `create` with support to specify all shader sources (vertex, fragment and geometry) in a single string.
+
+#### Canvas
+- Added shader program `fwrap` to support frame wrapping.
+- Added option `mipmap` and `levels` for method `prepareImage`, used to setup mipmap on a texture.
+- Added method `renderImageMipmap` similar to `renderImage` but with mipmap support.
+- Vector `v_resolution` changed to 4-component vector, second half (z and w) has the screen logical resolution after the flip flag has been applied (if any).
+
+#### Container
+- Added handler `ldraw` executed after the container is drawn.
+
+#### Drawable
+- Added method `resize` to change the logical size of the drawable.
+
+#### System
+- Changed `tempDisplayBuffer` size from 320x240 to 640x480.
+
+#### Resources
+- Method `load` now also executes the progress callback for every resource in an array resource (i.e. images).
+
+<br/>
+
 # v2.2.3 - Apr 30 2022
 
 #### General

@@ -1208,7 +1208,13 @@ export class Canvas
 	/**
 	 * 	Executes the `draw` function on a new canvas of the specified width and height. Renders it into an image and runs the completed callback with the ready HTMLImageElement object.
 	 */
-	static renderImage (width: number, height: number, filter: 'NEAREST'|'LINEAR', draw: (g: Canvas) => void, completed: (img: HTMLImageElement) => void) : void;
+	static renderImage (width: number, height: number, draw: (g: Canvas) => void, completed: (img: HTMLImageElement, url: string) => void) : void;
+
+	/**
+	 * Executes the `draw` function on a new canvas of the specified width and height. Renders it into an image and runs the completed callback with the ready HTMLImageElement object,
+	 * note that this function will generate mipmap images.
+	 */
+	static renderImageMipmap (levels: number, width: number, height: number, draw: (g: Canvas) => void, completed: (img: HTMLImageElement, url: string) => void) : void;
 
 }
 
@@ -3714,6 +3720,11 @@ export class Container
 	readonly drawCount: number;
 
 	/**
+	 * Draw handler executed after the scene is drawn.
+	 */
+	readonly ldraw: Handler;
+
+	/**
 	 * Constructs the container with the default size (32768 x 32768).
 	 */
 	constructor ();
@@ -4098,11 +4109,6 @@ export class Scene
 	readonly lupdater: Handler;
 
 	/**
-	 * Draw handler executed after the scene is drawn.
-	 */
-	readonly ldraw: Handler;
-
-	/**
 	 * Destroyer runs when the scene is destroyed.
 	 */
 	readonly destroyer: Handler;
@@ -4444,6 +4450,11 @@ export class Drawable
 	 * Returns the underlying Image object, can be used directly with Canvas.drawImage.
 	 */
 	getImage(): HTMLImageElement|Canvas;
+
+	/**
+	 * Resizes the logical dimensions of the drawable.
+	 */
+	resize (width: number|boolean|null, height: number|boolean|null) : Drawable;
 
 	/**
 	 * Draws the drawable on the canvas.
@@ -5066,7 +5077,7 @@ export namespace fxl
 	/**
 	 * Creates a a time-span callback.
 	 */
-	static span (period: number, callback: (t:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : void;
+	static span (period: number, callback: (t:number, dt:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : void;
 
 }
 	/**
