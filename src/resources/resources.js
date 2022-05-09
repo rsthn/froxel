@@ -281,6 +281,9 @@ Object.assign(Resources,
 					tmp.data = new Image ();
 					tmp.resName = r.resName + "#" + (r._i - 1);
 
+					if (progressCallback)
+						progressCallback (index, keyList.length, index / keyList.length, r.resName + '/' + (r._i - 1));
+
 					tmp.data.onload = function ()
 					{
 						var ratio = tmp.data.width / tmp.data.height;

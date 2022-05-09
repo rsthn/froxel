@@ -304,7 +304,7 @@ Canvas.prototype.initGl = function ()
 		uniform mat3 m_transform;
 		uniform mat3 m_quad;
 		uniform mat3 m_texture;
-		uniform vec2 v_resolution;
+		uniform vec4 v_resolution;
 		uniform vec4 v_frame_size;
 		uniform float f_depth;
 
@@ -350,7 +350,7 @@ Canvas.prototype.initGl = function ()
 		uniform mat3 m_transform;
 		uniform mat3 m_quad;
 		uniform mat3 m_texture;
-		uniform vec2 v_resolution;
+		uniform vec4 v_resolution;
 		uniform float f_depth;
 
 		in vec3 location;
@@ -389,7 +389,7 @@ Canvas.prototype.initGl = function ()
 
 	new Shader ('blit-vert', Shader.Type.VERTEX,
 	`
-		uniform vec2 v_resolution;
+		uniform vec4 v_resolution;
 		uniform mat3 m_quad;
 		uniform mat3 m_texture;
 
@@ -399,7 +399,7 @@ Canvas.prototype.initGl = function ()
 		//@use snorm
 
 		void main() {
-			gl_Position = vec4(snorm(vec2(m_quad * location) / v_resolution), 0.0, 1.0);
+			gl_Position = vec4(snorm(vec2(m_quad * location) / v_resolution.xy), 0.0, 1.0);
 			texcoords = vec2(m_texture * location);
 		}
 	`);
@@ -471,7 +471,7 @@ Canvas.prototype.initGl = function ()
 	/* *** */
 	this.m_quad = new Float32Array(9).fill(0);
 	this.m_texture = new Float32Array(9).fill(0);
-	this.v_resolution = new Float32Array(2).fill(0);
+	this.v_resolution = new Float32Array(4).fill(0);
 	this.zvalue = 0;
 
 	Matrix.loadIdentity(this.m_quad);
@@ -498,7 +498,7 @@ Canvas.prototype.initGl = function ()
 			frameHeight = img.targetHeight;
 		}
 
-		program.uniform2fv ('v_resolution', this.v_resolution);
+		program.uniform4fv ('v_resolution', this.v_resolution);
 		program.uniform1f ('f_time', globals.time);
 		program.uniform1f ('f_scale', this._globalScale);
 		program.uniform1f ('f_alpha', this._alpha);
@@ -538,7 +538,7 @@ Canvas.prototype.initGl = function ()
 		let gl = this.gl;
 		let program = globals.shaderProgram;
 
-		program.uniform2fv ('v_resolution', this.v_resolution);
+		program.uniform4fv ('v_resolution', this.v_resolution);
 		program.uniform1f ('f_time', globals.time);
 		program.uniform1f ('f_scale', this._globalScale);
 		program.uniform1f ('f_alpha', this._alpha);
@@ -735,6 +735,9 @@ Canvas.prototype.resize = function (width, height)
 
 			this.v_resolution[0] = this.width;
 			this.v_resolution[1] = this.height;
+
+			this.v_resolution[2] = this.width;
+			this.v_resolution[3] = this.height;
 		}
 	}
 
@@ -777,6 +780,15 @@ Canvas.prototype.flipped = function (value)
 	{
 		this._width = int(this.width / this._globalScale);
 		this._height = int(this.height / this._globalScale);
+	}
+
+	if (this.gl != null && this.v_resolution)
+	{
+		this.v_resolution[0] = this.width;
+		this.v_resolution[1] = this.height;
+
+		this.v_resolution[2] = value ? this.height : this.width;
+		this.v_resolution[3] = value ? this.width : this.height;
 	}
 
 	this.isFlipped = value;
@@ -1437,7 +1449,7 @@ Canvas.prototype.blit = function (texture, width, height, shaderProgram=null)
 		gl.bindTexture (gl.TEXTURE_2D, texture);
 		shaderProgram.uniform1i ('texture0', 0);
 
-		shaderProgram.uniform2fv ('v_resolution', this.v_resolution);
+		shaderProgram.uniform4fv ('v_resolution', this.v_resolution);
 		shaderProgram.uniform1f ('f_time', globals.time);
 		shaderProgram.uniform1f ('f_scale', this._globalScale);
 		shaderProgram.uniform1f ('f_alpha', this._alpha);

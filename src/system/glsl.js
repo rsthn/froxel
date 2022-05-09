@@ -114,8 +114,10 @@ glsl.set('vert-defs', `
 	uniform mat3 m_transform;
 	uniform mat3 m_quad;
 	uniform mat3 m_texture;
-	uniform vec2 v_resolution;
+	uniform vec4 v_resolution;
 	uniform vec4 v_frame_size;
+	uniform float f_scale;
+	uniform float f_time;
 	uniform float f_depth;
 
 	in vec3 location;
@@ -123,7 +125,10 @@ glsl.set('vert-defs', `
 `);
 
 glsl.set('frag-defs', `
+	uniform vec4 v_resolution;
 	uniform vec4 v_frame_size;
+	uniform float f_scale;
+	uniform float f_time;
 	uniform float f_alpha;
 	uniform sampler2D texture0;
 
@@ -168,7 +173,7 @@ glsl.set('location2d', `
 
 	vec4 location2d (vec3 location, float depth)
 	{
-		vec2 loc = vec2(m_transform * m_quad * location) / v_resolution;
+		vec2 loc = vec2(m_transform * m_quad * location) / v_resolution.xy;
 		return vec4(invertY(snorm(loc)), depth/16777216.0, 1.0);
 	}
 `);
