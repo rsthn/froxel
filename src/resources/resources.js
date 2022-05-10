@@ -243,12 +243,11 @@ Object.assign(Resources,
 				break;
 
 			case "images":
+				let src = r.src;
 
-				var src = r.src;
-
-				var d0 = src.indexOf("#");
-				var d1 = src.lastIndexOf("#");
-				var dN = d1 - d0 + 1;
+				let d0 = src.indexOf("#");
+				let d1 = src.lastIndexOf("#");
+				let dN = d1 - d0 + 1;
 
 				if (d0 == -1)
 				{
@@ -282,7 +281,7 @@ Object.assign(Resources,
 					tmp.resName = r.resName + "#" + (r._i - 1);
 
 					if (progressCallback)
-						progressCallback (index, keyList.length, index / keyList.length, r.resName + '/' + (r._i - 1));
+						progressCallback (index, keyList.length, (index / keyList.length) + ((r._i-1)/r.count)*(1 / keyList.length), r.resName + '/' + (r._i-1));
 
 					tmp.data.onload = function ()
 					{

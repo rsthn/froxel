@@ -32,7 +32,7 @@ import Recycler from '../utils/recycler.js';
 
 //!namespace System
 
-	//:type DisplayOrientation = 'default'|'landscape'|'portrait'|'automatic';
+	//:type DisplayOrientation = 'default'|'landscape'|'portrait'|'automatic'|'strict';
 
 	//!type Options =
 
@@ -833,7 +833,7 @@ const System =
 	 * 	Executed when the size of the window has changed.
 	 * 	static onWindowResized (notRendering: boolean = false) : void;
 	 */
-	onWindowResized: function(notRendering=false)
+	onWindowResized: function (notRendering=false)
 	{
 		// Determine size of the screen.
 		if ('document' in global)

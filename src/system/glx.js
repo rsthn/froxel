@@ -1,4 +1,4 @@
-//!namespace gl
+//!namespace glx
 
 	//!enum BufferTarget
 		//:ARRAY_BUFFER
@@ -25,9 +25,9 @@
 
 //!/namespace
 
-//!class gl
+//!class glx
 
-const gl =
+const glx =
 {
 	BufferTarget: { },
 	BufferUsage: { },
@@ -101,12 +101,12 @@ const gl =
 	 * Creates a buffer from the specified array.
 	 * @param {BufferTarget} target Defaults to ARRAY_BUFFER.
 	 * @param {BufferUsage} usage Defaults to STATIC_DRAW.
-	 * !static createBufferFrom (data: any, target?: gl.BufferTarget, usage?: gl.BufferUsage, offset?: number, length?: number) : WebGLBuffer;
+	 * !static createBufferFrom (data: any, target?: glx.BufferTarget, usage?: glx.BufferUsage, offset?: number, length?: number) : WebGLBuffer;
 	 */
 	createBufferFrom: function (data, target=null, usage=null, offset=null, length=null)
 	{
-		target = target ?? gl.BufferTarget.ARRAY_BUFFER;
-		usage = usage ?? gl.BufferUsage.STATIC_DRAW;
+		target = target ?? glx.BufferTarget.ARRAY_BUFFER;
+		usage = usage ?? glx.BufferUsage.STATIC_DRAW;
 
 		let buff = this.gl.createBuffer();
 		this.gl.bindBuffer (target, buff);
@@ -119,4 +119,4 @@ const gl =
 
 //!/class
 
-export default gl;
+export default glx;

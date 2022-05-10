@@ -736,7 +736,7 @@ export namespace Matrix
 }
 
 
-export namespace gl
+export namespace glx
 {
 	enum BufferTarget
 	{
@@ -765,7 +765,7 @@ export namespace gl
 
 }
 
-export class gl
+export class glx
 {
 	/**
 	 * WebGL rendering context.
@@ -792,7 +792,7 @@ export class gl
 	 * @param {BufferTarget} target Defaults to ARRAY_BUFFER.
 	 * @param {BufferUsage} usage Defaults to STATIC_DRAW.
 	 */
-	static createBufferFrom (data: any, target?: gl.BufferTarget, usage?: gl.BufferUsage, offset?: number, length?: number) : WebGLBuffer;
+	static createBufferFrom (data: any, target?: glx.BufferTarget, usage?: glx.BufferUsage, offset?: number, length?: number) : WebGLBuffer;
 
 }
 /**
@@ -1220,7 +1220,7 @@ export class Canvas
 
 export namespace System
 {
-	type DisplayOrientation = 'default'|'landscape'|'portrait'|'automatic';
+	type DisplayOrientation = 'default'|'landscape'|'portrait'|'automatic'|'strict';
 	type Options =
 	{
 		/**

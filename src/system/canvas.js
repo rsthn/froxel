@@ -532,8 +532,8 @@ Canvas.prototype.initGl = function ()
 		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 	};
 
-	// drawRect (float x, float y, float w, float h);
-	this.drawRect = function (x, y, w, h)
+	// drawRect (float x, float y, float w, float h, Image img=null);
+	this.drawRect = function (x, y, w, h, img=null)
 	{
 		let gl = this.gl;
 		let program = globals.shaderProgram;
@@ -558,7 +558,7 @@ Canvas.prototype.initGl = function ()
 		gl.uniformMatrix3fv (program.getUniformLocation('m_transform'), false, this.transform.data);
 		gl.uniformMatrix3fv (program.getUniformLocation('m_quad'), false, this.m_quad);
 		gl.uniformMatrix3fv (program.getUniformLocation('m_texture'), false, this.m_texture);
-		gl.uniform1f ('f_depth', this.zvalue);
+		gl.uniform1f (program.getUniformLocation('f_depth'), this.zvalue);
 		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 	};
 };
