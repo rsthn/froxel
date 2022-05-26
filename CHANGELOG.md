@@ -1,3 +1,35 @@
+# v2.2.5 - May 26 2022
+
+#### System
+- Added new orientation type `strict` to ensure target resolution is always preserved.
+
+#### Resources
+- Progress level calculated better to provide smooth progress updates when using `images` resource.
+- Function `onLoad` is now async, and method `init` of the loaded resources will be executed if it exists.
+
+#### Updater
+- Method `add` now returns the element instead of boolean.
+
+#### Global
+- Added functions `norm` and `snorm` to handle normalized values.
+- Added functions `clamp` and `map` with the same functionality as the GLSL ones.
+
+#### Scene
+- Added `name` property (can be set when constructing the scene) to debug drawCounts easily.
+- Number of elements drawn will be sent as a variable to the Log when on-screen log is enabled.
+
+#### World
+- Method `init` now creates the scenes with their appropriate names.
+- Method `createScene` now allows to specify the name of the scene.
+
+#### Log
+- Renamed property `activated` to `enabled` to be more semantically correct.
+
+#### Custom
+- Added `init` method to setup the resource asynchronously.
+
+<br/>
+
 # v2.2.4 - May 09 2022
 
 #### Bounds2

@@ -1503,7 +1503,7 @@ export namespace Log
 	/**
 	 * 	Indicates if the log module is enabled.
 	 */
-	let activated: boolean;
+	let enabled: boolean;
 
 	/**
 	 * 	Indicates if the log module is paused.
@@ -2579,6 +2579,26 @@ declare global
 	 * Pads the given value with a character (added to the right) until the specified size is reached.
 	 */
 	function rpad (val: any, size: number, char?: string) : string;
+
+	/**
+	 * Returns the normalized (0 to 1) value for the given signed-normalized (-1 to 1) value.
+	 */
+	function norm (value: number) : number;
+
+	/**
+	 * Returns the signed-normalized (-1 to 1) value for the given normalized (0 to 1) value.
+	 */
+	function snorm (value: number) : number;
+
+	/**
+	 * Clamps the specified value to the (Unknown: x0,) range.
+	 */
+	function clamp (value: number, x0?: number, x1?: number) : number;
+
+	/**
+	 * Maps the given value from (Unknown: a0,) to (Unknown: b0,).
+	 */
+	function map (value: number, a0: number, a1: number, b0: number, b1: number) : number;
 
 }
 
@@ -4129,10 +4149,16 @@ export class Scene
 	readonly zvalue: number;
 
 	/**
+	 * Name of the layer.
+	 */
+	readonly name: string;
+
+	/**
 	 * Constructs an empty scene with the specified index.
 	 * @param index - Index for the scene. Used to calculate the base z-value of the scene. Valid range is from 0 to 3.
+	 * @param name - Name of the scene, used for debugging purposes. If none provided SCENE_X will be used where X is the scene's index.
 	 */
-	constructor (index: number);
+	constructor (index: number, name?: string);
 
 	/**
 	 * Clears the scene leaving only viewports.
@@ -4803,7 +4829,7 @@ export class Button extends Group
 	containsPoint (x: number, y: number) : boolean;
 
 	/**
-	 * 	Executed after any change in the status of the button. Be careful when overriding this, because when so, the `onTap` method will not work.
+	 * 	Executed after any change in the status of the button. Be careful when overriding this, because when so, the `onTap`, `onButtonDown` and `onButtonUp` methods will not work.
 	 */
 	onChange (isPressed: boolean, wasPressed: boolean, button: Button) : void;
 
@@ -5161,7 +5187,7 @@ export class world
 	/**
 	 * Creates a scene at the specified index and automatically selects it.
 	 */
-	static createScene (index: number) : void;
+	static createScene (index: number, name?: string) : void;
 
 	/**
 	 * Returns the scene at the specified index (or the active scene if no index provided).
