@@ -7566,7 +7566,9 @@ $e9bde19fe1534480$export$2e2bcd8739ae039 = $f2a87ce0e4ca782b$export$2e2bcd8739ae
         this._super.Drawable.__ctor(null, r.width, r.height);
         this.r = r;
         this.r.wrapper = this;
-        $f7388fefeedc4aac$export$2e2bcd8739ae039.renderImage(r.width, r.height, (g)=>{
+    },
+    init: function(callback) {
+        $f7388fefeedc4aac$export$2e2bcd8739ae039.renderImage(this.r.width, this.r.height, (g)=>{
             if (this.r.draw !== null && typeof this.r.draw === 'function') this.r.draw(g, this.r);
             else {
                 g.fillStyle(this.r.color);
@@ -7576,6 +7578,7 @@ $e9bde19fe1534480$export$2e2bcd8739ae039 = $f2a87ce0e4ca782b$export$2e2bcd8739ae
             this.resource = img;
             this.swidth = this.resource.width;
             this.sheight = this.resource.height;
+            callback();
         });
     }
 });
@@ -8227,8 +8230,9 @@ Object.assign($0150c0894dfca188$var$Resources, {
                     // Pre-draw on an offscreen canvas, used to prevent a delay when rendering an image for the first time on some browsers.
                     $c5f44d8482fd28c9$export$2e2bcd8739ae039.tempDisplayBuffer.drawImage(r.data, 0, 0);
                     $c5f44d8482fd28c9$export$2e2bcd8739ae039.renderer.prepareImage(r.data);
-                    $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index]);
-                    $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                    $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index], ()=>{
+                        $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                    });
                 };
                 r.data.onerror = function() {
                     console.error("Error: Unable to load: " + r.resName);
@@ -8252,8 +8256,9 @@ Object.assign($0150c0894dfca188$var$Resources, {
                 r.data = [];
                 var cb = function() {
                     if (r._i == r.count) {
-                        $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index]);
-                        $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                        $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index], ()=>{
+                            $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                        });
                         return;
                     }
                     // violet :add support for extraScale
@@ -8322,8 +8327,9 @@ Object.assign($0150c0894dfca188$var$Resources, {
                     r.engine = $f6d10e9657762025$exports.Sound.ENGINE_NATIVEAUDIO;
                     r.data = "snd_" + index;
                     $parcel$global.plugins.NativeAudio.preloadSimple(r.data, r.src, function() {
-                        $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index]);
-                        $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                        $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index], ()=>{
+                            $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                        });
                     }, function(e) {
                         console.error("Error: Unable to load (sfx): " + r.resName + "\n" + e);
                     });
@@ -8337,8 +8343,9 @@ Object.assign($0150c0894dfca188$var$Resources, {
                     r.engine = $f6d10e9657762025$exports.Sound.ENGINE_WEBAUDIO;
                     fetchAudioBuffer(r.src + "?r=" + Math.random()).then((audioBuffer)=>{
                         r.data = audioBuffer;
-                        $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index]);
-                        $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                        $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index], ()=>{
+                            $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                        });
                     }).catch((err)=>{
                         console.error("Error: Unable to load: " + r.resName);
                     });
@@ -8351,8 +8358,9 @@ Object.assign($0150c0894dfca188$var$Resources, {
                 r.data = new Audio();
                 r.engine = $f6d10e9657762025$exports.Sound.ENGINE_HTML5;
                 r.data.oncanplaythrough = function() {
-                    $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index]);
-                    $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                    $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index], ()=>{
+                        $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                    });
                 };
                 r.data.onerror = function() {
                     console.error("Error: Unable to load: " + r.resName);
@@ -8376,8 +8384,9 @@ Object.assign($0150c0894dfca188$var$Resources, {
                 r.data = [];
                 var cb = function() {
                     if (r._i == r.count) {
-                        $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index]);
-                        $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                        $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index], ()=>{
+                            $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                        });
                         return;
                     }
                     var tmp = {
@@ -8427,8 +8436,9 @@ Object.assign($0150c0894dfca188$var$Resources, {
                     responseType: 'json'
                 }).then(function(json) {
                     r.data = json;
-                    $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index]);
-                    $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                    $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index], ()=>{
+                        $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                    });
                 }).catch(function(err) {
                     console.error("Error: Unable to load: " + r.resName + ". Error: " + err);
                 });
@@ -8436,8 +8446,9 @@ Object.assign($0150c0894dfca188$var$Resources, {
             case "data":
                 fetchd(r.src + "?r=" + Math.random()).then(function(arraybuffer) {
                     r.data = arraybuffer;
-                    $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index]);
-                    $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                    $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index], ()=>{
+                        $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                    });
                 }).catch(function(err) {
                     console.error("Error: Unable to load: " + r.resName + ". Error: " + err);
                 });
@@ -8445,16 +8456,18 @@ Object.assign($0150c0894dfca188$var$Resources, {
             case "text":
                 fetchd(r.src + "?r=" + Math.random()).then(function(arrayBuffer) {
                     r.data = String.fromCharCode.apply(null, new Uint8Array(arrayBuffer));
-                    $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index]);
-                    $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                    $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index], ()=>{
+                        $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                    });
                 }).catch(function(err) {
                     console.error("Error: Unable to load: " + r.resName + ". Error: " + err);
                 });
                 break;
             case "object":
                 r.data = {};
-                $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index]);
-                $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                $0150c0894dfca188$var$Resources.onLoaded(list, keyList[index], ()=>{
+                    $0150c0894dfca188$var$Resources.load(list, progressCallback, completeCallback, keyList, index + 1);
+                });
                 break;
         }
     },
@@ -8467,11 +8480,21 @@ Object.assign($0150c0894dfca188$var$Resources, {
     },
     /**
 	 * Executes post-load actions on a resource.
-	 */ onLoaded: function(list, index) {
-        var r = list[index];
-        if (!r.wrapper || !(r.wrapper in $f6d10e9657762025$exports)) return;
+	 */ onLoaded: function(list, index, callback) {
+        let r = list[index];
+        if (!r.wrapper || !(r.wrapper in $f6d10e9657762025$exports)) {
+            callback();
+            return;
+        }
         list[index] = new $f6d10e9657762025$exports[r.wrapper](r);
-        list[index].__loaded = true;
+        if ('init' in list[index]) list[index].init(()=>{
+            list[index].__loaded = true;
+            callback();
+        });
+        else {
+            list[index].__loaded = true;
+            callback();
+        }
     },
     /**
 	 * Resizes the given image to the specified size.

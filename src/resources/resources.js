@@ -231,8 +231,9 @@ Object.assign(Resources,
 					System.tempDisplayBuffer.drawImage(r.data, 0, 0);
 					System.renderer.prepareImage(r.data);
 
-					Resources.onLoaded (list, keyList[index]);
-					Resources.load (list, progressCallback, completeCallback, keyList, index+1);
+					Resources.onLoaded (list, keyList[index], () => {
+						Resources.load (list, progressCallback, completeCallback, keyList, index+1);
+					});
 				};
 
 				r.data.onerror = function () {
@@ -268,8 +269,10 @@ Object.assign(Resources,
 				{
 					if (r._i == r.count)
 					{
-						Resources.onLoaded (list, keyList[index]);
-						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+						Resources.onLoaded (list, keyList[index], () => {
+							Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+						});
+
 						return;
 					}
 
@@ -380,8 +383,9 @@ Object.assign(Resources,
 
 					global.plugins.NativeAudio.preloadSimple(r.data, r.src,
 						function() {
-							Resources.onLoaded (list, keyList[index]);
-							Resources.load (list, progressCallback, completeCallback, keyList, index + 1);		
+							Resources.onLoaded (list, keyList[index], () => {
+								Resources.load (list, progressCallback, completeCallback, keyList, index + 1);		
+							});
 						},
 						function(e) {
 							console.error("Error: Unable to load (sfx): " + r.resName + "\n" + e);
@@ -403,8 +407,9 @@ Object.assign(Resources,
 					fetchAudioBuffer (r.src + "?r=" + Math.random())
 					.then (audioBuffer => {
 						r.data = audioBuffer;
-						Resources.onLoaded (list, keyList[index]);
-						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);		
+						Resources.onLoaded (list, keyList[index], () => {
+							Resources.load (list, progressCallback, completeCallback, keyList, index + 1);		
+						});
 					})
 					.catch (err => {
 						console.error("Error: Unable to load: " + r.resName);
@@ -423,8 +428,9 @@ Object.assign(Resources,
 
 				r.data.oncanplaythrough = function ()
 				{
-					Resources.onLoaded (list, keyList[index]);
-					Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+					Resources.onLoaded (list, keyList[index],  () => {
+						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+					});
 				};
 
 				r.data.onerror = function ()
@@ -462,8 +468,9 @@ Object.assign(Resources,
 				{
 					if (r._i == r.count)
 					{
-						Resources.onLoaded (list, keyList[index]);
-						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+						Resources.onLoaded (list, keyList[index], () => {
+							Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+						});
 						return;
 					}
 
@@ -536,8 +543,9 @@ Object.assign(Resources,
 				{
 					r.data = json;
 
-					Resources.onLoaded (list, keyList[index]);
-					Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+					Resources.onLoaded (list, keyList[index], () => {
+						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+					});
 				})
 				.catch(function(err)
 				{
@@ -552,8 +560,9 @@ Object.assign(Resources,
 				{
 					r.data = arraybuffer;
 
-					Resources.onLoaded (list, keyList[index]);
-					Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+					Resources.onLoaded (list, keyList[index], () => {
+						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+					});
 				})
 				.catch(function(err)
 				{
@@ -568,8 +577,9 @@ Object.assign(Resources,
 				{
 					r.data = String.fromCharCode.apply(null, new Uint8Array(arrayBuffer));
 
-					Resources.onLoaded (list, keyList[index]);
-					Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+					Resources.onLoaded (list, keyList[index], () => {
+						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+					});
 				})
 				.catch(function(err)
 				{
@@ -581,8 +591,9 @@ Object.assign(Resources,
 			case "object":
 				r.data = { };
 
-				Resources.onLoaded (list, keyList[index]);
-				Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+				Resources.onLoaded (list, keyList[index], () => {
+					Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
+				});
 				break;
 		}
 	},
@@ -645,13 +656,28 @@ Object.assign(Resources,
 	/**
 	 * Executes post-load actions on a resource.
 	 */
-	onLoaded: function (list, index)
+	onLoaded: function (list, index, callback)
 	{
-		var r = list[index];
-		if (!r.wrapper || !(r.wrapper in Wrappers)) return;
+		let r = list[index];
+		if (!r.wrapper || !(r.wrapper in Wrappers))
+		{
+			callback();
+			return;
+		}
 
 		list[index] = new Wrappers[r.wrapper] (r);
-		list[index].__loaded = true;
+
+		if ('init' in list[index])
+		{
+			list[index].init(() => {
+				list[index].__loaded = true;
+				callback();
+			});
+		}
+		else {
+			list[index].__loaded = true;
+			callback();
+		}
 	},
 
 	/**

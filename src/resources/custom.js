@@ -32,8 +32,11 @@ export default Drawable.extend
 
 		this.r = r;
 		this.r.wrapper = this;
+	},
 
-		Canvas.renderImage(r.width, r.height,
+	init: function (callback)
+	{
+		Canvas.renderImage(this.r.width, this.r.height,
 		(g) => {
 			if (this.r.draw !== null && typeof(this.r.draw) === 'function') {
 				this.r.draw(g, this.r);
@@ -47,6 +50,7 @@ export default Drawable.extend
 			this.resource = img;
 			this.swidth = this.resource.width;
 			this.sheight = this.resource.height;
+			callback();
 		});
 	}
 });
