@@ -238,7 +238,7 @@ const Container = Class.extend
 
 		g.zvalue = this.zvalue;
 
-		this.drawCount = -1;
+		this.drawCount = 0;
 		this.g = g;
 
 		this.render();

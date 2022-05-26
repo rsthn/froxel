@@ -162,7 +162,7 @@ const world =
 
 		this.bounds.zero().resize(worldWidth, worldHeight);
 
-		this.createScene(world.SCENE_MAIN);
+		this.createScene(world.SCENE_MAIN, 'SCENE_MAIN');
 		this.setContainer(world.LAYER_BG0, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.setContainer(world.LAYER_BG1, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
 		this.setContainer(world.LAYER_BG2, new GridContainer (worldWidth, worldHeight, divisorX, divisorY));
@@ -179,7 +179,7 @@ const world =
 		this.getContainer(world.LAYER_MASK).visible(false);
 		this.createViewport(0);
 
-		this.createScene(world.SCENE_HUD);
+		this.createScene(world.SCENE_HUD, 'SCENE_HUD');
 		this.setContainer(world.LAYER_HUD_BG0, new SimpleContainer (system.screenWidth, system.screenHeight));
 		this.setContainer(world.LAYER_HUD_BG1, new SimpleContainer (system.screenWidth, system.screenHeight));
 		this.setContainer(world.LAYER_HUD_BG2, new SimpleContainer (system.screenWidth, system.screenHeight));
@@ -191,9 +191,9 @@ const world =
 
 	/**
 	 * Creates a scene at the specified index and automatically selects it.
-	 * !static createScene (index: number) : void;
+	 * !static createScene (index: number, name?: string) : void;
 	 */
-	createScene: function (index)
+	createScene: function (index, name=null)
 	{
 		if (this._scenes[index])
 		{
@@ -201,7 +201,7 @@ const world =
 			global.dispose(this._scenes[index]);
 		}
 
-		this._scenes[index] = new Scene(index);
+		this._scenes[index] = new Scene(index, name);
 		System.queueAdd(this._scenes[index]);
 
 		this.selectScene(index);

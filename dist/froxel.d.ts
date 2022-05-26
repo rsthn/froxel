@@ -2456,14 +2456,14 @@ declare global
 	function float4 (value: number) : number;
 
 	/**
-	 * Converts the given value to radians.
+	 * Converts the given value from degrees to radians.
 	 */
-	function rad (value: number) : number;
+	function rad (degrees: number) : number;
 
 	/**
-	 * Converts the given value to degrees.
+	 * Converts the given value from radians to degrees.
 	 */
-	function deg (value: number) : number;
+	function deg (radians: number) : number;
 
 	/**
 	 * Returns a random integer value from 0 to 0xFFFF (inclusive).
@@ -4251,7 +4251,7 @@ export class Updater
 	/**
 	 * 	Adds an element to the updater.
 	 */
-	add (elem: Element) : boolean;
+	add (elem: Element) : Element;
 
 	/**
 	 * 	Removes an element from the updater.

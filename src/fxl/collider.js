@@ -123,7 +123,7 @@ const collider =
 	 * 	@param layerIndex - Index within the scene of the layer where element masks are stored. Uses world.LAYER_MASK if none specified.
 	 * 	!static enable (sceneIndex?: number, layerIndex?: number) : void;
 	 */
-	enable: function(sceneIndex=null, layerIndex=null)
+	enable: function (sceneIndex=null, layerIndex=null)
 	{
 		this.scene = world.getScene(sceneIndex || world.SCENE_MAIN);
 		this.maskLayer = this.scene.getContainer(layerIndex || world.LAYER_MASK);

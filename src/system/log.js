@@ -30,9 +30,9 @@ const Log =
 {
 	/**
 	 * 	Indicates if the log module is enabled.
-	 *	!let activated: boolean;
+	 *	!let enabled: boolean;
 	 */
-	activated: false,
+	enabled: false,
 
 	/**
 	 * 	Indicates if the log module is paused.
@@ -48,7 +48,6 @@ const Log =
 
 	data: List.Pool.alloc(),
 	count: 0,
-
 
 	/**
 	 * 	Indicates if output showuld also be passed to `console.debug` as secondary echo.
@@ -113,8 +112,8 @@ const Log =
 	 */
 	enable: function (x=0, y=0, fontSize=9.5, showFps=true, showIndex=true)
 	{
-		if (this.activated) return;
-		this.activated = true;
+		if (this.enabled) return;
+		this.enabled = true;
 
 		if (!showFps) y -= 16;
 		let _y = y;

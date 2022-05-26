@@ -6324,8 +6324,8 @@ $c5f44d8482fd28c9$export$2e2bcd8739ae039 = $c5f44d8482fd28c9$var$System;
 const $d0de706be9d545de$var$Log = {
     /**
 	 * 	Indicates if the log module is enabled.
-	 *	!let activated: boolean;
-	 */ activated: false,
+	 *	!let enabled: boolean;
+	 */ enabled: false,
     /**
 	 * 	Indicates if the log module is paused.
 	 * 	!let paused: boolean;
@@ -6379,8 +6379,8 @@ const $d0de706be9d545de$var$Log = {
 	 *
 	 * 	!function enable (x?: number, y?: number, fontSize?: number, showFps?: boolean, showIndex?: boolean) : void;
 	 */ enable: function(x = 0, y = 0, fontSize = 9.5, showFps = true, showIndex = true) {
-        if (this.activated) return;
-        this.activated = true;
+        if (this.enabled) return;
+        this.enabled = true;
         if (!showFps) y -= 16;
         let _y = y;
         $c5f44d8482fd28c9$export$2e2bcd8739ae039.drawQueueAdd({
@@ -6592,16 +6592,16 @@ var $fdb3e373096c6ca3$export$2e2bcd8739ae039 = $fdb3e373096c6ca3$var$globals;
     return int(value * 10000) / 10000;
 };
 /**
- * Converts the given value to radians.
- * !function rad (value: number) : number;
- */ $parcel$global.rad = function(value) {
-    return value * Math.PI / 180;
+ * Converts the given value from degrees to radians.
+ * !function rad (degrees: number) : number;
+ */ $parcel$global.rad = function(degrees) {
+    return degrees * Math.PI / 180.0;
 };
 /**
- * Converts the given value to degrees.
- * !function deg (value: number) : number;
- */ $parcel$global.deg = function(value) {
-    return value / Math.PI * 180;
+ * Converts the given value from radians to degrees.
+ * !function deg (radians: number) : number;
+ */ $parcel$global.deg = function(radians) {
+    return radians / Math.PI * 180;
 };
 /**
  * Returns a random integer value from 0 to 0xFFFF (inclusive).
@@ -6795,6 +6795,30 @@ var $fdb3e373096c6ca3$export$2e2bcd8739ae039 = $fdb3e373096c6ca3$var$globals;
  */ $parcel$global.rpad = function(val, size, char = '0') {
     val = val.toString();
     return val + repeat(char.charAt(0), size - val.length);
+};
+/**
+ * Returns the normalized (0 to 1) value for the given signed-normalized (-1 to 1) value.
+ * !function norm (value: number) : number;
+ */ $parcel$global.norm = function(value) {
+    return (value + 1.0) * 0.5;
+};
+/**
+ * Returns the signed-normalized (-1 to 1) value for the given normalized (0 to 1) value.
+ * !function snorm (value: number) : number;
+ */ $parcel$global.snorm = function(value) {
+    return value * 2.0 - 1.0;
+};
+/**
+ * Clamps the specified value to the [x0, x1] range.
+ * !function clamp (value: number, x0?: number, x1?: number) : number;
+ */ $parcel$global.clamp = function(value, x0 = 0.0, x1 = 1.0) {
+    return value < x0 ? x0 : value > x1 ? x1 : value;
+};
+/**
+ * Maps the given value from [a0, a1] to [b0, b1].
+ * !function map (value: number, a0: number, a1: number, b0: number, b1: number) : number;
+ */ $parcel$global.map = function(value, a0, a1, b0, b1) {
+    return (value - a0) * (b1 - b0) / (a1 - a0) + b0;
 };
 
 
@@ -12985,7 +13009,7 @@ const $56aaa5487c41abd4$var$Container = $hNLgQ.Class.extend({
         if (!this.visible()) return;
         let depthFlagChanged = g.pushDepthFlag(this.flags & $56aaa5487c41abd4$var$Container.DEPTH_FLAG);
         g.zvalue = this.zvalue;
-        this.drawCount = -1;
+        this.drawCount = 0;
         this.g = g;
         this.render();
         this.ldraw.exec(g);
@@ -14050,6 +14074,7 @@ var $db57198fb17fd645$export$2e2bcd8739ae039 = $db57198fb17fd645$var$Group;
 
 
 
+
 //![import "./container"]
 //![import "./viewport"]
 //![import "./group"]
@@ -14133,10 +14158,15 @@ const $1e3a2ce488585bd2$var$Scene = $hNLgQ.Class.extend({
 	 * !readonly zvalue: number;
 	 */ zvalue: null,
     /**
+	 * Name of the layer.
+	 * !readonly name: string;
+	 */ name: null,
+    /**
 	 * Constructs an empty scene with the specified index.
 	 * @param index - Index for the scene. Used to calculate the base z-value of the scene. Valid range is from 0 to 3.
-	 * !constructor (index: number);
-	 */ __ctor: function(index) {
+	 * @param name - Name of the scene, used for debugging purposes. If none provided SCENE_X will be used where X is the scene's index.
+	 * !constructor (index: number, name?: string);
+	 */ __ctor: function(index, name = null) {
         this.containers = [];
         /**
 		 * 	Z-value is a 24-bit value constructed as:
@@ -14144,6 +14174,7 @@ const $1e3a2ce488585bd2$var$Scene = $hNLgQ.Class.extend({
 		 *		4-bits: Container Index
 		 *		18-bits: Element z-value
 		 */ this.zvalue = (index & 3) << 22;
+        this.name = name !== null ? name : "SCENE_" + index;
         this.viewports = [];
         this.viewportBounds = $6c1a77cc22998ccc$export$2e2bcd8739ae039.Pool.alloc();
         this.groupList = $f6bd4ab8b6c953de$export$2e2bcd8739ae039.Pool.alloc();
@@ -14310,11 +14341,7 @@ const $1e3a2ce488585bd2$var$Scene = $hNLgQ.Class.extend({
 	 */ draw: function(g) {
         if (!this.visible()) return;
         this.drawCount = 0;
-        if (!this.viewports.length) {
-            this.drawContainers(g, null);
-            return;
-        }
-        for(let viewportIndex = 0; viewportIndex < this.viewports.length; viewportIndex++){
+        if (this.viewports.length) for(let viewportIndex = 0; viewportIndex < this.viewports.length; viewportIndex++){
             let viewport = this.viewports[viewportIndex];
             if (!viewport || !viewport.enabled()) continue;
             $fdb3e373096c6ca3$export$2e2bcd8739ae039.viewport = viewport;
@@ -14327,6 +14354,8 @@ const $1e3a2ce488585bd2$var$Scene = $hNLgQ.Class.extend({
             g.popMatrix();
             g.popClip();
         }
+        else this.drawContainers(g, null);
+        if ($d0de706be9d545de$export$2e2bcd8739ae039.enabled) $d0de706be9d545de$export$2e2bcd8739ae039.vars[this.name] = this.drawCount;
     },
     /**
 	 * Draws the scene containers and passes the specified viewport bounds to the container.
@@ -14460,12 +14489,12 @@ const $f90accd4e9a34560$var$Updater = $hNLgQ.Class.extend({
     },
     /**
 	 * 	Adds an element to the updater.
-	 * 	!add (elem: Element) : boolean;
+	 * 	!add (elem: Element) : Element;
 	 */ add: function(elem) {
-        if (!$09f047381ad3e737$export$2e2bcd8739ae039.isInstance(elem)) throw new Error('argument must be an Element');
+        if (!$09f047381ad3e737$export$2e2bcd8739ae039.isInstance(elem)) throw new Error('argument must be of type: Element');
         this.list.push(elem);
         elem.remover.add(this._remove, this, this.list.bottom);
-        return true;
+        return elem;
     },
     /**
 	 * 	Callback to remove an element from the updater (called by Handler).
@@ -15370,7 +15399,7 @@ $13eb70d37a7efcb1$export$2e2bcd8739ae039 = $db57198fb17fd645$export$2e2bcd8739ae
 	 * 	Sets the pressed state of the button.
 	 * 	!setStatus (value: boolean) : Button;
 	 */ setStatus: function(value) {
-        if (this.isPressed && value || !this.isPressed && !value) return this;
+        if (this.isPressed === value) return this;
         this.updateStatus(value);
         this.img = this.isPressed ? this.pressedImg : this.unpressedImg;
         this._onChange(this.isPressed, this.wasPressed, this);
@@ -15404,10 +15433,10 @@ $13eb70d37a7efcb1$export$2e2bcd8739ae039 = $db57198fb17fd645$export$2e2bcd8739ae
         return this.hitbox.bounds.containsPoint(x, y);
     },
     /**
-	 * 	Executed after any change in the status of the button. Be careful when overriding this, because when so, the `onTap` method will not work.
+	 * 	Executed after any change in the status of the button. Be careful when overriding this, because when so, the `onTap`, `onButtonDown` and `onButtonUp` methods will not work.
 	 * 	!onChange (isPressed: boolean, wasPressed: boolean, button: Button) : void;
 	 */ _default_onChange: function(isPressed, wasPressed, button) {
-        if (isPressed != wasPressed) {
+        if (isPressed !== wasPressed) {
             if (isPressed && this._onButtonDown) this._onButtonDown();
             else if (!isPressed && this._onButtonUp) this._onButtonUp();
         }
@@ -15925,7 +15954,7 @@ const $fa8537e16ab1f06a$var$world = {
         if (divisorX < 16) divisorX = 16;
         if (divisorY !== null && divisorY < 16) divisorY = 16;
         this.bounds.zero().resize(worldWidth, worldHeight);
-        this.createScene($fa8537e16ab1f06a$var$world.SCENE_MAIN);
+        this.createScene($fa8537e16ab1f06a$var$world.SCENE_MAIN, 'SCENE_MAIN');
         this.setContainer($fa8537e16ab1f06a$var$world.LAYER_BG0, new $6f74f6f50e98e7ac$export$2e2bcd8739ae039(worldWidth, worldHeight, divisorX, divisorY));
         this.setContainer($fa8537e16ab1f06a$var$world.LAYER_BG1, new $6f74f6f50e98e7ac$export$2e2bcd8739ae039(worldWidth, worldHeight, divisorX, divisorY));
         this.setContainer($fa8537e16ab1f06a$var$world.LAYER_BG2, new $6f74f6f50e98e7ac$export$2e2bcd8739ae039(worldWidth, worldHeight, divisorX, divisorY));
@@ -15940,7 +15969,7 @@ const $fa8537e16ab1f06a$var$world = {
         this.setContainer($fa8537e16ab1f06a$var$world.LAYER_MASK, new $6f74f6f50e98e7ac$export$2e2bcd8739ae039(worldWidth, worldHeight, divisorX, divisorY));
         this.getContainer($fa8537e16ab1f06a$var$world.LAYER_MASK).visible(false);
         this.createViewport(0);
-        this.createScene($fa8537e16ab1f06a$var$world.SCENE_HUD);
+        this.createScene($fa8537e16ab1f06a$var$world.SCENE_HUD, 'SCENE_HUD');
         this.setContainer($fa8537e16ab1f06a$var$world.LAYER_HUD_BG0, new $b5f569186864ae7e$export$2e2bcd8739ae039($ec90764150f3694e$export$2e2bcd8739ae039.screenWidth, $ec90764150f3694e$export$2e2bcd8739ae039.screenHeight));
         this.setContainer($fa8537e16ab1f06a$var$world.LAYER_HUD_BG1, new $b5f569186864ae7e$export$2e2bcd8739ae039($ec90764150f3694e$export$2e2bcd8739ae039.screenWidth, $ec90764150f3694e$export$2e2bcd8739ae039.screenHeight));
         this.setContainer($fa8537e16ab1f06a$var$world.LAYER_HUD_BG2, new $b5f569186864ae7e$export$2e2bcd8739ae039($ec90764150f3694e$export$2e2bcd8739ae039.screenWidth, $ec90764150f3694e$export$2e2bcd8739ae039.screenHeight));
@@ -15951,13 +15980,13 @@ const $fa8537e16ab1f06a$var$world = {
     },
     /**
 	 * Creates a scene at the specified index and automatically selects it.
-	 * !static createScene (index: number) : void;
-	 */ createScene: function(index) {
+	 * !static createScene (index: number, name?: string) : void;
+	 */ createScene: function(index, name = null) {
         if (this._scenes[index]) {
             $c5f44d8482fd28c9$export$2e2bcd8739ae039.queueRemove(this._scenes[index]);
             $parcel$global.dispose(this._scenes[index]);
         }
-        this._scenes[index] = new $1e3a2ce488585bd2$export$2e2bcd8739ae039(index);
+        this._scenes[index] = new $1e3a2ce488585bd2$export$2e2bcd8739ae039(index, name);
         $c5f44d8482fd28c9$export$2e2bcd8739ae039.queueAdd(this._scenes[index]);
         this.selectScene(index);
     },

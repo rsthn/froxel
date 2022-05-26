@@ -78,7 +78,7 @@ const globals =
 	rand0: new Random(),
 	rand1: new Random(),
 	rand2: new Random()
-};
+}
 
 export default globals;
 
@@ -93,7 +93,7 @@ export default globals;
 global.px = function(value)
 {
 	return value*C.SCALE;
-};
+}
 
 /**
  * Disposes an object by running the first method that is found in the following order: `free`, `dispose` and finally `__dtor`.
@@ -112,7 +112,7 @@ global.dispose = function (obj)
 
 	if ('__dtor' in obj)
 		obj.__dtor();
-};
+}
 
 /**
  * Global audio context obtained when the system is initialized.
@@ -152,7 +152,7 @@ global.fetchd = function (url, options)
 
 		request.send();
 	});
-};
+}
 
 /**
  * Loads an arraybuffer from the specified URL and converts it to a AudioBuffer using the global audioContext.
@@ -173,8 +173,7 @@ global.fetchAudioBuffer = function (url)
 		.then(audioBuffer => resolve(audioBuffer))
 		.catch(err => reject(err));
 	});
-};
-
+}
 
 /**
  * Returns the value as an integer.
@@ -183,7 +182,7 @@ global.fetchAudioBuffer = function (url)
 global.int = function (value)
 {
 	return value >> 0;
-};
+}
 
 /**
  * Returns the value as a boolean.
@@ -201,7 +200,7 @@ global.bool = function (value)
 		return false;
 
 	return !(!value);
-};
+}
 
 /**
  * Returns the value as a floating point number.
@@ -210,7 +209,7 @@ global.bool = function (value)
 global.float = function (value)
 {
 	return parseFloat(value);
-};
+}
 
 /**
  * Returns the value truncated to 2 digits of precision.
@@ -219,7 +218,7 @@ global.float = function (value)
 global.float2 = function (value)
 {
 	return (int(value*100))/100;
-};
+}
 
 /**
  * Returns the value truncated to 3 digits of precision.
@@ -228,7 +227,7 @@ global.float2 = function (value)
 global.float3 = function (value)
 {
 	return (int(value*1000))/1000;
-};
+}
 
 /**
  * Returns the value truncated to 4 digits of precision.
@@ -237,25 +236,25 @@ global.float3 = function (value)
 global.float4 = function (value)
 {
 	return (int(value*10000))/10000;
-};
+}
 
 /**
- * Converts the given value to radians.
- * !function rad (value: number) : number;
+ * Converts the given value from degrees to radians.
+ * !function rad (degrees: number) : number;
  */
-global.rad = function (value)
+global.rad = function (degrees)
 {
-	return value*Math.PI / 180;
-};
+	return degrees*Math.PI/180.0;
+}
 
 /**
- * Converts the given value to degrees.
- * !function deg (value: number) : number;
+ * Converts the given value from radians to degrees.
+ * !function deg (radians: number) : number;
  */
-global.deg = function (value)
+global.deg = function (radians)
 {
-	return (value/Math.PI)*180;
-};
+	return (radians/Math.PI)*180;
+}
 
 /**
  * Returns a random integer value from 0 to 0xFFFF (inclusive).
@@ -264,7 +263,7 @@ global.deg = function (value)
 global.rand = function ()
 {
 	return globals.rand0.nextInt16();
-};
+}
 
 /**
  * Returns a random float from 0 to 1 (inclusive).
@@ -273,7 +272,7 @@ global.rand = function ()
 global.randf = function ()
 {
 	return globals.rand0.nextFloat();
-};
+}
 
 /**
  * Returns a random float within the given (inclusive) range.
@@ -283,7 +282,7 @@ global.randrf = function (a, b)
 {
 	let t = globals.rand0.nextFloat();
 	return t*b + (1-t)*a;
-};
+}
 
 /**
  * Returns a random integer within the given range (inclusive).
@@ -293,7 +292,7 @@ global.randr = function (a, b)
 {
 	let t = globals.rand0.nextFloat();
 	return Math.round(t*b + (1-t)*a);
-};
+}
 
 /**
  * Returns a table (array) of N random float numbers within the given range (inclusive).
@@ -307,7 +306,7 @@ global.randtf = function (a, b, n)
 		list.push(randrf(a, b));
 
 	return list;
-};
+}
 
 /**
  * Returns the high-resolution `now` counter in milliseconds (includes possibly microseconds in fractional part).
@@ -316,7 +315,7 @@ global.randtf = function (a, b, n)
 global.hrnow = function ()
 {
 	return performance.now();
-};
+}
 
 /**
  * Returns a function that when called produces a random integer value within the given (inclusive) range.
@@ -325,7 +324,7 @@ global.hrnow = function ()
 global.randvar = function (a, b)
 {
 	return function() { return randr(a, b); };
-};
+}
 
 /**
  * Returns a function that when called returns an item from the specified array at some random index within the (inclusive) range.
@@ -337,7 +336,7 @@ global.randitem = function (arr, a=null, b=null)
 	if (b === null) b = arr.length - 1;
 
 	return function() { return arr[randr(a, b)]; };
-};
+}
 
 /**
  * Returns the parameter 't' where two line segments intersect.
@@ -407,7 +406,7 @@ global.getLineSegmentIntersection = function (ls1_x1, ls1_y1, ls1_x2, ls1_y2, ls
 	if (0 > tA || tA > 1) return inf;
 
 	return tA;
-};
+}
 
 /**
  * Returns boolean indicating if the line segments intersect.
@@ -417,7 +416,7 @@ global.lineSegmentIntersects = function (ls1_x1, ls1_y1, ls1_x2, ls1_y2, ls2_x1,
 {
 	let t = getLineSegmentIntersection (ls1_x1, ls1_y1, ls1_x2, ls1_y2, ls2_x1, ls2_y1, ls2_x2, ls2_y2);
 	return t >= 0 && t <= 1.0;
-};
+}
 
 /**
  * Rotates a point (2d) by the given angle and returns an object having x and y properties.
@@ -426,7 +425,7 @@ global.lineSegmentIntersects = function (ls1_x1, ls1_y1, ls1_x2, ls1_y2, ls2_x1,
 global.rotatePoint = function (angle, x, y)
 {
 	return { x: x*Math.cos(angle) + y*Math.sin(angle), y: y*Math.cos(angle) - x*Math.sin(angle) };
-};
+}
 
 /**
  * Returns a value snapped to a step within the given range.
@@ -435,7 +434,7 @@ global.rotatePoint = function (angle, x, y)
 global.stepValue = function (value, minValue, maxValue, numSteps)
 {
 	return ((Math.round(numSteps * (value - minValue) / (maxValue - minValue))) / numSteps) * (maxValue - minValue) + minValue;
-};
+}
 
 /**
  * Returns a value that is a factor of the specified step.
@@ -444,7 +443,7 @@ global.stepValue = function (value, minValue, maxValue, numSteps)
 global.alignValue = function (value, step)
 {
 	return Math.round(value/step)*step;
-};
+}
 
 /**
  * Number of bits for fixed-point number (default is 8).
@@ -459,7 +458,7 @@ global.FIXED_POINT_BITS = 8;
 global.upscale = function (value)
 {
 	return (value * (1 << FIXED_POINT_BITS)) >> 0;
-};
+}
 
 /**
  * Downscales a fixed-point value to its integer part.
@@ -468,7 +467,7 @@ global.upscale = function (value)
 global.downscale = function (value)
 {
 	return value >> FIXED_POINT_BITS;
-};
+}
 
 /**
  * Downscales a fixed-point value to floating point.
@@ -477,7 +476,7 @@ global.downscale = function (value)
 global.downscalef = function (value)
 {
 	return value / (1 << FIXED_POINT_BITS);
-};
+}
 
 /**
  * Aligns a value to its fixed point floating point representation such that downscaling results in an integer.
@@ -486,7 +485,7 @@ global.downscalef = function (value)
 global.falign = function (value)
 {
 	return downscalef(upscale(value));
-};
+}
 
 /**
  * Returns the value having the minimum absolute value.
@@ -495,7 +494,7 @@ global.falign = function (value)
 global.absmin = function(a, b)
 {
 	return Math.abs(a) < Math.abs(b) ? a : b;
-};
+}
 
 /**
  * Returns the value having the maximum absolute value.
@@ -504,7 +503,7 @@ global.absmin = function(a, b)
 global.absmax = function(a, b)
 {
 	return Math.abs(a) > Math.abs(b) ? a : b;
-};
+}
 
 /**
  * Repeats a string a number of times.
@@ -518,7 +517,7 @@ global.repeat = function (str, count)
 		out += str;
 
 	return out;
-};
+}
 
 /**
  * Pads the given value with a character (added to the left) until the specified size is reached.
@@ -528,7 +527,7 @@ global.lpad = function (val, size, char='0')
 {
 	val = val.toString();
 	return repeat(char.charAt(0), size-val.length) + val;
-};
+}
 
 /**
  * Pads the given value with a character (added to the right) until the specified size is reached.
@@ -538,4 +537,40 @@ global.rpad = function (val, size, char='0')
 {
 	val = val.toString();
 	return val + repeat(char.charAt(0), size-val.length);
-};
+}
+
+/**
+ * Returns the normalized (0 to 1) value for the given signed-normalized (-1 to 1) value.
+ * !function norm (value: number) : number;
+ */
+global.norm = function (value)
+{
+	return (value + 1.0) * 0.5;
+}
+
+/**
+ * Returns the signed-normalized (-1 to 1) value for the given normalized (0 to 1) value.
+ * !function snorm (value: number) : number;
+ */
+global.snorm = function (value)
+{
+	return value * 2.0 - 1.0;
+}
+
+/**
+ * Clamps the specified value to the [x0, x1] range.
+ * !function clamp (value: number, x0?: number, x1?: number) : number;
+ */
+global.clamp = function (value, x0=0.0, x1=1.0)
+{
+	return value < x0 ? x0 : (value > x1 ? x1 : value);
+}
+
+/**
+ * Maps the given value from [a0, a1] to [b0, b1].
+ * !function map (value: number, a0: number, a1: number, b0: number, b1: number) : number;
+ */
+global.map = function (value, a0, a1, b0, b1)
+{
+	return ((value - a0)*(b1 - b0) / (a1 - a0)) + b0;
+}

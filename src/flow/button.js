@@ -202,7 +202,7 @@ export default Group.extend
 	 */
 	setStatus: function (value)
 	{
-		if ((this.isPressed && value) || (!this.isPressed && !value))
+		if (this.isPressed === value)
 			return this;
 
 		this.updateStatus (value);
@@ -255,12 +255,12 @@ export default Group.extend
 	},
 
 	/**
-	 * 	Executed after any change in the status of the button. Be careful when overriding this, because when so, the `onTap` method will not work.
+	 * 	Executed after any change in the status of the button. Be careful when overriding this, because when so, the `onTap`, `onButtonDown` and `onButtonUp` methods will not work.
 	 * 	!onChange (isPressed: boolean, wasPressed: boolean, button: Button) : void;
 	 */
 	_default_onChange: function (isPressed, wasPressed, button)
 	{
-		if (isPressed != wasPressed)
+		if (isPressed !== wasPressed)
 		{
 			if (isPressed && this._onButtonDown)
 				this._onButtonDown();

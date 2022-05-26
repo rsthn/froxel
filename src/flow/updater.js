@@ -150,17 +150,17 @@ const Updater = Class.extend
 
 	/**
 	 * 	Adds an element to the updater.
-	 * 	!add (elem: Element) : boolean;
+	 * 	!add (elem: Element) : Element;
 	 */
 	add: function (elem)
 	{
 		if (!Element.isInstance(elem))
-			throw new Error ('argument must be an Element');
+			throw new Error ('argument must be of type: Element');
 
 		this.list.push(elem);
 
 		elem.remover.add(this._remove, this, this.list.bottom);
-		return true;
+		return elem;
 	},
 
 	/**

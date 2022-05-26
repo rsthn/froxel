@@ -22,6 +22,7 @@ import Bounds2 from '../math/bounds2.js';
 import List from '../utils/list.js';
 import Handler from '../utils/handler.js';
 import globals from '../system/globals.js';
+import Log from '../system/log.js';
 
 //![import "./container"]
 //![import "./viewport"]
@@ -147,11 +148,18 @@ const Scene = Class.extend
 	zvalue: null,
 
 	/**
+	 * Name of the layer.
+	 * !readonly name: string;
+	 */
+	name: null,
+
+	/**
 	 * Constructs an empty scene with the specified index.
 	 * @param index - Index for the scene. Used to calculate the base z-value of the scene. Valid range is from 0 to 3.
-	 * !constructor (index: number);
+	 * @param name - Name of the scene, used for debugging purposes. If none provided SCENE_X will be used where X is the scene's index.
+	 * !constructor (index: number, name?: string);
 	 */
-	__ctor: function(index)
+	__ctor: function (index, name=null)
 	{
 		this.containers = [];
 
@@ -162,6 +170,7 @@ const Scene = Class.extend
 		 *		18-bits: Element z-value
 		 */
 		this.zvalue = (index & 3) << (18+4);
+		this.name = name !== null ? name : ("SCENE_" + index);
 
 		this.viewports = [];
 		this.viewportBounds = Bounds2.Pool.alloc();
@@ -424,31 +433,33 @@ const Scene = Class.extend
 
 		this.drawCount = 0;
 
-		if (!this.viewports.length)
+		if (this.viewports.length)
 		{
+			for (let viewportIndex = 0; viewportIndex < this.viewports.length; viewportIndex++)
+			{
+				let viewport = this.viewports[viewportIndex];
+				if (!viewport || !viewport.enabled()) continue;
+
+				globals.viewport = viewport;
+
+				g.pushClip();
+				g.pushMatrix();
+
+				viewport.applyClip(g);
+				viewport.applyTransform(g);
+
+				this.viewportBounds.set(viewport.bounds);//.resizeBy(2, 2);
+				this.drawContainers(g, this.viewportBounds);
+
+				g.popMatrix();
+				g.popClip();
+			}
+		}
+		else
 			this.drawContainers(g, null);
-			return;
-		}
 
-		for (let viewportIndex = 0; viewportIndex < this.viewports.length; viewportIndex++)
-		{
-			let viewport = this.viewports[viewportIndex];
-			if (!viewport || !viewport.enabled()) continue;
-
-			globals.viewport = viewport;
-
-			g.pushClip();
-			g.pushMatrix();
-
-			viewport.applyClip(g);
-			viewport.applyTransform(g);
-
-			this.viewportBounds.set(viewport.bounds);//.resizeBy(2, 2);
-			this.drawContainers(g, this.viewportBounds);
-
-			g.popMatrix();
-			g.popClip();
-		}
+		if (Log.enabled)
+			Log.vars[this.name] = this.drawCount;
 	},
 
 	/**
