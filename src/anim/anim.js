@@ -37,6 +37,8 @@ import WAIT from './wait.js';
 import RANGE from './range.js';
 import RAND from './rand.js';
 import RANDT from './randt.js';
+import EXEC from './exec.js';
+import PLAY from './play.js';
 
 //:/**
 //: * 	Class to animate properties using commands.
@@ -49,25 +51,61 @@ const Anim = Class.extend
 	className: 'Anim',
 
 	initialData: null,
-	data: null,
-
 	blockStack: null,
 	cmdStack: null,
-
-	timeScale: 1,
 	block: null,
-	time: 0,
-
-	paused: false,
-	finished: false,
-	running: false,
 
 	finishedCallback: null,
 	finishedCallbackHandler: null,
 	finishedCallbackContext: null,
 
+	/**
+	 * Current output data object.
+	 * !data: object;
+	 */
+	data: null,
+
+	/**
+	 * Current time scale (animation speed).
+	 * !readonly timeScale: number;
+	 */
+	timeScale: 1,
+
+	/**
+	 * Current logical time.
+	 * !time: number;
+	 */
+	time: 0,
+
+	/**
+	 * Indicates if the animation is paused.
+	 * !readonly paused: boolean;
+	 */
+	paused: false,
+
+	/**
+	 * Indicates if the animation has finished.
+	 * !readonly finished: boolean;
+	 */
+	finished: false,
+
+	/**
+	 * Indicates if the animation is running.
+	 * !readonly running: boolean;
+	 */
+	running: false,
+
+	/**
+	 * Indicates if the anim should be automatically disposed when finished.
+	 * !autoDispose: boolean;
+	 */
 	autoDispose: false,
 
+	/**
+	 * Constructs a new empty Anim object.
+	 * @returns {Anim}
+	 * !constructor ();
+	 */
 	__ctor: function ()
 	{
 		// VIOLET: Possibly optimize this { } objects.
@@ -88,6 +126,9 @@ const Anim = Class.extend
 		return this.reset();
 	},
 
+	/**
+	 * Destructor.
+	 */
 	__dtor: function ()
 	{
 		this.block.free();
@@ -107,6 +148,12 @@ const Anim = Class.extend
 		}
 	},
 
+	/**
+	 * Copies the anim to the specified target and returns it.
+	 * @param {Anim} target 
+	 * @returns {Anim}
+	 * !copyTo (target: Anim) : Anim;
+	 */
 	copyTo: function (target)
 	{
 		target.clear();
@@ -118,6 +165,12 @@ const Anim = Class.extend
 		return target.reset();
 	},
 
+	/**
+	 * Returns a clone of the anim.
+	 * @param {boolean} autoDispose - If true, the new anim will be disposed when finished.
+	 * @returns {Anim}
+	 * !clone (autoDispose?: boolean) : Anim;
+	 */
 	clone: function (autoDispose=false)
 	{
 		let anim = new Anim();
@@ -127,12 +180,25 @@ const Anim = Class.extend
 		return anim;
 	},
 
+	/**
+	 * Sets the callback to be called when the animation finishes.
+	 * @param {(anim: Anim, data: object) => boolean} callback
+	 * @returns {Anim}
+	 * !onFinished (callback: (anim: Anim, data: object) => boolean) : Anim;
+	 */
 	onFinished: function (callback)
 	{
 		this.finishedCallback = callback;
 		return this;
 	},
 
+	/**
+	 * Adds the specified callback to be called when the animation finishes.
+	 * @param {(anim: Anim, context?: object) => boolean} callback
+	 * @param {object} context
+	 * @returns {Anim}
+	 * !then (callback: (anim: Anim, context?: object) => boolean, context?: object) : Anim;
+	 */
 	then: function (callback, context=null)
 	{
 		if (!callback) return this;
@@ -158,18 +224,20 @@ const Anim = Class.extend
 		return this;
 	},
 
-	thenCallback: function ()
+	thenCallback: function (data, self)
 	{
-		if (!this.finishedCallbackHandler.length)
+		if (!self.finishedCallbackHandler.length)
 			return false;
 
-		let context = this.finishedCallbackContext.shift();
-		this.finishedCallbackHandler.shift()(this, context);
+		let context = self.finishedCallbackContext.shift();
+		return self.finishedCallbackHandler.shift()(self, context);
 	},
 
-	/*
-	**	Clears the object, removes all commands and callbacks. The `initialData` and `data` objects aren't changed.
-	*/
+	/**
+	 * Clears the object by removing all commands and callbacks. The `initialData` and `data` objects aren't changed.
+	 * @returns {Anim}
+	 * !clear() : Anim;
+	 */
 	clear: function ()
 	{
 		this.blockStack.clear();
@@ -197,9 +265,11 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Resets the animation to its initial state.
-	*/
+	/**
+	 * Resets the animation to its initial state.
+	 * @returns {Anim}
+	 * !reset() : Anim;
+	 */
 	reset: function ()
 	{
 		this.blockStack.clear();
@@ -215,9 +285,36 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the initial data.
-	*/
+	/**
+	 * Cleans up the animation so new commands can be added. Callbacks are not removed.
+	 * @returns {Anim}
+	 * !cleanup() : Anim;
+	 */
+	cleanup: function ()
+	{
+		this.blockStack.clear();
+		this.cmdStack.clear();
+		this.block.clear();
+
+		this.paused = false;
+		this.finished = false;
+		this.time = 0;
+		this.timeScale = 1;
+
+		return this;
+	},
+
+	/**
+	 * Sets the initial data of the anim.
+	 * @param {object} data
+	 * @returns {Anim}
+	 * !initial (data: object) : Anim;
+	 */
+	/**
+	 * Sets the anim's data to the initial values.
+	 * @returns {Anim}
+	 * !initial() : Anim;
+	 */
 	initial: function (data=null)
 	{
 		if (data !== null)
@@ -227,27 +324,35 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the time scale (animation speed).
-	*/
+	/**
+	 * Sets the time scale (animation speed) to the specified value.
+	 * @param {number} value - The new time scale, should be greater than 0.
+	 * @returns {Anim}
+	 * !speed (value: number) : Anim;
+	 */
 	speed: function (value)
 	{
 		this.timeScale = value > 0.0 ? value : 1.0;
 		return this;
 	},
 
-	/*
-	**	Sets the output data object.
-	*/
+	/**
+	 * Sets the output data object.
+	 * @param {object} data 
+	 * @returns {Anim}
+	 * !output (data: object) : Anim;
+	 */
 	output: function (data)
 	{
 		this.data = data;
 		return this;
 	},
 
-	/*
-	**	Pauses the animation.
-	*/
+	/**
+	 * Pauses the animation.
+	 * @returns {Anim}
+	 * !pause() : Anim;
+	 */
 	pause: function ()
 	{
 		if (!this.paused)
@@ -256,9 +361,11 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Resumes the animation.
-	*/
+	/**
+	 * Resumes the animation.
+	 * @returns {Anim}
+	 * !resume() : Anim;
+	 */
 	resume: function ()
 	{
 		this.finished = false;
@@ -270,9 +377,12 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Begins execution of the animation.
-	*/
+	/**
+	 * Starts the animation.
+	 * @param {boolean} reset - If true, the animation will be reset to its initial state.
+	 * @returns {Anim}
+	 * !run (reset?: boolean) : Anim;
+	 */
 	run: function (reset=true)
 	{
 		if (this.running)
@@ -287,9 +397,11 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the value of a field.
-	*/
+	/**
+	 * Sets the value of a field.
+	 * @param {string|function} fieldName 
+	 * @param {*} value 
+	 */
 	setValue: function (fieldName, value)
 	{
 		let curr = this.data;
@@ -314,9 +426,13 @@ const Anim = Class.extend
 			curr[fieldName] = value;
 	},
 
-	/*
-	**	Returns the value of a field. Performs special transforms to the value if certain prefix is found.
-	*/
+	/**
+	 * Returns the value of a field. Performs special transforms to the value if certain prefix is found.
+	 * @param {string|function} fieldName 
+	 * @param {*} value 
+	 * @param {*} initialValue 
+	 * @returns {*}
+	 */
 	getValue: function (fieldName, value=null, initialValue=null)
 	{
 		let curr = this.data;
@@ -370,9 +486,10 @@ const Anim = Class.extend
 	/**
 	 * Updates the animation by the specified delta, which must be in the same unit as the duration of the commands.
 	 * Returns false when the animation has been completed.
-	 *
 	 * @param {number} dt
+	 * @param {Anim} self
 	 * @returns {boolean}
+	 * !update (dt: number, self?: Anim) : boolean;
 	 */
 	update: function (dt, self=null)
 	{
@@ -391,7 +508,7 @@ const Anim = Class.extend
 			return true;
 
 		let finished = self.finished;
-		let count = self.block.length;
+		let stamp = self.block.stamp;
 		let block = self.block;
 
 		self.finished = true;
@@ -401,7 +518,7 @@ const Anim = Class.extend
 			if (self.finishedCallback(self.data, self) === false)
 				self.finishedCallback = null;
 
-			if (self.block !== block || self.block.length != count)
+			if (self.block !== block || self.block.stamp != stamp)
 			{
 				self.resume();
 				return true;
@@ -416,9 +533,11 @@ const Anim = Class.extend
 		return false;
 	},
 
-	/*
-	**	Ensures that the field name is correct for subsequent rules.
-	*/
+	/**
+	 * Ensures that the field name is correct for subsequent rules.
+	 * @param {string|function} value 
+	 * @returns {Array}
+	 */
 	prepareFieldName: function (value)
 	{
 		if (typeof(value) === 'function')
@@ -429,9 +548,11 @@ const Anim = Class.extend
 
 	/* ****************************************************************************************** */
 
-	/*
-	**	Runs the subsequent commands in parallel. Should end the parallel block by calling end().
-	*/
+	/**
+	 * Runs the subsequent commands in parallel. Should end the parallel block by calling `end`.
+	 * @returns {Anim}
+	 * !parallel() : Anim;
+	 */
 	parallel: function ()
 	{
 		let cmd = this.block.add(Command.alloc(PARALLEL));
@@ -443,9 +564,11 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Runs the subsequent commands in series. Should end the serial block by calling end().
-	*/
+	/**
+	 * Runs the subsequent commands in series. Should end the serial block by calling `end`.
+	 * @returns {Anim}
+	 * !serial() : Anim;
+	 */
 	serial: function ()
 	{
 		let cmd = this.block.add(Command.alloc(SERIAL));
@@ -457,9 +580,12 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Repeats a block the specified number of times.
-	*/
+	/**
+	 * Repeats a block the specified number of times.
+	 * @param {number} count 
+	 * @returns {Anim}
+	 * !repeat (count: number) : Anim;
+	 */
 	repeat: function (count)
 	{
 		let cmd = this.block.add(Command.alloc(REPEAT));
@@ -472,9 +598,11 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Ends a parallel(), serial() or repeat() block.
-	*/
+	/**
+	 * Ends a `parallel`, `serial` or `repeat` block.
+	 * @returns {Anim}
+	 * !end() : Anim;
+	 */
 	end: function ()
 	{
 		this.cmdStack.pop().ready();
@@ -482,9 +610,13 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the value of a variable.
-	*/
+	/**
+	 * Sets the value of a variable.
+	 * @param {string|function} field 
+	 * @param {*} value 
+	 * @returns {Anim}
+	 * !set (field: string|function, value: any) : Anim;
+	 */
 	set: function (field, value)
 	{
 		let cmd = this.block.add(Command.alloc(SET));
@@ -495,18 +627,23 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Restarts the current block.
-	*/
+	/**
+	 * Restarts the current block.
+	 * @returns {Anim}
+	 * !restart() : Anim;
+	 */
 	restart: function ()
 	{
 		this.block.add(Command.alloc(RESTART));
 		return this;
 	},
 
-	/*
-	**	Waits for the specified duration.
-	*/
+	/**
+	 * Waits for the specified duration.
+	 * @param {number} duration 
+	 * @returns {Anim}
+	 * !wait (duration: number) : Anim;
+	 */
 	wait: function (duration)
 	{
 		let cmd = this.block.add(Command.alloc(WAIT));
@@ -516,9 +653,16 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the range of a variable.
-	*/
+	/**
+	 * Animates a variable from the startValue to the endValue over the specified duration.
+	 * @param {string|function} field 
+	 * @param {number} duration 
+	 * @param {number} startValue 
+	 * @param {number} endValue 
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 * !range (field: string|function, duration: number, startValue: number, endValue: number, easing?: function) : Anim;
+	 */
 	range: function (field, duration, startValue, endValue, easing=null)
 	{
 		let cmd = this.block.add(Command.alloc(RANGE));
@@ -532,9 +676,15 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Sets the range of a variable, using the current value as startValue.
-	*/
+	/**
+	 * Animates a variable from the current value to the endValue over the specified duration.
+	 * @param {string|function} field 
+	 * @param {number} duration 
+	 * @param {number} endValue 
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 * !rangeTo (field: string|function, duration: number, endValue: number, easing?: function) : Anim;
+	 */
 	rangeTo: function (field, duration, endValue, easing=null)
 	{
 		let cmd = this.block.add(Command.alloc(RANGE));
@@ -548,9 +698,17 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Generates a certain amount of random numbers in the given range (inclusive).
-	*/
+	/**
+	 * Changes the variable with a value that is a random number in the given range (inclusive) for the specified duration.
+	 * @param {string|function} field 
+	 * @param {number} duration 
+	 * @param {number} count 
+	 * @param {number} startValue 
+	 * @param {number} endValue 
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 * !rand (field: string|function, duration: number, count: number, startValue: number, endValue: number, easing?: function) : Anim;
+	 */
 	rand: function (field, duration, count, startValue, endValue, easing=null)
 	{
 		let cmd = this.block.add(Command.alloc(RAND));
@@ -565,9 +723,19 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Generates a certain amount of random numbers in the given range (inclusive). This uses a static random table to determine the next values.
-	*/
+	/**
+	 * Changes the variable with a value that is a random number in the given range (inclusive) for the specified duration. The difference
+	 * between this and `rand` is that this function uses a static pre-generated table of random numbers between the specified range.
+	 *
+	 * @param {string|function} field 
+	 * @param {number} duration 
+	 * @param {number} count 
+	 * @param {number} startValue 
+	 * @param {number} endValue 
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 * !randt (field: string|function, duration: number, count: number, startValue: number, endValue: number, easing?: function) : Anim;
+	 */
 	randt: function (field, duration, count, startValue, endValue, easing)
 	{
 		let cmd = this.block.add(Command.alloc(RANDT));
@@ -584,9 +752,12 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Plays a sound.
-	*/
+	/**
+	 * Plays a sound.
+	 * @param {object} snd 
+	 * @returns {Anim}
+	 * !play (snd: object) : Anim;
+	 */
 	play: function (snd)
 	{
 		let cmd = this.block.add(Command.alloc(PLAY));
@@ -595,9 +766,12 @@ const Anim = Class.extend
 		return this;
 	},
 
-	/*
-	**	Executes a function.
-	*/
+	/**
+	 * Executes a function. If continuous execution is needed, simply return `true`.
+	 * @param {(dt: number, data: object, anim: Anim) => boolean} fn 
+	 * @returns {Anim}
+	 * !exec (fn: (dt: number, data: object, anim: Anim) => boolean) : Anim;
+	 */
 	exec: function (fn)
 	{
 		let cmd = this.block.add(Command.alloc(EXEC));
@@ -624,49 +798,76 @@ const Anim = Class.extend
 		anim.data.translate(0, int(value) - anim.data.bounds.y1);
 	},
 
-	/*
-	**	Sets X coordinate.
-	*/
+	/**
+	 * Sets X coordinate.
+	 * @param {number} value 
+	 * @returns {Anim}
+	 * !setX (value: number) : Anim;
+	 */
 	setX: function (value)
 	{
 		return this.set(this._bounds_x1, value);
 	},
 
-	/*
-	**	Sets Y coordinate.
-	*/
+	/**
+	 * Sets Y coordinate.
+	 * @param {number} value 
+	 * @returns {Anim}
+	 * !setY (value: number) : Anim;
+	 */
 	setY: function (value)
 	{
 		return this.set(this._bounds_y1, value);
 	},
 
-	/*
-	**	Sets X and Y coordinates.
-	*/
+	/**
+	 * Sets both the X and Y coordinates.
+	 * @param {number} x 
+	 * @param {number} y 
+	 * @returns {Anim}
+	 * !position (x: number, y: number) : Anim;
+	 */
 	position: function (x, y)
 	{
 		return this.set(this._bounds_x1, x).set(this._bounds_y1, y);
 	},
 
-	/*
-	**	Translates the X coordinate.
-	*/
+	/**
+	 * Translates the X coordinate for the specified amount over the specified duration.
+	 * @param {number} duration 
+	 * @param {number} deltaValue 
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 * !translateX (duration: number, deltaValue: number, easing?: function) : Anim;
+	 */
 	translateX: function (duration, deltaValue, easing)
 	{
 		return this.range(this._bounds_x1, duration, null, (deltaValue < 0 ? '-' : '+') + Math.abs(deltaValue), easing);
 	},
 
-	/*
-	**	Translates the Y coordinate.
-	*/
+	/**
+	 * Translates the Y coordinate for the specified amount over the specified duration.
+	 * @param {number} duration 
+	 * @param {number} deltaValue 
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 * !translateY (duration: number, deltaValue: number, easing?: function) : Anim;
+	 */
 	translateY: function (duration, deltaValue, easing)
 	{
 		return this.range(this._bounds_y1, duration, null, (deltaValue < 0 ? '-' : '+') + Math.abs(deltaValue), easing);
 	},
 
-	/*
-	**	Translates the X and Y coordinates.
-	*/
+	/**
+	 * Translates the X and Y coordinates for the specified amount over the specified duration.
+	 * @param {number} duration 
+	 * @param {number} deltaValueX 
+	 * @param {number} deltaValueY 
+	 * @param {function} easingX?
+	 * @param {function} easingY?
+	 * @returns {Anim}
+	 * !translate (duration: number, deltaValueX: number, deltaValueY: number, easingX?: function, easingY?: function) : Anim;
+	 */
 	translate: function (duration, deltaValueX, deltaValueY, easingX, easingY=null)
 	{
 		return this.parallel()
@@ -675,9 +876,16 @@ const Anim = Class.extend
 				.end();
 	},
 
-	/*
-	**	Sets the X and Y coordinates to the specified values.
-	*/
+	/**
+	 * Translates the X and Y coordinates to the specified end values over the specified duration.
+	 * @param {numbe} duration 
+	 * @param {number} endValueX 
+	 * @param {number} endValueY 
+	 * @param {function} easingX?
+	 * @param {function} easingY?
+	 * @returns {Anim}
+	 * !moveTo (duration: number, endValueX: number, endValueY: number, easingX?: function, easingY?: function) : Anim;
+	 */
 	moveTo: function (duration, endValueX, endValueY, easingX, easingY=null)
 	{
 		return this.parallel()
@@ -686,41 +894,64 @@ const Anim = Class.extend
 				.end();
 	},
 
-	/*
-	**	Sets the X coordinate to the specified value.
-	*/
+	/**
+	 * Translates the X coordinate to the specified end value over the specified duration.
+	 * @param {number} duration 
+	 * @param {number} endValue 
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
 	moveX: function (duration, endValue, easing=null)
 	{
 		return this.range(this._bounds_x1, duration, null, endValue, easing);
 	},
 
-	/*
-	**	Sets the Y coordinate to the specified value.
-	*/
+	/**
+	 * Translates the Y coordinate to the specified end value over the specified duration.
+	 * @param {number} duration 
+	 * @param {number} endValue 
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
 	moveY: function (duration, endValue, easing=null)
 	{
 		return this.range(this._bounds_y1, duration, null, endValue, easing);
 	},
 
-	/*
-	**	Scales the X coordinate.
-	*/
+	/**
+	 * Changes the `sx` (scale X) property to the specified end value over the specified duration.
+	 * @param {numbe} duration 
+	 * @param {numbber} endValue 
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
 	scaleX: function (duration, endValue, easing)
 	{
 		return this.range('sx', duration, null, endValue, easing);
 	},
 
-	/*
-	**	Scales the Y coordinate.
-	*/
+	/**
+	 * Changes the `sy` (scale Y) property to the specified end value over the specified duration.
+	 * @param {number} duration 
+	 * @param {numbe} endValue 
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
 	scaleY: function (duration, endValue, easing)
 	{
 		return this.range('sy', duration, null, endValue, easing);
 	},
 
-	/*
-	**	Scales the X and Y coordinates.
-	*/
+	/**
+	 * Changes the `sx` and `sy` (scale X and scale Y) properties to the specified end values over the specified duration.
+	 * @param {number} duration
+	 * @param {number} endValueX
+	 * @param {number} endValueY
+	 * @param {function} easingX?
+	 * @param {function} easingY?
+	 * @returns {Anim}
+	 * !scale (duration: number, endValueX: number, endValueY: number, easingX?: function, easingY?: function) : Anim;
+	 */
 	scale: function (duration, endValueX, endValueY, easingX, easingY=null)
 	{
 		return this.parallel()
@@ -729,27 +960,35 @@ const Anim = Class.extend
 				.end();
 	},
 
-	/*
-	**	Rotates a certain number of radians.
-	*/
+	/**
+	 * Changes the `rotation` property by the specified delta value over the specified duration.
+	 * @param {number} duration
+	 * @param {number} deltaValue
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 * !rotate (duration: number, deltaValue: number, easing?: function) : Anim;
+	 */
 	rotate: function (duration, deltaValue, easing)
 	{
 		return this.range('angle', duration, null, (deltaValue < 0 ? '-' : '+') + Math.abs(deltaValue), easing);
 	}
 });
 
-/*
-**	Global time scale.
-*/
+/**
+ * Global animation time scale.
+ * !static timeScale: number;
+ */
 Anim.timeScale = 1.0;
 
-/*
-**	Sets the global time scale (animation speed).
-*/
+/**
+ * Sets the global time scale (animation speed).
+ * @param {number} value
+ * !static speed (value: number) : void;
+ */
 Anim.speed = function (value)
 {
 	Anim.timeScale = value > 0.0 ? value : 1.0;
 };
 
-Recycler.createPool(Anim, 8192);
+Recycler.createPool(Anim, 2048);
 export default Anim;

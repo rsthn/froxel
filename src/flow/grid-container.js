@@ -103,7 +103,7 @@ export default Container.extend
 
 	/**
 	 * 	Adds an element to the container. Returns boolean indicating if successful.
-	 * 	!override add (elem: Element) : boolean;
+	 * 	!override add (elem: Element) : Element;
 	 */
 	add: function (elem)
 	{
@@ -111,13 +111,13 @@ export default Container.extend
 			throw new Error ('argument must be an Element');
 
 		if (!this.grid.add(elem))
-			return false;
+			return null;
 
 		elem.container = this;
 		this.elementCount = this.grid.count;
 
 		this.syncZ(elem);
-		return true;
+		return elem;
 	},
 
 	/**

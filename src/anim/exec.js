@@ -16,11 +16,11 @@
 
 export default
 {
-	init: function(cmd, postinit=false)
+	init: function (cmd, postinit=false)
 	{
 	},
 
-	update: function(anim, block, cmd)
+	update: function (anim, block, cmd)
 	{
 		if (cmd.started === false)
 		{
@@ -32,12 +32,9 @@ export default
 		cmd._last = anim.time;
 
 		let r = cmd.fn(dt, anim.data, anim);
-		if (r === true)
-		{
-			cmd.started = false;
-			return true;
-		}
+		if (r === true) return false;
 
-		return r;
+		cmd.started = false;
+		return true;
 	}
 };

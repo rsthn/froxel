@@ -488,6 +488,15 @@ global.falign = function (value)
 }
 
 /**
+ * Returns the fractional part of a value.
+ * !function fract (value: number) : number;
+ */
+global.fract = function(value)
+{
+	return value - (~~value);
+}
+
+/**
  * Returns the value having the minimum absolute value.
  * !function absmin (a: number, b: number) : number;
  */
@@ -573,4 +582,13 @@ global.clamp = function (value, x0=0.0, x1=1.0)
 global.map = function (value, a0, a1, b0, b1)
 {
 	return ((value - a0)*(b1 - b0) / (a1 - a0)) + b0;
+}
+
+/**
+ * Performs a linear interpolation between `x` and `y` using `a` to weight between them. The return value is computed as x*(1−a)+y*a.
+ * !function mix (x: number, y: number, a: number) : number;
+ */
+global.mix = function (x, y, a)
+{
+	return x*(1-a) + y*a;
 }

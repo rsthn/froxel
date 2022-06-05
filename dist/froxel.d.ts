@@ -2556,6 +2556,11 @@ declare global
 	function falign (value: number) : number;
 
 	/**
+	 * Returns the fractional part of a value.
+	 */
+	function fract (value: number) : number;
+
+	/**
 	 * Returns the value having the minimum absolute value.
 	 */
 	function absmin (a: number, b: number) : number;
@@ -2599,6 +2604,11 @@ declare global
 	 * Maps the given value from (Unknown: a0,) to (Unknown: b0,).
 	 */
 	function map (value: number, a0: number, a1: number, b0: number, b1: number) : number;
+
+	/**
+	 * Performs a linear interpolation between `x` and `y` using `a` to weight between them. The return value is computed as x*(1−a)+y*a.
+	 */
+	function mix (x: number, y: number, a: number) : number;
 
 }
 
@@ -3306,6 +3316,11 @@ export class Block
 	init() : Block;
 
 	/**
+	 * Returns the number of commands in the block.
+	 */
+	count() : int;
+
+	/**
 	 * 	Adds a command to the block.
 	 */
 	add (cmd: Command) : Command;
@@ -3384,6 +3399,349 @@ export class Command
  */
 export class Anim
 {
+	/**
+	 * Current output data object.
+	 */
+	data: object;
+
+	/**
+	 * Current time scale (animation speed).
+	 */
+	readonly timeScale: number;
+
+	/**
+	 * Current logical time.
+	 */
+	time: number;
+
+	/**
+	 * Indicates if the animation is paused.
+	 */
+	readonly paused: boolean;
+
+	/**
+	 * Indicates if the animation has finished.
+	 */
+	readonly finished: boolean;
+
+	/**
+	 * Indicates if the animation is running.
+	 */
+	readonly running: boolean;
+
+	/**
+	 * Indicates if the anim should be automatically disposed when finished.
+	 */
+	autoDispose: boolean;
+
+	/**
+	 * Constructs a new empty Anim object.
+	 * @returns {Anim}
+	 */
+	constructor ();
+
+	/**
+	 * Copies the anim to the specified target and returns it.
+	 * @param {Anim} target
+	 * @returns {Anim}
+	 */
+	copyTo (target: Anim) : Anim;
+
+	/**
+	 * Returns a clone of the anim.
+	 * @param {boolean} autoDispose - If true, the new anim will be disposed when finished.
+	 * @returns {Anim}
+	 */
+	clone (autoDispose?: boolean) : Anim;
+
+	/**
+	 * Sets the callback to be called when the animation finishes.
+	 * @param {(anim: Anim, data: object) => boolean} callback
+	 * @returns {Anim}
+	 */
+	onFinished (callback: (anim: Anim, data: object) => boolean) : Anim;
+
+	/**
+	 * Adds the specified callback to be called when the animation finishes.
+	 * @param {(anim: Anim, context?: object) => boolean} callback
+	 * @param {object} context
+	 * @returns {Anim}
+	 */
+	then (callback: (anim: Anim, context?: object) => boolean, context?: object) : Anim;
+
+	/**
+	 * Clears the object by removing all commands and callbacks. The `initialData` and `data` objects aren't changed.
+	 * @returns {Anim}
+	 */
+	clear() : Anim;
+
+	/**
+	 * Resets the animation to its initial state.
+	 * @returns {Anim}
+	 */
+	reset() : Anim;
+
+	/**
+	 * Cleans up the animation so new commands can be added. Callbacks are not removed.
+	 * @returns {Anim}
+	 */
+	cleanup() : Anim;
+
+	/**
+	 * Sets the initial data of the anim.
+	 * @param {object} data
+	 * @returns {Anim}
+	 */
+	initial (data: object) : Anim;
+
+	/**
+	 * Sets the anim's data to the initial values.
+	 * @returns {Anim}
+	 */
+	initial() : Anim;
+
+	/**
+	 * Sets the time scale (animation speed) to the specified value.
+	 * @param {number} value - The new time scale, should be greater than 0.
+	 * @returns {Anim}
+	 */
+	speed (value: number) : Anim;
+
+	/**
+	 * Sets the output data object.
+	 * @param {object} data
+	 * @returns {Anim}
+	 */
+	output (data: object) : Anim;
+
+	/**
+	 * Pauses the animation.
+	 * @returns {Anim}
+	 */
+	pause() : Anim;
+
+	/**
+	 * Resumes the animation.
+	 * @returns {Anim}
+	 */
+	resume() : Anim;
+
+	/**
+	 * Starts the animation.
+	 * @param {boolean} reset - If true, the animation will be reset to its initial state.
+	 * @returns {Anim}
+	 */
+	run (reset?: boolean) : Anim;
+
+	/**
+	 * Updates the animation by the specified delta, which must be in the same unit as the duration of the commands.
+	 * Returns false when the animation has been completed.
+	 * @param {number} dt
+	 * @param {Anim} self
+	 * @returns {boolean}
+	 */
+	update (dt: number, self?: Anim) : boolean;
+
+	/**
+	 * Runs the subsequent commands in parallel. Should end the parallel block by calling `end`.
+	 * @returns {Anim}
+	 */
+	parallel() : Anim;
+
+	/**
+	 * Runs the subsequent commands in series. Should end the serial block by calling `end`.
+	 * @returns {Anim}
+	 */
+	serial() : Anim;
+
+	/**
+	 * Repeats a block the specified number of times.
+	 * @param {number} count
+	 * @returns {Anim}
+	 */
+	repeat (count: number) : Anim;
+
+	/**
+	 * Ends a `parallel`, `serial` or `repeat` block.
+	 * @returns {Anim}
+	 */
+	end() : Anim;
+
+	/**
+	 * Sets the value of a variable.
+	 * @param {string|function} field
+	 * @param {*} value
+	 * @returns {Anim}
+	 */
+	set (field: string|function, value: any) : Anim;
+
+	/**
+	 * Restarts the current block.
+	 * @returns {Anim}
+	 */
+	restart() : Anim;
+
+	/**
+	 * Waits for the specified duration.
+	 * @param {number} duration
+	 * @returns {Anim}
+	 */
+	wait (duration: number) : Anim;
+
+	/**
+	 * Animates a variable from the startValue to the endValue over the specified duration.
+	 * @param {string|function} field
+	 * @param {number} duration
+	 * @param {number} startValue
+	 * @param {number} endValue
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
+	range (field: string|function, duration: number, startValue: number, endValue: number, easing?: function) : Anim;
+
+	/**
+	 * Animates a variable from the current value to the endValue over the specified duration.
+	 * @param {string|function} field
+	 * @param {number} duration
+	 * @param {number} endValue
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
+	rangeTo (field: string|function, duration: number, endValue: number, easing?: function) : Anim;
+
+	/**
+	 * Changes the variable with a value that is a random number in the given range (inclusive) for the specified duration.
+	 * @param {string|function} field
+	 * @param {number} duration
+	 * @param {number} count
+	 * @param {number} startValue
+	 * @param {number} endValue
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
+	rand (field: string|function, duration: number, count: number, startValue: number, endValue: number, easing?: function) : Anim;
+
+	/**
+	 * Changes the variable with a value that is a random number in the given range (inclusive) for the specified duration. The difference
+	 * between this and `rand` is that this function uses a static pre-generated table of random numbers between the specified range.
+	 *
+	 * @param {string|function} field
+	 * @param {number} duration
+	 * @param {number} count
+	 * @param {number} startValue
+	 * @param {number} endValue
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
+	randt (field: string|function, duration: number, count: number, startValue: number, endValue: number, easing?: function) : Anim;
+
+	/**
+	 * Plays a sound.
+	 * @param {object} snd
+	 * @returns {Anim}
+	 */
+	play (snd: object) : Anim;
+
+	/**
+	 * Executes a function. If continuous execution is needed, simply return `true`.
+	 * @param {(dt: number, data: object, anim: Anim) => boolean} fn
+	 * @returns {Anim}
+	 */
+	exec (fn: (dt: number, data: object, anim: Anim) => boolean) : Anim;
+
+	/**
+	 * Sets X coordinate.
+	 * @param {number} value
+	 * @returns {Anim}
+	 */
+	setX (value: number) : Anim;
+
+	/**
+	 * Sets Y coordinate.
+	 * @param {number} value
+	 * @returns {Anim}
+	 */
+	setY (value: number) : Anim;
+
+	/**
+	 * Sets both the X and Y coordinates.
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {Anim}
+	 */
+	position (x: number, y: number) : Anim;
+
+	/**
+	 * Translates the X coordinate for the specified amount over the specified duration.
+	 * @param {number} duration
+	 * @param {number} deltaValue
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
+	translateX (duration: number, deltaValue: number, easing?: function) : Anim;
+
+	/**
+	 * Translates the Y coordinate for the specified amount over the specified duration.
+	 * @param {number} duration
+	 * @param {number} deltaValue
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
+	translateY (duration: number, deltaValue: number, easing?: function) : Anim;
+
+	/**
+	 * Translates the X and Y coordinates for the specified amount over the specified duration.
+	 * @param {number} duration
+	 * @param {number} deltaValueX
+	 * @param {number} deltaValueY
+	 * @param {function} easingX?
+	 * @param {function} easingY?
+	 * @returns {Anim}
+	 */
+	translate (duration: number, deltaValueX: number, deltaValueY: number, easingX?: function, easingY?: function) : Anim;
+
+	/**
+	 * Translates the X and Y coordinates to the specified end values over the specified duration.
+	 * @param {numbe} duration
+	 * @param {number} endValueX
+	 * @param {number} endValueY
+	 * @param {function} easingX?
+	 * @param {function} easingY?
+	 * @returns {Anim}
+	 */
+	moveTo (duration: number, endValueX: number, endValueY: number, easingX?: function, easingY?: function) : Anim;
+
+	/**
+	 * Changes the `sx` and `sy` (scale X and scale Y) properties to the specified end values over the specified duration.
+	 * @param {number} duration
+	 * @param {number} endValueX
+	 * @param {number} endValueY
+	 * @param {function} easingX?
+	 * @param {function} easingY?
+	 * @returns {Anim}
+	 */
+	scale (duration: number, endValueX: number, endValueY: number, easingX?: function, easingY?: function) : Anim;
+
+	/**
+	 * Changes the `rotation` property by the specified delta value over the specified duration.
+	 * @param {number} duration
+	 * @param {number} deltaValue
+	 * @param {function} easing?
+	 * @returns {Anim}
+	 */
+	rotate (duration: number, deltaValue: number, easing?: function) : Anim;
+
+	/**
+	 * Global animation time scale.
+	 */
+	static timeScale: number;
+
+	/**
+	 * Sets the global time scale (animation speed).
+	 * @param {number} value
+	 */
+	static speed (value: number) : void;
+
 }
 export class Boot
 {
@@ -3807,7 +4165,7 @@ export class Container
 	/**
 	 * Adds an element to the container. Returns boolean indicating if successful.
 	 */
-	add (elem: Element) : boolean;
+	add (elem: Element) : Element;
 
 	/**
 	 * Removes an element from the container and returns it.
@@ -4302,9 +4660,14 @@ export class SimpleContainer extends Container
 	readonly list: List;
 
 	/**
-	 * Constructs the container with the specified size.
+	 * Constructs the simple container with the specified size.
 	 */
 	constructor (width: number, height: number);
+
+	/**
+	 * Constructs the simple container.
+	 */
+	constructor ();
 
 	/**
 	 * Syncs the actual location of the specified element with its storage location. Returns true if successful.
@@ -4322,9 +4685,9 @@ export class SimpleContainer extends Container
 	override reset() : void;
 
 	/**
-	 * Adds an element to the container. Returns boolean indicating if successful.
+	 * Adds an element to the container.
 	 */
-	override add (elem: Element) : boolean;
+	override add (elem: Element) : Element;
 
 	/**
 	 * Removes an element from the container and returns it.
@@ -4380,7 +4743,7 @@ export class GridContainer extends Container
 	/**
 	 * 	Adds an element to the container. Returns boolean indicating if successful.
 	 */
-	override add (elem: Element) : boolean;
+	override add (elem: Element) : Element;
 
 	/**
 	 * 	Removes an element from the container and returns it.
@@ -5187,7 +5550,7 @@ export class world
 	/**
 	 * Creates a scene at the specified index and automatically selects it.
 	 */
-	static createScene (index: number, name?: string) : void;
+	static createScene (index: number, name?: string) : Scene;
 
 	/**
 	 * Returns the scene at the specified index (or the active scene if no index provided).

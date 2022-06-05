@@ -210,7 +210,7 @@ const Container = Class.extend
 
 	/**
 	 * Adds an element to the container. Returns boolean indicating if successful.
-	 * !add (elem: Element) : boolean;
+	 * !add (elem: Element) : Element;
 	 */
 	add: function (elem) /* @override */
 	{

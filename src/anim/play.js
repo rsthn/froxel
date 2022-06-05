@@ -16,11 +16,11 @@
 
 export default
 {
-	init: function(cmd, postinit=false)
+	init: function (cmd, postinit=false)
 	{
 	},
 
-	update: function(anim, block, cmd)
+	update: function (anim, block, cmd)
 	{
 		cmd.snd.play();
 		return true;

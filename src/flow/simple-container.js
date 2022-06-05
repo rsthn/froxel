@@ -41,10 +41,14 @@ export default Container.extend
 	list: null,
 
 	/**
-	 * Constructs the container with the specified size.
+	 * Constructs the simple container with the specified size.
 	 * !constructor (width: number, height: number);
 	 */
-	__ctor: function (width, height)
+	/**
+	 * Constructs the simple container.
+	 * !constructor ();
+	 */
+	__ctor: function (width=0, height=0)
 	{
 		this._super.Container.__ctor (width, height);
 		this.list = List.Pool.alloc();
@@ -109,8 +113,8 @@ export default Container.extend
 	},
 
 	/**
-	 * Adds an element to the container. Returns boolean indicating if successful.
-	 * !override add (elem: Element) : boolean;
+	 * Adds an element to the container.
+	 * !override add (elem: Element) : Element;
 	 */
 	add: function (elem)
 	{
@@ -124,7 +128,7 @@ export default Container.extend
 		elem.remover.add(this._remove, this, this.list.bottom);
 
 		this.syncZ(elem);
-		return true;
+		return elem;
 	},
 
 	/**

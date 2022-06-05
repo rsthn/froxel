@@ -227,6 +227,12 @@ Object.assign(Resources,
 					r.data.targetWidth = r.width;
 					r.data.targetHeight = r.height;
 
+					if (r.hasOwnProperty('mipmap') && r.mipmap > 1)
+					{
+						r.data.mipmap = true;
+						r.data.levels = r.mipmap;
+					}
+
 					// Pre-draw on an offscreen canvas, used to prevent a delay when rendering an image for the first time on some browsers.
 					System.tempDisplayBuffer.drawImage(r.data, 0, 0);
 					System.renderer.prepareImage(r.data);
@@ -343,6 +349,12 @@ Object.assign(Resources,
 						tmp.data.targetWidth = tmp.width;
 						tmp.data.targetHeight = tmp.height;
 
+						if (r.hasOwnProperty('mipmap') && r.mipmap > 1)
+						{
+							tmp.data.mipmap = true;
+							tmp.data.levels = r.mipmap;
+						}
+	
 						if (r._i == 1)
 						{
 							r.width = tmp.width;

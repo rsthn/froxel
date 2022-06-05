@@ -191,7 +191,7 @@ const world =
 
 	/**
 	 * Creates a scene at the specified index and automatically selects it.
-	 * !static createScene (index: number, name?: string) : void;
+	 * !static createScene (index: number, name?: string) : Scene;
 	 */
 	createScene: function (index, name=null)
 	{
@@ -205,6 +205,7 @@ const world =
 		System.queueAdd(this._scenes[index]);
 
 		this.selectScene(index);
+		return this._scenes[index];
 	},
 
 	/**

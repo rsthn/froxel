@@ -26,8 +26,9 @@ const Block = Class.extend
 
 	commands: null,
 
-	first: true,
+	isFirst: true,
 	current: false,
+	stamp: 0,
 	time: 0,
 
 	/**
@@ -48,12 +49,28 @@ const Block = Class.extend
 	},
 
 	/**
+	 * Returns the number of commands in the block.
+	 * !count() : int;
+	 */
+	count: function()
+	{
+		return this.commands.length;
+	},
+
+	/**
 	 * 	Adds a command to the block.
 	 * 	!add (cmd: Command) : Command;
 	 */
-	add: function(cmd)
+	add: function (cmd)
 	{
 		this.commands.push(cmd);
+
+		if (this.isFirst === false && this.current === null)
+		{
+			this.current = this.commands.bottom;
+			this.stamp = rand();
+		}
+
 		return cmd;
 	},
 
@@ -89,9 +106,10 @@ const Block = Class.extend
 	 */
 	reset: function (time=0)
 	{
-		this.first = true;
+		this.isFirst = true;
 		this.current = null;
 		this.time = time;
+		this.stamp = rand();
 
 		return this;
 	},
@@ -102,7 +120,9 @@ const Block = Class.extend
 	 */
 	restart: function()
 	{
-		this.first = true;
+		this.isFirst = true;
+		this.stamp = rand();
+
 		return this;
 	},
 
@@ -112,10 +132,10 @@ const Block = Class.extend
 	 */
 	isFinished: function()
 	{
-		if (this.first === true)
+		if (this.isFirst === true)
 		{
 			this.current = this.commands.top;
-			this.first = false;
+			this.isFirst = false;
 		}
 
 		return this.current === null;
@@ -149,5 +169,5 @@ const Block = Class.extend
  * 	!static calloc () : Block;
  */
 
-Recycler.attachTo(Block, 8192);
+Recycler.attachTo(Block, 2048);
 export default Block;
