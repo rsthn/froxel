@@ -1,3 +1,29 @@
+# v2.2.6 - Jun 05 2022
+
+#### Anim
+- Added tsdoc to all methods and cleaned up some code.
+
+#### Container
+- Method `add` now returns the element added instead of boolean.
+
+#### GridContainer
+- Method `add` now returns the element added instead of boolean.
+
+#### SimpleContainer
+- Method `add` now returns the element added instead of boolean.
+- Constructor now allows no parameters to be passed to build a size-irrelevant simple container (width and height will be zero).
+
+#### World
+- Method `createScene` now returns the created scene.
+
+#### Resources
+- Added mipmap support to `image` and `images` resources. Use the `mipmap` (integer) property to specify how many mipmap levels to generate.
+
+#### Global
+- Added `fract` and `mix` functions with the same behavior as in GLSL.
+
+<br/>
+
 # v2.2.5 - May 26 2022
 
 #### System
