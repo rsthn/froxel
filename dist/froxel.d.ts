@@ -494,6 +494,11 @@ export class Vec2
 	rotate (angle: number) : Vec2;
 
 	/**
+	 *	Rotates the vector by the specified angle using the given origin point.
+	 */
+	rotate (angle: number, cx: number, cy: number) : Vec2;
+
+	/**
 	 *	Adds the coordinates of the given Vec2 to the vector.
 	 */
 	add (value: Vec2) : Vec2;
@@ -1129,6 +1134,16 @@ export class Canvas
 	 * 	Prepares an image to use it on the canvas. Used only when GL mode is active.
 	 */
 	prepareImage (image: HTMLImageElement) : boolean;
+
+	/**
+	 * 	Creates a new texture of the specified size.
+	 */
+	createTexture (width: number, height: number, filter?: string, mipmapLeves?: number) : Texture;
+
+	/**
+	 * 	Uploads the specified source to the texture buffer. Used only when GL mode is active.
+	 */
+	uploadTexture (texture: HTMLImageElement, source: HTMLImageElement) : boolean;
 
 	/**
 	 * 	Configures the texture related to specified image to gl.REPEAT.
@@ -2516,9 +2531,14 @@ declare global
 	function lineSegmentIntersects (ls1_x1: number, ls1_y1: number, ls1_x2: number, ls1_y2: number, ls2_x1: number, ls2_y1: number, ls2_x2: number, ls2_y2: number) : boolean;
 
 	/**
-	 * Rotates a point (2d) by the given angle and returns an object having x and y properties.
+	 * Rotates a point by the given angle.
 	 */
 	function rotatePoint (angle: number, x: number, y: number) : { x: number, y: number };
+
+	/**
+	 * Rotates a point by the given angle along the given center.
+	 */
+	function rotatePoint (angle: number, x: number, y: number, cx: number, cy: number) : { x: number, y: number };
 
 	/**
 	 * Returns a value snapped to a step within the given range.

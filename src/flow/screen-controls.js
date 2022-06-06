@@ -22,38 +22,45 @@ import System from '../system/system.js';
 //![import "./pointer-handler"]
 //![import "../system/system"]
 
-/**
-**
-*/
+//!class ScreenControls
 
 const ScreenControls =
 ({
 	priority: 5,
 
 	list: [ ],
-	dummy: { },
 
-	hoverEnabled: false,
-	zindexEnabled: false,
+	/**
+	 * Controls if `hover` support is enabled.
+	 */
+	hoverFlag: false,
+
+	/**
+	 * Controls if `zindex` support is enabled.
+	 */
+	zindexFlag: false,
+
+	/**
+	 * Last frame number when the list was sorted (when zindex is enabled).
+	 */
 	lastFrame: 0,
 
 	/*
-	**	Adds an item to the ScreenControls control list. The item should be an object with the following mandatory methods:
+	**	Adds an item to the ScreenControls control list. The item should be an object with the following mandatory methods and properties:
 	**
-	**		bool containsPoint (float pointerX, float pointerY)
-	**		void pointerActivate (Object pointer)
-	**		void pointerDeactivate (Object pointer)
-	**		void pointerUpdate (float pointerX, float pointerY, Object pointer)
-	**		void hover (bool status, Object pointer)
-	**		bool focusLock
-	**
-	**		bool keyboardEvents
-	**		bool keyDown (int keyCode, object keyArgs)
-	**		bool keyUp (int keyCode, object keyArgs)
+	** bool focusLock;
+	** bool keyboardEvents;
+	** bool containsPoint (float pointerX, float pointerY);
+	** void pointerActivate (Object pointer);
+	** void pointerDeactivate (Object pointer);
+	** void pointerUpdate (float pointerX, float pointerY, Object pointer);
+	** void hover (bool status, Object pointer);
+	** bool keyDown (int keyCode, object keyArgs);
+	** bool keyUp (int keyCode, object keyArgs);
 	*/
 	add: function (c)
 	{
-		if (this.zindexEnabled && !('zindex' in c))
+		if (this.zindexFlag && !('zindex' in c))
 			c.zindex = 0;
 
 		if (this.list.indexOf(c) === -1)
@@ -62,7 +69,7 @@ const ScreenControls =
 
 	remove: function (c)
 	{
-		var i = this.list.indexOf(c);
+		let i = this.list.indexOf(c);
 		if (i !== -1) this.list.splice(i, 1);
 	},
 
@@ -78,6 +85,7 @@ const ScreenControls =
 
 	findTarget: function (x, y, filter)
 	{
+		// Once per frame the list is re-sorted (if required) when the zindex flag is enabled.
 		if (this.zindexEnabled && this.lastFrame != System.frameNumber)
 		{
 			let zindex = this.list[0].zindex;
@@ -144,7 +152,7 @@ const ScreenControls =
 				break;
 
 			case System.PointerEventType.POINTER_DRAG_MOVE:
-				if (this.hoverEnabled)
+				if (this.hoverFlag)
 				{
 					if (p._refh != null)
 					{
@@ -202,7 +210,7 @@ const ScreenControls =
 				break;
 
 			case System.PointerEventType.POINTER_MOVE:
-				if (this.hoverEnabled)
+				if (this.hoverFlag)
 				{
 					if (p._refh != null)
 					{
@@ -291,6 +299,8 @@ const ScreenControls =
 		}
 	}
 });
+
+//!/class
 
 PointerHandler.register(ScreenControls);
 KeyboardHandler.register(ScreenControls);

@@ -26,7 +26,7 @@ import Gamepad from './gamepad.js';
 //!class input
 
 /**
- *	Input system allows to create gamepads and manage the system cursor.
+ * Input system allows to interface with the pointer and keyboard devices. And to create on-screen gamepads.
  */
 
 const input =
@@ -162,6 +162,14 @@ const input =
 					input.cursor._handler (action, pointer);
 			},
 		},
+	},
+
+	/**
+	 * Main pointer event handler. Runs the appropriate handlers attached using the `pointer` handler.
+	 */
+	onPointerEvent: function (action, pointer, pointers)
+	{
+
 	},
 
 	/**

@@ -97,6 +97,9 @@ export default Boot.Module.create
 		return handler.onPointerEvent(this._action, this._p, this._pointers);
 	},
 
+	/**
+	 * Overrides the system's pointer event handler with the one from this class.
+	 */
 	onStartup: function()
 	{
 		System.onPointerEvent = (action, p, pointers) =>
@@ -109,6 +112,9 @@ export default Boot.Module.create
 		};
 	},
 
+	/**
+	 * Removes the system's pointer handler.
+	 */
 	onShutdown: function()
 	{
 		System.onPointerEvent = null;

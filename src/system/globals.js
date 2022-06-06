@@ -419,12 +419,19 @@ global.lineSegmentIntersects = function (ls1_x1, ls1_y1, ls1_x2, ls1_y2, ls2_x1,
 }
 
 /**
- * Rotates a point (2d) by the given angle and returns an object having x and y properties.
+ * Rotates a point by the given angle.
  * !function rotatePoint (angle: number, x: number, y: number) : { x: number, y: number };
  */
-global.rotatePoint = function (angle, x, y)
+/**
+ * Rotates a point by the given angle along the given center.
+ * !function rotatePoint (angle: number, x: number, y: number, cx: number, cy: number) : { x: number, y: number };
+ */
+global.rotatePoint = function (angle, x, y, cx=0, cy=0)
 {
-	return { x: x*Math.cos(angle) + y*Math.sin(angle), y: y*Math.cos(angle) - x*Math.sin(angle) };
+	return {
+		x: cx + (x-cx)*Math.cos(angle) + (y-cy)*Math.sin(angle),
+		y: cy + (y-cy)*Math.cos(angle) - (x-cx)*Math.sin(angle)
+	};
 }
 
 /**

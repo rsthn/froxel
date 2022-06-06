@@ -198,13 +198,17 @@ const Vec2 = Class.extend
 	 *	Rotates the vector by the specified angle.
 	 *	!rotate (angle: number) : Vec2;
 	 */
-	rotate: function (angle)
+	/**
+	 *	Rotates the vector by the specified angle using the given origin point.
+	 *	!rotate (angle: number, cx: number, cy: number) : Vec2;
+	 */
+	rotate: function (angle, cx=0, cy=0)
 	{
-		let x = this.x*Math.cos(angle) + this.y*Math.sin(angle);
-		let y = this.y*Math.cos(angle) - this.x*Math.sin(angle);
+		let x = (this.x - cx)*Math.cos(angle) + (this.y - cy)*Math.sin(angle);
+		let y = (this.y - cy)*Math.cos(angle) - (this.x - cx)*Math.sin(angle);
 
-		this.x = x;
-		this.y = y;
+		this.x = x + cx;
+		this.y = y + cy;
 
 		return this;
 	},

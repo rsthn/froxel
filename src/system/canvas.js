@@ -563,7 +563,6 @@ Canvas.prototype.initGl = function ()
 	};
 };
 
-
 /**
  * 	Prepares an image to use it on the canvas. Used only when GL mode is active.
  * 	!prepareImage (image: HTMLImageElement) : boolean;
@@ -619,6 +618,90 @@ Canvas.prototype.prepareImage = function (image)
 
 	image.glTextureId = texture;
 	image.glTextureReady = true;
+
+	return true;
+};
+
+/**
+ * 	Creates a new texture of the specified size.
+ * 	!createTexture (width: number, height: number, filter?: string, mipmapLeves?: number) : Texture;
+ */
+Canvas.prototype.createTexture = function (width, height, filter='NEAREST', mipmapLevels=0)
+{
+	let gl = this.gl;
+	if (gl == null) return null;
+
+	let image = {
+		width: width,
+		height: height,
+		targetWidth: width,
+		targetHeight: height,
+		rscale: 1.0,
+		
+		filter: filter,
+		mipmap: mipmapLevels > 0 ? true : false,
+		levels: mipmapLevels,
+	};
+
+	let texture = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+
+	if (!image.filter)
+		image.filter = 'NEAREST';
+
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+	if (image.mipmap === true)
+	{
+		gl.texStorage2D(gl.TEXTURE_2D, image.levels, gl.RGBA8, image.width, image.height);
+
+		if (image.filter === 'NEAREST')
+		{
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		}
+		else
+		{
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		}
+	}
+	else
+	{
+		gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, image.width, image.height);
+
+		if (image.filter === 'NEAREST')
+		{
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		}
+		else
+		{
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		}
+	}
+
+	image.glTextureId = texture;
+	image.glTextureReady = true;
+
+	return image;
+};
+
+/**
+ * 	Uploads the specified source to the texture buffer. Used only when GL mode is active.
+ * 	!uploadTexture (texture: HTMLImageElement, source: HTMLImageElement) : boolean;
+ */
+Canvas.prototype.uploadTexture = function (texture, source)
+{
+	let gl = this.gl;
+	if (gl == null) return false;
+
+	if (!texture.glTextureId) return false;
+
+	gl.bindTexture(gl.TEXTURE_2D, texture.glTextureId);
+	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, Math.min(texture.width, source.width), Math.min(texture.height, source.height), gl.RGBA, gl.UNSIGNED_BYTE, source);
 
 	return true;
 };
