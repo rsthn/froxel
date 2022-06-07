@@ -399,7 +399,7 @@ const Anim = Class.extend
 
 	/**
 	 * Sets the value of a field.
-	 * @param {string|function} fieldName 
+	 * @param {string|Function} fieldName 
 	 * @param {*} value 
 	 */
 	setValue: function (fieldName, value)
@@ -428,7 +428,7 @@ const Anim = Class.extend
 
 	/**
 	 * Returns the value of a field. Performs special transforms to the value if certain prefix is found.
-	 * @param {string|function} fieldName 
+	 * @param {string|Function} fieldName 
 	 * @param {*} value 
 	 * @param {*} initialValue 
 	 * @returns {*}
@@ -535,7 +535,7 @@ const Anim = Class.extend
 
 	/**
 	 * Ensures that the field name is correct for subsequent rules.
-	 * @param {string|function} value 
+	 * @param {string|Function} value 
 	 * @returns {Array}
 	 */
 	prepareFieldName: function (value)
@@ -612,10 +612,10 @@ const Anim = Class.extend
 
 	/**
 	 * Sets the value of a variable.
-	 * @param {string|function} field 
+	 * @param {string|Function} field 
 	 * @param {*} value 
 	 * @returns {Anim}
-	 * !set (field: string|function, value: any) : Anim;
+	 * !set (field: string|Function, value: any) : Anim;
 	 */
 	set: function (field, value)
 	{
@@ -655,13 +655,13 @@ const Anim = Class.extend
 
 	/**
 	 * Animates a variable from the startValue to the endValue over the specified duration.
-	 * @param {string|function} field 
+	 * @param {string|Function} field 
 	 * @param {number} duration 
 	 * @param {number} startValue 
 	 * @param {number} endValue 
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
-	 * !range (field: string|function, duration: number, startValue: number, endValue: number, easing?: function) : Anim;
+	 * !range (field: string|Function, duration: number, startValue: number, endValue: number, easing?: (t: number) => number) : Anim;
 	 */
 	range: function (field, duration, startValue, endValue, easing=null)
 	{
@@ -678,12 +678,12 @@ const Anim = Class.extend
 
 	/**
 	 * Animates a variable from the current value to the endValue over the specified duration.
-	 * @param {string|function} field 
+	 * @param {string|Function} field 
 	 * @param {number} duration 
 	 * @param {number} endValue 
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
-	 * !rangeTo (field: string|function, duration: number, endValue: number, easing?: function) : Anim;
+	 * !rangeTo (field: string|Function, duration: number, endValue: number, easing?: (t: number) => number) : Anim;
 	 */
 	rangeTo: function (field, duration, endValue, easing=null)
 	{
@@ -700,14 +700,14 @@ const Anim = Class.extend
 
 	/**
 	 * Changes the variable with a value that is a random number in the given range (inclusive) for the specified duration.
-	 * @param {string|function} field 
+	 * @param {string|Function} field 
 	 * @param {number} duration 
 	 * @param {number} count 
 	 * @param {number} startValue 
 	 * @param {number} endValue 
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
-	 * !rand (field: string|function, duration: number, count: number, startValue: number, endValue: number, easing?: function) : Anim;
+	 * !rand (field: string|Function, duration: number, count: number, startValue: number, endValue: number, easing?: (t: number) => number) : Anim;
 	 */
 	rand: function (field, duration, count, startValue, endValue, easing=null)
 	{
@@ -727,14 +727,14 @@ const Anim = Class.extend
 	 * Changes the variable with a value that is a random number in the given range (inclusive) for the specified duration. The difference
 	 * between this and `rand` is that this function uses a static pre-generated table of random numbers between the specified range.
 	 *
-	 * @param {string|function} field 
+	 * @param {string|Function} field 
 	 * @param {number} duration 
 	 * @param {number} count 
 	 * @param {number} startValue 
 	 * @param {number} endValue 
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
-	 * !randt (field: string|function, duration: number, count: number, startValue: number, endValue: number, easing?: function) : Anim;
+	 * !randt (field: string|Function, duration: number, count: number, startValue: number, endValue: number, easing?: (t: number) => number) : Anim;
 	 */
 	randt: function (field, duration, count, startValue, endValue, easing)
 	{
@@ -836,9 +836,9 @@ const Anim = Class.extend
 	 * Translates the X coordinate for the specified amount over the specified duration.
 	 * @param {number} duration 
 	 * @param {number} deltaValue 
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
-	 * !translateX (duration: number, deltaValue: number, easing?: function) : Anim;
+	 * !translateX (duration: number, deltaValue: number, easing?: (t: number) => number) : Anim;
 	 */
 	translateX: function (duration, deltaValue, easing)
 	{
@@ -849,9 +849,9 @@ const Anim = Class.extend
 	 * Translates the Y coordinate for the specified amount over the specified duration.
 	 * @param {number} duration 
 	 * @param {number} deltaValue 
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
-	 * !translateY (duration: number, deltaValue: number, easing?: function) : Anim;
+	 * !translateY (duration: number, deltaValue: number, easing?: (t: number) => number) : Anim;
 	 */
 	translateY: function (duration, deltaValue, easing)
 	{
@@ -863,10 +863,10 @@ const Anim = Class.extend
 	 * @param {number} duration 
 	 * @param {number} deltaValueX 
 	 * @param {number} deltaValueY 
-	 * @param {function} easingX?
-	 * @param {function} easingY?
+	 * @param {(t: number) => number} easingX?
+	 * @param {(t: number) => number} easingY?
 	 * @returns {Anim}
-	 * !translate (duration: number, deltaValueX: number, deltaValueY: number, easingX?: function, easingY?: function) : Anim;
+	 * !translate (duration: number, deltaValueX: number, deltaValueY: number, easingX?: (t: number) => number, easingY?: (t: number) => number) : Anim;
 	 */
 	translate: function (duration, deltaValueX, deltaValueY, easingX, easingY=null)
 	{
@@ -881,10 +881,10 @@ const Anim = Class.extend
 	 * @param {numbe} duration 
 	 * @param {number} endValueX 
 	 * @param {number} endValueY 
-	 * @param {function} easingX?
-	 * @param {function} easingY?
+	 * @param {(t: number) => number} easingX?
+	 * @param {(t: number) => number} easingY?
 	 * @returns {Anim}
-	 * !moveTo (duration: number, endValueX: number, endValueY: number, easingX?: function, easingY?: function) : Anim;
+	 * !moveTo (duration: number, endValueX: number, endValueY: number, easingX?: (t: number) => number, easingY?: (t: number) => number) : Anim;
 	 */
 	moveTo: function (duration, endValueX, endValueY, easingX, easingY=null)
 	{
@@ -898,7 +898,7 @@ const Anim = Class.extend
 	 * Translates the X coordinate to the specified end value over the specified duration.
 	 * @param {number} duration 
 	 * @param {number} endValue 
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
 	moveX: function (duration, endValue, easing=null)
@@ -910,7 +910,7 @@ const Anim = Class.extend
 	 * Translates the Y coordinate to the specified end value over the specified duration.
 	 * @param {number} duration 
 	 * @param {number} endValue 
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
 	moveY: function (duration, endValue, easing=null)
@@ -922,7 +922,7 @@ const Anim = Class.extend
 	 * Changes the `sx` (scale X) property to the specified end value over the specified duration.
 	 * @param {numbe} duration 
 	 * @param {numbber} endValue 
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
 	scaleX: function (duration, endValue, easing)
@@ -934,7 +934,7 @@ const Anim = Class.extend
 	 * Changes the `sy` (scale Y) property to the specified end value over the specified duration.
 	 * @param {number} duration 
 	 * @param {numbe} endValue 
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
 	scaleY: function (duration, endValue, easing)
@@ -947,10 +947,10 @@ const Anim = Class.extend
 	 * @param {number} duration
 	 * @param {number} endValueX
 	 * @param {number} endValueY
-	 * @param {function} easingX?
-	 * @param {function} easingY?
+	 * @param {(t: number) => number} easingX?
+	 * @param {(t: number) => number} easingY?
 	 * @returns {Anim}
-	 * !scale (duration: number, endValueX: number, endValueY: number, easingX?: function, easingY?: function) : Anim;
+	 * !scale (duration: number, endValueX: number, endValueY: number, easingX?: (t: number) => number, easingY?: (t: number) => number) : Anim;
 	 */
 	scale: function (duration, endValueX, endValueY, easingX, easingY=null)
 	{
@@ -964,9 +964,9 @@ const Anim = Class.extend
 	 * Changes the `rotation` property by the specified delta value over the specified duration.
 	 * @param {number} duration
 	 * @param {number} deltaValue
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
-	 * !rotate (duration: number, deltaValue: number, easing?: function) : Anim;
+	 * !rotate (duration: number, deltaValue: number, easing?: (t: number) => number) : Anim;
 	 */
 	rotate: function (duration, deltaValue, easing)
 	{

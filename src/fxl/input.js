@@ -165,11 +165,10 @@ const input =
 	},
 
 	/**
-	 * Main pointer event handler. Runs the appropriate handlers attached using the `pointer` handler.
+	 * Main pointer event handler. Executes the `pointer` handler.
 	 */
 	onPointerEvent: function (action, pointer, pointers)
 	{
-
 	},
 
 	/**

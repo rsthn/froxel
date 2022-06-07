@@ -780,7 +780,7 @@ export class glx
 	/**
 	 * Sets the WebGL rendering context.
 	 */
-	static setContext (context: WebGL2RenderingContext) : gl;
+	static setContext (context: WebGL2RenderingContext) : glx;
 
 	/**
 	 * Returns the value of a GL parameter.
@@ -1138,12 +1138,12 @@ export class Canvas
 	/**
 	 * 	Creates a new texture of the specified size.
 	 */
-	createTexture (width: number, height: number, filter?: string, mipmapLeves?: number) : Texture;
+	createTexture (width: number, height: number, filter?: string, mipmapLeves?: number) : object;
 
 	/**
 	 * 	Uploads the specified source to the texture buffer. Used only when GL mode is active.
 	 */
-	uploadTexture (texture: HTMLImageElement, source: HTMLImageElement) : boolean;
+	uploadTexture (texture: object, source: HTMLImageElement) : boolean;
 
 	/**
 	 * 	Configures the texture related to specified image to gl.REPEAT.
@@ -1236,6 +1236,116 @@ export class Canvas
 export namespace System
 {
 	type DisplayOrientation = 'default'|'landscape'|'portrait'|'automatic'|'strict';
+	enum KeyboardEventType
+	{
+		KEY_DOWN,
+		KEY_UP,
+	}
+
+	enum PointerEventType
+	{
+		POINTER_DOWN,
+		POINTER_UP,
+		POINTER_MOVE,
+		POINTER_DRAG_START,
+		POINTER_DRAG_MOVE,
+		POINTER_DRAG_STOP,
+		POINTER_WHEEL,
+	}
+
+	type KeyboardState =
+	{
+		/**
+		 * Time of last keyboard event.
+		 */
+		time: number;
+
+		/**
+		 * State of any of the SHIFT keys.
+		 */
+		shift: boolean;
+
+		/**
+		 * State of any of the CTRL keys.
+		 */
+		ctrl: boolean;
+
+		/**
+		 * State of the ALT key.
+		 */
+		alt: boolean;
+
+		/**
+		 * Key code of last keyboard event.
+		 */
+		keyCode: KeyCode;
+
+	}
+
+	type Pointer =
+	{
+		/**
+		 * ID of the pointer.
+		 */
+		id: number;
+
+		/**
+		 * Indicates if the pointer is active (pressed).
+		 */
+		isActive: boolean;
+
+		/**
+		 * Indicates if the pointer is currently being dragged.
+		 */
+		isDragging: boolean;
+
+		/**
+		 * Source X-coordinate when the POINTER_DOWN event was fired.
+		 */
+		sx: number;
+
+		/**
+		 * Source Y-coordinate when the POINTER_DOWN event was fired.
+		 */
+		sy: number;
+
+		/**
+		 * Current X-coordinate of the pointer.
+		 */
+		x: number;
+
+		/**
+		 * Current Y-coordinate of the pointer.
+		 */
+		y: number;
+
+		/**
+		 * Delta in the X direction of the current drag event.
+		 */
+		dx: number;
+
+		/**
+		 * Delta in the Y direction of the current drag event.
+		 */
+		dy: number;
+
+		/**
+		 * Number of the button currently being pressed.
+		 */
+		button: number;
+
+		/**
+		 * Delta value of the mouse-wheel (valid only when the pointer is a mouse pointing-device).
+		 */
+		wheelDelta: number;
+
+		/**
+		 * Accumulated mouse-wheel delta. Should be set to zero (0) manually when needed.
+		 */
+		wheelAccum: number;
+
+	}
+
 	type Options =
 	{
 		/**
@@ -1272,7 +1382,7 @@ export namespace System
 		 *	Desired orientaton of the display.
 		 *	@default "automatic"
 		 */
-		orientation?: System.DisplayOrientation;
+		orientation?: DisplayOrientation;
 
 		/**
 		 *	Desired display width. When not specified (null) the maximum screen width to maintain the aspect ratio will be used.
@@ -1331,182 +1441,188 @@ export namespace System
 
 	}
 
+	type KeyboardEventHandler = (action: KeyboardEventType, keyCode: KeyCode, state: KeyboardState) => boolean;
+	type PointerEventHandler = (action: PointerEventType, pointer: Pointer, pointers: { [pointerId: number]: Pointer }) => boolean;
 }
 
 export class System
 {
 	/**
-	 * 	Screen width, available only after the system has been initialized.
+	 * Screen width, available only after the system has been initialized.
 	 */
 	static readonly screenWidth: number;
 
 	/**
-	 * 	Screen height, available only after the system has been initialized.
+	 * Screen height, available only after the system has been initialized.
 	 */
 	static readonly screenHeight: number;
 
 	/**
-	 * 	Current display orientation.
+	 * Current display orientation.
 	 */
 	static readonly orientation: System.DisplayOrientation;
 
 	/**
-	 * 	Initial transformation matrix. Should be used (if needed) instead of `loadIdentity` since the System does some transformations first.
+	 * Initial transformation matrix. Should be used (if needed) instead of `loadIdentity` since the System does some transformations first.
 	 */
 	static readonly initialMatrix: Matrix;
 
 	/**
-	 * 	Primary renderer.
+	 * Primary renderer.
 	 */
 	static readonly renderer: Canvas;
 
 	/**
-	 * 	Secondary display buffer (always 2D). Has the same initial transformation matrix as the primary display buffer.
+	 * Secondary display buffer (always 2D). Has the same initial transformation matrix as the primary display buffer.
 	 */
 	static readonly displayBuffer2: Canvas;
 
 	/**
-	 * 	Terciary display buffer (always 2D). Is assured to have 1:1 with the screen size, initial transformation matrix not applied.
+	 * Terciary display buffer (always 2D). Is assured to have 1:1 with the screen size, initial transformation matrix not applied.
 	 */
 	static readonly displayBuffer3: Canvas;
 
 	/**
-	 * 	The frame delta is multiplied by this value before each system cycle (defaults to 1).
+	 * Map with the status of all keys (along with other flags).
+	 */
+	static readonly keyState: System.KeyboardState;
+
+	/**
+	 * Current status of all pointers.
+	 */
+	static readonly pointers: { [pointerId: number]: System.Pointer };
+
+	/**
+	 * The frame delta is multiplied by this value before each system cycle (defaults to 1).
 	 */
 	static timeScale: number;
 
 	/**
-	 * 	Frame interval in milliseconds.
+	 * Frame interval in milliseconds.
 	 */
 	static readonly frameInterval: number;
 
 	/**
-	 * 	Fixed frame interval in milliseconds, when set to non-zero value the frame delta will always be set to this value.
+	 * Fixed frame interval in milliseconds, when set to non-zero value the frame delta will always be set to this value.
 	 */
 	static fixedFrameInterval: number;
 
 	/**
-	 * 	Maximum frame interval in milliseconds, if the `frameDelta` exceeds this, it will be truncated to this value. Controlled by the `minFps` value
-	 * 	of the system initialization options.
+	 * Maximum frame interval in milliseconds, if the `frameDelta` exceeds this, it will be truncated to this value. Controlled by the `minFps` value of the system initialization options.
 	 */
 	static readonly maxFrameInterval: number;
 
 	/**
-	 * 	Last frame delta in seconds.
+	 * Last frame delta in seconds.
 	 */
 	static readonly frameDelta: number;
 
 	/**
-	 * 	Logical system time in seconds. Updated on each cycle by the calculated `frameDelta`.
+	 * Logical system time in seconds. Updated on each cycle by the calculated `frameDelta`.
 	 */
 	static readonly frameTime: number;
 
 	/**
-	 * 	Current frame number.
+	 * Current frame number.
 	 */
 	static readonly frameNumber: number;
 
 	/**
-	 * 	Initializes the system with the specified configuration options.
+	 * Initializes the system with the specified configuration options.
 	 */
 	static init (options: System.Options) : void;
 
 	/**
-	 * 	Returns the current logical time in seconds (same as reading `System.frameTime`).
+	 * Returns the current logical time in seconds (same as reading `System.frameTime`).
 	 */
 	static time() : number;
 
 	/**
-	 * 	Starts the system and enables rendering and updates.
+	 * Starts the system and enables rendering and updates.
 	 */
 	static start() : void;
 
 	/**
-	 * 	Stops the system by disabling both rendering and updates.
+	 * Stops the system by disabling both rendering and updates.
 	 */
 	static stop() : void;
 
 	/**
-	 * 	Pauses the system by disabling updates, but rendering will be continued.
+	 * Pauses the system by disabling updates, but rendering will be continued.
 	 */
 	static pause() : void;
 
 	/**
-	 * 	Resumes the system after previously being paused with `pause` method.
+	 * Resumes the system after previously being paused with `pause` method.
 	 */
 	static resume() : void;
 
 	/**
-	 * 	Event triggered when the canvas was resized by the system. Can be overriden.
+	 * Event triggered when the canvas was resized by the system. Can be overriden.
 	 */
 	static onCanvasResized (screenWidth: number, screenHeight: number) : void;
 
 	/**
-	 * 	Adds the specified update handler to the system.
+	 * Adds the specified update handler to the system.
+	 * violet
 	 */
-	updateQueueAdd (handler: { update: (dt: number) => void }) : Linkable;
+	static updateQueueAdd (handler: { update: (dt: number) => boolean }) : Linkable;
 
 	/**
-	 * 	Removes the specified update handler from the system.
+	 * Removes the specified update handler from the system.
+	 * violet
 	 */
-	updateQueueRemove (handler: { update: (dt: number) => void }) : void;
+	static updateQueueRemove (handler: { update: (dt: number) => boolean }) : void;
 
 	/**
-	 * 	Removes the specified update handler node from the system.
+	 * Removes the specified update handler node from the system.
 	 */
-	updateQueueRemove (node: Linkable) : void;
+	static updateQueueRemove (node: Linkable) : void;
 
 	/**
-	 * 	Adds the specified draw handler to the system.
+	 * Adds the specified draw handler to the system.
+	 * violet
 	 */
-	drawQueueAdd (handler: { draw: (g: Canvas) => void }) : Linkable;
+	static drawQueueAdd (handler: { draw: (g: Canvas) => void }) : Linkable;
 
 	/**
-	 * 	Removes the specified draw handler from the system.
+	 * Removes the specified draw handler from the system.
+	 * violet
 	 */
-	drawQueueRemove (handler: { draw: (g: Canvas) => void }) : void;
+	static drawQueueRemove (handler: { draw: (g: Canvas) => void }) : void;
 
 	/**
-	 * 	Removes the specified draw handler node from the system.
+	 * Removes the specified draw handler node from the system.
 	 */
-	drawQueueRemove (node: Linkable) : void;
+	static drawQueueRemove (node: Linkable) : void;
 
 	/**
-	 * 	Adds the specified handler to the update and draw queues.
+	 * Adds the specified handler to the update and draw queues.
+	 * violet
 	 */
-	queueAdd (handler: { update: (dt: number) => void, draw: (g: Canvas) => void }) : void;
+	static queueAdd (handler: { update: (dt: number) => boolean, draw: (g: Canvas) => void }) : void;
 
 	/**
-	 *	Removes the specified handler from the update and draw queues.
+	 * Removes the specified handler from the update and draw queues.
+	 * violet
 	 */
-	queueRemove (handler: { update: (dt: number) => void, draw: (g: Canvas) => void }) : void;
+	static queueRemove (handler: { update: (dt: number) => boolean, draw: (g: Canvas) => void }) : void;
 
 	/**
-	 * 	Interpolates numeric values between two objects (`src` and `dst`) using the specified `duration` and `easing` function. Note that all four parameters `src`, `dst`,
-	 * 	`duration` and `easing` must be objects having the same number of values.
+	 * Interpolates numeric values between two objects (`src` and `dst`) using the specified `duration` and `easing` function. Note that all four parameters `src`, `dst`,
+	 * `duration` and `easing` must be objects having the same number of values.
 	 */
-	interpolate (src: object, dst: object, duration: object, easing: object, callback: (data: object, isFinished: boolean) => void) : void;
+	static interpolate (src: object, dst: object, duration: object, easing: object, callback: (data: object, isFinished: boolean) => void) : void;
 
-}
+	/**
+	 * Event triggered when a keyboard event is detected by the system.
+	 */
+	static onKeyboardEvent: System.KeyboardEventHandler;
 
-export namespace System
-{
-	enum KeyboardEventType
-	{
-		KEY_DOWN,
-		KEY_UP,
-	}
-
-	enum PointerEventType
-	{
-		POINTER_DOWN,
-		POINTER_UP,
-		POINTER_MOVE,
-		POINTER_DRAG_START,
-		POINTER_DRAG_MOVE,
-		POINTER_DRAG_STOP,
-		POINTER_WHEEL,
-	}
+	/**
+	 * Event triggered when a pointer event is detected by the system.
+	 */
+	static onPointerEvent: System.PointerEventHandler;
 
 }
 
@@ -3338,7 +3454,7 @@ export class Block
 	/**
 	 * Returns the number of commands in the block.
 	 */
-	count() : int;
+	count() : number;
 
 	/**
 	 * 	Adds a command to the block.
@@ -3589,11 +3705,11 @@ export class Anim
 
 	/**
 	 * Sets the value of a variable.
-	 * @param {string|function} field
+	 * @param {string|Function} field
 	 * @param {*} value
 	 * @returns {Anim}
 	 */
-	set (field: string|function, value: any) : Anim;
+	set (field: string|Function, value: any) : Anim;
 
 	/**
 	 * Restarts the current block.
@@ -3610,50 +3726,50 @@ export class Anim
 
 	/**
 	 * Animates a variable from the startValue to the endValue over the specified duration.
-	 * @param {string|function} field
+	 * @param {string|Function} field
 	 * @param {number} duration
 	 * @param {number} startValue
 	 * @param {number} endValue
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
-	range (field: string|function, duration: number, startValue: number, endValue: number, easing?: function) : Anim;
+	range (field: string|Function, duration: number, startValue: number, endValue: number, easing?: (t: number) => number) : Anim;
 
 	/**
 	 * Animates a variable from the current value to the endValue over the specified duration.
-	 * @param {string|function} field
+	 * @param {string|Function} field
 	 * @param {number} duration
 	 * @param {number} endValue
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
-	rangeTo (field: string|function, duration: number, endValue: number, easing?: function) : Anim;
+	rangeTo (field: string|Function, duration: number, endValue: number, easing?: (t: number) => number) : Anim;
 
 	/**
 	 * Changes the variable with a value that is a random number in the given range (inclusive) for the specified duration.
-	 * @param {string|function} field
+	 * @param {string|Function} field
 	 * @param {number} duration
 	 * @param {number} count
 	 * @param {number} startValue
 	 * @param {number} endValue
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
-	rand (field: string|function, duration: number, count: number, startValue: number, endValue: number, easing?: function) : Anim;
+	rand (field: string|Function, duration: number, count: number, startValue: number, endValue: number, easing?: (t: number) => number) : Anim;
 
 	/**
 	 * Changes the variable with a value that is a random number in the given range (inclusive) for the specified duration. The difference
 	 * between this and `rand` is that this function uses a static pre-generated table of random numbers between the specified range.
 	 *
-	 * @param {string|function} field
+	 * @param {string|Function} field
 	 * @param {number} duration
 	 * @param {number} count
 	 * @param {number} startValue
 	 * @param {number} endValue
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
-	randt (field: string|function, duration: number, count: number, startValue: number, endValue: number, easing?: function) : Anim;
+	randt (field: string|Function, duration: number, count: number, startValue: number, endValue: number, easing?: (t: number) => number) : Anim;
 
 	/**
 	 * Plays a sound.
@@ -3695,61 +3811,61 @@ export class Anim
 	 * Translates the X coordinate for the specified amount over the specified duration.
 	 * @param {number} duration
 	 * @param {number} deltaValue
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
-	translateX (duration: number, deltaValue: number, easing?: function) : Anim;
+	translateX (duration: number, deltaValue: number, easing?: (t: number) => number) : Anim;
 
 	/**
 	 * Translates the Y coordinate for the specified amount over the specified duration.
 	 * @param {number} duration
 	 * @param {number} deltaValue
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
-	translateY (duration: number, deltaValue: number, easing?: function) : Anim;
+	translateY (duration: number, deltaValue: number, easing?: (t: number) => number) : Anim;
 
 	/**
 	 * Translates the X and Y coordinates for the specified amount over the specified duration.
 	 * @param {number} duration
 	 * @param {number} deltaValueX
 	 * @param {number} deltaValueY
-	 * @param {function} easingX?
-	 * @param {function} easingY?
+	 * @param {(t: number) => number} easingX?
+	 * @param {(t: number) => number} easingY?
 	 * @returns {Anim}
 	 */
-	translate (duration: number, deltaValueX: number, deltaValueY: number, easingX?: function, easingY?: function) : Anim;
+	translate (duration: number, deltaValueX: number, deltaValueY: number, easingX?: (t: number) => number, easingY?: (t: number) => number) : Anim;
 
 	/**
 	 * Translates the X and Y coordinates to the specified end values over the specified duration.
 	 * @param {numbe} duration
 	 * @param {number} endValueX
 	 * @param {number} endValueY
-	 * @param {function} easingX?
-	 * @param {function} easingY?
+	 * @param {(t: number) => number} easingX?
+	 * @param {(t: number) => number} easingY?
 	 * @returns {Anim}
 	 */
-	moveTo (duration: number, endValueX: number, endValueY: number, easingX?: function, easingY?: function) : Anim;
+	moveTo (duration: number, endValueX: number, endValueY: number, easingX?: (t: number) => number, easingY?: (t: number) => number) : Anim;
 
 	/**
 	 * Changes the `sx` and `sy` (scale X and scale Y) properties to the specified end values over the specified duration.
 	 * @param {number} duration
 	 * @param {number} endValueX
 	 * @param {number} endValueY
-	 * @param {function} easingX?
-	 * @param {function} easingY?
+	 * @param {(t: number) => number} easingX?
+	 * @param {(t: number) => number} easingY?
 	 * @returns {Anim}
 	 */
-	scale (duration: number, endValueX: number, endValueY: number, easingX?: function, easingY?: function) : Anim;
+	scale (duration: number, endValueX: number, endValueY: number, easingX?: (t: number) => number, easingY?: (t: number) => number) : Anim;
 
 	/**
 	 * Changes the `rotation` property by the specified delta value over the specified duration.
 	 * @param {number} duration
 	 * @param {number} deltaValue
-	 * @param {function} easing?
+	 * @param {(t: number) => number} easing?
 	 * @returns {Anim}
 	 */
-	rotate (duration: number, deltaValue: number, easing?: function) : Anim;
+	rotate (duration: number, deltaValue: number, easing?: (t: number) => number) : Anim;
 
 	/**
 	 * Global animation time scale.
@@ -4883,7 +4999,7 @@ export class Drawable
 	/**
 	 * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
 	 */
-	static nineSlice (spritesheet: Spritesheet, startingIndex?:number|0) : Drawable;
+	static nineSlice (spritesheet: object, startingIndex?:number|0) : Drawable;
 
 	/**
 	 * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
@@ -4995,7 +5111,7 @@ export class Label extends Element
 	/**
 	 * 	Spritefont resource.
 	 */
-	readonly font: Spritefont;
+	readonly font: object;
 
 	/**
 	 * Current text width.
@@ -5032,7 +5148,7 @@ export class Label extends Element
 	/**
 	 * 	Sets the font resource to use.
 	 */
-	setFont (font: Spritefont) : Label;
+	setFont (font: object) : Label;
 
 }
 
@@ -5049,63 +5165,163 @@ export namespace Label
 }
 export namespace KeyboardHandler
 {
-	interface EventHandler
+	type Handler =
 	{
 		/**
-		 * 	Handler for keyboard events.
+		 * Executed when the handler is attached.
 		 */
-		onKeyboardEvent (action: System.KeyboardEventType, keyCode: number, keyState: object) : boolean;
+		init?: () => void;
+
+		/**
+		 * Keyboard event handler.
+		 */
+		onKeyboardEvent: System.KeyboardEventHandler;
 
 	}
 
 }
 
 /**
- * 	Used to attach keyboard event handlers to the system.
+ * Used to attach keyboard event handlers to the system.
  */
 export class KeyboardHandler
 {
 	/**
-	 * 	Registers a new keyboard event handler.
+	 * Registers a keyboard event handler.
 	 */
-	static register (handler: KeyboardHandler.EventHandler) : KeyboardHandler.EventHandler;
+	static register (handler: KeyboardHandler.Handler) : KeyboardHandler.Handler;
 
 	/**
-	 * 	Removes a keyboard event handler.
+	 * Removes a keyboard event handler.
 	 */
-	static unregister (handler: KeyboardHandler.EventHandler) : void;
+	static unregister (handler: KeyboardHandler.Handler) : void;
 
 }
 export namespace PointerHandler
 {
-	interface EventHandler
+	type Handler =
 	{
 		/**
-		 * 	Handler for pointer events.
+		 * Executed when the handler is attached.
 		 */
-		onPointerEvent (action: System.PointerEventType, pointer: object, pointers: object) : boolean;
+		init?: () => void;
+
+		/**
+		 * Pointer event handler.
+		 */
+		onPointerEvent: System.PointerEventHandler;
 
 	}
 
 }
 
 /**
- * 	Used to attach pointer event handlers to the system.
+ * Used to attach pointer event handlers to the system.
  */
 export class PointerHandler
 {
 	/**
-	 * 	Registers a new pointer event handler.
+	 * Registers a pointer event handler.
 	 */
-	static register (handler: PointerHandler.EventHandler) : PointerHandler.EventHandler;
+	static register (handler: PointerHandler.Handler) : PointerHandler.Handler;
 
 	/**
-	 * 	Removes a pointer event handler.
+	 * Removes a pointer event handler.
 	 */
-	static unregister (handler: PointerHandler.EventHandler) : void;
+	static unregister (handler: PointerHandler.Handler) : void;
+
+}
+export namespace ScreenControls
+{
+	type Handler =
+	{
+		/**
+		 * Indicates if the pointer focus is locked once acquired, until the pointer is released.
+		 */
+		focusLock : boolean;
+
+		/**
+		 * Indicates if keyboard events are enabled for the host.
+		 */
+		keyboardEvents : boolean;
+
+		/**
+		 * Zindex of the host. Used only if ScreenControls has zindex-flag enabled.
+		 */
+		zindex : number;
+
+		/**
+		 * Returns `true` if the host contains the specified point (screen space).
+		 */
+		containsPoint (x: number, y: number) : boolean;
+
+		/**
+		 * Host activated by a pointer event.
+		 */
+		pointerActivate (pointer: System.Pointer) : void;
+
+		/**
+		 * Host previously activated by a pointer event has now been deactivated.
+		 */
+		pointerDeactivate (pointer: System.Pointer) : void;
+
+		/**
+		 * Executed when a pointer move/drag event has happened (while the host is activated).
+		 */
+		pointerUpdate (x: number, y: number, pointer: System.Pointer) : void;
+
+		/**
+		 * Executed when hover-flag is enabled and a pointer entered or left the host area.
+		 */
+		hover (status: boolean, pointer: System.Pointer) : void;
+
+		/**
+		 * Executed when `keyboardEvents` flag is enabled and a KEY_DOWN event has happened.
+		 */
+		keyDown (keyCode: KeyCode, keyArgs: System.KeyboardState) : void;
+
+		/**
+		 * Executed when `keyboardEvents` flag is enabled and a KEY_UP event has happened.
+		 */
+		keyUp (keyCode: KeyCode, keyArgs: System.KeyboardState) : void;
+
+	}
 
 }
 
+export class ScreenControls
+{
+	/**
+	 * Adds the specified handler to the screen controls list.
+	 */
+	static add (handler: ScreenControls.Handler) : void;
+
+	/**
+	 * Removes the specified handler from the screen controls list.
+	 */
+	static remove (handler: ScreenControls.Handler) : void;
+
+	/**
+	 * Returns the hover-enable flag.
+	 */
+	static hover() : boolean;
+
+	/**
+	 * Sets the hover-enable flag.
+	 */
+	static hover (value: boolean) : void;
+
+	/**
+	 * Returns the zindex-enable flag.
+	 */
+	static zindex() : boolean;
+
+	/**
+	 * Sets the zindex-enable flag.
+	 */
+	static zindex (value: boolean) : void;
+
+}
 export class Button extends Group
 {
 	/**
@@ -5179,7 +5395,7 @@ export class Button extends Group
 	/**
 	 * 	Resets the button to its initial state.
 	 */
-	reset() : void;
+	reset() : Button;
 
 	/**
 	 * 	Button pointer update event. Not required for the button control.
@@ -5350,7 +5566,7 @@ export class Stick extends Group
 	/**
 	 * 	Resets the button to its initial state.
 	 */
-	reset() : void;
+	reset() : Stick;
 
 	/**
 	 * 	Renders the stick in the canvas.

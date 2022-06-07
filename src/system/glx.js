@@ -40,7 +40,7 @@ const glx =
 
 	/**
 	 * Sets the WebGL rendering context.
-	 * !static setContext (context: WebGL2RenderingContext) : gl;
+	 * !static setContext (context: WebGL2RenderingContext) : glx;
 	 */
 	setContext: function (context)
 	{

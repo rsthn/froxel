@@ -464,8 +464,10 @@ Recycler.createPool(Group, 512);
 
 /**
  * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
- * !static nineSlice (spritesheet: Spritesheet, startingIndex?:number|0) : Drawable;
+ * !static nineSlice (spritesheet: object, startingIndex?:number|0) : Drawable;
  */
+//violet: type fixup
+//static nineSlice (spritesheet: Spritesheet, startingIndex?:number|0) : Drawable;
 Drawable.nineSlice = function (spritesheet, startingIndex=0) { return NineSlice.Pool.alloc(spritesheet, startingIndex); }
 /**
  * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.

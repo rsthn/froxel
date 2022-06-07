@@ -24,19 +24,24 @@ import System from '../system/system.js';
 
 //!namespace PointerHandler
 
-	//!interface EventHandler
+	//!type Handler =
 
 		/**
-		 * 	Handler for pointer events.
-		 * 	!onPointerEvent (action: System.PointerEventType, pointer: object, pointers: object) : boolean;
+		 * Executed when the handler is attached.
+		 * !init?: () => void;
 		 */
 
-	//!/interface
+		/**
+		 * Pointer event handler.
+		 * !onPointerEvent: System.PointerEventHandler;
+		 */
+
+	//!/type
 
 //!/namespace
 
 //:/**
-//: * 	Used to attach pointer event handlers to the system.
+//: * Used to attach pointer event handlers to the system.
 //: */
 
 //!class PointerHandler
@@ -59,8 +64,8 @@ export default Boot.Module.create
 	},
 
 	/**
-	 * 	Registers a new pointer event handler.
-	 * 	!static register (handler: PointerHandler.EventHandler) : PointerHandler.EventHandler;
+	 * Registers a pointer event handler.
+	 * !static register (handler: PointerHandler.Handler) : PointerHandler.Handler;
 	 */
 	register: function (handler)
 	{
@@ -78,8 +83,8 @@ export default Boot.Module.create
 	},
 
 	/**
-	 * 	Removes a pointer event handler.
-	 * 	!static unregister (handler: PointerHandler.EventHandler) : void;
+	 * Removes a pointer event handler.
+	 * !static unregister (handler: PointerHandler.Handler) : void;
 	 */
 	unregister: function (handler)
 	{
@@ -98,7 +103,7 @@ export default Boot.Module.create
 	},
 
 	/**
-	 * Overrides the system's pointer event handler with the one from this class.
+	 * Overrides the default pointer event handler.
 	 */
 	onStartup: function()
 	{
@@ -113,7 +118,7 @@ export default Boot.Module.create
 	},
 
 	/**
-	 * Removes the system's pointer handler.
+	 * Removes the default pointer handler.
 	 */
 	onShutdown: function()
 	{

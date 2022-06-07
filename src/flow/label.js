@@ -38,8 +38,10 @@ const Label = Element.extend
 
 	/**
 	 * 	Spritefont resource.
-	 * 	!readonly font: Spritefont;
+	 * 	!readonly font: object;
 	 */
+	//violet: type fixup
+	//readonly font: Spritefont;
 	font: null,
 
 	/**
@@ -135,8 +137,10 @@ const Label = Element.extend
 
 	/**
 	 * 	Sets the font resource to use.
-	 * 	!setFont (font: Spritefont) : Label;
+	 * 	!setFont (font: object) : Label;
 	 */
+	//violet: type fixup
+	//setFont (font: Spritefont) : Label;
 	setFont: function (font)
 	{
 		if (this.font === font)

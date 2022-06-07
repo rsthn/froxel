@@ -24,19 +24,24 @@ import System from '../system/system.js';
 
 //!namespace KeyboardHandler
 
-	//!interface EventHandler
+	//!type Handler =
 
 		/**
-		 * 	Handler for keyboard events.
-		 * 	!onKeyboardEvent (action: System.KeyboardEventType, keyCode: number, keyState: object) : boolean;
+		 * Executed when the handler is attached.
+		 * !init?: () => void;
 		 */
 
-	//!/interface
+		/**
+		 * Keyboard event handler.
+		 * !onKeyboardEvent: System.KeyboardEventHandler;
+		 */
+
+	//!/type
 
 //!/namespace
 
 //:/**
-//: * 	Used to attach keyboard event handlers to the system.
+//: * Used to attach keyboard event handlers to the system.
 //: */
 
 //!class KeyboardHandler
@@ -59,8 +64,8 @@ export default Boot.Module.create
 	},
 
 	/**
-	 * 	Registers a new keyboard event handler.
-	 * 	!static register (handler: KeyboardHandler.EventHandler) : KeyboardHandler.EventHandler;
+	 * Registers a keyboard event handler.
+	 * !static register (handler: KeyboardHandler.Handler) : KeyboardHandler.Handler;
 	 */
 	register: function (handler)
 	{
@@ -78,8 +83,8 @@ export default Boot.Module.create
 	},
 
 	/**
-	 * 	Removes a keyboard event handler.
-	 * 	!static unregister (handler: KeyboardHandler.EventHandler) : void;
+	 * Removes a keyboard event handler.
+	 * !static unregister (handler: KeyboardHandler.Handler) : void;
 	 */
 	unregister: function (handler)
 	{
@@ -97,6 +102,9 @@ export default Boot.Module.create
 		return handler.onKeyboardEvent(this._action, this._keyCode, this._keyState);
 	},
 
+	/**
+	 * Overrides the default keyboard event handler.
+	 */
 	onStartup: function()
 	{
 		System.onKeyboardEvent = (action, keyCode, keyState) =>
@@ -109,6 +117,9 @@ export default Boot.Module.create
 		};
 	},
 
+	/**
+	 * Removes the default keyboard handler.
+	 */
 	onShutdown: function()
 	{
 		System.onKeyboardEvent = null;

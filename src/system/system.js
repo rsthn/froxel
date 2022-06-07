@@ -30,9 +30,132 @@ import Recycler from '../utils/recycler.js';
 //![import "./canvas"]
 //![import "./globals"]
 
+const System = { };
+
 //!namespace System
 
 	//:type DisplayOrientation = 'default'|'landscape'|'portrait'|'automatic'|'strict';
+
+	//!enum KeyboardEventType
+	System.KeyboardEventType = {
+		KEY_DOWN: 0x001,
+		KEY_UP: 0x002,
+		//!KEY_DOWN
+		//!KEY_UP
+	};
+	//!/enum
+
+	//!enum PointerEventType
+	System.PointerEventType = {
+		POINTER_DOWN: 		0x010,
+		POINTER_UP: 		0x011,
+		POINTER_MOVE: 		0x012,
+		POINTER_DRAG_START:	0x013,
+		POINTER_DRAG_MOVE:	0x014,
+		POINTER_DRAG_STOP:	0x015,
+		POINTER_WHEEL:		0x016,
+		//!POINTER_DOWN
+		//!POINTER_UP
+		//!POINTER_MOVE
+		//!POINTER_DRAG_START
+		//!POINTER_DRAG_MOVE
+		//!POINTER_DRAG_STOP
+		//!POINTER_WHEEL
+	};
+	//!/enum
+
+	//!type KeyboardState =
+
+		/**
+		 * Time of last keyboard event.
+		 * !time: number;
+		 */
+
+		/**
+		 * State of any of the SHIFT keys.
+		 * !shift: boolean;
+		 */
+
+		/**
+		 * State of any of the CTRL keys.
+		 * !ctrl: boolean;
+		 */
+
+		/**
+		 * State of the ALT key.
+		 * !alt: boolean;
+		 */
+
+		/**
+		 * Key code of last keyboard event.
+		 * !keyCode: KeyCode;
+		 */
+
+	//!/type
+
+	//!type Pointer =
+
+		/**	
+		 * ID of the pointer.
+		 * !id: number;
+		 */
+
+		/**
+		 * Indicates if the pointer is active (pressed).
+		 * !isActive: boolean;
+		 */
+
+		/**
+		 * Indicates if the pointer is currently being dragged.
+		 * !isDragging: boolean;
+		 */
+
+		/**	
+		 * Source X-coordinate when the POINTER_DOWN event was fired.
+		 * !sx: number;
+		 */
+
+		/**
+		 * Source Y-coordinate when the POINTER_DOWN event was fired.
+		 * !sy: number;
+		 */
+
+		/**
+		 * Current X-coordinate of the pointer.
+		 * !x: number;
+		 */
+
+		/**	
+		 * Current Y-coordinate of the pointer.
+		 * !y: number;
+		 */
+
+		/**
+		 * Delta in the X direction of the current drag event.
+		 * !dx: number;
+		 */
+
+		/**
+		 * Delta in the Y direction of the current drag event.
+		 * !dy: number;
+		 */
+
+		/**
+		 * Number of the button currently being pressed.
+		 * !button: number;
+		 */
+
+		/**
+		 * Delta value of the mouse-wheel (valid only when the pointer is a mouse pointing-device).
+		 * !wheelDelta: number;
+		 */
+
+		/**
+		 * Accumulated mouse-wheel delta. Should be set to zero (0) manually when needed.
+		 * !wheelAccum: number;
+		 */
+
+	//!/type
 
 	//!type Options =
 
@@ -69,7 +192,7 @@ import Recycler from '../utils/recycler.js';
 		/**
 		 *	Desired orientaton of the display.
 		 *	@default "automatic"
-		 *	!orientation?: System.DisplayOrientation;
+		 *	!orientation?: DisplayOrientation;
 		 */
 
 		/**
@@ -129,14 +252,17 @@ import Recycler from '../utils/recycler.js';
 
 	//!/type
 
+	//:type KeyboardEventHandler = (action: KeyboardEventType, keyCode: KeyCode, state: KeyboardState) => boolean;
+	//:type PointerEventHandler = (action: PointerEventType, pointer: Pointer, pointers: { \[pointerId: number\]: Pointer }) => boolean;
+
 //!/namespace
 
 //!class System
 
-const System =
+Object.assign(System,
 {
 	/**
-	 * 	Renderer status flags.
+	 * Renderer status flags.
 	 */
 	flags:
 	{
@@ -145,7 +271,7 @@ const System =
 	},
 
 	/**
-	 * 	Default options of the rendering system.
+	 * Default options of the rendering system.
 	 */
 	defaultOptions:
 	{
@@ -171,71 +297,73 @@ const System =
 	},
 
 	/**
-	 * 	Screen width, available only after the system has been initialized.
-	 * 	!static readonly screenWidth: number;
+	 * Screen width, available only after the system has been initialized.
+	 * !static readonly screenWidth: number;
 	 */
 	screenWidth: 0,
 
 	/**
-	 * 	Screen height, available only after the system has been initialized.
-	 * 	!static readonly screenHeight: number;
+	 * Screen height, available only after the system has been initialized.
+	 * !static readonly screenHeight: number;
 	 */
 	screenHeight: 0,
 
 	/**
-	 * 	Current display orientation.
-	 * 	!static readonly orientation: System.DisplayOrientation;
+	 * Current display orientation.
+	 * !static readonly orientation: System.DisplayOrientation;
 	 */
 	orientation: 0,
 
 	/**
-	 * 	Coordinates of the screen's offset (for letter-box effect when the screen does not fit tightly).
+	 * Coordinates of the screen's offset (for letter-box effect when the screen does not fit tightly).
 	 */
 	offsX: 0, offsY: 0,
 
 	/**
-	 * 	Device pixel ratio, canvas backing store ratio and resulting canvas ratio (devicePixelRatio / backingStoreRatio).
+	 * Device pixel ratio, canvas backing store ratio and resulting canvas ratio (devicePixelRatio / backingStoreRatio).
 	 */
 	devicePixelRatio: 1, backingStoreRatio: 1, canvasPixelRatio: 1, canvasScaleFactor: 1, scaleFactor: 1,
 
 	/**
-	 * 	Initial transformation matrix. Should be used (if needed) instead of `loadIdentity` since the System does some transformations first.
-	 * 	!static readonly initialMatrix: Matrix;
+	 * Initial transformation matrix. Should be used (if needed) instead of `loadIdentity` since the System does some transformations first.
+	 * !static readonly initialMatrix: Matrix;
 	 */
 	initialMatrix: null,
 
 	/**
-	 * 	Primary renderer.
-	 * 	!static readonly renderer: Canvas;
+	 * Primary renderer.
+	 * !static readonly renderer: Canvas;
 	 */
 	renderer: null,
 
 	/**
-	 * 	Secondary display buffer (always 2D). Has the same initial transformation matrix as the primary display buffer.
-	 * 	!static readonly displayBuffer2: Canvas;
+	 * Secondary display buffer (always 2D). Has the same initial transformation matrix as the primary display buffer.
+	 * !static readonly displayBuffer2: Canvas;
 	 */
 	displayBuffer2: null,
 
 	/**
-	 * 	Terciary display buffer (always 2D). Is assured to have 1:1 with the screen size, initial transformation matrix not applied.
-	 * 	!static readonly displayBuffer3: Canvas;
+	 * Terciary display buffer (always 2D). Is assured to have 1:1 with the screen size, initial transformation matrix not applied.
+	 * !static readonly displayBuffer3: Canvas;
 	 */
 	displayBuffer3: null,
 
 	/**
-	 * 	Temporal display buffer (640x480). Used to preload images.
+	 * Temporal display buffer (640x480). Used to preload images.
 	 */
 	tempDisplayBuffer: null,
 
 	/**
-	 * 	Map with the status of all keys (along with other flags).
+	 * Map with the status of all keys (along with other flags).
+	 * !static readonly keyState: System.KeyboardState;
 	 */
 	keyState: { time: 0, shift: false, ctrl: false, alt: false, keyCode: 0 },
 
 	/**
-	 * 	Current status of all pointers. The related object is known as the Pointer State, and has the following fields: id, isActive, isDragging, sx, sy, x, y, dx, dy, button, wheelDelta and wheelAccum.
+	 * Current status of all pointers.
+	 * !static readonly pointers: { \[pointerId: number\]: System.Pointer };
 	 */
-	pointerState: { },
+	pointers: { },
 
 	/**
 	 * 	The update method of all objects will be executed when the system update() method is called.
@@ -243,83 +371,82 @@ const System =
 	updateQueue: null,
 
 	/**
-	 * 	The draw method of all objects will be executed when the system draw() method is called.
+	 * The draw method of all objects will be executed when the system draw() method is called.
 	 */
 	drawQueue: null, /*List*/
 
 	/**
-	 * 	The frame delta is multiplied by this value before each system cycle (defaults to 1).
-	 * 	!static timeScale: number;
+	 * The frame delta is multiplied by this value before each system cycle (defaults to 1).
+	 * !static timeScale: number;
 	 */
 	timeScale: 1,
 
 	/**
-	 * 	Frame interval in milliseconds.
-	 * 	!static readonly frameInterval: number;
+	 * Frame interval in milliseconds.
+	 * !static readonly frameInterval: number;
 	 */
 	frameInterval: 0,
 
 	/**
-	 * 	Fixed frame interval in milliseconds, when set to non-zero value the frame delta will always be set to this value.
-	 * 	!static fixedFrameInterval: number;
+	 * Fixed frame interval in milliseconds, when set to non-zero value the frame delta will always be set to this value.
+	 * !static fixedFrameInterval: number;
 	 */
 	fixedFrameInterval: 0,
 
 	/**
-	 * 	Maximum frame interval in milliseconds, if the `frameDelta` exceeds this, it will be truncated to this value. Controlled by the `minFps` value
-	 * 	of the system initialization options.
-	 * 	!static readonly maxFrameInterval: number;
+	 * Maximum frame interval in milliseconds, if the `frameDelta` exceeds this, it will be truncated to this value. Controlled by the `minFps` value of the system initialization options.
+	 * !static readonly maxFrameInterval: number;
 	 */
 	maxFrameInterval: 0,
 
 	/**
-	 * 	Last frame delta in seconds.
-	 * 	!static readonly frameDelta: number;
+	 * Last frame delta in seconds.
+	 * !static readonly frameDelta: number;
 	 */
 	frameDelta: 0,
 
 	/**
-	 * 	Logical system time in seconds. Updated on each cycle by the calculated `frameDelta`.
-	 * 	!static readonly frameTime: number;
+	 * Logical system time in seconds. Updated on each cycle by the calculated `frameDelta`.
+	 * !static readonly frameTime: number;
 	 */
 	frameTime: 0,
 
 	/**
-	 * 	Current frame number.
-	 * 	!static readonly frameNumber: number;
+	 * Current frame number.
+	 * !static readonly frameNumber: number;
 	 */
 	frameNumber: 0,
 
 	/**
-	 * 	Rendering performance data.
+	 * Rendering performance data.
 	 */
 	perf:
 	{
 		/**
-		 * 	Current time range.
+		 * Current time range.
 		 */
 		startTime: 0,
 		lastTime: 0,
 
 		/**
-		 * 	Number of frames drawn in the current time range.
+		 * Number of frames drawn in the current time range.
 		 */
 		numFrames: 0,
 
 		/**
-		 * 	Number of update and draw samples averaged in total.
+		 * Number of update and draw samples averaged in total.
 		 */
 		numSamples: 0,
 
 		/**
-		 * 	Total time spent in update, draw and extra respectively in the current time range.
+		 * Total time spent in update, draw and extra respectively in the current time range.
 		 */
 		updateTimeTotal: 0,
 		drawTimeTotal: 0,
 		extraTimeTotal: 0,
 
 		/**
-		 * 	Calculated values for the last time range. The updateTime and drawTime are in microseconds.
+		 * Calculated values for the last time range. The updateTime and drawTime are in microseconds.
 		 */
 		fps: 0,
 		averageFps: 0,
@@ -329,8 +456,8 @@ const System =
 	},
 
 	/**
-	 * 	Initializes the system with the specified configuration options.
-	 * 	!static init (options: System.Options) : void;
+	 * Initializes the system with the specified configuration options.
+	 * !static init (options: System.Options) : void;
 	 */
 	init: function (options=null)
 	{
@@ -485,16 +612,16 @@ const System =
 
 				for (let i = 0; i < touches.length; i++)
 				{
-					if (!System.pointerState[touches[i].identifier])
+					if (!System.pointers[touches[i].identifier])
 					{
-						System.pointerState[touches[i].identifier] = {
+						System.pointers[touches[i].identifier] = {
 								id: touches[i].identifier, isActive: false, isDragging: false,
 								sx: 0, sy: 0, x: 0, y: 0, dx: 0, dy: 0, button: 0,
 								wheelDelta: 0, wheelAccum: 0
 							};
 					}
 
-					let p = System.pointerState[touches[i].identifier];
+					let p = System.pointers[touches[i].identifier];
 
 					p.isActive = true;
 					p.isDragging = false;
@@ -505,7 +632,7 @@ const System =
 					p.x = p.sx = pointerConvX(touches[i].clientX, touches[i].clientY);
 					p.y = p.sy = pointerConvY(touches[i].clientX, touches[i].clientY);
 
-					System.onPointerEvent (System.PointerEventType.POINTER_DOWN, p, System.pointerState);
+					System.onPointerEvent (System.PointerEventType.POINTER_DOWN, p, System.pointers);
 				}
 
 				return false;
@@ -519,10 +646,10 @@ const System =
 
 				for (let i = 0; i < touches.length; i++)
 				{
-					if (!System.pointerState[touches[i].identifier])
+					if (!System.pointers[touches[i].identifier])
 						continue;
 
-					let p = System.pointerState[touches[i].identifier];
+					let p = System.pointers[touches[i].identifier];
 
 					p.endTime = hrnow();
 					p.deltaTime = p.endTime - p.startTime;
@@ -531,9 +658,9 @@ const System =
 					p.y = pointerConvY(touches[i].clientX, touches[i].clientY)
 
 					if (p.isDragging)
-						System.onPointerEvent (System.PointerEventType.POINTER_DRAG_STOP, p, System.pointerState);
+						System.onPointerEvent (System.PointerEventType.POINTER_DRAG_STOP, p, System.pointers);
 
-					System.onPointerEvent (System.PointerEventType.POINTER_UP, p, System.pointerState);
+					System.onPointerEvent (System.PointerEventType.POINTER_UP, p, System.pointers);
 
 					p.isActive = false;
 					p.isDragging = false;
@@ -552,15 +679,15 @@ const System =
 
 				for (let i = 0; i < touches.length; i++)
 				{
-					if (!System.pointerState[touches[i].identifier])
+					if (!System.pointers[touches[i].identifier])
 						continue;
 
-					let p = System.pointerState[touches[i].identifier];
+					let p = System.pointers[touches[i].identifier];
 
 					p.x = pointerConvX(touches[i].clientX, touches[i].clientY);
 					p.y = pointerConvY(touches[i].clientX, touches[i].clientY);
 
-					System.onPointerEvent (p.isDragging ? System.PointerEventType.POINTER_DRAG_STOP : System.PointerEventType.POINTER_UP, p, System.pointerState);
+					System.onPointerEvent (p.isDragging ? System.PointerEventType.POINTER_DRAG_STOP : System.PointerEventType.POINTER_UP, p, System.pointers);
 
 					p.isActive = false;
 					p.isDragging = false;
@@ -579,14 +706,14 @@ const System =
 
 				for (let i = 0; i < touches.length; i++)
 				{
-					if (!System.pointerState[touches[i].identifier])
+					if (!System.pointers[touches[i].identifier])
 						continue;
 
-					let p = System.pointerState[touches[i].identifier];
+					let p = System.pointers[touches[i].identifier];
 
 					if (p.isActive && !p.isDragging)
 					{
-						System.onPointerEvent (System.PointerEventType.POINTER_DRAG_START, p, System.pointerState);
+						System.onPointerEvent (System.PointerEventType.POINTER_DRAG_START, p, System.pointers);
 						p.isDragging = true;
 					}
 
@@ -596,7 +723,7 @@ const System =
 					p.dx = p.x - p.sx;
 					p.dy = p.y - p.sy;
 
-					System.onPointerEvent (p.isDragging ? System.PointerEventType.POINTER_DRAG_MOVE : System.PointerEventType.POINTER_MOVE, p, System.pointerState);
+					System.onPointerEvent (p.isDragging ? System.PointerEventType.POINTER_DRAG_MOVE : System.PointerEventType.POINTER_MOVE, p, System.pointers);
 				}
 
 				return false;
@@ -615,23 +742,23 @@ const System =
 			{
 				evt.preventDefault();
 
-				if (!System.pointerState[0])
+				if (!System.pointers[0])
 				{
-					System.pointerState[0] = {
+					System.pointers[0] = {
 							id: 0, isActive: false, isDragging: false,
 							sx: 0, sy: 0, x: 0, y: 0, dx: 0, dy: 0, button: 0,
 							wheelDelta: 0, wheelAccum: 0
 						};
 				}
 
-				let p = System.pointerState[0];
+				let p = System.pointers[0];
 
 				p.x = pointerConvX(evt.clientX, evt.clientY);
 				p.y = pointerConvY(evt.clientX, evt.clientY);
 				p.wheelDelta = evt.deltaY;
 				p.wheelAccum += evt.deltaY;
 
-				System.onPointerEvent (System.PointerEventType.POINTER_WHEEL, p, System.pointerState);
+				System.onPointerEvent (System.PointerEventType.POINTER_WHEEL, p, System.pointers);
 				return false;
 			};
 
@@ -639,16 +766,16 @@ const System =
 			{
 				evt.preventDefault();
 
-				if (!System.pointerState[0])
+				if (!System.pointers[0])
 				{
-					System.pointerState[0] = {
+					System.pointers[0] = {
 							id: 0, isActive: false, isDragging: false,
 							sx: 0, sy: 0, x: 0, y: 0, dx: 0, dy: 0, button: 0,
 							wheelDelta: 0, wheelAccum: 0
 						};
 				}
 
-				let p = System.pointerState[0];
+				let p = System.pointers[0];
 
 				p.isActive = true;
 				p.isDragging = false;
@@ -657,7 +784,7 @@ const System =
 				p.x = p.sx = pointerConvX(evt.clientX, evt.clientY);
 				p.y = p.sy = pointerConvY(evt.clientX, evt.clientY);
 
-				System.onPointerEvent (System.PointerEventType.POINTER_DOWN, p, System.pointerState);
+				System.onPointerEvent (System.PointerEventType.POINTER_DOWN, p, System.pointers);
 				return false;
 			};
 
@@ -665,18 +792,18 @@ const System =
 			{
 				evt.preventDefault();
 
-				if (!System.pointerState[0])
+				if (!System.pointers[0])
 					return false;
 
-				let p = System.pointerState[0];
+				let p = System.pointers[0];
 
 				p.x = pointerConvX(evt.clientX, evt.clientY);
 				p.y = pointerConvY(evt.clientX, evt.clientY);
 
 				if (p.isDragging)
-					System.onPointerEvent (System.PointerEventType.POINTER_DRAG_STOP, p, System.pointerState);
+					System.onPointerEvent (System.PointerEventType.POINTER_DRAG_STOP, p, System.pointers);
 
-				System.onPointerEvent (System.PointerEventType.POINTER_UP, p, System.pointerState);
+				System.onPointerEvent (System.PointerEventType.POINTER_UP, p, System.pointers);
 
 				p.isActive = false;
 				p.isDragging = false;
@@ -688,14 +815,14 @@ const System =
 			{
 				evt.preventDefault();
 
-				if (!System.pointerState[0])
+				if (!System.pointers[0])
 					return false;
 
-				let p = System.pointerState[0];
+				let p = System.pointers[0];
 
 				if (p.isActive && !p.isDragging)
 				{
-					System.onPointerEvent (System.PointerEventType.POINTER_DRAG_START, p, System.pointerState);
+					System.onPointerEvent (System.PointerEventType.POINTER_DRAG_START, p, System.pointers);
 					p.isDragging = true;
 				}
 
@@ -705,7 +832,7 @@ const System =
 				p.dx = p.x - p.sx;
 				p.dy = p.y - p.sy;
 
-				System.onPointerEvent (p.isDragging ? System.PointerEventType.POINTER_DRAG_MOVE : System.PointerEventType.POINTER_MOVE, p, System.pointerState);
+				System.onPointerEvent (p.isDragging ? System.PointerEventType.POINTER_DRAG_MOVE : System.PointerEventType.POINTER_MOVE, p, System.pointers);
 				return false;
 			};
 		}
@@ -715,8 +842,8 @@ const System =
 	},
 
 	/**
-	 * 	Returns the current logical time in seconds (same as reading `System.frameTime`).
-	 * 	!static time() : number;
+	 * Returns the current logical time in seconds (same as reading `System.frameTime`).
+	 * !static time() : number;
 	 */
 	time: function()
 	{
@@ -724,8 +851,8 @@ const System =
 	},
 
 	/**
-	 * 	Starts the system and enables rendering and updates.
-	 * 	!static start() : void;
+	 * Starts the system and enables rendering and updates.
+	 * !static start() : void;
 	 */
 	start: function()
 	{
@@ -736,8 +863,8 @@ const System =
 	},
 
 	/**
-	 * 	Stops the system by disabling both rendering and updates.
-	 * 	!static stop() : void;
+	 * Stops the system by disabling both rendering and updates.
+	 * !static stop() : void;
 	 */
 	stop: function()
 	{
@@ -746,8 +873,8 @@ const System =
 	},
 
 	/**
-	 * 	Pauses the system by disabling updates, but rendering will be continued.
-	 * 	!static pause() : void;
+	 * Pauses the system by disabling updates, but rendering will be continued.
+	 * !static pause() : void;
 	 */
 	pause: function()
 	{
@@ -755,8 +882,8 @@ const System =
 	},
 
 	/**
-	 * 	Resumes the system after previously being paused with `pause` method.
-	 * 	!static resume() : void;
+	 * Resumes the system after previously being paused with `pause` method.
+	 * !static resume() : void;
 	 */
 	resume: function()
 	{
@@ -765,10 +892,10 @@ const System =
 	},
 
 	/**
-	 * 	Executed when a frame needs to be rendered to the display buffer.
-	 * 	static onFrame (delta: number) : void;
+	 * Executed when a frame needs to be rendered to the display buffer.
+	 * static onFrame (delta: number) : void;
 	 */
-	onFrame: function(delta)
+	onFrame: function (delta)
 	{
 		let now = hrnow()
 		let tmp;
@@ -830,8 +957,8 @@ const System =
 	},
 
 	/**
-	 * 	Executed when the size of the window has changed.
-	 * 	static onWindowResized (notRendering: boolean = false) : void;
+	 * Executed when the size of the window has changed.
+	 * static onWindowResized (notRendering?: boolean) : void;
 	 */
 	onWindowResized: function (notRendering=false)
 	{
@@ -1048,15 +1175,15 @@ const System =
 	},
 
 	/**
-	 * 	Event triggered when the canvas was resized by the system. Can be overriden.
-	 * 	!static onCanvasResized (screenWidth: number, screenHeight: number) : void;
+	 * Event triggered when the canvas was resized by the system. Can be overriden.
+	 * !static onCanvasResized (screenWidth: number, screenHeight: number) : void;
 	 */
 	onCanvasResized: function (screenWidth, screenHeight)
 	{
 	},
 
 	/**
-	 * 	Resets the performance data.
+	 * Resets the performance data.
 	 */
 	resetPerf: function()
 	{
@@ -1077,8 +1204,9 @@ const System =
 	},
 
 	/**
-	 * 	Adds the specified update handler to the system.
-	 * 	!updateQueueAdd (handler: { update: (dt: number) => void }) : Linkable;
+	 * Adds the specified update handler to the system.
+	 * !static updateQueueAdd (handler: { update: (dt: number) => boolean }) : Linkable;
+	 * violet
 	 */
 	updateQueueAdd: function (handler)
 	{
@@ -1087,12 +1215,13 @@ const System =
 	},
 
 	/**
-	 * 	Removes the specified update handler from the system.
-	 * 	!updateQueueRemove (handler: { update: (dt: number) => void }) : void;
+	 * Removes the specified update handler from the system.
+	 * !static updateQueueRemove (handler: { update: (dt: number) => boolean }) : void;
+	 * violet
 	 */
 	/**
-	 * 	Removes the specified update handler node from the system.
-	 * 	!updateQueueRemove (node: Linkable) : void;
+	 * Removes the specified update handler node from the system.
+	 * !static updateQueueRemove (node: Linkable) : void;
 	 */
 	updateQueueRemove: function (handler)
 	{
@@ -1100,8 +1229,9 @@ const System =
 	},
 
 	/**
-	 * 	Adds the specified draw handler to the system.
-	 * 	!drawQueueAdd (handler: { draw: (g: Canvas) => void }) : Linkable;
+	 * Adds the specified draw handler to the system.
+	 * !static drawQueueAdd (handler: { draw: (g: Canvas) => void }) : Linkable;
+	 * violet
 	 */
 	drawQueueAdd: function (handler)
 	{
@@ -1110,12 +1240,13 @@ const System =
 	},
 
 	/**
-	 * 	Removes the specified draw handler from the system.
-	 * 	!drawQueueRemove (handler: { draw: (g: Canvas) => void }) : void;
+	 * Removes the specified draw handler from the system.
+	 * !static drawQueueRemove (handler: { draw: (g: Canvas) => void }) : void;
+	 * violet
 	 */
 	/**
-	 * 	Removes the specified draw handler node from the system.
-	 * 	!drawQueueRemove (node: Linkable) : void;
+	 * Removes the specified draw handler node from the system.
+	 * !static drawQueueRemove (node: Linkable) : void;
 	 */
 	drawQueueRemove: function (handler)
 	{
@@ -1123,8 +1254,9 @@ const System =
 	},
 
 	/**
-	 * 	Adds the specified handler to the update and draw queues.
-	 * 	!queueAdd (handler: { update: (dt: number) => void, draw: (g: Canvas) => void }) : void;
+	 * Adds the specified handler to the update and draw queues.
+	 * !static queueAdd (handler: { update: (dt: number) => boolean, draw: (g: Canvas) => void }) : void;
+	 * violet
 	 */
 	queueAdd: function (handler)
 	{
@@ -1133,8 +1265,9 @@ const System =
 	},
 
 	/**
-	 *	Removes the specified handler from the update and draw queues.
-	 * 	!queueRemove (handler: { update: (dt: number) => void, draw: (g: Canvas) => void }) : void;
+	 * Removes the specified handler from the update and draw queues.
+	 * !static queueRemove (handler: { update: (dt: number) => boolean, draw: (g: Canvas) => void }) : void;
+	 * violet
 	 */
 	queueRemove: function (handler)
 	{
@@ -1143,7 +1276,7 @@ const System =
 	},
 
 	/**
-	 * 	Runs an update cycle. All objects in the `updateQueue` will have their `update method called.
+	 * Runs an update cycle. All objects in the `updateQueue` will have their `update method called.
 	 */
 	update: function (dt)
 	{
@@ -1167,7 +1300,7 @@ const System =
 	},
 
 	/**
-	 * 	Runs a rendering cycle. All objects in the `drawQueue` will have their `draw` method called.
+	 * Runs a rendering cycle. All objects in the `drawQueue` will have their `draw` method called.
 	 */
 	draw: function ()
 	{
@@ -1205,10 +1338,11 @@ const System =
 	},
 
 	/**
-	 * 	Interpolates numeric values between two objects (`src` and `dst`) using the specified `duration` and `easing` function. Note that all four parameters `src`, `dst`,
-	 * 	`duration` and `easing` must be objects having the same number of values.
-	 * 	!interpolate (src: object, dst: object, duration: object, easing: object, callback: (data: object, isFinished: boolean) => void) : void;
+	 * Interpolates numeric values between two objects (`src` and `dst`) using the specified `duration` and `easing` function. Note that all four parameters `src`, `dst`,
+	 * `duration` and `easing` must be objects having the same number of values.
+	 * !static interpolate (src: object, dst: object, duration: object, easing: object, callback: (data: object, isFinished: boolean) => void) : void;
 	 */
+	//VIOLET: Remove this from here.
 	interpolate: function (src, dst, duration, easing, callback)
 	{
 		//violet: not optimized
@@ -1255,56 +1389,24 @@ const System =
 	},
 
 	/**
-	 * 	Event triggered when a keyboard event is detected by the system.
-	 * 	onKeyboardEvent (action: KeyboardEventType, keyCode: number, keyState: object) : void;
+	 * Event triggered when a keyboard event is detected by the system.
+	 * !static onKeyboardEvent: System.KeyboardEventHandler;
 	 */
-	onKeyboardEvent: function (action, keyCode, keyState)
+	onKeyboardEvent: function (action, keyCode, state)
 	{
+		return true;
 	},
 
 	/**
-	 * 	Event triggered when a pointer event is detected by the system.
-	 * 	onPointerEvent (action: PointerEventType, pointer: object, pointers: object) : void;
+	 * Event triggered when a pointer event is detected by the system.
+	 * !static onPointerEvent: System.PointerEventHandler;
 	 */
 	onPointerEvent: function (action, pointer, pointers)
 	{
+		return true;
 	}
-};
+});
 
 //!/class
-
-//!namespace System
-
-	//!enum KeyboardEventType
-	System.KeyboardEventType = {
-		KEY_DOWN: 0x001,
-		KEY_UP: 0x002,
-
-		//!KEY_DOWN
-		//!KEY_UP
-	};
-	//!/enum
-
-	//!enum PointerEventType
-	System.PointerEventType = {
-		POINTER_DOWN: 		0x010,
-		POINTER_UP: 		0x011,
-		POINTER_MOVE: 		0x012,
-		POINTER_DRAG_START:	0x013,
-		POINTER_DRAG_MOVE:	0x014,
-		POINTER_DRAG_STOP:	0x015,
-		POINTER_WHEEL:		0x016,
-
-		//!POINTER_DOWN
-		//!POINTER_UP
-		//!POINTER_MOVE
-		//!POINTER_DRAG_START
-		//!POINTER_DRAG_MOVE
-		//!POINTER_DRAG_STOP
-		//!POINTER_WHEEL
-	};
-	//!/enum
-
-//!/namespace
 
 export default System;

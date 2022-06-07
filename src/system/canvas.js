@@ -624,8 +624,10 @@ Canvas.prototype.prepareImage = function (image)
 
 /**
  * 	Creates a new texture of the specified size.
- * 	!createTexture (width: number, height: number, filter?: string, mipmapLeves?: number) : Texture;
+ * 	!createTexture (width: number, height: number, filter?: string, mipmapLeves?: number) : object;
  */
+//violet: type fixup
+//createTexture (width: number, height: number, filter?: string, mipmapLeves?: number) : Texture;
 Canvas.prototype.createTexture = function (width, height, filter='NEAREST', mipmapLevels=0)
 {
 	let gl = this.gl;
@@ -691,8 +693,10 @@ Canvas.prototype.createTexture = function (width, height, filter='NEAREST', mipm
 
 /**
  * 	Uploads the specified source to the texture buffer. Used only when GL mode is active.
- * 	!uploadTexture (texture: HTMLImageElement, source: HTMLImageElement) : boolean;
+ * 	!uploadTexture (texture: object, source: HTMLImageElement) : boolean;
  */
+//violet: type fixup
+//uploadTexture (texture: Texture, source: HTMLImageElement) : boolean;
 Canvas.prototype.uploadTexture = function (texture, source)
 {
 	let gl = this.gl;

@@ -238,7 +238,7 @@ export default Group.extend
 
 	/**
 	 * 	Resets the button to its initial state.
-	 * 	!reset() : void;
+	 * 	!reset() : Stick;
 	 */
 	reset: function ()
 	{
@@ -254,6 +254,8 @@ export default Group.extend
 
 		if (this._onChange)
 			this._onChange (this.dirx, this.diry, this.magnitude, this.angle, this);
+
+		return this;
 	},
 
 	/**

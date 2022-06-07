@@ -180,12 +180,13 @@ export default Group.extend
 
 	/**
 	 * 	Resets the button to its initial state.
-	 * 	!reset() : void;
+	 * 	!reset() : Button;
 	 */
 	reset: function ()
 	{
 		this.img = this.unpressedImg;
 		this._onChange (this.isPressed = false, this.wasPressed = false, this);
+		return this;
 	},
 
 	/**

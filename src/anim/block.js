@@ -50,7 +50,7 @@ const Block = Class.extend
 
 	/**
 	 * Returns the number of commands in the block.
-	 * !count() : int;
+	 * !count() : number;
 	 */
 	count: function()
 	{
