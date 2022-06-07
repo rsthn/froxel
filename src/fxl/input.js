@@ -15,12 +15,21 @@
 */
 
 import PointerHandler from '../flow/pointer-handler.js';
+import KeyboardHandler from '../flow/keyboard-handler.js';
+import Handler from '../utils/handler.js';
+
 import world from './world.js';
 import system from './system.js';
+
 import Gamepad from './gamepad.js';
 
 //!namespace input
+
 //:[import './gamepad.js']
+
+	//:type PointerCallback = (action: System.PointerEventType, pointer: System.Pointer, arg0?: any, arg1?: any, args2?: any) => void;
+	//:type KeyboardCallback = (action: System.KeyboardEventType, keyCode: KeyCode, keyState: System.KeyboardState, arg0?: any, arg1?: any, args2?: any) => void;
+
 //!/namespace
 
 //!class input
@@ -165,11 +174,146 @@ const input =
 	},
 
 	/**
-	 * Main pointer event handler. Executes the `pointer` handler.
+	 * Pointer related functions.
+	 * !static pointer: {
 	 */
-	onPointerEvent: function (action, pointer, pointers)
+	pointer:
 	{
+		/**
+		 * Pointer handler.
+		 */
+		_handler: null,
+
+		/**
+		 * Context.
+		 */
+		context: null,
+
+		/**
+		 * Initializes the pointer input system.
+		 */
+		init: function ()
+		{
+			if (this._handler !== null)
+				return;
+
+			this._handler = Handler.Pool.alloc();
+			this.context = { action: null, pointer: null, pointers: null };
+
+			PointerHandler.register(this);
+		},
+
+		/**
+		 * General pointer event handler.
+		 */
+		onPointerEvent: function (action, pointer, pointers)
+		{
+			this.context.action = action;
+			this.context.pointer = pointer;
+			this.context.pointers = pointers;
+
+			this._handler.exec(this.context);
+		},
+
+		/**
+		 * Adds a callback to the pointer event dispatcher.
+		 * !add: (callback: fxl.input.PointerCallback, arg0?: any, arg1?: any, arg2?: any) => Callback;
+		 */
+		add: function (callback, arg0=null, arg1=null, arg2=null)
+		{
+			if (this._handler === null)
+				this.init();
+
+			return this._handler.add (this._handler_callback, callback, arg0, arg1, arg2);
+		},
+
+		/**
+		 * Removes a callback from the pointer event dispatcher.
+		 * @param {Callback} callback - The node returned by the `add` method.
+		 * !remove: (callback: Callback) => void;
+		 */
+		remove: function (callback)
+		{
+			hthis._handler.remove (callback);
+		},
+
+		_handler_callback: function (context, callback, arg0, arg1, arg2)
+		{
+			return callback (context.action, context.pointer, arg0, arg1, arg2);
+		},
 	},
+	//!};
+
+	/**
+	 * Keyboard related functions.
+	 * !keyboard: {
+	 */
+	keyboard:
+	{
+		/**
+		 * Keyboard handler.
+		 */
+		_handler: null,
+
+		/**
+		 * Context.
+		 */
+		context: null,
+
+		/**
+		 * Initializes the keyboard input system.
+		 */
+		init: function ()
+		{
+			if (this._handler !== null)
+				return;
+
+			this._handler = Handler.Pool.alloc();
+			this.context = { action: null, keyCode: null, keybState: null };
+
+			KeyboardHandler.register(this);
+		},
+
+		/**
+		 * General keyboard event handler.
+		 */
+		onKeyboardEvent: function (action, keyCode, keybState)
+		{
+			this.context.action = action;
+			this.context.keyCode = keyCode;
+			this.context.keybState = keybState;
+
+			this._handler.exec(this.context);
+		},
+
+		/**
+		 * Adds a callback to the keyboard event dispatcher.
+		 * !add: (callback: fxl.input.KeyboardCallback, arg0?: any, arg1?: any, arg2?: any) => Callback;
+		 */
+		add: function (callback, arg0=null, arg1=null, arg2=null)
+		{
+			if (this._handler === null)
+				this.init();
+
+			return this._handler.add (this._handler_callback, callback, arg0, arg1, arg2);
+		},
+
+		/**
+		 * Removes a callback from the keyboard event dispatcher.
+		 * @param {Callback} callback - The node returned by the `add` method.
+		 * !remove: (callback: Callback) => void;
+		 */
+		remove: function (callback)
+		{
+			this._handler.remove (callback);
+		},
+
+		_handler_callback: function (context, callback, arg0, arg1, arg2)
+		{
+			return callback (context.action, context.keyCode, context.keybState, arg0, arg1, arg2);
+		},
+	},
+	//!};
 
 	/**
 	 * Creates a gamepad object and attaches it to the SCENE_HUD in the specified layer (defaults to LAYER_HUD_MAIN).

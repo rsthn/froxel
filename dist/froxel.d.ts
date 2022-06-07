@@ -3013,12 +3013,12 @@ export class PriorityQueue
 
 }
 /**
- * 	Defines a callback node. Contains a callback function, and up to six arguments.
+ * Defines a callback node. Contains a callback function, and up to six arguments.
  */
 export class Callback
 {
 	/**
-	 * 	Initializes the callback with the specified arguments.
+	 * Initializes the callback with the specified arguments.
 	 */
 	constructor (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any);
 
@@ -3042,52 +3042,52 @@ export namespace Callback
 	}
 }
 /**
- * 	The handler class allows zero or more callbacks to be attached, such that when the `exec` method of the handler is invoked, all attached callbacks will also be executed.
+ * The handler class allows zero or more callbacks to be attached, such that when the `exec` method is invoked, all attached callbacks will also be executed.
  */
 export class Handler
 {
 	/**
-	 * 	Handler host element or value.
+	 * Handler host element or value.
 	 */
 	host: any;
 
 	/**
-	 * 	Initializes the Handler instance.
+	 * Initializes the Handler instance.
 	 */
 	constructor (host?: any);
 
 	/**
-	 * 	Adds the specified callback to the handler.
+	 * Adds the specified callback to the handler.
 	 */
 	add (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
 
 	/**
-	 * 	Unlinks a callback from the handler.
+	 * Removes a callback from the handler.
 	 */
 	unlink (node: Callback) : Handler;
 
 	/**
-	 * 	Removes all callbacks matching the specified arguments.
+	 * Removes all callbacks matching the specified arguments.
 	 */
 	remove (callback?: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Handler;
 
 	/**
-	 * 	Returns the first callback matching the specified arguments.
+	 * Returns the first callback matching the specified arguments.
 	 */
 	find (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
 
 	/**
-	 * 	Executes all callbacks in the handler.
+	 * Executes all callbacks in the handler.
 	 */
 	exec (host?: any) : void;
 
 	/**
-	 * 	Executes the first callback matching the specified arguments.
+	 * Executes the first callback matching the specified arguments.
 	 */
 	execf (callback?: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : void;
 
 	/**
-	 * 	Executes the specified callback.
+	 * Executes the specified callback.
 	 */
 	execc (node: Callback, host?: any) : void;
 
@@ -5692,17 +5692,17 @@ export namespace fxl
 	/**
 	 * Creates a timeout callback.
 	 */
-	static timeout (duration: number, callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any) : void;
+	static timeout (duration: number, callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any) : Callback;
 
 	/**
 	 * Creates an interval callback.
 	 */
-	static interval (period: number, callback: Function, arg0?: any, arg1?: any, arg2?: any) : void;
+	static interval (period: number, callback: Function, arg0?: any, arg1?: any, arg2?: any) : Callback;
 
 	/**
 	 * Creates a a time-span callback.
 	 */
-	static span (period: number, callback: (t:number, dt:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : void;
+	static span (period: number, callback: (t:number, dt:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : Callback;
 
 }
 	/**
@@ -6041,6 +6041,8 @@ const r : { [key: string]: any };
 	showMasks (value: boolean) : Gamepad;
 
 }
+	type PointerCallback = (action: System.PointerEventType, pointer: System.Pointer, arg0?: any, arg1?: any, args2?: any) => void;
+	type KeyboardCallback = (action: System.KeyboardEventType, keyCode: KeyCode, keyState: System.KeyboardState, arg0?: any, arg1?: any, args2?: any) => void;
 }
 
 export class input
@@ -6060,6 +6062,40 @@ export class input
 	 */
 	static lastStick: Stick;
 
+	/**
+	 * Pointer related functions.
+	 */
+	static pointer: {
+
+	/**
+	 * Adds a callback to the pointer event dispatcher.
+	 */
+	add: (callback: fxl.input.PointerCallback, arg0?: any, arg1?: any, arg2?: any) => Callback;
+
+	/**
+	 * Removes a callback from the pointer event dispatcher.
+	 * @param {Callback} callback - The node returned by the `add` method.
+	 */
+	remove: (callback: Callback) => void;
+
+	};
+	/**
+	 * Keyboard related functions.
+	 */
+	keyboard: {
+
+	/**
+	 * Adds a callback to the keyboard event dispatcher.
+	 */
+	add: (callback: fxl.input.KeyboardCallback, arg0?: any, arg1?: any, arg2?: any) => Callback;
+
+	/**
+	 * Removes a callback from the keyboard event dispatcher.
+	 * @param {Callback} callback - The node returned by the `add` method.
+	 */
+	remove: (callback: Callback) => void;
+
+	};
 	/**
 	 * Creates a gamepad object and attaches it to the SCENE_HUD in the specified layer (defaults to LAYER_HUD_MAIN).
 	 */

@@ -22,7 +22,7 @@ import Callback from './callback.js';
 //![import "./callback"]
 
 //:/**
-//: * 	The handler class allows zero or more callbacks to be attached, such that when the `exec` method of the handler is invoked, all attached callbacks will also be executed.
+//: * The handler class allows zero or more callbacks to be attached, such that when the `exec` method is invoked, all attached callbacks will also be executed.
 //: */
 
 //!class Handler
@@ -32,20 +32,20 @@ const Handler = Class.extend
 	className: 'Handler',
 
 	/**
-	 * 	Handler host element or value.
-	 * 	!host: any;
+	 * Handler host element or value.
+	 * !host: any;
 	 */
 	host: null,
 
 	/**
-	 * 	Top and bottom of the linked list.
+	 * Top and bottom of the linked list.
 	 */
 	top: null,
 	bottom: null,
 
 	/**
-	 * 	Initializes the Handler instance.
-	 * 	!constructor (host?: any);
+	 * Initializes the Handler instance.
+	 * !constructor (host?: any);
 	 */
 	__ctor: function (host=null)
 	{
@@ -57,17 +57,17 @@ const Handler = Class.extend
 		return this;
 	},
 
-	/*
-	**	Removes all callbacks from the handler.
-	*/
+	/**
+	 * Removes all callbacks from the handler.
+	 */
 	__dtor: function()
 	{
 		this.remove();
 	},
 
 	/**
-	 * 	Adds the specified callback to the handler.
-	 * 	!add (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
+	 * Adds the specified callback to the handler.
+	 * !add (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
 	 */
 	add: function (callback, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
@@ -87,8 +87,8 @@ const Handler = Class.extend
 	},
 
 	/**
-	 * 	Unlinks a callback from the handler.
-	 * 	!unlink (node: Callback) : Handler;
+	 * Removes a callback from the handler.
+	 * !unlink (node: Callback) : Handler;
 	 */
 	unlink: function (node)
 	{
@@ -105,11 +105,12 @@ const Handler = Class.extend
 		node.next = null;
 
 		dispose(node);
+		return this;
 	},
 
 	/**
-	 * 	Removes all callbacks matching the specified arguments.
-	 * 	!remove (callback?: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Handler;
+	 * Removes all callbacks matching the specified arguments.
+	 * !remove (callback?: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Handler;
 	 */
 	remove: function (callback=null, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
@@ -135,8 +136,8 @@ const Handler = Class.extend
 	},
 
 	/**
-	 * 	Returns the first callback matching the specified arguments.
-	 * 	!find (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
+	 * Returns the first callback matching the specified arguments.
+	 * !find (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : Callback;
 	 */
 	find: function (callback, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
@@ -154,8 +155,8 @@ const Handler = Class.extend
 	},
 
 	/**
-	 * 	Executes all callbacks in the handler.
-	 * 	!exec (host?: any) : void;
+	 * Executes all callbacks in the handler.
+	 * !exec (host?: any) : void;
 	 */
 	exec: function (host=null)
 	{
@@ -167,7 +168,10 @@ const Handler = Class.extend
 		{
 			let next = node.next;
 
-			if (node.exec(host) === false)
+			let value = node.exec(host);
+			if (value === null) break;
+
+			if (value === false)
 				this.unlink(node);
 
 			node = next;
@@ -175,8 +179,8 @@ const Handler = Class.extend
 	},
 
 	/**
-	 * 	Executes the first callback matching the specified arguments.
-	 * 	!execf (callback?: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : void;
+	 * Executes the first callback matching the specified arguments.
+	 * !execf (callback?: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any) : void;
 	 */
 	execf: function (callback=null, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
@@ -199,8 +203,8 @@ const Handler = Class.extend
 	},
 
 	/**
-	 * 	Executes the specified callback.
-	 * 	!execc (node: Callback, host?: any) : void;
+	 * Executes the specified callback.
+	 * !execc (node: Callback, host?: any) : void;
 	 */
 	execc: function (node, host=null)
 	{

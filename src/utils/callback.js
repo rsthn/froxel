@@ -20,7 +20,7 @@ import Recycler from './recycler.js';
 //![import "./recycler"]
 
 //:/**
-//: * 	Defines a callback node. Contains a callback function, and up to six arguments.
+//: * Defines a callback node. Contains a callback function, and up to six arguments.
 //: */
 
 //!class Callback
@@ -29,14 +29,14 @@ const Callback = Class.extend
 ({
 	className: 'Callback',
 
-	/*
-	**	Callback function.
-	*/
+	/**
+	 * Callback function.
+	 */
 	callback: null,
 
-	/*
-	**	Optional arguments.
-	*/
+	/**
+	 * Optional arguments.
+	 */
 	arg0: null,
 	arg1: null,
 	arg2: null,
@@ -44,15 +44,15 @@ const Callback = Class.extend
 	arg4: null,
 	arg5: null,
 
-	/*
-	**	Link to the previous and next callback.
-	*/
+	/**
+	 * Links to the previous and next callbacks.
+	 */
 	prev: null,
 	next: null,
 
 	/**
-	 * 	Initializes the callback with the specified arguments.
-	 * 	!constructor (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any);
+	 * Initializes the callback with the specified arguments.
+	 * !constructor (callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any, arg5?: any);
 	 */
 	__ctor: function (callback, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
@@ -69,9 +69,9 @@ const Callback = Class.extend
 		this.next = null;
 	},
 
-	/*
-	**	Destructs the instance.
-	*/
+	/**
+	 * Destructs the instance.
+	 */
 	__dtor: function()
 	{
 		this.callback = null;
@@ -87,9 +87,9 @@ const Callback = Class.extend
 		this.next = null;
 	},
 
-	/*
-	**	Returns true if the specified arguments are the same as the callback. Compares from left to right. All null values are ignored.
-	*/
+	/**
+	 * Returns true if the specified arguments are the same as the callback. Compares from left to right. All `null` values are ignored.
+	 */
 	isEqual: function (callback=null, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null)
 	{
 		if (callback !== null && Callback.isInstance(callback))

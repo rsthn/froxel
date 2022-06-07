@@ -151,6 +151,9 @@ const world =
 	 */
 	init: function (worldWidth=32768, worldHeight=32768, divisorX=null, divisorY=null)
 	{
+		if (this._scenes.length !== 0)
+			return;
+
 		if (divisorX === null)
 			divisorX = Math.max(worldWidth, worldHeight) / 512;
 
