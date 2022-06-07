@@ -1,6 +1,6 @@
 {
     "name": "froxel",
-    "version": "2.2.6",
+    "version": "2.2.7",
     "description": "Froxel Game Framework",
     "type": "module",
     "main": "./dist/froxel.m.js",

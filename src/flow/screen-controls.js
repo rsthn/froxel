@@ -33,32 +33,32 @@ import Handler from '../utils/handler.js';
 		 */
 
 		/**
-		 * Indicates if keyboard events are enabled for the host.
+		 * Indicates if keyboard events are enabled for the object.
 		 * !keyboardEvents : boolean;
 		 */
 
 		/**
-		 * Zindex of the host. Used only if ScreenControls has zindex-flag enabled.
+		 * Zindex of the object. Used only if ScreenControls has zindex-flag enabled.
 		 * !zindex : number;
 		 */
 
 		/**
-		 * Returns `true` if the host contains the specified point (screen space).
+		 * Returns `true` if the object contains the specified point (screen space).
 		 * !containsPoint (x: number, y: number) : boolean;
 		 */
 
 		/**
-		 * Host activated by a pointer event.
+		 * Called when the PointerEventType.POINTER_DOWN event starts within the bounding box of the object.
 		 * !pointerActivate (pointer: System.Pointer) : void;
 		 */
 
 		/**
-		 * Host previously activated by a pointer event has now been deactivated.
+		 * Called when the PointerEventType.POINTER_UP event is fired when this object is already activated.
 		 * !pointerDeactivate (pointer: System.Pointer) : void;
 		 */
 
 		/**
-		 * Executed when a pointer move/drag event has happened (while the host is activated).
+		 * Executed when a pointer move/drag event happens while the object is activated.
 		 * !pointerUpdate (x: number, y: number, pointer: System.Pointer) : void;
 		 */
 
@@ -68,12 +68,12 @@ import Handler from '../utils/handler.js';
 		 */
 
 		/**
-		 * Executed when `keyboardEvents` flag is enabled and a KEY_DOWN event has happened.
+		 * Executed when `keyboardEvents` flag is enabled and a KeyboardEventType.KEY_DOWN event has happened.
 		 * !keyDown (keyCode: KeyCode, keyArgs: System.KeyboardState) : void;
 		 */
 
 		/**
-		 * Executed when `keyboardEvents` flag is enabled and a KEY_UP event has happened.
+		 * Executed when `keyboardEvents` flag is enabled and a KeyboardEventType.KEY_UP event has happened.
 		 * !keyUp (keyCode: KeyCode, keyArgs: System.KeyboardState) : void;
 		 */
 

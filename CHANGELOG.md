@@ -1,3 +1,31 @@
+# v2.2.7 - Jun 06 2022
+
+#### Vec2
+- Method `rotate` now allows rotation origin (cx, cy) to be specified.
+
+#### Canvas
+- Added method `createTexture` and `uploadTexture` to manually create and populate the texture buffer, works only in GL mode.
+
+#### Global
+- Function `rotatePoint` now allows the rotation origin (cx, cy) to be specified.
+
+#### ScreenControls
+- Renamed method `setHoverEnabled` to just `hover` and converted it to getter/setter.
+- Renamed method `setZIndexEnabled` to `zindex` and made it a getter/setter.
+- Added type `Handler` to formally define what is a screen control handler.
+
+#### System
+- Added types `KeyboardEventHandler`, `PointerEventHandler`, `Pointer`, and `KeyboardState`.
+
+#### Handler
+- Callbacks can now return `null` to stop further execution of other callbacks.
+
+#### fxl.input
+- Added interfaces `pointer` and `keyboard` to register callbacks for pointer and keyboard events respectively.
+- Added types `KeyboardCallback` and `PointerCallback`.
+
+<br/>
+
 # v2.2.6 - Jun 05 2022
 
 #### Anim
