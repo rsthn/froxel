@@ -71,7 +71,7 @@ export const Animation = Drawable.extend
 
 	__ctor: function (anim, seq, fps)
 	{
-		this._super.Drawable.__ctor(anim.getImage(), anim.width, anim.height);
+		this._super.Drawable.__ctor(anim.getTexture(), anim.width, anim.height);
 
 		this.anim = anim;
 		this.queue = List.Pool.alloc();
@@ -284,9 +284,9 @@ export const Animation = Drawable.extend
 		}
 	},
 
-	getImage: function()
+	getTexture: function()
 	{
-		return this.anim.getImage();
+		return this.anim.getTexture();
 	},
 
 	getDrawable: function()

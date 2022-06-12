@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import { Rinn } from 'rinn';
+import { Class, Rinn } from 'rinn';
 import Matrix from '../math/matrix.js';
 import System from './system.js';
 import List from '../utils/list.js';
@@ -23,6 +23,7 @@ import Shader from './shader.js';
 import globals from './globals.js';
 import Log from './log.js';
 import glx from './glx.js';
+import Texture from './texture.js';
 
 //![import "../math/matrix"]
 //![import "./system"]
@@ -32,6 +33,7 @@ import glx from './glx.js';
 //![import "./globals"]
 //![import "./log"]
 //![import "./glx"]
+//![import "./texture"]
 
 //!namespace Canvas
 
@@ -480,7 +482,7 @@ Canvas.prototype.initGl = function ()
 	// drawImage (Image img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, float textureWidth, float textureHeight, float frameWidth, float frameHeight);
 	this.drawImage = function (img, sx, sy, sw, sh, dx, dy, dw, dh, textureWidth=null, textureHeight=null, frameWidth=null, frameHeight=null)
 	{
-		if (!img.glTextureReady)
+		if (!img.textureId)
 			return;
 
 		let gl = this.gl;
@@ -503,16 +505,16 @@ Canvas.prototype.initGl = function ()
 		program.uniform1f ('f_scale', this._globalScale);
 		program.uniform1f ('f_alpha', this._alpha);
 
-		if (this.glActiveTextureId !== img.glTextureId || this.glActiveShader !== program)
+		if (this.activeTextureId !== img.textureId || this.activeShader !== program)
 		{
 			gl.activeTexture (gl.TEXTURE0);
-			gl.bindTexture (gl.TEXTURE_2D, img.glTextureId);
+			gl.bindTexture (gl.TEXTURE_2D, img.textureId);
 
 			program.uniform1i ('texture0', 0);
 			program.uniform4f ('v_frame_size', frameWidth*img.rscale/textureWidth, frameHeight*img.rscale/textureHeight, frameWidth, frameHeight);
 
-			this.glActiveTextureId = img.glTextureId;
-			this.glActiveShader = program;
+			this.activeTextureId = img.textureId;
+			this.activeShader = program;
 		}
 
 		this.m_quad[0] = dw;
@@ -543,7 +545,7 @@ Canvas.prototype.initGl = function ()
 		program.uniform1f ('f_scale', this._globalScale);
 		program.uniform1f ('f_alpha', this._alpha);
 
-		this.glActiveTextureId = null;
+		this.activeTextureId = null;
 
 		this.m_quad[0] = w;
 		this.m_quad[4] = h;
@@ -564,166 +566,37 @@ Canvas.prototype.initGl = function ()
 };
 
 /**
- * 	Prepares an image to use it on the canvas. Used only when GL mode is active.
- * 	!prepareImage (image: HTMLImageElement) : boolean;
+ * Prepares an image to use it on the canvas. Used only when GL mode is active.
+ * !prepareImage (image: HTMLImageElement) : boolean;
  */
 Canvas.prototype.prepareImage = function (image)
 {
-	let gl = this.gl;
+	const gl = this.gl;
 	if (gl == null) return false;
 
-	let texture = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, texture);
+	const _width = image.width;
+	const _height = image.height;
+	// REVIEW : ensure the properties from image aren't overwritten by `mutate`.
+	// TODO : optimize this area or remove the method
+console.log('PRE', image.width, image.height, image.targetWidth, image.targetHeight, image.rscale, image.filter, image.wrap, image.mipmap, image.textureId);
+	image = Class.mutate(Texture, image);
 
-	if (!image.filter)
-		image.filter = 'NEAREST';
+	image.width = _width;
+	image.height = _height;
 
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-	if (image.mipmap === true)
-	{
-		gl.texStorage2D(gl.TEXTURE_2D, image.levels, gl.RGBA8, image.width, image.height);
-		gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
-		gl.generateMipmap(gl.TEXTURE_2D);
-
-		if (image.filter === 'NEAREST')
-		{
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		}
-		else
-		{
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		}
-	}
-	else
-	{
-		gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, image.width, image.height);
-		gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, image.width, image.height, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
-		if (image.filter === 'NEAREST')
-		{
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		}
-		else
-		{
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		}
-	}
-
-	image.glTextureId = texture;
-	image.glTextureReady = true;
+console.log('POST', image.width, image.height, image.targetWidth, image.targetHeight, image.rscale, image.filter, image.wrap, image.mipmap, image.textureId);
+	image.upload(image);
 
 	return true;
 };
 
 /**
- * 	Creates a new texture of the specified size.
- * 	!createTexture (width: number, height: number, filter?: string, mipmapLeves?: number) : object;
+ * Creates a new texture of the specified size.
+ * !createTexture (width: number, height: number, filter?: Texture.FilterType, mipmap?: number) : Texture;
  */
-//violet: type fixup
-//createTexture (width: number, height: number, filter?: string, mipmapLeves?: number) : Texture;
-Canvas.prototype.createTexture = function (width, height, filter='NEAREST', mipmapLevels=0)
+Canvas.prototype.createTexture = function (width, height, filter='NEAREST', mipmap=0)
 {
-	let gl = this.gl;
-	if (gl == null) return null;
-
-	let image = {
-		width: width,
-		height: height,
-		targetWidth: width,
-		targetHeight: height,
-		rscale: 1.0,
-		
-		filter: filter,
-		mipmap: mipmapLevels > 0 ? true : false,
-		levels: mipmapLevels,
-	};
-
-	let texture = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-
-	if (!image.filter)
-		image.filter = 'NEAREST';
-
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-	if (image.mipmap === true)
-	{
-		gl.texStorage2D(gl.TEXTURE_2D, image.levels, gl.RGBA8, image.width, image.height);
-
-		if (image.filter === 'NEAREST')
-		{
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		}
-		else
-		{
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		}
-	}
-	else
-	{
-		gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, image.width, image.height);
-
-		if (image.filter === 'NEAREST')
-		{
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		}
-		else
-		{
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		}
-	}
-
-	image.glTextureId = texture;
-	image.glTextureReady = true;
-
-	return image;
-};
-
-/**
- * 	Uploads the specified source to the texture buffer. Used only when GL mode is active.
- * 	!uploadTexture (texture: object, source: HTMLImageElement) : boolean;
- */
-//violet: type fixup
-//uploadTexture (texture: Texture, source: HTMLImageElement) : boolean;
-Canvas.prototype.uploadTexture = function (texture, source)
-{
-	let gl = this.gl;
-	if (gl == null) return false;
-
-	if (!texture.glTextureId) return false;
-
-	gl.bindTexture(gl.TEXTURE_2D, texture.glTextureId);
-	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, Math.min(texture.width, source.width), Math.min(texture.height, source.height), gl.RGBA, gl.UNSIGNED_BYTE, source);
-
-	return true;
-};
-
-/**
- * 	Configures the texture related to specified image to gl.REPEAT.
- * 	!setWrapRepeat (image: HTMLImageElement) : HTMLImageElement;
- */
-Canvas.prototype.setWrapRepeat = function (image)
-{
-	let gl = this.gl;
-	if (gl == null || !image.glTextureReady) return image;
-
-	gl.bindTexture(gl.TEXTURE_2D, image.glTextureId);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-
-	return image;
+	return new Texture (width, height).setFilter(filter).setMipmap(mipmap).allocate();
 };
 
 /**
@@ -1470,7 +1343,7 @@ Canvas.prototype.clear = function (backgroundColor=null)
 	if (this.gl != null)
 	{
 		this.gl.clear(this.gl.STENCIL_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
-		this.glActiveTextureId = null;
+		this.activeTextureId = null;
 
 		return this;
 	}
@@ -1520,9 +1393,9 @@ Canvas.prototype.flush = function ()
 };
 
 /**
- *	Blits the specified texture to the active framebuffer.
+ * Blits the specified texture to the active framebuffer.
  */
-Canvas.prototype.blit = function (texture, width, height, shaderProgram=null)
+Canvas.prototype.blit = function (textureId, width, height, shaderProgram=null)
 {
 	let gl = this.gl;
 	if (gl === null) return;
@@ -1533,7 +1406,7 @@ Canvas.prototype.blit = function (texture, width, height, shaderProgram=null)
 	gl.disable (gl.DEPTH_TEST);
 
 		gl.activeTexture (gl.TEXTURE0);
-		gl.bindTexture (gl.TEXTURE_2D, texture);
+		gl.bindTexture (gl.TEXTURE_2D, textureId);
 		shaderProgram.uniform1i ('texture0', 0);
 
 		shaderProgram.uniform4fv ('v_resolution', this.v_resolution);
@@ -2103,9 +1976,7 @@ Canvas.renderImageMipmap = function (levels, width, height, draw, completed)
 		img.rscale = 1.0;
 		img.targetWidth = width;
 		img.targetHeight = height;
-
-		img.mipmap = true;
-		img.levels = levels;
+		img.mipmap = levels;
 
 		System.renderer.prepareImage(img);
 		completed(img, url);

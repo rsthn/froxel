@@ -154,9 +154,9 @@ export default Drawable.extend
 		return this.frameCache[frameIndex] = frameObject;
 	},
 
-	getImage: function()
+	getTexture: function()
 	{
-		return this.getFrame(0).getImage();
+		return this.getFrame(0).getTexture();
 	},
 
 	getDrawable: function()

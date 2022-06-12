@@ -29,7 +29,7 @@ const Drawable = Class.extend
 	/**
 	 * Image resource.
 	 * @protected
-	 * !readonly resource: HTMLImageElement|Canvas;
+	 * !readonly resource: Texture;
 	 */
 	resource: null,
 
@@ -131,9 +131,20 @@ const Drawable = Class.extend
 
 	/**
 	 * Returns the underlying Image object, can be used directly with Canvas.drawImage.
-	 * !getImage(): HTMLImageElement|Canvas;
+	 * @deprecated
+	 * !getImage(): Texture;
+	 * TODO remove in next major version
 	 */
 	getImage: function()
+	{
+		return this.resource;
+	},
+
+	/**
+	 * Returns the underlying texture object.
+	 * !getTexture(): Texture;
+	 */
+	getTexture: function()
 	{
 		return this.resource;
 	},
@@ -219,9 +230,9 @@ const NineSlice = Drawable.extend
 		dispose(this.ss);
 	},
 
-	getImage: function()
+	getTexture: function()
 	{
-		return this.ss.getImage();
+		return this.ss.getTexture();
 	},
 
 	draw: function (g, x, y, width, height)
@@ -322,7 +333,7 @@ const Clipped = Drawable.extend
 
 	draw: function (g, x, y, width=null, height=null)
 	{
-		let img = this.getImage();
+		let img = this.getTexture();
 	
 		width = width ?? this.width;
 		height = height ?? this.height;

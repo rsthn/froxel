@@ -1,10 +1,9 @@
 
 import Resources from '../resources/resources.js';
-
 import r from './r.js';
 
 /**
- * 	Resource manager allows to specify resource descriptors to load them.
+ * Resource manager allows to specify resource descriptors to load them.
  */
 
 //!class res
@@ -21,8 +20,8 @@ const res =
 	},
 
 	/**
-	 * 	Loads all registered resources that have not been loaded yet.
-	 * 	!static load (progressCallback?: (t: number, name: string) => void) : Promise<void>;
+	 * Loads all registered resources that have not been loaded yet.
+	 * !static load (progressCallback?: (t: number, name: string) => void) : Promise<void>;
 	 */
 	load: function(progressCallback=null)
 	{
@@ -40,28 +39,28 @@ const res =
 	},
 
 	/**
-	 * 	Returns a resource given its identifier.
-	 * 	@param id - Resource identifier.
-	 * 	!static get (id: string) : object;
+	 * Returns a resource given its identifier.
+	 * !static get (id: string) : object;
 	 */
 	get: function (id)
 	{
+		if (!r.hasOwnProperty(id))
+			throw new Error('Resource not found: ' + id);
+
 		return r[id];
 	},
 
 	/**
-	 * 	Checks if the ID exists in the fxl `r` map, throws an error if it does.
+	 * Checks if the ID exists in the fxl `r` map, throws an error if it does.
 	 */
 	__resIdMustNotExist: function (id)
 	{
-		if (id in r) throw new Error ('Resource identifier `' + id + '` is already in use');
+		if (r.hasOwnProperty(id)) throw new Error ('Resource identifier `' + id + '` is already in use');
 	},
 
 	/**
-	 * 	Registers a solid-color resource.
-	 * 	@param id - Resource identifier.
-	 * 
-	 * 	!static color (id: string, color: string, width: number, height: number) : object;
+	 * Registers a solid-color resource.
+	 * !static color (id: string, color: string, width: number, height: number) : Texture;
 	 */
 	color: function (id, color, width, height)
 	{
@@ -71,10 +70,8 @@ const res =
 	},
 
 	/**
-	 * 	Registers a custom drawable resource.
-	 * 	@param id - Resource identifier.
-	 * 
-	 * 	!static custom (id: string, width: number, height: number, drawFunction: (g: Canvas) => void) : object;
+	 * Registers a custom drawable resource.
+	 * !static custom (id: string, width: number, height: number, drawFunction: (g: Canvas) => void) : object;
 	 */
 	custom: function (id, width, height, drawFunction, opts=null)
 	{
@@ -84,10 +81,8 @@ const res =
 	},
 
 	/**
-	 * 	Registers an image resource.
-	 * 	@param id - Resource identifier.
-	 * 
-	 * 	!static image (id: string, path: string, opts?: object) : object;
+	 * Registers an image resource.
+	 * !static image (id: string, path: string, opts?: object) : Texture;
 	 */
 	image: function (id, path, opts=null)
 	{

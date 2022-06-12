@@ -1075,6 +1075,108 @@ export class ShaderProgram
 
 
 
+export namespace Texture
+{
+	type FilterType = 'NEAREST' | 'LINEAR';
+	type WrapMode = 'REPEAT' | 'CLAMP_TO_EDGE' | 'MIRRORED_REPEAT';
+}
+
+/**
+ * Definition of a texture.
+ */
+export class Texture
+{
+	/**
+	 * WebGL ID of the texture.
+	 */
+	readonly textureId: number;
+
+	/**
+	 * Texture width (physical width).
+	 */
+	readonly width: number;
+
+	/**
+	 * Texture height (physical height).
+	 */
+	readonly height: number;
+
+	/**
+	 * Target width originally requested (logical width).
+	 */
+	readonly targetWidth: number;
+
+	/**
+	 * Target height originally requested (logical height).
+	 */
+	readonly targetHeight: number;
+
+	/**
+	 * Real scale of the texture (physical width / logical width).
+	 */
+	readonly rscale: number;
+
+	/**
+	 * Texture filter.
+	 */
+	readonly filter: Texture.FilterType;
+
+	/**
+	 * Texture wrap mode.
+	 */
+	readonly wrap: Texture.WrapMode;
+
+	/**
+	 * Number of mipmap levels (use 0 to disable).
+	 */
+	readonly mipmap: number;
+
+	/**
+	 * Creates an empty texture of the specified size.
+	 */
+	constructor (width: number, height: number, targetWidth?: number, targetHeight?: number);
+
+	/**
+	 * Binds the texture to the TEXTURE_2D target.
+	 */
+	bind(): WebGL2RenderingContext;
+
+	/**
+	 * Allocates the texture storage.
+	 */
+	allocate(): Texture;
+
+	/**
+	 * Applies the texture filter.
+	 */
+	applyFilter() : Texture;
+
+	/**
+	 * Applies the texture wrap mode.
+	 */
+	applyWrap() : Texture;
+
+	/**
+	 * Sets the texture filter.
+	 */
+	setFilter (filter: Texture.FilterType) : Texture;
+
+	/**
+	 * Sets the texture wrap mode.
+	 */
+	setWrap (wrap: Texture.WrapMode) : Texture;
+
+	/**
+	 * Sets the number of mipmap levels.
+	 */
+	setMipmap (mipmap: number) : Texture;
+
+	/**
+	 * Uploads data to the GPU from the specified image.
+	 */
+	upload (image: object, targetX?: number, targetY?: number) : Texture;
+
+}
 export namespace Canvas
 {
 	type Options =
@@ -1131,24 +1233,14 @@ export class Canvas
 	constructor (options: Canvas.Options);
 
 	/**
-	 * 	Prepares an image to use it on the canvas. Used only when GL mode is active.
+	 * Prepares an image to use it on the canvas. Used only when GL mode is active.
 	 */
 	prepareImage (image: HTMLImageElement) : boolean;
 
 	/**
-	 * 	Creates a new texture of the specified size.
+	 * Creates a new texture of the specified size.
 	 */
-	createTexture (width: number, height: number, filter?: string, mipmapLeves?: number) : object;
-
-	/**
-	 * 	Uploads the specified source to the texture buffer. Used only when GL mode is active.
-	 */
-	uploadTexture (texture: object, source: HTMLImageElement) : boolean;
-
-	/**
-	 * 	Configures the texture related to specified image to gl.REPEAT.
-	 */
-	setWrapRepeat (image: HTMLImageElement) : HTMLImageElement;
+	createTexture (width: number, height: number, filter?: Texture.FilterType, mipmap?: number) : Texture;
 
 	/**
 	 * 	Sets the default background color of the canvas. Does not cause a canvas clear.
@@ -4923,7 +5015,7 @@ export class Drawable
 	 * Image resource.
 	 * @protected
 	 */
-	readonly resource: HTMLImageElement|Canvas;
+	readonly resource: Texture;
 
 	/**
 	 * Logical width of the drawable.
@@ -4973,8 +5065,15 @@ export class Drawable
 
 	/**
 	 * Returns the underlying Image object, can be used directly with Canvas.drawImage.
+	 * @deprecated
+	 * TODO remove in next major version
 	 */
-	getImage(): HTMLImageElement|Canvas;
+	getImage(): Texture;
+
+	/**
+	 * Returns the underlying texture object.
+	 */
+	getTexture(): Texture;
 
 	/**
 	 * Resizes the logical dimensions of the drawable.
@@ -5894,33 +5993,29 @@ const r : { [key: string]: any };
 	static config (options: Resources.ConfigOptions) : void;
 
 	/**
-	 * 	Loads all registered resources that have not been loaded yet.
+	 * Loads all registered resources that have not been loaded yet.
 	 */
 	static load (progressCallback?: (t: number, name: string) => void) : Promise<void>;
 
 	/**
-	 * 	Returns a resource given its identifier.
-	 * 	@param id - Resource identifier.
+	 * Returns a resource given its identifier.
 	 */
 	static get (id: string) : object;
 
 	/**
-	 * 	Registers a solid-color resource.
-	 * 	@param id - Resource identifier.
+	 * Registers a solid-color resource.
 	 */
-	static color (id: string, color: string, width: number, height: number) : object;
+	static color (id: string, color: string, width: number, height: number) : Texture;
 
 	/**
-	 * 	Registers a custom drawable resource.
-	 * 	@param id - Resource identifier.
+	 * Registers a custom drawable resource.
 	 */
 	static custom (id: string, width: number, height: number, drawFunction: (g: Canvas) => void) : object;
 
 	/**
-	 * 	Registers an image resource.
-	 * 	@param id - Resource identifier.
+	 * Registers an image resource.
 	 */
-	static image (id: string, path: string, opts?: object) : object;
+	static image (id: string, path: string, opts?: object) : Texture;
 
 	/**
 	 * 	Registers a multi image resource.

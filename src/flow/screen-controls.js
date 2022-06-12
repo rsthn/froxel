@@ -164,7 +164,7 @@ const ScreenControls =
 		this.zindexFlag = value;
 	},
 
-	findTarget: function (x, y, filter)
+	findTarget: function (x, y, filter=null)
 	{
 		// Once per frame the list is re-sorted (if required) when the zindex flag is enabled.
 		if (this.zindexFlag && this.lastFrame != System.frameNumber)
