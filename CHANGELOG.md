@@ -1,3 +1,25 @@
+# v2.2.8 - Jun 12 2022
+
+#### General
+- Added Texture class with general definition of a texture.
+
+#### fxl.res
+- Exception will be thrown when using `get` if the resource ID is not found.
+- Fixed signature of several methods in fxl.res to reflect `Texture` class.
+- Added `AnimationResource` type to describe the object obtained by calling `animation`.
+
+#### Canvas
+- Removed `setWrapRepeat` and `uploadTexture` because those are now available in the Texture class.
+
+#### Drawable
+- Added method `getTexture` as replacement of `getImage` which is still available but now deprecated.
+
+#### Resources
+- Method `resizeImage` of Resources now always returns HTMLImageElement instead of HTMLCanvasElement.
+- Added method `loadImage`, returns an HTMLImageElement from a given URL.
+
+<br/>
+
 # v2.2.7 - Jun 06 2022
 
 #### Vec2
