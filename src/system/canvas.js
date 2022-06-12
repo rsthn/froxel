@@ -566,28 +566,14 @@ Canvas.prototype.initGl = function ()
 };
 
 /**
- * Prepares an image to use it on the canvas. Used only when GL mode is active.
- * !prepareImage (image: HTMLImageElement) : boolean;
+ * Prepares an image to use it on the canvas.
+ * !prepareImage (image: HTMLImageElement) : void;
  */
 Canvas.prototype.prepareImage = function (image)
 {
-	const gl = this.gl;
-	if (gl == null) return false;
-
-	const _width = image.width;
-	const _height = image.height;
 	// REVIEW : ensure the properties from image aren't overwritten by `mutate`.
 	// TODO : optimize this area or remove the method
-console.log('PRE', image.width, image.height, image.targetWidth, image.targetHeight, image.rscale, image.filter, image.wrap, image.mipmap, image.textureId);
-	image = Class.mutate(Texture, image);
-
-	image.width = _width;
-	image.height = _height;
-
-console.log('POST', image.width, image.height, image.targetWidth, image.targetHeight, image.rscale, image.filter, image.wrap, image.mipmap, image.textureId);
-	image.upload(image);
-
-	return true;
+	Class.mutate(Texture, image, { width: image.width, height: image.height }).upload(image);
 };
 
 /**
@@ -596,6 +582,7 @@ console.log('POST', image.width, image.height, image.targetWidth, image.targetHe
  */
 Canvas.prototype.createTexture = function (width, height, filter='NEAREST', mipmap=0)
 {
+	console.log('createTexture');
 	return new Texture (width, height).setFilter(filter).setMipmap(mipmap).allocate();
 };
 

@@ -173,13 +173,11 @@ Object.assign(Resources,
 		{
 			case "image":
 				r.data = new Image ();
-
-				r.data.onload = function ()
+				r.data.onload = async function ()
 				{
-					var ratio = r.data.width / r.data.height;
+					const ratio = r.data.width / r.data.height;
 
-					if (r.scale)
-					{
+					if (r.scale) {
 						r.width = int(r.data.width*r.scale);
 						r.height = int(r.data.height*r.scale);
 					}
@@ -201,8 +199,9 @@ Object.assign(Resources,
 						r.width = int(ratio * r.height);
 					}
 
-					r.owidth = r.data.width;
-					r.oheight = r.data.height;
+					//TODO remove this comment if nothing explodes after removing owidth and oheight.
+					//r.owidth = r.data.width;
+					//r.oheight = r.data.height;
 
 					if (!r.hasOwnProperty('filter'))
 						r.filter = !r.hasOwnProperty('pixelated') ? Resources.filter : (r.pixelated === true ? 'NEAREST' : Resources.filter);
@@ -215,8 +214,8 @@ Object.assign(Resources,
 
 					if ((r.data.width != r.width || r.data.height != r.height || r.extraScale != 0.0) && r.original !== true)
 					{
-//let t = hrnow();//violet
-						r.data = Resources.resizeImage (r, r.width * (r.extraScale + (r.pixelated ? System.integerScaleFactor : System.scaleFactor)), r.height * (r.extraScale + (r.pixelated ? System.integerScaleFactor : System.scaleFactor)), r.pixelated, true);
+//let t = hrnow(); //violet
+						r.data = await Resources.resizeImage (r, r.width * (r.extraScale + (r.pixelated ? System.integerScaleFactor : System.scaleFactor)), r.height * (r.extraScale + (r.pixelated ? System.integerScaleFactor : System.scaleFactor)), r.pixelated, true);
 //console.log((hrnow() - t) + ': resize to ' + (r.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor)) + 'x' + (r.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor)));
 					}
 
@@ -227,7 +226,7 @@ Object.assign(Resources,
 					r.data.targetWidth = r.width;
 					r.data.targetHeight = r.height;
 
-					if (r.hasOwnProperty('mipmap') && r.mipmap > 1)
+					if (r.hasOwnProperty('mipmap') && r.mipmap > 0)
 						r.data.mipmap = r.mipmap;
 
 					// Pre-draw on an offscreen canvas, used to prevent a delay when rendering an image for the first time on some browsers.
@@ -279,7 +278,7 @@ Object.assign(Resources,
 						return;
 					}
 
-					// violet :add support for extraScale
+					// TODO add support for extraScale
 					var tmp = { type: "image", width: r.width, height: r.height, scale: r.scale };
 
 					tmp.src = r.src.substr(0, d0) + ((r._i++) / Math.pow(10,dN)).toFixed(dN).substr(2) + r.src.substr(d1+1);
@@ -289,7 +288,7 @@ Object.assign(Resources,
 					if (progressCallback)
 						progressCallback (index, keyList.length, (index / keyList.length) + ((r._i-1)/r.count)*(1 / keyList.length), r.resName + '/' + (r._i-1));
 
-					tmp.data.onload = function ()
+					tmp.data.onload = async function ()
 					{
 						var ratio = tmp.data.width / tmp.data.height;
 
@@ -335,7 +334,7 @@ Object.assign(Resources,
 						if ((tmp.data.width != tmp.width || tmp.data.height != tmp.height) && tmp.original !== true)
 						{
 //let t = hrnow();//violet
-							tmp.data = Resources.resizeImage (tmp, tmp.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), tmp.height * (tmp.pixelated ? System.integerScaleFactor : System.scaleFactor), tmp.pixelated, true);
+							tmp.data = await Resources.resizeImage (tmp, tmp.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor), tmp.height * (tmp.pixelated ? System.integerScaleFactor : System.scaleFactor), tmp.pixelated, true);
 //console.log((hrnow() - t) + ': resize to ' + (tmp.width * (r.pixelated ? System.integerScaleFactor : System.scaleFactor)) + 'x' + (tmp.height * (r.pixelated ? System.integerScaleFactor : System.scaleFactor)));
 						}
 
@@ -346,7 +345,7 @@ Object.assign(Resources,
 						tmp.data.targetWidth = tmp.width;
 						tmp.data.targetHeight = tmp.height;
 
-						if (r.hasOwnProperty('mipmap') && r.mipmap > 1)
+						if (r.hasOwnProperty('mipmap') && r.mipmap > 0)
 							tmp.data.mipmap = r.mipmap;
 	
 						if (r._i == 1)
@@ -632,12 +631,12 @@ Object.assign(Resources,
 			switch (list[i].type)
 			{
 				case "audio":
-					// violet: unload audio if using NativeAudio
+					// TODO unload audio if using NativeAudio
 					// global.plugins.NativeAudio.unload
 					break;
 
 				case "audios":
-					// violet: unload audio if using NativeAudio
+					// TODO unload audio if using NativeAudio
 					// global.plugins.NativeAudio.unload
 					break;
 
@@ -687,13 +686,27 @@ Object.assign(Resources,
 	},
 
 	/**
-	 * Resizes the given image to the specified size.
-	 * !static resizeImage (image: HTMLImageElement, targetWidth: number, targetHeight: number, pixelated?: boolean, discardOriginal?: boolean) : HTMLImageElement;
+	 * Loads an image, returns a promise.
+	 * !static loadImage (src: string) : Promise<HTMLImageElement>;
 	 */
-	resizeImage: function (image, dw, dh, pixelated, discardOriginal)
+	loadImage: function (url)
 	{
-		var sw = image.data.width;
-		var sh = image.data.height;
+		return new Promise((resolve, reject) => {
+			const image = new Image();
+			image.onload = () => resolve(image);
+			image.onerror = () => reject(new Error('Unable to load image'));
+			image.src = url;
+		});
+	},
+
+	/**
+	 * Resizes the given image to the specified size.
+	 * !static resizeImage (image: HTMLImageElement, targetWidth: number, targetHeight: number, pixelated?: boolean, discardOriginal?: boolean) : HTMLImageElement|HTMLCanvasElement;
+	 */
+	resizeImage: async function (image, dw, dh, pixelated, discardOriginal)
+	{
+		let sw = image.data.width;
+		let sh = image.data.height;
 
 		dw = int(dw);
 		dh = int(dh);
@@ -735,7 +748,7 @@ Object.assign(Resources,
 			if (discardOriginal)
 				dispose (image.data);
 
-			return output.elem;
+			return await this.loadImage(output.toDataUrl());
 		}
 		else
 		{
@@ -768,7 +781,7 @@ Object.assign(Resources,
 
 				temp.dispose();
 
-				return output.elem;
+				return await this.loadImage(output.toDataUrl());
 			}
 
 			return this.resizeImage (image, dw, dh, null, discardOriginal);
