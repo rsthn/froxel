@@ -130,7 +130,7 @@ Object.assign(Resources,
 	 * { type: "data", wrapper: "", src: "assets/config.dat" }
 	 * { type: "text", wrapper: "", src: "assets/config.frag" }
 	 * { type: "object", wrapper: "" }
-	 * 
+	 *
 	 * @param list - Map of resources to load.
 	 * @param progressCallback - Executed once for every resource loaded.
 	 * @param completeCallback - Executed when all resources have been loaded.

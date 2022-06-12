@@ -1233,9 +1233,9 @@ export class Canvas
 	constructor (options: Canvas.Options);
 
 	/**
-	 * Prepares an image to use it on the canvas. Used only when GL mode is active.
+	 * Prepares an image to use it on the canvas.
 	 */
-	prepareImage (image: HTMLImageElement) : boolean;
+	prepareImage (image: HTMLImageElement) : void;
 
 	/**
 	 * Creates a new texture of the specified size.
@@ -3006,9 +3006,14 @@ export class Resources
 	static unload (list: { [id: string] : object }) : void;
 
 	/**
+	 * Loads an image, returns a promise.
+	 */
+	static loadImage (src: string) : Promise<HTMLImageElement>;
+
+	/**
 	 * Resizes the given image to the specified size.
 	 */
-	static resizeImage (image: HTMLImageElement, targetWidth: number, targetHeight: number, pixelated?: boolean, discardOriginal?: boolean) : HTMLImageElement;
+	static resizeImage (image: HTMLImageElement, targetWidth: number, targetHeight: number, pixelated?: boolean, discardOriginal?: boolean) : HTMLImageElement|HTMLCanvasElement;
 
 	/**
 	 * Flips an image horizontally.
@@ -5985,7 +5990,35 @@ export class world
  * Registered resources. Initially these are resource descriptors, but after a call to `res.load` these will be fully loaded resources.
  */
 const r : { [key: string]: any };
-	export class res
+	export namespace res
+{
+	type AnimationResource =
+	{
+		/**
+		 * Sets the default FPS value.
+		 */
+		fps (value: number) : AnimationResource;
+
+		/**
+		 * Defines an animation sequence.
+		 */
+		sequence (sequenceName: string, isLoop: boolean, frameGroup: string, fps?: number) : AnimationResource;
+
+		/**
+		 * Defines a transition sequence.
+		 */
+		trans (sourceSequenceName: string, destinationSequenceName: string, frameGroup: string) : AnimationResource;
+
+		/**
+		 * Sets the default animation sequence.
+		 */
+		def (sequenceName: string) : AnimationResource;
+
+	}
+
+}
+
+export class res
 {
 	/**
 	 * Configures the resources object with the specified options.
@@ -6010,7 +6043,7 @@ const r : { [key: string]: any };
 	/**
 	 * Registers a custom drawable resource.
 	 */
-	static custom (id: string, width: number, height: number, drawFunction: (g: Canvas) => void) : object;
+	static custom (id: string, width: number, height: number, drawFunction: (g: Canvas) => void) : Texture;
 
 	/**
 	 * Registers an image resource.
@@ -6037,7 +6070,7 @@ const r : { [key: string]: any };
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.
 	 */
-	static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : object;
+	static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : res.AnimationResource;
 
 	/**
 	 * 	Registers a spritefont animation resource.

@@ -6,6 +6,34 @@ import r from './r.js';
  * Resource manager allows to specify resource descriptors to load them.
  */
 
+//!namespace res
+
+	//!type AnimationResource =
+
+		/**
+		 * Sets the default FPS value.
+		 * !fps (value: number) : AnimationResource;
+		 */
+
+		/**
+		 * Defines an animation sequence.
+		 * !sequence (sequenceName: string, isLoop: boolean, frameGroup: string, fps?: number) : AnimationResource;
+		 */
+
+		/**
+		 * Defines a transition sequence.
+		 * !trans (sourceSequenceName: string, destinationSequenceName: string, frameGroup: string) : AnimationResource;
+		 */
+
+		/**
+		 * Sets the default animation sequence.
+		 * !def (sequenceName: string) : AnimationResource;
+		 */
+
+	//!/type
+
+//!/namespace
+
 //!class res
 
 const res =
@@ -23,7 +51,7 @@ const res =
 	 * Loads all registered resources that have not been loaded yet.
 	 * !static load (progressCallback?: (t: number, name: string) => void) : Promise<void>;
 	 */
-	load: function(progressCallback=null)
+	load: function (progressCallback=null)
 	{
 		return new Promise (function (resolve, reject)
 		{
@@ -71,7 +99,7 @@ const res =
 
 	/**
 	 * Registers a custom drawable resource.
-	 * !static custom (id: string, width: number, height: number, drawFunction: (g: Canvas) => void) : object;
+	 * !static custom (id: string, width: number, height: number, drawFunction: (g: Canvas) => void) : Texture;
 	 */
 	custom: function (id, width, height, drawFunction, opts=null)
 	{
@@ -134,7 +162,7 @@ const res =
 	 * 	@param id - Resource identifier.
 	 * 	@param path - Path to the source file.
 	 * 
-	 * 	!static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : object;
+	 * 	!static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : res.AnimationResource;
 	 */
 	animation: function (id, path, frameWidth, frameHeight, numFrames=null, configOptions=null, resOptions=null)
 	{
