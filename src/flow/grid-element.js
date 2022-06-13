@@ -22,66 +22,68 @@ import Handler from '../utils/handler.js';
 //![import "../utils/handler"]
 
 //:/**
-//: * 	Describes an element that can be added to a grid.
+//: * Describes an element that can be added to a grid.
 //: */
 
 //!class GridElement
 
 const GridElement = Class.extend
 ({
-	/*
-	**	Name of the class (for inheritance purposes).
-	*/
+	/**
+	 * Name of the class (for inheritance purposes).
+	 */
 	className: 'GridElement',
 
 	/**
-	 * 	Identifier of the element (string).
-	 * 	!id: string;
+	 * Identifier of the element (string).
+	 * !id: string;
 	 */
 	id: null,
 
 	/**
-	 * 	Bounds of the element.
-	 * 	!bounds: Bounds2;
+	 * Bounds of the element.
+	 * !bounds: Bounds2;
 	 */
 	bounds: null,
 
 	/**
-	 * 	Flags of the element (see constants of this class).
-	 * 	!flags: number;
+	 * Flags of the element (see constants of this class).
+	 * !flags: number;
 	 */
 	flags: 0,
 
 	/**
-	 * 	Generic data of the element, used to store some value or object.
-	 * 	!data: object;
+	 * Generic data of the element, used to store some value or object.
+	 * !data: object;
 	 */
 	data: null,
 
 	/**
-	 * 	Extension object of the element, can be used to implement specific functionality.
-	 * 	!ext: object;
+	 * Extension object of the element, can be used to implement specific functionality.
+	 * !ext: object;
 	 */
 	ext: null,
 
 	/**
-	 * 	The container where the element is stored.
+	 * The container where the element is stored.
+	 * !readonly container: Container;
 	 */
 	container: null,
 
 	/**
-	 * 	Removal callback node added by Grid.
+	 * Removal callback node added by Grid.
 	 */
 	_grid_remove_node: null,
 
 	/**
-	 * 	Remover runs when the `remove` method of the element is called or when the element is destroyed.
+	 * Remover runs when the `remove` method of the element is called or when the element is destroyed.
+	 * !readonly remover: Handler;
 	 */
 	remover: null,
 
 	/**
-	 * 	Constructs the instance at the specified position and with the specified size.
-	 * 	!constructor (x: number, y: number, width: number, height: number);
+	 * Constructs the instance at the specified position and with the specified size.
+	 * !constructor (x: number, y: number, width: number, height: number);
 	 */
 	__ctor: function (x, y, width, height)
 	{
@@ -98,7 +100,7 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Removes the element from its container and destroys it.
+	 * Removes the element from its container and destroys it.
 	 */
 	__dtor: function()
 	{
@@ -117,8 +119,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the identifier of the element.
-	 * 	!setId (value: string) : GridElement;
+	 * Sets the identifier of the element.
+	 * !setId (value: string) : GridElement;
 	 */
 	setId: function (value)
 	{
@@ -127,8 +129,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets bits of the element flags.
-	 * 	!setFlags (value: number) : GridElement;
+	 * Sets bits of the element flags.
+	 * !setFlags (value: number) : GridElement;
 	 */
 	setFlags: function (value)
 	{
@@ -137,8 +139,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Clears bits from the element flags.
-	 * 	!clearFlags (value: number) : GridElement;
+	 * Clears bits from the element flags.
+	 * !clearFlags (value: number) : GridElement;
 	 */
 	clearFlags: function (value)
 	{
@@ -147,8 +149,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Returns true if masking (bitwise AND) the flags by the specified flag bits results in the given value.
-	 * 	!getFlags (andMask: number, value?: number) : boolean;
+	 * Returns true if masking (bitwise AND) the flags by the specified flag bits results in the given value.
+	 * !getFlags (andMask: number, value?: number) : boolean;
 	 */
 	getFlags: function (andMask, value=null)
 	{
@@ -159,18 +161,23 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the generic data of the element. Will be disposed when the element is destroyed.
-	 * 	!setData (data: object) : GridElement;
+	 * Sets the generic data of the element. Will be disposed when the element is destroyed. The property `host`
+	 * of the object will be set with the reference to the element.
+	 * !setData (data: object) : GridElement;
 	 */
 	setData: function (data)
 	{
 		this.data = data;
+
+		if (this.data !== null)
+			this.data.host = this;
+
 		return this;
 	},
 
 	/**
-	 * 	Returns the generic data of the element.
-	 * 	!getData() : object;
+	 * Returns the generic data of the element.
+	 * !getData() : object;
 	 */
 	getData: function()
 	{
@@ -178,8 +185,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the extension object of the element. Calls to functions of this object should be done using the `exec` method.
-	 * 	!setExt (extensionObject: object) : GridElement;
+	 * Sets the extension object of the element. Calls to functions of this object should be done using the `exec` method.
+	 * !setExt (extensionObject: object) : GridElement;
 	 */
 	setExt: function (extensionObject)
 	{
@@ -188,8 +195,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Returns the extension object of the element.
-	 * 	!getExt() : object;
+	 * Returns the extension object of the element.
+	 * !getExt() : object;
 	 */
 	getExt: function()
 	{
@@ -234,12 +241,12 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the visible-lock flag.
-	 * 	!visibleLock (value: boolean) : GridElement;
+	 * Sets the visible-lock flag.
+	 * !visibleLock (value: boolean) : GridElement;
 	 */
 	/**
-	 * 	Returns the visible-lock flag.
-	 * 	!visibleLock() : boolean;
+	 * Returns the visible-lock flag.
+	 * !visibleLock() : boolean;
 	 */
 	visibleLock: function (value=null)
 	{
@@ -253,12 +260,12 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the alive flag.
-	 * 	!alive (value: boolean) : GridElement;
+	 * Sets the alive flag.
+	 * !alive (value: boolean) : GridElement;
 	 */
 	/**
-	 * 	Returns the alive flag.
-	 * 	!alive() : boolean;
+	 * Returns the alive flag.
+	 * !alive() : boolean;
 	 */
 	alive: function (value=null)
 	{
@@ -272,12 +279,12 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the dirty flag.
-	 * 	!alive (value: boolean) : GridElement;
+	 * Sets the dirty flag.
+	 * !alive (value: boolean) : GridElement;
 	 */
 	/**
-	 * 	Returns the dirty flag.
-	 * 	!alive() : boolean;
+	 * Returns the dirty flag.
+	 * !alive() : boolean;
 	 */
 	dirty: function (value=null)
 	{
@@ -291,12 +298,12 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the depth-flag-enabled flag.
-	 * 	!depthFlagEnabled (value: boolean) : GridElement;
+	 * Sets the depth-flag-enabled flag.
+	 * !depthFlagEnabled (value: boolean) : GridElement;
 	 */
 	/**
-	 * 	Returns the depth-flag-enabled flag.
-	 * 	!depthFlagEnabled() : boolean;
+	 * Returns the depth-flag-enabled flag.
+	 * !depthFlagEnabled() : boolean;
 	 */
 	depthFlagEnabled: function (value=null)
 	{
@@ -310,12 +317,12 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the depth-flag flag. To actually use the depth-test, you have to enable the depth-flag using `depthFlagEnabled`.
-	 * 	!depthFlagEnabled (value: boolean) : GridElement;
+	 * Sets the depth-flag flag. To actually use the depth-test, you have to enable the depth-flag using `depthFlagEnabled`.
+	 * !depthFlagEnabled (value: boolean) : GridElement;
 	 */
 	/**
-	 * 	Returns the depth-flag flag.
-	 * 	!depthFlagEnabled() : boolean;
+	 * Returns the depth-flag flag.
+	 * !depthFlagEnabled() : boolean;
 	 */
 	depthFlag: function (value=null)
 	{
@@ -329,8 +336,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Removes the element from the container and returns itself.
-	 * 	!remove() : GridElement;
+	 * Removes the element from the container and returns itself.
+	 * !remove() : GridElement;
 	 */
 	remove: function()
 	{
@@ -339,8 +346,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Syncs the actual location of the specified element with its storage location (if alive and dirty).
-	 * 	!sync() : GridElement;
+	 * Syncs the actual location of the specified element with its storage location (if alive and dirty).
+	 * !sync() : GridElement;
 	 */
 	sync: function()
 	{
@@ -352,8 +359,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the width and height of the element.
-	 * 	!resize (width: number|boolean|null, height: number|boolean|null) : GridElement;
+	 * Sets the width and height of the element.
+	 * !resize (width: number|boolean|null, height: number|boolean|null) : GridElement;
 	 */
 	resize: function (width, height)
 	{
@@ -363,8 +370,8 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Resizes the element by the specified deltas.
-	 * 	!resizeBy (deltaWidth: number|boolean, deltaHeight: number|boolean) : GridElement;
+	 * Resizes the element by the specified deltas.
+	 * !resizeBy (deltaWidth: number|boolean, deltaHeight: number|boolean) : GridElement;
 	 */
 	resizeBy: function (dWidth, dHeight)
 	{
@@ -374,9 +381,9 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Moves the element by the specified deltas.
-	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
-	 * 	!translate (dx: number, dy: number, upscaled?: boolean) : GridElement;
+	 * Moves the element by the specified deltas.
+	 * @param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * !translate (dx: number, dy: number, upscaled?: boolean) : GridElement;
 	 */
 	translate: function (dx, dy, upscaled=false)
 	{
@@ -386,12 +393,12 @@ const GridElement = Class.extend
 	},
 
 	/**
-	 * 	Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
-	 * 	!setPosition (x: number, y: number) : GridElement;
+	 * Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
+	 * !setPosition (x: number, y: number) : GridElement;
 	 */
 	/**
-	 * 	Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
-	 * 	!setPosition (pointer: {x:number, y:number}) : GridElement;
+	 * Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
+	 * !setPosition (pointer: {x:number, y:number}) : GridElement;
 	 */
 	setPosition: function (x, y=false)
 	{
@@ -419,8 +426,8 @@ GridElement.USERDEF		=	0x0100; /* Bits 8 to 30 : 23 flags  */
 GridElement.LAST_FLAG	=	0x0080;
 
 /**
- * 	Class-level function to allocate a new flag.
- * 	!static allocFlag() : number;
+ * Class-level function to allocate a new flag.
+ * !static allocFlag() : number;
  */
 GridElement.allocFlag = function()
 {

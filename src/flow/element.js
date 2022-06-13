@@ -173,6 +173,20 @@ const Element = GridElement.extend
 	},
 
 	/**
+	 * Returns the `root` of the element, that is, the top-most element in the hierarchy.
+	 * !root () : Element;
+	 */
+	root: function ()
+	{
+		let root = this;
+
+		while (root.group !== null)
+			root = root.group;
+
+		return root;
+	},
+
+	/**
 	 * Returns the alpha value of the element.
 	 * @returns {number}
 	 * !alpha () : number;

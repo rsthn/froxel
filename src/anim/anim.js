@@ -886,7 +886,7 @@ const Anim = Class.extend
 	 * @returns {Anim}
 	 * !moveTo (duration: number, endValueX: number, endValueY: number, easingX?: (t: number) => number, easingY?: (t: number) => number) : Anim;
 	 */
-	moveTo: function (duration, endValueX, endValueY, easingX, easingY=null)
+	moveTo: function (duration, endValueX, endValueY, easingX=null, easingY=null)
 	{
 		return this.parallel()
 				.range(this._bounds_x1, duration, null, endValueX, easingX)

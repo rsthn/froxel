@@ -4023,77 +4023,88 @@ export namespace Boot
 
 }
 /**
- * 	Describes an element that can be added to a grid.
+ * Describes an element that can be added to a grid.
  */
 export class GridElement
 {
 	/**
-	 * 	Identifier of the element (string).
+	 * Identifier of the element (string).
 	 */
 	id: string;
 
 	/**
-	 * 	Bounds of the element.
+	 * Bounds of the element.
 	 */
 	bounds: Bounds2;
 
 	/**
-	 * 	Flags of the element (see constants of this class).
+	 * Flags of the element (see constants of this class).
 	 */
 	flags: number;
 
 	/**
-	 * 	Generic data of the element, used to store some value or object.
+	 * Generic data of the element, used to store some value or object.
 	 */
 	data: object;
 
 	/**
-	 * 	Extension object of the element, can be used to implement specific functionality.
+	 * Extension object of the element, can be used to implement specific functionality.
 	 */
 	ext: object;
 
 	/**
-	 * 	Constructs the instance at the specified position and with the specified size.
+	 * The container where the element is stored.
+	 */
+	readonly container: Container;
+
+	/**
+	 * Remover runs when the `remove` method of the element is called or when the element is destroyed.
+	 */
+	readonly remover: Handler;
+
+	/**
+	 * Constructs the instance at the specified position and with the specified size.
 	 */
 	constructor (x: number, y: number, width: number, height: number);
 
 	/**
-	 * 	Sets the identifier of the element.
+	 * Sets the identifier of the element.
 	 */
 	setId (value: string) : GridElement;
 
 	/**
-	 * 	Sets bits of the element flags.
+	 * Sets bits of the element flags.
 	 */
 	setFlags (value: number) : GridElement;
 
 	/**
-	 * 	Clears bits from the element flags.
+	 * Clears bits from the element flags.
 	 */
 	clearFlags (value: number) : GridElement;
 
 	/**
-	 * 	Returns true if masking (bitwise AND) the flags by the specified flag bits results in the given value.
+	 * Returns true if masking (bitwise AND) the flags by the specified flag bits results in the given value.
 	 */
 	getFlags (andMask: number, value?: number) : boolean;
 
 	/**
-	 * 	Sets the generic data of the element. Will be disposed when the element is destroyed.
+	 * Sets the generic data of the element. Will be disposed when the element is destroyed. The property `host`
+	 * of the object will be set with the reference to the element.
 	 */
 	setData (data: object) : GridElement;
 
 	/**
-	 * 	Returns the generic data of the element.
+	 * Returns the generic data of the element.
 	 */
 	getData() : object;
 
 	/**
-	 * 	Sets the extension object of the element. Calls to functions of this object should be done using the `exec` method.
+	 * Sets the extension object of the element. Calls to functions of this object should be done using the `exec` method.
 	 */
 	setExt (extensionObject: object) : GridElement;
 
 	/**
-	 * 	Returns the extension object of the element.
+	 * Returns the extension object of the element.
 	 */
 	getExt() : object;
 
@@ -4116,93 +4127,93 @@ export class GridElement
 	visible() : boolean;
 
 	/**
-	 * 	Sets the visible-lock flag.
+	 * Sets the visible-lock flag.
 	 */
 	visibleLock (value: boolean) : GridElement;
 
 	/**
-	 * 	Returns the visible-lock flag.
+	 * Returns the visible-lock flag.
 	 */
 	visibleLock() : boolean;
 
 	/**
-	 * 	Sets the alive flag.
+	 * Sets the alive flag.
 	 */
 	alive (value: boolean) : GridElement;
 
 	/**
-	 * 	Returns the alive flag.
+	 * Returns the alive flag.
 	 */
 	alive() : boolean;
 
 	/**
-	 * 	Sets the dirty flag.
+	 * Sets the dirty flag.
 	 */
 	alive (value: boolean) : GridElement;
 
 	/**
-	 * 	Returns the dirty flag.
+	 * Returns the dirty flag.
 	 */
 	alive() : boolean;
 
 	/**
-	 * 	Sets the depth-flag-enabled flag.
+	 * Sets the depth-flag-enabled flag.
 	 */
 	depthFlagEnabled (value: boolean) : GridElement;
 
 	/**
-	 * 	Returns the depth-flag-enabled flag.
+	 * Returns the depth-flag-enabled flag.
 	 */
 	depthFlagEnabled() : boolean;
 
 	/**
-	 * 	Sets the depth-flag flag. To actually use the depth-test, you have to enable the depth-flag using `depthFlagEnabled`.
+	 * Sets the depth-flag flag. To actually use the depth-test, you have to enable the depth-flag using `depthFlagEnabled`.
 	 */
 	depthFlagEnabled (value: boolean) : GridElement;
 
 	/**
-	 * 	Returns the depth-flag flag.
+	 * Returns the depth-flag flag.
 	 */
 	depthFlagEnabled() : boolean;
 
 	/**
-	 * 	Removes the element from the container and returns itself.
+	 * Removes the element from the container and returns itself.
 	 */
 	remove() : GridElement;
 
 	/**
-	 * 	Syncs the actual location of the specified element with its storage location (if alive and dirty).
+	 * Syncs the actual location of the specified element with its storage location (if alive and dirty).
 	 */
 	sync() : GridElement;
 
 	/**
-	 * 	Sets the width and height of the element.
+	 * Sets the width and height of the element.
 	 */
 	resize (width: number|boolean|null, height: number|boolean|null) : GridElement;
 
 	/**
-	 * 	Resizes the element by the specified deltas.
+	 * Resizes the element by the specified deltas.
 	 */
 	resizeBy (deltaWidth: number|boolean, deltaHeight: number|boolean) : GridElement;
 
 	/**
-	 * 	Moves the element by the specified deltas.
-	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * Moves the element by the specified deltas.
+	 * @param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
 	 */
 	translate (dx: number, dy: number, upscaled?: boolean) : GridElement;
 
 	/**
-	 * 	Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
+	 * Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
 	 */
 	setPosition (x: number, y: number) : GridElement;
 
 	/**
-	 * 	Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
+	 * Sets the position of the element. Any parameter set to `null` will cause it not to be changed.
 	 */
 	setPosition (pointer: {x:number, y:number}) : GridElement;
 
 	/**
-	 * 	Class-level function to allocate a new flag.
+	 * Class-level function to allocate a new flag.
 	 */
 	static allocFlag() : number;
 
@@ -4465,6 +4476,11 @@ export class Element extends GridElement
 	 * @returns {Element}
 	 */
 	debug (value: number) : Element;
+
+	/**
+	 * Returns the `root` of the element, that is, the top-most element in the hierarchy.
+	 */
+	root () : Element;
 
 	/**
 	 * Returns the alpha value of the element.
@@ -6002,7 +6018,7 @@ const r : { [key: string]: any };
 		/**
 		 * Defines an animation sequence.
 		 */
-		sequence (sequenceName: string, isLoop: boolean, frameGroup: string, fps?: number) : AnimationResource;
+		seq (sequenceName: string, isLoop: boolean, frameGroup: string, fps?: number) : AnimationResource;
 
 		/**
 		 * Defines a transition sequence.

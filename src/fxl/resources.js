@@ -17,7 +17,7 @@ import r from './r.js';
 
 		/**
 		 * Defines an animation sequence.
-		 * !sequence (sequenceName: string, isLoop: boolean, frameGroup: string, fps?: number) : AnimationResource;
+		 * !seq (sequenceName: string, isLoop: boolean, frameGroup: string, fps?: number) : AnimationResource;
 		 */
 
 		/**
