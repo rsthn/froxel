@@ -1,6 +1,6 @@
 {
     "name": "froxel",
-    "version": "2.2.8",
+    "version": "2.2.9",
     "description": "Froxel Game Framework",
     "type": "module",
     "main": "./dist/froxel.m.js",
@@ -52,7 +52,7 @@
     },
     "dependencies": {
         "rinn": "^2.0.43",
-		"fs-extra": "^10.1.0"
+        "fs-extra": "^10.1.0"
     },
     "files": [
         "dist/",

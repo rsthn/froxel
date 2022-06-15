@@ -2709,6 +2709,12 @@ declare global
 	function randr (startValue: number, endValue: number) : number;
 
 	/**
+	 * Returns a table (array) of N random integer numbers within the given range (inclusive). Ensures that the resulting
+	 * table has an even distribution.
+	 */
+	function randt (startValue: number, endValue: number, n: number, removeSubsequent?: boolean) : Array<number>;
+
+	/**
 	 * Returns a table (array) of N random float numbers within the given range (inclusive).
 	 */
 	function randtf (startValue: number, endValue: number, n: number) : Array<number>;

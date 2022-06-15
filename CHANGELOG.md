@@ -1,3 +1,22 @@
+# v2.2.9 - Jun 14 2022
+
+#### globals
+- Added `randt` to generate a table of random integers.
+
+#### fxl.res
+- Fixed typo in the AnimationResource type of fxl.res regarding the `seq` method.
+
+#### Element
+- Added `root` method which returns the root of an Element.
+
+#### GridElement
+- Method `setData` now properly sets the `host` property.
+
+#### Texture
+- Fixed bug in `upload` causing filter and wrap modes to be ignored.
+
+<br/>
+
 # v2.2.8 - Jun 12 2022
 
 #### General
