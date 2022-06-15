@@ -158,9 +158,9 @@ export default Class.extend
 	 * Applies the texture filter.
 	 * !applyFilter() : Texture;
 	 */
-	applyFilter: function ()
+	applyFilter: function (_gl=null)
 	{
-		const gl = this.bind();
+		const gl = _gl ?? this.bind();
 
 		if (this.mipmap > 0)
 		{
@@ -196,9 +196,9 @@ export default Class.extend
 	 * Applies the texture wrap mode.
 	 * !applyWrap() : Texture;
 	 */
-	applyWrap: function ()
+	applyWrap: function (_gl=null)
 	{
-		const gl = this.bind();
+		const gl = _gl ?? this.bind();
 
 		if (this.wrap === 'REPEAT')
 		{
@@ -270,6 +270,9 @@ export default Class.extend
 
 		if (this.mipmap > 0)
 			gl.generateMipmap(gl.TEXTURE_2D);
+
+		this.applyFilter(gl);
+		this.applyWrap(gl);
 
 		return this;
 	}

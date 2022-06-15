@@ -52,15 +52,7 @@ const Random = Class.extend
 	 */
 	__ctor: function(seed=0xDAE7A5D3)
 	{
-		this.state = [
-			0xA5F7310C, 0xEF731CF3, 0xFA784322, 0x7834FC31,
-			0xD9AF7813, 0xDE78AD13, 0x783F3418, 0xAA123176,
-			0x871CF4D1, 0x73412FAB, 0xBAE6C710, 0x06F73481,
-			0x8910CF15, 0x927CF813, 0xBCF7834F, 0x73F61193
-		];
-
 		this.index = 0;
-
 		this.setSeed(seed);
 	},
 
@@ -107,7 +99,7 @@ const Random = Class.extend
 		a = this.state[this.index];
 
 		this.state[this.index] = XOR(XOR(XOR(XOR(XOR(a, b), d), SHL(a, 2)), SHL(b, 18)), SHL(c, 28));
-		return this.state[this.index] & 0x7FFFFFFFF;
+		return this.state[this.index] & 0x7FFFFFFF;
 	},
 
 	/**

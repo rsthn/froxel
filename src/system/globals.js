@@ -295,6 +295,59 @@ global.randr = function (a, b)
 }
 
 /**
+ * Returns a table (array) of N random integer numbers within the given range (inclusive). Ensures that the resulting
+ * table has an even distribution.
+ * !function randt (startValue: number, endValue: number, n: number, removeSubsequent?: boolean) : Array<number>;
+ */
+global.randt = function (a, b, n, removeSubsequent=true)
+{
+	let table = [ ];
+
+	// Generate numbers in order to even-out the probability of each.
+	let k = a;
+	for (let i = 0; i < n; i++, k++)
+	{
+		table.push(k);
+		if (k+1 > b) k = a-1;
+	}
+
+	// Shuffle the table.
+	const m = n >>> 1;
+	for (let i = 0; i < m; i++)
+	{
+		a = randr(i+1, n-1);
+
+		let tmp = table[i];
+		table[i] = table[a];
+		table[a] = tmp;
+	}
+
+	// Remove subsequent duplicates.
+	if (!removeSubsequent) return table;
+
+	let j = n-1;
+	for (let i = 1; i < n; i++)
+	{
+		if (table[i] !== table[i-1])
+			continue;
+
+		while(table[i] === table[j])
+		{
+			if (--j < 0) {
+				j = n-1;
+				console.log('!!');
+			}
+		}
+
+		let tmp = table[i];
+		table[i] = table[j];
+		table[j] = tmp;
+	}
+
+	return table;
+}
+
+/**
  * Returns a table (array) of N random float numbers within the given range (inclusive).
  * !function randtf (startValue: number, endValue: number, n: number) : Array<number>;
  */
