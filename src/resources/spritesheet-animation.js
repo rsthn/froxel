@@ -35,12 +35,6 @@ import Drawable from '../flow/drawable.js';
 			seq2: { loop: bool?, group: [ [int, int, ...], ... ] },
 			seq2: { loop: bool?, group: "0-12" },
 			seq2: { loop: bool?, group: "4 1 1 2 3" },
-		},
-
-		trans: {
-			seq1: {
-				seq2: [ seq_name, seq_name, ... ]
-			}
 		}
 	}
 
@@ -51,12 +45,10 @@ export const Animation = Drawable.extend
 ({
 	className: 'Animation',
 
-	seq: null, seq_i: 0,
-	trans: null, trans_i: 0, trans_t: null,
-
+	seq: null, seq_i: 0, n_seq: null,
 	queue: null,
 
-	fps: 0, frameSeconds: 0, time: 0,
+	fps: 0, frameDuration: 0, time: 0,
 
 	frameNumber: -1,
 
@@ -78,10 +70,7 @@ export const Animation = Drawable.extend
 
 		this.seq = seq;
 		this.seq_i = 0;
-
-		this.trans = null;
-		this.trans_i = 0;
-		this.trans_t = null;
+		this.n_seq = null;
 
 		this.frameNumber = -1;
 		this.finished = false;
@@ -109,7 +98,7 @@ export const Animation = Drawable.extend
 
 	setFps: function (fps)
 	{
-		this.frameSeconds = 1.0 / fps;
+		this.frameDuration = 1.0 / fps;
 		this.time = 0;
 
 		return this;
@@ -191,97 +180,73 @@ export const Animation = Drawable.extend
 
 	draw: function (g, x=0, y=0, width=null, height=null)
 	{
-		if (this.time < 0)
-		{
-			if (!this._paused)
-			{
-				this.time += this.frameNumber === System.frameNumber ? 0 : System.frameDelta;
-				this.frameNumber = System.frameNumber;
-			}
-
-			if (this.time > 0) this.time = 0;
-			return;
-		}
-
-		if (this.seq_i === this.seq.group.length)
-		{
-			let t = this.seq.group[this.seq_i-1];
-
-			if (g !== null)
-			{
-				for (let i = 0; i < t.length; i++)
-					this.anim.getFrame(t[i]).draw(g, x, y, width, height);
-			}
-
-			return;
-		}
-
-		let t = this.seq.group[this.seq_i];
-
-		if (g !== null)
-		{
-			for (let i = 0; i < t.length; i++)
-				this.anim.getFrame(t[i]).draw(g, x, y, width, height);
-		}
-
+		// Update animation time only if not paused and system frame number has changed.
 		if (!this._paused)
-		{
 			this.time += this.frameNumber === System.frameNumber ? 0 : System.frameDelta;
+
+		// Delay until `time` is non-negative. Negative time is used as initial animation delay.
+		if (this.time < 0) {
 			this.frameNumber = System.frameNumber;
+			return;
 		}
 
-		if (this.time >= this.frameSeconds)
+		// Load next sequence if specified.
+		if (this.n_seq !== null && this.frameNumber !== System.frameNumber)
+		{
+			this.seq = this.n_seq;
+			this.seq_i = 0;
+			this.n_seq = null;
+
+			this.setFps (this.seq.fps || this.fps);
+			this.time = 0;
+		}
+
+		// Update animation frame if frame time exceeds or equals frame duration.
+		if (this.time >= this.frameDuration && this.frameNumber !== System.frameNumber)
 		{
 			const frameIndex = this.seq_i;
 
-			this.time -= this.frameSeconds;
+			this.time -= this.frameDuration;
 			this.seq_i++;
 
+			// Reached end of sequence.
 			if (this.seq_i === this.seq.group.length)
 			{
-				if (this.trans != null)
+				// If loop is not enabled, trigger `finished` callback.
+				if (!this.seq.loop)
 				{
-					if (++this.trans_i === this.trans.length)
+					this.finished = true;
+
+					if (this.finishedCallback)
 					{
-						this.trans = null;
-						this.seq = this.trans_t;
+						if (this.finishedCallback(this) === false)
+							this.finishedCallback = null;
 					}
-					else
-						this.seq = this.trans[this.trans_i];
-
-					this.setFps (this.seq.fps || this.fps);
-
-					this.seq_i = 0;
-					this.time = 0;
-
-					this.finished = false;
 				}
 				else
-				{
-					if (this.seq.loop)
-						this.seq_i = 0;
-					else
-					{
-						this.finished = true;
+					this.seq_i = 0;
 
-						if (this.finishedCallback)
-						{
-							if (this.finishedCallback(this) === false)
-								this.finishedCallback = null;
-						}
-					}
-
-					if (this.queue.length)
-						this.use(this.queue.shift(), true);
-				}
+				// Use next sequence in the queue.
+				if (this.queue.length)
+					this.use(this.queue.shift(), true);
 			}
 
+			//  Execute frame callback if registered.
 			if (this.frameCallback)
 			{
 				if (this.frameCallback(frameIndex, this.seq.group.length-1, this) === false)
 					this.frameCallback = null;
 			}
 		}
+
+		// Draw the current frame.
+		let t = this.seq.group[ this.seq_i === this.seq.group.length ? this.seq_i-1 : this.seq_i ];
+
+		for (let i = 0; i < t.length; i++)
+			this.anim.getFrame(t[i]).draw(g, x, y, width, height);
+
+		// Record system frame number to prevent double frame updates.
+		this.frameNumber = System.frameNumber;
 	},
 
 	getTexture: function()
@@ -302,39 +267,17 @@ export const Animation = Drawable.extend
 
 	getSequenceName: function ()
 	{
-		return (this.trans === null ? this.seq : this.trans_t).name;
+		return this.n_seq === null ? this.seq.name : this.n_seq.name;
 	},
 
 	use: function (seqName, force=false)
 	{
-		let seq = this.trans === null ? this.seq : this.trans_t;
-
-		if (seq.name === seqName && !this.finished && force !== true)
+		if (this.seq.name === seqName && !this.finished && force !== true)
 			return false;
 
-		if (seq.trans && seq.trans[seqName])
-		{
-			this.trans_t = this.anim.a.seq[seqName];
-
-			this.trans = seq.trans[seqName];
-			this.trans_i = 0;
-
-			this.seq = this.trans[this.trans_i];
-		}
-		else
-		{
-			if (force === true)
-				this.trans = null;
-
-			this.seq = this.anim.a.seq[seqName];
-		}
-
-		this.setFps (this.seq.fps || this.fps);
-
-		this.seq_i = 0;
-		this.time = 0;
-
+		this.n_seq = this.anim.a.seq[seqName];
 		this.finished = false;
+
 		return true;
 	},
 
@@ -358,7 +301,7 @@ export const Animation = Drawable.extend
 
 	enqueue: function (seqName, force=false)
 	{
-		let seq = this.trans === null ? this.seq : this.trans_t;
+		let seq = this.seq;
 
 		let lastName = this.queue.length > 0 ? this.queue[this.queue.length-1] : seq.name;
 
@@ -475,25 +418,6 @@ export default Spritesheet.extend
 				}
 
 				t.seq[i].count = t.seq[i].group.length;
-			}
-		}
-
-		if (t.trans)
-		{
-			for (let i in t.trans)
-			{
-				t.seq[i].trans = t.trans[i];
-
-				for (let j in t.trans[i])
-				{
-					for (let k = 0; k < t.trans[i][j].length; k++)
-					{
-						let n = t.trans[i][j][k];
-
-						if (!t.seq[n]) throw new Error ('Undefined sequence: ' + n);
-						t.trans[i][j][k] = t.seq[n];
-					}
-				}
 			}
 		}
 
