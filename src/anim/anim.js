@@ -768,7 +768,7 @@ const Anim = Class.extend
 
 	/**
 	 * Executes a function. If continuous execution is needed, simply return `true`.
-	 * @param {(dt: number, data: object, anim: Anim) => boolean} fn 
+	 * @param {(dt: number, data: object, cmd: Command, anim: Anim) => boolean} fn 
 	 * @returns {Anim}
 	 * !exec (fn: (dt: number, data: object, anim: Anim) => boolean) : Anim;
 	 */
