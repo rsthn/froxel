@@ -1,3 +1,22 @@
+# v2.2.10 - Jun 20 2022
+
+#### SpritesheetAnimation
+- Removed all support for `transitions` since that can easily be achieved with sequences.
+- Fixed a few bugs regarding wrong frame being drawn when the animation is rendered multiple times in the same rendering frame.
+
+#### Anim
+- Added parameter `cmd` when calling the callback function of the `exec` action.
+- Added property `time` to Command, used to keep track of the logical time of a command.
+
+#### Label
+- Properties `textWidth` and `textHeight` are now available as soon as text and font properties are set.
+- The `bounds` property is now updated to reflect the active alignment and text size.
+
+#### Drawable
+- Added `mirrorX` and `mirrorY` drawable modifiers.
+
+<br/>
+
 # v2.2.9 - Jun 14 2022
 
 #### globals

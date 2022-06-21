@@ -2260,7 +2260,9 @@ export class Bounds2
 	translate (dx: number, dy: number, upscaled?: boolean) : Bounds2;
 
 	/**
-	 * Resizes the bounds to the given size using center or top-left as reference.
+	 * Resizes the bounds to the given size using the center or top-left as reference.
+	 * @param {number} width Use a value, or `true` to preserve aspect ratio, or `null` to keep it unchanged.
+	 * @param {number} height Use a value, or `true` to preserve aspect ratio, or `null` to keep it unchanged.
 	 * @param {boolean} topLeftRelative (default `false`)
 	 */
 	resize (width: number|boolean|null, height: number|boolean|null, topLeftRelative?: boolean) : Bounds2;
@@ -3608,27 +3610,27 @@ export class Block
 export class Command
 {
 	/**
-	 * 	Initializes the command.
+	 * Initializes the command.
 	 */
 	init (op: object) : Command;
 
 	/**
-	 * 	Executed when the command properties are ready, to initialize the operation code.
+	 * Executed when the command properties are ready, to initialize the operation code.
 	 */
 	ready() : void;
 
 	/**
-	 * 	Updates the command execution.
+	 * Updates the command execution.
 	 */
 	update (anim: Anim, block: Block) : boolean;
 
 	/**
-	 * 	Allocates a new command.
+	 * Allocates a new command.
 	 */
 	static alloc () : Command;
 
 	/**
-	 * 	Allocates a new command and initializes it.
+	 * Allocates a new command and initializes it.
 	 */
 	static calloc () : Command;
 
@@ -3883,7 +3885,7 @@ export class Anim
 
 	/**
 	 * Executes a function. If continuous execution is needed, simply return `true`.
-	 * @param {(dt: number, data: object, anim: Anim) => boolean} fn
+	 * @param {(dt: number, data: object, cmd: Command, anim: Anim) => boolean} fn
 	 * @returns {Anim}
 	 */
 	exec (fn: (dt: number, data: object, anim: Anim) => boolean) : Anim;
@@ -4566,7 +4568,7 @@ export namespace Element
 
 
 /**
- * 	Groups one or more elements into a single one.
+ * Groups one or more elements into a single one.
  */
 export class Group extends Element
 {
@@ -4576,27 +4578,27 @@ export class Group extends Element
 	readonly children: List;
 
 	/**
-	 * 	Virtual zero reference point.
+	 * Virtual zero reference point.
 	 */
 	readonly ref: Point2;
 
 	/**
-	 * 	Constructs an empty Group element.
+	 * Constructs an empty Group element.
 	 */
 	constructor (id?: string);
 
 	/**
-	 * 	Adds the group itself and all children to the scene's destruction queue. If any element has no container, it will be destroyed immediately.
+	 * Adds the group itself and all children to the scene's destruction queue. If any element has no container, it will be destroyed immediately.
 	 */
 	destroyLater() : void;
 
 	/**
-	 * 	Removes and destroys all child elements.
+	 * Removes and destroys all child elements.
 	 */
 	clear() : Group;
 
 	/**
-	 * 	Removes all child elements but does not destroy them.
+	 * Removes all child elements but does not destroy them.
 	 */
 	reset() : Group;
 
@@ -4614,46 +4616,46 @@ export class Group extends Element
 	wrapExtents (value: boolean) : Group;
 
 	/**
-	 * 	Adds a child element to the group. If the element has its `id` property set, it will be added to the group as a
-	 * 	property, which can be accessed directly using the element identifier or using the `getChild` method.
+	 * Adds a child element to the group. If the element has its `id` property set, it will be added to the group as a
+	 * property, which can be accessed directly using the element identifier or using the `getChild` method.
 	 */
 	addChild (elem: Element) : Element;
 
 	/**
-	 * 	Return the child element matching the specified identifier.
+	 * Return the child element matching the specified identifier.
 	 */
 	child (id: string) : Element;
 
 	/**
-	 * 	Removes an element from the container and returns it.
+	 * Removes an element from the container and returns it.
 	 */
 	removeChild (elem: Element) : Element;
 
 	/**
-	 * 	Local group translation, moves only the group by the specified deltas. Child elements remain in position.
-	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * Local group translation, moves only the group by the specified deltas. Child elements remain in position.
+	 * @param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
 	 */
 	ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
 
 	/**
-	 * 	Moves the group and all children by the specified deltas.
-	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * Moves the group and all children by the specified deltas.
+	 * @param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
 	 */
-	ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
+	translate (dx: number, dy: number, upscaled?: boolean) : Group;
 
 	/**
-	 * 	Returns a temporal Point2, describing the extra offset introduced by the group when translating a child element by the specified deltas.
-	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * Returns a temporal Point2, describing the extra offset introduced by the group when translating a child element by the specified deltas.
+	 * @param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
 	 */
 	getOffsets (dx: number, dy: number, upscaled?: boolean) : Point2;
 
 	/**
-	 * 	Sets bits of the element flags in the group and all children.
+	 * Sets bits of the element flags in the group and all children.
 	 */
 	setFlags (value: number) : Group;
 
 	/**
-	 * 	Clears bits from the group and all children flags.
+	 * Clears bits from the group and all children flags.
 	 */
 	clearFlags (value: number) : Group;
 
@@ -4689,7 +4691,7 @@ export namespace Group
 	export namespace Pool
 	{
 		/**
-		 * 	Allocates an empty Group element.
+		 * Allocates an empty Group element.
 		 */
 		function alloc (id?: string) : Group;
 
@@ -5177,6 +5179,26 @@ export class Drawable
 	 */
 	static group (...args: Array<Drawable>) : Drawable;
 
+	/**
+	 * Drawable mirrored horizontally.
+	 */
+	static mirrorX (drawable: Drawable) : Drawable;
+
+	/**
+	 * Drawable mirrored horizontally.
+	 */
+	mirrorX () : Drawable;
+
+	/**
+	 * Drawable mirrored vertically.
+	 */
+	static mirrorY (drawable: Drawable) : Drawable;
+
+	/**
+	 * Drawable mirrored vertically.
+	 */
+	mirrorY () : Drawable;
+
 }
 
 export namespace Drawable
@@ -5225,17 +5247,17 @@ export namespace Mask
 	}
 }
 /**
- * 	Describes an element that can be rendered to the screen.
+ * Describes an element that can be rendered to the screen.
  */
 export class Label extends Element
 {
 	/**
-	 * 	Text to render.
+	 * Text to render.
 	 */
 	readonly text: string;
 
 	/**
-	 * 	Spritefont resource.
+	 * Spritefont resource.
 	 */
 	readonly font: object;
 
@@ -5250,31 +5272,37 @@ export class Label extends Element
 	readonly textHeight: number;
 
 	/**
-	 * 	Constructs a label element at the specified position with the given text.
+	 * Constructs a label element at the specified position with the given text.
 	 */
 	constructor (x: number, y: number, font: object, text: string);
 
 	/**
-	 * 	Sets the horizontal alignment value of the label.
-	 * 	@param value - Use -1 for LEFT, 0 for CENTER, and 1 for RIGHT.
+	 * Sets the horizontal alignment value of the label.
+	 * @param value - Use -1 for LEFT, 0 for CENTER, and 1 for RIGHT.
 	 */
 	align (value: number) : Label;
 
 	/**
-	 * 	Sets the vertical alignment value of the label.
-	 * 	@param value - Use -1 for TOP, 0 for MIDDLE, and 1 for BOTTOM.
+	 * Sets the vertical alignment value of the label.
+	 * @param value - Use -1 for TOP, 0 for MIDDLE, and 1 for BOTTOM.
 	 */
 	valign (value: number) : Label;
 
 	/**
-	 * 	Sets the text value of the label.
+	 * Sets the text value of the label.
 	 */
 	setText (value: string) : Label;
 
 	/**
-	 * 	Sets the font resource to use.
+	 * Sets the font resource to use.
 	 */
 	setFont (font: object) : Label;
+
+	/**
+	 * Moves the label by the specified deltas.
+	 * @param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 */
+	translate (dx: number, dy: number, upscaled?: boolean) : Group;
 
 }
 
@@ -5283,7 +5311,7 @@ export namespace Label
 	export namespace Pool
 	{
 		/**
-		 * 	Allocates a label element at the specified position with the given text.
+		 * Allocates a label element at the specified position with the given text.
 		 */
 		function alloc (x: number, y: number, font: object, text: string) : Label;
 
