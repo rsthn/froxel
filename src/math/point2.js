@@ -112,7 +112,7 @@ const Point2 = Class.extend
 			}
 		}
 		else {
-			if (!upscaled) {
+			if (upscaled !== true) {
 				x = upscale(x);
 				y = upscale(y);
 			}
@@ -220,7 +220,7 @@ const Point2 = Class.extend
 			}
 		}
 		else {
-			if (!upscaled) {
+			if (upscaled !== true) {
 				dx = upscale(dx);
 				dy = upscale(dy);
 			}
@@ -256,7 +256,7 @@ const Point2 = Class.extend
 			}
 		}
 		else {
-			if (!upscaled) {
+			if (upscaled !== true) {
 				dx = upscale(dx);
 				dy = upscale(dy);
 			}

@@ -195,7 +195,7 @@ const Bounds2 = Class.extend
 			}
 		}
 		else {
-			if (!upscaled) {
+			if (upscaled !== true) {
 				dx = upscale(dx);
 				dy = upscale(dy);
 			}
@@ -233,7 +233,7 @@ const Bounds2 = Class.extend
 		}
 		else
 		{
-			if (!upscaled) {
+			if (upscaled !== true) {
 				x1 = upscale(x1);
 				y1 = upscale(y1);
 				x2 = upscale(x2);
@@ -277,7 +277,7 @@ const Bounds2 = Class.extend
 		}
 		else
 		{
-			if (!upscaled) {
+			if (upscaled !== true) {
 				x1 = upscale(x1);
 				y1 = upscale(y1);
 				x2 = upscale(x2);
@@ -514,7 +514,9 @@ const Bounds2 = Class.extend
 	},
 
 	/**
-	 * Resizes the bounds to the given size using center or top-left as reference.	 
+	 * Resizes the bounds to the given size using the center or top-left as reference.
+	 * @param {number} width Use a value, or `true` to preserve aspect ratio, or `null` to keep it unchanged.
+	 * @param {number} height Use a value, or `true` to preserve aspect ratio, or `null` to keep it unchanged.
 	 * @param {boolean} topLeftRelative (default `false`)
 	 * !resize (width: number|boolean|null, height: number|boolean|null, topLeftRelative?: boolean) : Bounds2;
 	 */

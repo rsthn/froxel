@@ -474,6 +474,72 @@ Recycler.createPool(Group, 512);
 
 
 /**
+ * Draws the given drawable mirrored horizontally.
+ */
+const MirrorX = Drawable.extend
+({
+	className: 'MirrorX',
+
+	drawable: null,
+
+	__ctor: function (drawable)
+	{
+		this._super.Drawable.__ctor(drawable);
+		this.drawable = drawable;
+	},
+
+	__dtor: function()
+	{
+		dispose(this.drawable);
+	},
+
+	drawf: function (g, sx, sy, swidth, sheight, tx, ty, twidth, theight, fwidth=null, fheight=null)
+	{
+		g.pushMatrix();
+		g.translate(tx+twidth, ty);
+		g.scale(-1, 1);
+		this.drawable.drawf(g, sx, sy, swidth, sheight, 0, 0, twidth, theight, fwidth, fheight);
+		g.popMatrix();
+	}
+});
+
+Recycler.createPool(MirrorX, 512);
+
+
+/**
+ * Draws the given drawable mirrored vertically.
+ */
+const MirrorY = Drawable.extend
+({
+	className: 'MirrorY',
+
+	drawable: null,
+
+	__ctor: function (drawable)
+	{
+		this._super.Drawable.__ctor(drawable);
+		this.drawable = drawable;
+	},
+
+	__dtor: function()
+	{
+		dispose(this.drawable);
+	},
+
+	drawf: function (g, sx, sy, swidth, sheight, tx, ty, twidth, theight, fwidth=null, fheight=null)
+	{
+		g.pushMatrix();
+		g.translate(tx, ty+theight);
+		g.scale(1, -1);
+		this.drawable.drawf(g, sx, sy, swidth, sheight, 0, 0, twidth, theight, fwidth, fheight);
+		g.popMatrix();
+	}
+});
+
+Recycler.createPool(MirrorY, 512);
+
+
+/**
  * Drawable made with a composition of tiles from a nine-slice spritesheet to create a rectangle.
  * !static nineSlice (spritesheet: object, startingIndex?:number|0) : Drawable;
  */
@@ -536,6 +602,27 @@ Drawable.prototype.static = function (offsX, offsY) { return Static.Pool.alloc(t
  */
 Drawable.group = function (...args) { return Group.Pool.alloc(args); }
 
+/**
+ * Drawable mirrored horizontally.
+ * !static mirrorX (drawable: Drawable) : Drawable;
+ */
+Drawable.mirrorX = function (drawable) { return MirrorX.Pool.alloc(drawable); }
+/**
+ * Drawable mirrored horizontally.
+ * !mirrorX () : Drawable;
+ */
+Drawable.prototype.mirrorX = function () { return MirrorX.Pool.alloc(this); }
+
+/**
+ * Drawable mirrored vertically.
+ * !static mirrorY (drawable: Drawable) : Drawable;
+ */
+Drawable.mirrorY = function (drawable) { return MirrorY.Pool.alloc(drawable); }
+/**
+ * Drawable mirrored vertically.
+ * !mirrorY () : Drawable;
+ */
+Drawable.prototype.mirrorY = function () { return MirrorY.Pool.alloc(this); }
 
 //!/class
 

@@ -21,7 +21,7 @@ import Recycler from '../utils/recycler.js';
 //![import "../utils/recycler"]
 
 //:/**
-//: * 	Describes an element that can be rendered to the screen.
+//: * Describes an element that can be rendered to the screen.
 //: */
 
 //!class Label extends Element
@@ -31,21 +31,26 @@ const Label = Element.extend
 	className: 'Label',
 
 	/**
-	 * 	Text to render.
-	 * 	!readonly text: string;
+	 * Original label position.
+	 */
+	sx: 0, sy: 0,
+
+	/**
+	 * Text to render.
+	 * !readonly text: string;
 	 */
 	text: null,
 
 	/**
-	 * 	Spritefont resource.
-	 * 	!readonly font: object;
+	 * Spritefont resource.
+	 * !readonly font: object;
 	 */
 	//violet: type fixup
 	//readonly font: Spritefont;
 	font: null,
 
 	/**
-	 * 	Indicates if the `text` property changed.
+	 * Indicates if the `text` property changed.
 	 */
 	_dirty: false,
 
@@ -62,7 +67,7 @@ const Label = Element.extend
 	textHeight: null,
 
 	/**
-	 * 	Alignment properties of the label.
+	 * Alignment properties of the label.
 	 */
 	_align: -1, /* -1=LEFT, 0=CENTER, 1=RIGHT */
 	_valign: -1, /* -1=TOP, 0=MIDDLE, 1=BOTTOM */
@@ -74,27 +79,27 @@ const Label = Element.extend
 	textOffsetY: null,
 
 	/**
-	 * 	Constructs a label element at the specified position with the given text.
-	 * 	!constructor (x: number, y: number, font: object, text: string);
+	 * Constructs a label element at the specified position with the given text.
+	 * !constructor (x: number, y: number, font: object, text: string);
 	 */
 	__ctor: function(x, y, font, text)
 	{
-		this._super.Element.__ctor(x, y, 4, 4);
+		this._super.Element.__ctor(this.sx = x, this.sy = y, 1, 1);
 
-		this.text = text;
+		this.text = null;
 		this.font = font;
 
 		this._align = -1;
 		this._valign = -1;
 
 		this.renderWith(this.renderText);
-		this._dirty = true;
+		this.setText(text);
 	},
 
 	/**
-	 * 	Sets the horizontal alignment value of the label.
-	 * 	@param value - Use -1 for LEFT, 0 for CENTER, and 1 for RIGHT.
-	 * 	!align (value: number) : Label;
+	 * Sets the horizontal alignment value of the label.
+	 * @param value - Use -1 for LEFT, 0 for CENTER, and 1 for RIGHT.
+	 * !align (value: number) : Label;
 	 */
 	align: function (value)
 	{
@@ -103,13 +108,13 @@ const Label = Element.extend
 
 		this._align = value;
 		this.textOffsetX = null;
-		return this;
+		return this.update();
 	},
 
 	/**
-	 * 	Sets the vertical alignment value of the label.
-	 * 	@param value - Use -1 for TOP, 0 for MIDDLE, and 1 for BOTTOM.
-	 * 	!valign (value: number) : Label;
+	 * Sets the vertical alignment value of the label.
+	 * @param value - Use -1 for TOP, 0 for MIDDLE, and 1 for BOTTOM.
+	 * !valign (value: number) : Label;
 	 */
 	valign: function(value)
 	{
@@ -118,12 +123,12 @@ const Label = Element.extend
 
 		this._valign = value;
 		this.textOffsetY = null;
-		return this;
+		return this.update();
 	},
 
 	/**
-	 * 	Sets the text value of the label.
-	 * 	!setText (value: string) : Label;
+	 * Sets the text value of the label.
+	 * !setText (value: string) : Label;
 	 */
 	setText: function (value)
 	{
@@ -132,12 +137,12 @@ const Label = Element.extend
 
 		this.text = value;
 		this._dirty = true;
-		return this;
+		return this.update();
 	},
 
 	/**
-	 * 	Sets the font resource to use.
-	 * 	!setFont (font: object) : Label;
+	 * Sets the font resource to use.
+	 * !setFont (font: object) : Label;
 	 */
 	//violet: type fixup
 	//setFont (font: Spritefont) : Label;
@@ -148,46 +153,67 @@ const Label = Element.extend
 
 		this.font = font;
 		this._dirty = true;
-		return this;
+		return this.update();
 	},
 
 	/**
 	 * Updates the text related properties (textWidth, textHeight, textOffsetX and textOffsetY). Automatically
-	 * called before the label is drawn. Recalculates only if text changed since last call.
+	 * called before the label is drawn. Recalculates offsets only if text changed since last call.
 	 */
 	update: function()
 	{
-		if (this._dirty)
+		if (this._dirty === true)
 		{
-			this.textWidth = this.font.measureWidth(this.text);
-			this.textHeight = this.font.measureHeight(this.text);
-
 			this.textOffsetX = null;
 			this.textOffsetY = null;
+
+			this.textWidth = this.font.measureWidth(this.text);
+			this.textHeight = this.font.measureHeight(this.text);
 
 			this._dirty = false;
 		}
 
-		if (this.textOffsetX === null) {
+		if (this.textOffsetX === null)
+		{
 			if (this._align < 0) this.textOffsetX = 0;
 			else if (this._align === 0) this.textOffsetX = -this.textWidth >> 1;
 			else this.textOffsetX = -this.textWidth;
+
+			this.bounds.translate(-this.bounds.x1 + this.sx + this.textOffsetX, 0);
+			this.bounds.resize(this.textWidth, null, true);
 		}
 
-		if (this.textOffsetY === null) {
+		if (this.textOffsetY === null)
+		{
 			if (this._valign < 0) this.textOffsetY = 0;
 			else if (this._valign === 0) this.textOffsetY = -this.textHeight >> 1;
 			else this.textOffsetY = -this.textHeight;
+
+			this.bounds.translate(0, -this.bounds.y1 + this.sy + this.textOffsetY);
+			this.bounds.resize(null, this.textHeight, true);
 		}
+
+		return this;
 	},
 
 	/**
-	 * 	Renders the element to the graphics surface.
+	 * Moves the label by the specified deltas.
+	 * @param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * !translate (dx: number, dy: number, upscaled?: boolean) : Group;
+	 */
+	translate: function (dx, dy, upscaled=false)
+	{
+		this.sx += upscaled === true ? downscale(dx) : dx;
+		this.sy += upscaled === true ? downscale(dy) : dy;
+		return this._super.Element.translate(dx, dy, upscaled);
+	},
+
+	/**
+	 * Renders the element to the graphics surface.
 	 */
 	renderText: function(g, elem, img)
 	{
-		elem.update();
-		elem.font.drawText (g, elem.bounds.x1 + elem.textOffsetX, elem.bounds.y1 + elem.textOffsetY, elem.text);
+		elem.font.drawText (g, elem.bounds.x1, elem.bounds.y1, elem.text);
 	}
 });
 
@@ -197,8 +223,8 @@ const Label = Element.extend
 //!namespace Pool
 
 	/**
-	 * 	Allocates a label element at the specified position with the given text.
-	 * 	!function alloc (x: number, y: number, font: object, text: string) : Label;
+	 * Allocates a label element at the specified position with the given text.
+	 * !function alloc (x: number, y: number, font: object, text: string) : Label;
 	 */
 
 

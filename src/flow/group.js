@@ -28,7 +28,7 @@ import GridElement from './grid-element.js';
 const tempPoint = Point2.Pool.alloc();
 
 //:/**
-//: * 	Groups one or more elements into a single one.
+//: * Groups one or more elements into a single one.
 //: */
 
 //!class Group extends Element
@@ -44,14 +44,14 @@ const Group = Element.extend
 	children: null,
 
 	/**
-	 * 	Virtual zero reference point.
-	 * 	!readonly ref: Point2;
+	 * Virtual zero reference point.
+	 * !readonly ref: Point2;
 	 */
 	ref: null,
 
 	/**
-	 * 	Constructs an empty Group element.
-	 * 	!constructor (id?: string);
+	 * Constructs an empty Group element.
+	 * !constructor (id?: string);
 	 */
 	__ctor: function (id=null)
 	{
@@ -65,7 +65,7 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Destroys the group and all children.
+	 * Destroys the group and all children.
 	 */
 	__dtor: function()
 	{
@@ -77,8 +77,8 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Adds the group itself and all children to the scene's destruction queue. If any element has no container, it will be destroyed immediately.
-	 * 	!destroyLater() : void;
+	 * Adds the group itself and all children to the scene's destruction queue. If any element has no container, it will be destroyed immediately.
+	 * !destroyLater() : void;
 	 */
 	destroyLater: function()
 	{
@@ -97,8 +97,8 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Removes and destroys all child elements.
-	 * 	!clear() : Group;
+	 * Removes and destroys all child elements.
+	 * !clear() : Group;
 	 */
 	clear: function()
 	{
@@ -115,8 +115,8 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Removes all child elements but does not destroy them.
-	 * 	!reset() : Group;
+	 * Removes all child elements but does not destroy them.
+	 * !reset() : Group;
 	 */
 	reset: function()
 	{
@@ -154,9 +154,9 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Adds a child element to the group. If the element has its `id` property set, it will be added to the group as a
-	 * 	property, which can be accessed directly using the element identifier or using the `getChild` method.
-	 * 	!addChild (elem: Element) : Element;
+	 * Adds a child element to the group. If the element has its `id` property set, it will be added to the group as a
+	 * property, which can be accessed directly using the element identifier or using the `getChild` method.
+	 * !addChild (elem: Element) : Element;
 	 */
 	addChild: function (elem, relative=false)
 	{
@@ -187,8 +187,8 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Return the child element matching the specified identifier.
-	 * 	!child (id: string) : Element;
+	 * Return the child element matching the specified identifier.
+	 * !child (id: string) : Element;
 	 */
 	getChild: function (id)
 	{
@@ -196,7 +196,7 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Callback to remove an element from the container (called by Handler).
+	 * Callback to remove an element from the container (called by Handler).
 	 */
 	_remove: function (elem, self, node)
 	{
@@ -210,8 +210,8 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Removes an element from the container and returns it.
-	 * 	!removeChild (elem: Element) : Element;
+	 * Removes an element from the container and returns it.
+	 * !removeChild (elem: Element) : Element;
 	 */
 	removeChild: function (elem)
 	{
@@ -223,7 +223,7 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Syncs the actual location of the specified element with its storage location. Returns `true` if successful.
+	 * Syncs the actual location of the specified element with its storage location. Returns `true` if successful.
 	 */
 	sync: function()
 	{
@@ -234,9 +234,9 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Local group translation, moves only the group by the specified deltas. Child elements remain in position.
-	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
-	 * 	!ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
+	 * Local group translation, moves only the group by the specified deltas. Child elements remain in position.
+	 * @param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * !ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
 	 */
 	ltranslate: function (dx, dy, upscaled=false)
 	{
@@ -244,9 +244,9 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Moves the group and all children by the specified deltas.
-	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
-	 * 	!ltranslate (dx: number, dy: number, upscaled?: boolean) : Group;
+	 * Moves the group and all children by the specified deltas.
+	 * @param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * !translate (dx: number, dy: number, upscaled?: boolean) : Group;
 	 */
 	translate: function (dx, dy, upscaled=false)
 	{
@@ -266,9 +266,9 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Returns a temporal Point2, describing the extra offset introduced by the group when translating a child element by the specified deltas.
-	 * 	@param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
-	 * 	!getOffsets (dx: number, dy: number, upscaled?: boolean) : Point2;
+	 * Returns a temporal Point2, describing the extra offset introduced by the group when translating a child element by the specified deltas.
+	 * @param upscaled - When `true` the `dx` and `dy` parameters are assumed to be upscaled.
+	 * !getOffsets (dx: number, dy: number, upscaled?: boolean) : Point2;
 	 */
 	getOffsets: function (dx, dy, upscaled=false)
 	{
@@ -291,8 +291,8 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Sets bits of the element flags in the group and all children.
-	 * 	!setFlags (value: number) : Group;
+	 * Sets bits of the element flags in the group and all children.
+	 * !setFlags (value: number) : Group;
 	 */
 	setFlags: function (value)
 	{
@@ -303,8 +303,8 @@ const Group = Element.extend
 	},
 
 	/**
-	 * 	Clears bits from the group and all children flags.
-	 * 	!clearFlags (value: number) : Group;
+	 * Clears bits from the group and all children flags.
+	 * !clearFlags (value: number) : Group;
 	 */
 	clearFlags: function (value)
 	{
@@ -364,8 +364,8 @@ const Group = Element.extend
 //!namespace Pool
 
 	/**
-	 * 	Allocates an empty Group element.
-	 * 	!function alloc (id?: string) : Group;
+	 * Allocates an empty Group element.
+	 * !function alloc (id?: string) : Group;
 	 */
 
 Recycler.createPool(Group);
