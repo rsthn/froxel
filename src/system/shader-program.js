@@ -105,7 +105,7 @@ const ShaderProgram = Class.extend
 			shader = Shader.get(shader);
 
 		if (!shader)
-			throw new Error ('Unable to attach shader, invalid argument.');
+			throw new Error ('Unable to attach shader, argument is null.');
 
 		this.shaders.push(shader);
 		return this;

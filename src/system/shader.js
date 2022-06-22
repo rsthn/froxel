@@ -82,7 +82,7 @@ const Shader = Class.extend
 
 		this.shaderId = null;
 
-		if (source)
+		if (source !== null)
 			this.compile(source);
 	},
 

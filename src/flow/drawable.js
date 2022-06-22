@@ -478,7 +478,7 @@ Recycler.createPool(Group, 512);
  */
 const MirrorX = Drawable.extend
 ({
-	className: 'MirrorX',
+	className: 'DrawableMirrorX',
 
 	drawable: null,
 
@@ -511,7 +511,7 @@ Recycler.createPool(MirrorX, 512);
  */
 const MirrorY = Drawable.extend
 ({
-	className: 'MirrorY',
+	className: 'DrawableMirrorY',
 
 	drawable: null,
 

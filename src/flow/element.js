@@ -267,6 +267,9 @@ const Element = GridElement.extend
 	 */
 	draw: function(g)
 	{
+		if (this._alpha <= 0.0)
+			return;
+
 		if (this.img !== null || this.render !== null)
 		{
 			let shaderChanged = this._shaderProgram !== null ? g.pushShaderProgram(this._shaderProgram) : false;
