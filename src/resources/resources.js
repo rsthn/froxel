@@ -42,8 +42,7 @@ let reported = false;
 		 * !integerScalingEnabled?: boolean;
 		 */
 		/**
-		 * Default value for the `pixelated` parameter of image resources. Controls whether to use integer scaling when resizing images. Also controls the default
-		 * scaling filter (LINEAR/NEAREST) the image will use when converted to a WebGL2 texture.
+		 * Default value for the `pixelated` parameter of image resources. Controls whether to use integer scaling when resizing images.
 		 * 
 		 * @default false
 		 * !pixelated?: boolean;
@@ -51,12 +50,12 @@ let reported = false;
 		/**
 		 * Default value for the `filter` parameter of image resources. When an image does not have the `pixelated` property nor `filter`, this value will be used.
 		 * 
-		 * @default NEAREST
+		 * @default LINEAR
 		 * !filter?: 'LINEAR'|'NEAREST';
 		 */
 		/**
-		 * Default value for the `original` parameter of image resources. When set to `true`, no resizing will take place on the image resource at all and the
-		 * original will be used as-is.
+		 * Default value for the `original` parameter of image resources. When set to `true`, no resizing at all will take place on the image resources and the
+		 * original image will be used as-is.
 		 * 
 		 * @default false
 		 * !original?: boolean;

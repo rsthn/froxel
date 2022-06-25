@@ -65,6 +65,9 @@ import _ShaderProgram from './system/shader-program.js'; export const ShaderProg
 //![import "system/framebuffer"]
 import _Framebuffer from './system/framebuffer.js'; export const Framebuffer = _Framebuffer;
 
+//![import "system/texture"]
+import _Texture from './system/texture.js'; export const Texture = _Texture;
+
 
 // *********************************************
 // resources
