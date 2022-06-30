@@ -45,11 +45,11 @@
     "devDependencies": {
         "filereader": "^0.10.3",
         "image-size": "^1.0.1",
-        "parcel": "^2.6.0"
+        "parcel": "^2.6.2"
     },
     "dependencies": {
-        "rinn": "^2.0.43",
-        "fs-extra": "^10.1.0"
+        "fs-extra": "^10.1.0",
+        "rinn": "^2.0.45"
     },
     "files": [
         "dist/",
