@@ -12,7 +12,7 @@
 
 ## Installation
 
-Froxel is a lightweight and powerful framework to build games using HTML5 technology. You can use npm/yarn/pnpm to install the framework in your project, or download the standalone `froxel.js` ESM file from the `dist` folder and include it in your project directly using the `import` keyword of JavaScript.
+Froxel is a lightweight and powerful framework to build games using HTML5 technology. You can use npm/yarn/pnpm to install the framework in your project, or download the respective flavor (ESM or global) of target from the `dist` folder and include it in your project directly (using the `import` keyword of JS, or the global `froxel` object).
 
 ```sh
 pnpm add froxel
@@ -23,16 +23,17 @@ pnpm add froxel
 
 ## Getting Started
 
-The fastest way to get started is to create a froxel project from a template, build it and view it on your browser. To create a project in folder `test`, and install all dependencies, execute the following (you can use any package manager you prefer):
+The fastest way to get started is to create a froxel project from a template, build it and view it on your browser. To create a project in folder `test`, and install all dependencies, execute the following:
 
 ```sh
 pnpm dlx froxel create test
 cd test
-pnpm install
 ```
 
-Build your project using `pnpm build` and then just open the `index.html` file in your browser to view the results. You can also use `pnpm watch` to start in watcher mode and have your modifications reflected quickly. HMR is disabled by default, so ensure you reload the browser window.
+Build your project using `pnpm build` and then either open the `index.html` file directly in your browser<sup>1</sup> or execute `pnpm serve` to spin up a mini HTTP server, when using the latter navigate to [http://localhost:1234/](http://localhost:1234/) to view the results.
+
+You can also use `pnpm watch` to start in watcher mode and have your modifications reflected quickly. HMR is disabled by default, so ensure you reload the browser window after every change, if this behavior is not desired edit the `watch` script of the `package.json` file.
 
 <br/>
 
-##### <b>NOTE:</b> Due to restrictions of access to the `file://` URI in browsers, it is recommended to use an HTTP server to host your project in a localhost environment. You can use a server such as the `http-server` package for Node, `nginx`, `Apache`, etc. If you're using Firefox, you can alternatively open `about:config` and set `security.fileuri.strict_origin_policy` to `false`.
+##### <sup>1</sup> Due to restrictions of access to the `file://` URI in browsers, it is recommended to use an HTTP server to host your project in a localhost environment. You can use a server such as the `http-server` package for Node (which is included in the froxel project), `nginx`, `Apache`, etc. If you're using Firefox, you can alternatively open `about:config` and set `security.fileuri.strict_origin_policy` to `false` and open the `index.html` directly.

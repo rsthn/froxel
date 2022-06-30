@@ -5,32 +5,29 @@
     "type": "module",
     "main": "./dist/froxel.m.js",
     "module": "./dist/froxel.m.js",
-    "browser": "./dist/froxel.js",
+    "global": "./dist/froxel.js",
     "types": "./dist/froxel.d.ts",
     "bin": {
         "froxel": "bin/cli.js"
     },
-    "packageManager": "pnpm@6.32.4",
     "scripts": {
         "test": "echo Ok",
-        "deploy": "pnpm build:all && pnpm tsdoc && node ./scripts/deploy.js",
-        "commit": "node ./scripts/commit.js",
+        "deploy": "pnpm build && pnpm tsdoc && node ./scripts/deploy.js",
+        "commit": "pnpm build && node ./scripts/commit.js",
         "tsdoc": "node ./scripts/tsdoc.js ./src/main.js ./dist/froxel.d.ts",
         "changes": "rose ./scripts/changes",
-        "build:all": "pnpm build:module && pnpm build:browser",
-        "build:browser": "parcel build --no-cache --target browser",
+        "build:global": "parcel build --no-cache --target global",
         "build:module": "parcel build --no-cache --target module",
-        "watch": "parcel watch --no-cache --target browser --no-hmr",
-        "build": "pnpm build:browser"
+        "watch": "parcel watch --no-cache --target global --no-hmr",
+        "build": "pnpm build:module && pnpm build:global"
     },
-    "browserslist": "since 2020-01",
     "targets": {
         "module": {
             "source": "./src/main.js",
             "optimize": true
         },
-        "browser": {
-            "source": "./src/main.js",
+        "global": {
+            "source": "./src/_main.js",
             "optimize": true,
             "includeNodeModules": true
         }

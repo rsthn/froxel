@@ -54,7 +54,9 @@ if (args.length == 0)
     froxel <command> [options]
 
 Command:
-    create <name>                Creates a project <name> in the current folder.
+    create <name>                Creates a project <name> using pnpm.
+    create-yarn <name>           Creates a project <name> using yarn.
+    create-npm <name>            Creates a project <name> using npm.
 `);
 
 	process.exit();
@@ -62,17 +64,21 @@ Command:
 
 const cdir = path.resolve('.');
 const sdir = path.dirname(url.fileURLToPath(import.meta.url));
+let manager = 'pnpm';
+let dest;
 
 switch (args[0])
 {
 	case 'create':
+	case 'create-yarn':
+	case 'create-npm':
 		if (args.length < 2) {
 			msg(ERROR, 'Parameter <name> missing for command `create`');
 			break;
 		}
 
 		msg(INFO, 'Creating project ' + args[1] + '...');
-		const dest = path.join(cdir, args[1]);
+		dest = path.join(cdir, args[1]);
 		if (!fs.existsSync(dest)) fs.mkdirSync(dest);
 
 		msg(INFO, 'Copying template ...');
@@ -85,7 +91,20 @@ switch (args[0])
 
 			patch(dest, ['package.json', 'manifest.json', 'index.html'], 'project_name', args[1]);
 
-			msg(SUCCESS, 'Completed.');
+			if (args[0] == 'create-yarn')
+				manager = 'yarn';
+			else if (args[0] == 'create-npm')
+				manager = 'npm';
+
+			if (manager !== 'pnpm')
+				patch(dest, ['package.json'], 'pnpm', manager);
+
+			msg(INFO, 'Installing dependencies ...');
+
+			process.chdir(dest);
+			run(manager + ' install').then(r => {
+				msg(SUCCESS, 'Completed.');
+			});
 		});
 
 		break;

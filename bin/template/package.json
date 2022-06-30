@@ -3,26 +3,26 @@
 	"version": "1.0.0",
 	"main": "src/main.js",
 	"type": "module",
-	"browser": "./main.min.js",
+	"global": "./main.min.js",
 	"private": true,
 	"scripts": {
-		"requirements": "pnpm global add --ignore-optional parcel shx",
-		"clean": "shx rm -f main.js && shx rm -f main.js.map",
-		"release": "pnpm clean && parcel build --no-cache --no-source-maps --target browser",
-		"build": "pnpm clean && parcel build --no-cache --target browser",
-		"watch": "pnpm clean && parcel watch --no-cache --target browser --no-hmr"
+		"clean": "shx rm -f main.min.js && shx rm -f main.min.js.map",
+		"release": "pnpm clean && parcel build --no-cache --no-source-maps --target global",
+		"build": "parcel build --no-cache --target global",
+		"watch": "parcel watch --no-cache --target global --no-hmr",
+		"serve": "http-server -p 1234 --cors -c-1 ."
 	},
-	"browserslist": "since 2020-01",
 	"targets": {
-		"browser": {
+		"global": {
 			"source": "./src/main.js",
 			"optimize": true,
 			"includeNodeModules": true
 		}
 	},
 	"devDependencies": {
-		"froxel": "^2.2.0",
-		"parcel": "^2.4.1",
-		"shx": "^0.3.4"
+		"froxel": "^2.2.10",
+		"parcel": "^2.6.2",
+		"shx": "^0.3.4",
+		"http-server": "^14.1.1"
 	}
 }
