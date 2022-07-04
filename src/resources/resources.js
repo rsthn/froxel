@@ -150,8 +150,9 @@ Object.assign(Resources,
 		}
 
 		let r = list[keyList[index]];
-
 		r.resName = keyList[index];
+
+		let src, d0, d1, dN, cb;
 
 		switch (r.type)
 		{
@@ -230,11 +231,10 @@ Object.assign(Resources,
 				break;
 
 			case "images":
-				let src = r.src;
-
-				let d0 = src.indexOf("#");
-				let d1 = src.lastIndexOf("#");
-				let dN = d1 - d0 + 1;
+				src = r.src;
+				d0 = src.indexOf("#");
+				d1 = src.lastIndexOf("#");
+				dN = d1 - d0 + 1;
 
 				if (d0 == -1)
 				{
@@ -251,7 +251,7 @@ Object.assign(Resources,
 				r._i = 0;
 				r.data = [ ];
 
-				var cb = function ()
+				cb = function ()
 				{
 					if (r._i == r.count)
 					{
@@ -263,7 +263,7 @@ Object.assign(Resources,
 					}
 
 					// TODO add support for extraScale
-					var tmp = { type: "image", width: r.width, height: r.height, scale: r.scale };
+					let tmp = { type: "image", width: r.width, height: r.height, scale: r.scale };
 
 					tmp.src = r.src.substr(0, d0) + ((r._i++) / Math.pow(10,dN)).toFixed(dN).substr(2) + r.src.substr(d1+1);
 					tmp.data = new Image ();
@@ -274,7 +274,7 @@ Object.assign(Resources,
 
 					tmp.data.onload = async function ()
 					{
-						var ratio = tmp.data.width / tmp.data.height;
+						let ratio = tmp.data.width / tmp.data.height;
 
 						if (tmp.scale)
 						{
@@ -357,7 +357,6 @@ Object.assign(Resources,
 				break;
 
 			case "audio":
-
 				if (!r.track) r.track = "sfx";
 
 				if (global.plugins && global.plugins.NativeAudio && r.track == "sfx")
@@ -397,11 +396,11 @@ Object.assign(Resources,
 					.then (audioBuffer => {
 						r.data = audioBuffer;
 						Resources.onLoaded (list, keyList[index], () => {
-							Resources.load (list, progressCallback, completeCallback, keyList, index + 1);		
+							Resources.load (list, progressCallback, completeCallback, keyList, index + 1);
 						});
 					})
 					.catch (err => {
-						console.error("Error: Unable to load: " + r.resName);
+						console.error("Error: Unable to load: " + r.resName + "\n" + err);
 					});
 
 					break;
@@ -431,12 +430,10 @@ Object.assign(Resources,
 				break;
 
 			case "audios":
-
-				var src = r.src;
-
-				var d0 = src.indexOf("#");
-				var d1 = src.lastIndexOf("#");
-				var dN = d1 - d0 + 1;
+				src = r.src;
+				d0 = src.indexOf("#");
+				d1 = src.lastIndexOf("#");
+				dN = d1 - d0 + 1;
 
 				if (d0 == -1)
 				{
@@ -453,7 +450,7 @@ Object.assign(Resources,
 				r._i = 0;
 				r.data = [ ];
 
-				var cb = function ()
+				cb = function ()
 				{
 					if (r._i == r.count)
 					{
@@ -463,7 +460,7 @@ Object.assign(Resources,
 						return;
 					}
 
-					var tmp = { type: "audio", track: r.track };
+					let tmp = { type: "audio", track: r.track };
 
 					tmp.src = r.src.substr(0, d0) + ((r._i++) / Math.pow(10,dN)).toFixed(dN).substr(2) + r.src.substr(d1+1);
 					tmp.resName = r.resName + "#" + (r._i - 1);
@@ -499,7 +496,7 @@ Object.assign(Resources,
 							cb();
 						})
 						.catch (err => {
-							console.error("Error: Unable to load: " + tmp.resName);
+							console.error("Error: Unable to load: " + tmp.resName + "\n" + err);
 						});
 
 						return;
@@ -523,7 +520,6 @@ Object.assign(Resources,
 				};
 
 				cb();
-
 				break;
 
 			case "json":
@@ -538,7 +534,7 @@ Object.assign(Resources,
 				})
 				.catch(function(err)
 				{
-					console.error("Error: Unable to load: " + r.resName + ". Error: " + err);
+					console.error("Error: Unable to load: " + r.resName + "\n" + err);
 				});
 
 				break;
@@ -555,7 +551,7 @@ Object.assign(Resources,
 				})
 				.catch(function(err)
 				{
-					console.error("Error: Unable to load: " + r.resName + ". Error: " + err);
+					console.error("Error: Unable to load: " + r.resName + "\n" + err);
 				});
 
 				break;
@@ -572,7 +568,7 @@ Object.assign(Resources,
 				})
 				.catch(function(err)
 				{
-					console.error("Error: Unable to load: " + r.resName + ". Error: " + err);
+					console.error("Error: Unable to load: " + r.resName + "\n" + err);
 				});
 
 				break;
@@ -595,9 +591,9 @@ Object.assign(Resources,
 	{
 		throw new Error('IMPLEMENTED UNLOAD!');
 
-		var __original;
+		let __original;
 
-		for (var i in list)
+		for (let i in list)
 		{
 			if (i == "__original")
 			{
@@ -625,7 +621,7 @@ Object.assign(Resources,
 					break;
 
 				case "images":
-					for (var j = 0; j < list[i].data.length; j++)
+					for (let j = 0; j < list[i].data.length; j++)
 						dispose (list[i].data[j]);
 					break;
 
@@ -638,7 +634,7 @@ Object.assign(Resources,
 			delete list[i];
 		}
 
-		for (var i in __original)
+		for (let i in __original)
 			list[i] = __original[i];
 	},
 
@@ -704,18 +700,18 @@ Object.assign(Resources,
 		{
 			pixelated = pixelated === null ? false : true;
 
-			var temp = new Canvas ({ hidden: true, antialias: pixelated }).resize (sw, sh);
+			let temp = new Canvas ({ hidden: true, antialias: pixelated }).resize (sw, sh);
 			temp.drawImage (image.data, 0, 0);
 
 			while (true)
 			{
-				var tw = sw >> 1;
-				var th = sh >> 1;
+				let tw = sw >> 1;
+				let th = sh >> 1;
 
 				if (tw <= dw || th <= dh)
 					break;
 
-				var output = new Canvas ({ hidden: true, antialias: pixelated }).resize (tw, th);
+				let output = new Canvas ({ hidden: true, antialias: pixelated }).resize (tw, th);
 				output.drawImage (temp.elem, 0, 0, tw, th);
 				temp.dispose ();
 
@@ -725,7 +721,7 @@ Object.assign(Resources,
 				temp = output;
 			}
 
-			var output = new Canvas ({ hidden: true, antialias: pixelated }).resize (dw, dh);
+			let output = new Canvas ({ hidden: true, antialias: pixelated }).resize (dw, dh);
 			output.drawImage (temp.elem, 0, 0, dw, dh);
 			temp.dispose ();
 
@@ -738,25 +734,25 @@ Object.assign(Resources,
 		{
 			if (int(dw / sw) > 0)
 			{
-				var ratio = int((dw / sw) + 0.9);
+				let ratio = int((dw / sw) + 0.9);
 
 				dw = ratio * sw;
 				dh = ratio * sh;
 
-				var rep_x = dw / sw;
-				var rep_y = dh / sh;
+				let rep_x = dw / sw;
+				let rep_y = dh / sh;
 
-				var output = new Canvas ({ hidden: true, antialias: false }).resize (dw, dh);
+				let output = new Canvas ({ hidden: true, antialias: false }).resize (dw, dh);
 
-				var temp = new Canvas ({ hidden: true, antialias: false }).resize (sw, sh);
+				let temp = new Canvas ({ hidden: true, antialias: false }).resize (sw, sh);
 				temp.drawImage (image.data, 0, 0);
 
-				for (var j = 0; j < sh; j++)
+				for (let j = 0; j < sh; j++)
 				{
-					var s = temp.getImageData(0, j, sw, 1).data;
-					var sp = 0;
+					let s = temp.getImageData(0, j, sw, 1).data;
+					let sp = 0;
 
-					for (var i = 0; i < sw && sp < s.length; i++, sp += 4)
+					for (let i = 0; i < sw && sp < s.length; i++, sp += 4)
 					{
 						output.fillStyle("rgba("+s[sp]+","+s[sp+1]+","+s[sp+2]+","+(s[sp+3] / 255)+")");
 						output.fillRect(i*rep_x, j*rep_y, rep_x, rep_y);
@@ -778,7 +774,7 @@ Object.assign(Resources,
 	 */
 	flipImageHorz: function (image)
 	{
-		var temp = new Canvas ({ hidden: true }).resize (image.data.width, image.data.height);
+		let temp = new Canvas ({ hidden: true }).resize (image.data.width, image.data.height);
 
 		temp.translate(image.data.width, 0);
 		temp.scale(-1, 1);
@@ -793,7 +789,7 @@ Object.assign(Resources,
 	 */
 	flipImageVert: function (image)
 	{
-		var temp = new Canvas ({ hidden: true }).resize (image.data.width, image.data.height);
+		let temp = new Canvas ({ hidden: true }).resize (image.data.width, image.data.height);
 
 		temp.translate(0, image.data.height);
 		temp.scale(1, -1);
@@ -808,7 +804,7 @@ Object.assign(Resources,
 	 */
 	showDownload: function (filename, dataUrl)
 	{
-		var link = document.createElement("a");
+		let link = document.createElement("a");
 		link.href = dataUrl;
 
 		link.style.display = 'none';
@@ -826,7 +822,7 @@ Object.assign(Resources,
 	 */
 	showFilePicker: function (allowMultiple, accept, callback)
 	{
-		var input = document.createElement("input");
+		let input = document.createElement("input");
 
 		input.type = "file";
 		input.accept = accept;
@@ -855,7 +851,7 @@ Object.assign(Resources,
 	 */
 	loadAsDataURL: function (file, callback)
 	{
-		var reader = new FileReader();
+		let reader = new FileReader();
 
 		reader.onload = function(e) {
 			callback (e.target.result);
@@ -870,7 +866,7 @@ Object.assign(Resources,
 	 */
 	loadAsText: function (file, callback)
 	{
-		var reader = new FileReader();
+		let reader = new FileReader();
 
 		reader.onload = function(e) {
 			callback (e.target.result);
@@ -885,7 +881,7 @@ Object.assign(Resources,
 	 */
 	loadAsArrayBuffer: function (file, callback)
 	{
-		var reader = new FileReader();
+		let reader = new FileReader();
 
 		reader.onload = function(e) {
 			callback (e.target.result);
@@ -900,7 +896,7 @@ Object.assign(Resources,
 	 */
 	loadAllAsDataURL: function (fileList, callback)
 	{
-		var result = [];
+		let result = [];
 
 		if (!fileList || !fileList.length)
 		{
@@ -908,7 +904,7 @@ Object.assign(Resources,
 			return;
 		}
 
-		var loadNext = function (i)
+		let loadNext = function (i)
 		{
 			if (i == fileList.length)
 			{

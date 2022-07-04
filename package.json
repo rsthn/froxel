@@ -18,7 +18,7 @@
         "changes": "rose ./scripts/changes",
         "build:global": "parcel build --no-cache --target global",
         "build:module": "parcel build --no-cache --target module",
-        "watch": "parcel watch --no-cache --target global --no-hmr",
+        "watch": "parcel watch --no-cache --target module --no-hmr",
         "build": "pnpm build:module && pnpm build:global"
     },
     "targets": {

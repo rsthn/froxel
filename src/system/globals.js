@@ -122,7 +122,7 @@ global.fetchd = function (url, options)
 		if (!options) options = { };
 		if (!('responseType' in options)) options.responseType = 'arraybuffer';
 
-		var request = new XMLHttpRequest();
+		let request = new XMLHttpRequest();
 		request.open('GET', url, true);
 
 		for (let i in options) request[i] = options[i];

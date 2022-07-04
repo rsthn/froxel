@@ -182,12 +182,14 @@ export const Animation = Drawable.extend
 			this.seq_i = 0;
 			this.n_seq = null;
 
-			this.setFps (this.seq.fps || this.fps);
 			this.time = 0;
+			this.finished = false;
+
+			this.setFps (this.seq.fps || this.fps);
 		}
 
 		// Update animation frame if frame time exceeds or equals frame duration.
-		if (this.time >= this.frameDuration && this.frameNumber !== System.frameNumber)
+		if (this.time >= this.frameDuration && this.frameNumber !== System.frameNumber && !this.finished)
 		{
 			const frameIndex = this.seq_i;
 
@@ -227,6 +229,7 @@ export const Animation = Drawable.extend
 		// Draw the current frame.
 		let t = this.seq.group[ this.seq_i === this.seq.group.length ? this.seq_i-1 : this.seq_i ];
 
+		// TODO optimize this to ensure t is always just a single image
 		for (let i = 0; i < t.length; i++)
 			this.anim.getFrame(t[i]).draw(g, x, y, width, height);
 
@@ -255,9 +258,9 @@ export const Animation = Drawable.extend
 		return this.n_seq === null ? this.seq.name : this.n_seq.name;
 	},
 
-	use: function (seqName, force=false)
+	use: function (seqName, forced=false)
 	{
-		if (this.seq.name === seqName && !this.finished && force !== true)
+		if (this.seq.name === seqName && !this.finished && forced !== true)
 			return false;
 
 		this.n_seq = this.anim.a.seq[seqName];
@@ -266,9 +269,9 @@ export const Animation = Drawable.extend
 		return true;
 	},
 
-	play: function (name)
+	play: function (name, forced=false)
 	{
-		this.use(name);
+		this.use(name, forced);
 		return this;
 	},
 
