@@ -234,11 +234,20 @@ const system =
 
 	/**
 	 * Creates a timeout callback.
-	 * !static timeout (duration: number, callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any) : void;
+	 * !static timeout (duration: number, callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any) : Callback;
 	 */
 	timeout: function (duration, callback, arg0=null, arg1=null, arg2=null, arg3=null)
 	{
-		this._timeout.add(this._updateTimeout, duration, callback, arg0, arg1, arg2, arg3);
+		return this._timeout.add(this._updateTimeout, duration, callback, arg0, arg1, arg2, arg3);
+	},
+
+	/**
+	 * Cancels a timeout callback.
+	 * !static cancelTimeout (callback: Callback) : void;
+	 */
+	cancelTimeout: function (node)
+	{
+		this._timeout.remove(node);
 	},
 
 	_updateTimeout: function (dt, _, callback, arg0, arg1, arg2, arg3)
@@ -252,11 +261,20 @@ const system =
 
 	/**
 	 * Creates an interval callback.
-	 * !static interval (period: number, callback: Function, arg0?: any, arg1?: any, arg2?: any) : void;
+	 * !static interval (period: number, callback: Function, arg0?: any, arg1?: any, arg2?: any) : Callback;
 	 */
 	interval: function (period, callback, arg0=null, arg1=null, arg2=null)
 	{
-		this._interval.add(this._updateInterval, 0, period, callback, arg0, arg1, arg2);
+		return this._interval.add(this._updateInterval, 0, period, callback, arg0, arg1, arg2);
+	},
+
+	/**
+	 * Cancels an interval callback.
+	 * !static cancelInterval (callback: Callback) : void;
+	 */
+	cancelInterval: function (node)
+	{
+		this._interval.remove(node);
 	},
 
 	_updateInterval: function (dt, _0, _1, callback, arg0, arg1, arg2)
@@ -270,11 +288,20 @@ const system =
 
 	/**
 	 * Creates a a time-span callback.
-	 * !static span (period: number, callback: (t:number, dt:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : void;
+	 * !static span (period: number, callback: (t:number, dt:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : Callback;
 	 */
 	span: function (duration, callback, arg0=null, arg1=null, arg2=null)
 	{
-		this._span.add(this._updateSpan, 0, duration, callback, arg0, arg1, arg2);
+		return this._span.add(this._updateSpan, 0, duration, callback, arg0, arg1, arg2);
+	},
+
+	/**
+	 * Cancels a time-span callback.
+	 * !static cancelSpan (callback: Callback) : void;
+	 */
+	cancelSpan: function (node)
+	{
+		this._span.remove(node);
 	},
 
 	_updateSpan: function (dt, _0, _1, callback, arg0, arg1, arg2)
