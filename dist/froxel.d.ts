@@ -2910,6 +2910,7 @@ export namespace Perf
 
 
 
+
 export namespace Resources
 {
 	type ConfigOptions =
@@ -2923,8 +2924,7 @@ export namespace Resources
 		integerScalingEnabled?: boolean;
 
 		/**
-		 * Default value for the `pixelated` parameter of image resources. Controls whether to use integer scaling when resizing images. Also controls the default
-		 * scaling filter (LINEAR/NEAREST) the image will use when converted to a WebGL2 texture.
+		 * Default value for the `pixelated` parameter of image resources. Controls whether to use integer scaling when resizing images.
 		 *
 		 * @default false
 		 */
@@ -2933,13 +2933,13 @@ export namespace Resources
 		/**
 		 * Default value for the `filter` parameter of image resources. When an image does not have the `pixelated` property nor `filter`, this value will be used.
 		 *
-		 * @default NEAREST
+		 * @default LINEAR
 		 */
 		filter?: 'LINEAR'|'NEAREST';
 
 		/**
-		 * Default value for the `original` parameter of image resources. When set to `true`, no resizing will take place on the image resource at all and the
-		 * original will be used as-is.
+		 * Default value for the `original` parameter of image resources. When set to `true`, no resizing at all will take place on the image resources and the
+		 * original image will be used as-is.
 		 *
 		 * @default false
 		 */
@@ -5846,17 +5846,32 @@ export namespace fxl
 	/**
 	 * Creates a timeout callback.
 	 */
-	static timeout (duration: number, callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any) : void;
+	static timeout (duration: number, callback: Function, arg0?: any, arg1?: any, arg2?: any, arg3?: any) : Callback;
+
+	/**
+	 * Cancels a timeout callback.
+	 */
+	static cancelTimeout (callback: Callback) : void;
 
 	/**
 	 * Creates an interval callback.
 	 */
-	static interval (period: number, callback: Function, arg0?: any, arg1?: any, arg2?: any) : void;
+	static interval (period: number, callback: Function, arg0?: any, arg1?: any, arg2?: any) : Callback;
+
+	/**
+	 * Cancels an interval callback.
+	 */
+	static cancelInterval (callback: Callback) : void;
 
 	/**
 	 * Creates a a time-span callback.
 	 */
-	static span (period: number, callback: (t:number, dt:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : void;
+	static span (period: number, callback: (t:number, dt:number, ...args:any) => boolean, arg0?: any, arg1?: any, arg2?: any) : Callback;
+
+	/**
+	 * Cancels a time-span callback.
+	 */
+	static cancelSpan (callback: Callback) : void;
 
 }
 	/**
@@ -6066,6 +6081,15 @@ const r : { [key: string]: any };
 
 	}
 
+	type SpritesheetResource =
+	{
+		/**
+		 * Adds a frame to the spritesheet given its coordinates.
+		 */
+		frame (x: number, y: number, width: number, height: number) : SpritesheetResource;
+
+	}
+
 }
 
 export class res
@@ -6101,75 +6125,83 @@ export class res
 	static image (id: string, path: string, opts?: object) : Texture;
 
 	/**
-	 * 	Registers a multi image resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "image-##.png").
-	 * 	@param count - Number of images to load (from 0 to count-1).
+	 * Registers a multi image resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "image-##.png").
+	 * @param count - Number of images to load (from 0 to count-1).
 	 */
-	static images (id: string, path: string, count: number, frameWidth?: number, frameHeight?: number, optsA?: object, optsB?: object) : object;
+	static images (id: string, path: string, count: number, frameWidth?: number, frameHeight?: number, configOptions?: object, resOptions?: object) : object;
 
 	/**
-	 * 	Registers an spritesheet resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
+	 * Registers an spritesheet resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
 	 */
-	static spritesheet (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, optsA?: object, optsB?: object) : object;
+	static spritesheet (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : res.SpritesheetResource;
 
 	/**
-	 * 	Registers a spritesheet animation resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
+	 * Registers an spritesheet resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
+	 * @param coords - Array of coordinates of each frame.
+	 */
+	static spritesheet (id: string, path: string, frameWidth: number, frameHeight: number, coords: Array<>, configOptions?: object, resOptions?: object) : res.SpritesheetResource;
+
+	/**
+	 * Registers a spritesheet animation resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
 	 */
 	static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : res.AnimationResource;
 
 	/**
-	 * 	Registers a spritefont animation resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
+	 * Registers a spritefont animation resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
 	 */
 	static spritefont (id: string, path: string, charWidth: number, charHeight: number, charset: string, optsA?: object, optsB?: object) : object;
 
 	/**
-	 * 	Registers a JSON data resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
+	 * Registers a JSON data resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
 	 */
 	static json (id: string, path: string, opts?: object) : object;
 
 	/**
-	 * 	Registers a binary data resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
+	 * Registers a binary data resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
 	 */
 	static data (id: string, path: string, opts?: object) : object;
 
 	/**
-	 * 	Registers a text data resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
+	 * Registers a text data resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
 	 */
 	static text (id: string, path: string, opts?: object) : object;
 
 	/**
-	 * 	Registers a sound effect audio resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
+	 * Registers a sound effect audio resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
 	 */
 	static sfx (id: string, path: string, opts?: object) : object;
 
 	/**
-	 * 	Registers a multi sound effect audio resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "sound-##.ogg").
-	 * 	@param count - Number of sounds to load (from 0 to count-1).
-	 * 	@param mode - Playback mode, can be `sequential` (default) or `random`.
+	 * Registers a multi sound effect audio resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "sound-##.ogg").
+	 * @param count - Number of sounds to load (from 0 to count-1).
+	 * @param mode - Playback mode, can be `sequential` (default) or `random`.
 	 */
 	static sfxm (id: string, path: string, count: number, mode?: string) : object;
 
 	/**
-	 * 	Registers an music audio resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
+	 * Registers an music audio resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
 	 */
 	static music (id: string, path: string) : object;
 

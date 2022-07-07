@@ -60,6 +60,8 @@ const Drawable = Class.extend
 	 */
 	sheight: 0,
 
+	//TODO rename `resources` to `texture`
+
 	/**
 	 * Initializes the instance.
 	 * !constructor();

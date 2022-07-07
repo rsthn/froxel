@@ -7,6 +7,8 @@ import Drawable from '../flow/drawable.js';
 			sheetWidth: int, frameWidth: int, frameHeight: int?, numFrames: int?
 			--OR--
 			numFrames: int, frameWidth: int, frameHeight: int?
+			--OR--
+			coords: Array<[x,y,w,h]>
 		}
 
 	If source is "images":
@@ -22,18 +24,19 @@ const FrameDrawable = Drawable.extend
 	spritesheet: null,
 	frameIndex: 0,
 
-	__ctor: function (spritesheet, frameIndex)
+	__ctor: function (spritesheet, frameIndex, texture, sx, sy, sw, sh, width=null, height=null)
 	{
-		this._super.Drawable.__ctor(null, spritesheet.width, spritesheet.height);
+		this._super.Drawable.__ctor(null, width ?? spritesheet.width, height ?? spritesheet.height);
 
 		this.spritesheet = spritesheet;
 		this.frameIndex = frameIndex;
 
-		this.width = spritesheet.width;
-		this.height = spritesheet.height;
+		this.sx = sx;
+		this.sy = sy;
+		this.swidth = sw;
+		this.sheight = sh;
 
-		this.swidth = spritesheet.frameWidth;
-		this.sheight = spritesheet.frameHeight;
+		this.resource = texture;
 	}
 });
 
@@ -41,10 +44,11 @@ export default Drawable.extend
 ({
 	className: 'Spritesheet',
 
-	numCols: 0,
+	frameCache: null,
 	numFrames: 0,
 
-	frameCache: null,
+	frameWidth: 0,
+	frameHeight: 0,
 
 	__ctor: function (r)
 	{
@@ -53,15 +57,15 @@ export default Drawable.extend
 		if ((r.type != 'image' && r.type != 'images'))
 			throw new Error ('Resource is not a sprite sheet.');
 
-		var r_scale, v_scale;
+		let r_scale, v_scale;
 
 		if (r.type == 'image')
 		{
-			if (!r.config.sheetWidth && (!r.config.numFrames || !r.config.frameWidth))
-				throw new Error (r.resName + ': required sheetWidth or numFrames+frameWidth');
+			if (!r.config.sheetWidth && (!r.config.numFrames || !r.config.frameWidth) && !r.config.coords)
+				throw new Error (r.resName + ': required `sheetWidth` or `numFrames` with `frameWidth` or `coords` array.');
 
 			if (!r.config.sheetWidth)
-				r.config.sheetWidth = r.width; //r.config.numFrames * r.config.frameWidth;
+				r.config.sheetWidth = r.width;
 
 			if (!r.config.frameHeight)
 				r.config.frameHeight = r.data.height;
@@ -91,59 +95,82 @@ export default Drawable.extend
 		this.width = r.config.frameWidth * v_scale;
 		this.height = r.config.frameHeight * v_scale;
 
+		// Load each frame into its own FrameDrawable.
+		let numCols, numRows;
+
 		if (r.type == 'image')
 		{
-			this.numCols = int(r.data.width / this.frameWidth);
-			this.numRows = Math.ceil(r.data.height / this.frameHeight);
+			numCols = int(r.data.width / this.frameWidth);
+			numRows = Math.ceil(r.data.height / this.frameHeight);
 
-			this.numFrames = r.config.numFrames || (this.numCols * this.numRows);
+			if (r.config.coords)
+				this.numFrames = r.config.coords.length;
+			else
+				this.numFrames = r.config.numFrames || (numCols * numRows);
 		}
 		else
 		{
-			this.numCols = this.numRows = 0;
+			numCols = numRows = 0;
 			this.numFrames = r.data.length;
 		}
-
-		this.frameCache = { };
 
 		this.r = r;
 		this.r.wrapper = this;
 
-		// Preload frameCache.
+		// Prepare frameCache.
+		this.frameCache = { };
+
 		for (let i = 0; i < this.numFrames; i++)
-			this.getFrame(i);
+		{
+			let frameObject;
+
+			if (this.r.config.coords)
+			{
+				frameObject = new FrameDrawable (this, i, this.r.data, 
+					this.r.config.coords[i][0]*r_scale, this.r.config.coords[i][1]*r_scale, this.r.config.coords[i][2]*r_scale, this.r.config.coords[i][3]*r_scale,
+					this.r.config.coords[i][2]*v_scale, this.r.config.coords[i][3]*v_scale);
+			}
+			else if (this.numCols != 0)
+			{
+				frameObject = new FrameDrawable (this, i, this.r.data, 
+					(i % numCols) * this.frameWidth, int(i / numCols) * this.frameHeight, this.frameWidth, this.frameHeight);
+			}
+			else
+			{
+				frameObject = new FrameDrawable (this, i, this.r.data[i].data, 
+					0, 0, this.frameWidth, this.frameHeight);
+			}
+	
+			this.frameCache[i] = frameObject;
+		}
 	},
 
-	getFrame: function (x, y=null)
+	/**
+	 * Returns a frame from the spritesheet.
+	 * @param frameIndex - The index of the frame to return.
+	 * !getFrame (frameIndex: number) : Drawable;
+	 */
+	getFrame: function (frameIndex)
 	{
-		let frameIndex = y !== null ? y*this.numCols+x : x;
 		if (frameIndex < 0 || frameIndex >= this.numFrames)
 			throw new Error ('frameIndex out of range');
 
-		if (this.frameCache[frameIndex])
-			return this.frameCache[frameIndex];
-
-		let frameObject = new FrameDrawable (this, frameIndex);
-
-		if (this.numCols != 0)
-		{
-			frameObject.sy = int(frameIndex / this.numCols) * this.frameHeight;
-			frameObject.sx = (frameIndex % this.numCols) * this.frameWidth;
-			frameObject.resource = this.r.data;
-		}
-		else
-		{
-			frameObject.resource = this.r.data[frameIndex].data;
-		}
-
-		return this.frameCache[frameIndex] = frameObject;
+		return this.frameCache[frameIndex];
 	},
 
+	/**
+	 * Returns the texture related to the spritesheet.
+	 * !getTexture() : Texture;
+	 */
 	getTexture: function()
 	{
 		return this.getFrame(0).getTexture();
 	},
 
+	/**
+	 * Returns the default drawable of the spritesheet (first frame).
+	 * !getDrawable() : Drawable;
+	 */
 	getDrawable: function()
 	{
 		return this.getFrame(0);

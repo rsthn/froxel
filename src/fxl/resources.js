@@ -2,6 +2,8 @@
 import Resources from '../resources/resources.js';
 import r from './r.js';
 
+// TODO add an interface to change the parameter of image resources using methods instead of passing the properties.
+
 /**
  * Resource manager allows to specify resource descriptors to load them.
  */
@@ -28,6 +30,15 @@ import r from './r.js';
 		/**
 		 * Sets the default animation sequence.
 		 * !def (sequenceName: string) : AnimationResource;
+		 */
+
+	//!/type
+
+	//!type SpritesheetResource =
+
+		/**
+		 * Adds a frame to the spritesheet given its coordinates.
+		 * !frame (x: number, y: number, width: number, height: number) : SpritesheetResource;
 		 */
 
 	//!/type
@@ -120,49 +131,65 @@ const res =
 	},
 
 	/**
-	 * 	Registers a multi image resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "image-##.png").
-	 * 	@param count - Number of images to load (from 0 to count-1).
-	 * 
-	 * 	!static images (id: string, path: string, count: number, frameWidth?: number, frameHeight?: number, optsA?: object, optsB?: object) : object;
+	 * Registers a multi image resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "image-##.png").
+	 * @param count - Number of images to load (from 0 to count-1).
+	 * !static images (id: string, path: string, count: number, frameWidth?: number, frameHeight?: number, configOptions?: object, resOptions?: object) : object;
 	 */
-	images: function (id, path, count, frameWidth=null, frameHeight=null, optsA=null, optsB=null)
+	images: function (id, path, count, frameWidth=null, frameHeight=null, configOptions=null, resOptions=null)
 	{
 		this.__resIdMustNotExist(id);
 		return r[id] = { type: 'images', wrapper: 'Spritesheet', src: path, count: count, width: frameWidth, height: frameHeight,
 			config: {
-				frameWidth: frameWidth, frameHeight: frameHeight, ...optsA
+				frameWidth: frameWidth, frameHeight: frameHeight, ...configOptions
 			},
-			...optsB
+			...resOptions
 		};
 	},
 
 	/**
-	 * 	Registers an spritesheet resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
-	 * 
-	 * 	!static spritesheet (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, optsA?: object, optsB?: object) : object;
+	 * Registers an spritesheet resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
+	 * !static spritesheet (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : res.SpritesheetResource;
 	 */
-	spritesheet: function (id, path, frameWidth, frameHeight, numFrames=0, optsA=null, optsB=null)
+	/**
+	 * Registers an spritesheet resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
+	 * @param coords - Array of coordinates of each frame.
+	 * !static spritesheet (id: string, path: string, frameWidth: number, frameHeight: number, coords: Array<[x,y,w,h]>, configOptions?: object, resOptions?: object) : res.SpritesheetResource;
+	 */
+	spritesheet: function (id, path, frameWidth, frameHeight, numFrames=0, configOptions=null, resOptions=null)
 	{
 		this.__resIdMustNotExist(id);
 
 		return r[id] = { type: 'image', wrapper: 'Spritesheet', src: path,
 			config: {
-				frameWidth: frameWidth, frameHeight: frameHeight, numFrames: numFrames, ...optsA
+				frameWidth: frameWidth, frameHeight: frameHeight,
+				numFrames: typeof(numFrames) === 'number' ? numFrames : 0,
+				coords: typeof(numFrames) === 'number' ? null : numFrames,
+				...configOptions
 			},
-			...optsB
+			...resOptions,
+
+			frame: function (x, y, w, h)
+			{
+				if (!this.config.coords)
+					this.config.coords = [];
+
+				this.config.coords.push([x, y, w, h]);
+				return this;
+			}
 		};
 	},
 
 	/**
-	 * 	Registers a spritesheet animation resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
-	 * 
-	 * 	!static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : res.AnimationResource;
+	 * Registers a spritesheet animation resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
+	 * !static animation (id: string, path: string, frameWidth: number, frameHeight: number, numFrames?: number, configOptions?: object, resOptions?: object) : res.AnimationResource;
 	 */
 	animation: function (id, path, frameWidth, frameHeight, numFrames=null, configOptions=null, resOptions=null)
 	{
@@ -211,11 +238,10 @@ const res =
 	},
 
 	/**
-	 * 	Registers a spritefont animation resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
-	 * 
-	 * 	!static spritefont (id: string, path: string, charWidth: number, charHeight: number, charset: string, optsA?: object, optsB?: object) : object;
+	 * Registers a spritefont animation resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
+	 * !static spritefont (id: string, path: string, charWidth: number, charHeight: number, charset: string, optsA?: object, optsB?: object) : object;
 	 */
 	spritefont: function (id, path, charWidth, charHeight, charset, optsA=null, optsB=null)
 	{
@@ -230,11 +256,10 @@ const res =
 	},
 
 	/**
-	 * 	Registers a JSON data resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
-	 * 
-	 * 	!static json (id: string, path: string, opts?: object) : object;
+	 * Registers a JSON data resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
+	 * !static json (id: string, path: string, opts?: object) : object;
 	 */
 	json: function (id, path, opts=null)
 	{
@@ -244,11 +269,10 @@ const res =
 	},
 
 	/**
-	 * 	Registers a binary data resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
-	 * 
-	 * 	!static data (id: string, path: string, opts?: object) : object;
+	 * Registers a binary data resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
+	 * !static data (id: string, path: string, opts?: object) : object;
 	 */
 	data: function (id, path, opts=null)
 	{
@@ -258,11 +282,10 @@ const res =
 	},
 
 	/**
-	 * 	Registers a text data resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
-	 * 
-	 * 	!static text (id: string, path: string, opts?: object) : object;
+	 * Registers a text data resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
+	 * !static text (id: string, path: string, opts?: object) : object;
 	 */
 	text: function (id, path, opts=null)
 	{
@@ -272,11 +295,10 @@ const res =
 	},
 
 	/**
-	 * 	Registers a sound effect audio resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
-	 * 
-	 * 	!static sfx (id: string, path: string, opts?: object) : object;
+	 * Registers a sound effect audio resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
+	 * !static sfx (id: string, path: string, opts?: object) : object;
 	 */
 	sfx: function (id, path, opts=null)
 	{
@@ -286,13 +308,12 @@ const res =
 	},
 
 	/**
-	 * 	Registers a multi sound effect audio resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "sound-##.ogg").
-	 * 	@param count - Number of sounds to load (from 0 to count-1).
-	 * 	@param mode - Playback mode, can be `sequential` (default) or `random`.
-	 * 
-	 * 	!static sfxm (id: string, path: string, count: number, mode?: string) : object;
+	 * Registers a multi sound effect audio resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file. Ensure to add the "#" marks to replace the file index (i.e. "sound-##.ogg").
+	 * @param count - Number of sounds to load (from 0 to count-1).
+	 * @param mode - Playback mode, can be `sequential` (default) or `random`.
+	 * !static sfxm (id: string, path: string, count: number, mode?: string) : object;
 	 */
 	sfxm: function (id, path, count, mode='sequential')
 	{
@@ -301,11 +322,10 @@ const res =
 	},
 
 	/**
-	 * 	Registers an music audio resource.
-	 * 	@param id - Resource identifier.
-	 * 	@param path - Path to the source file.
-	 * 
-	 * 	!static music (id: string, path: string) : object;
+	 * Registers an music audio resource.
+	 * @param id - Resource identifier.
+	 * @param path - Path to the source file.
+	 * !static music (id: string, path: string) : object;
 	 */
 	music: function (id, path)
 	{
