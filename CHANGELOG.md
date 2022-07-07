@@ -1,3 +1,27 @@
+# v2.2.11 - Jul 07 2022
+
+#### Element
+- Method `draw` now immediately returns if alpha is less than or equal to zer0.
+
+#### fxl.sys
+- Methods `timeout`, `interval` and `span` now return the Callback node.
+- Added `cancelTimeout`, `cancelInterval` and `cancelSpan` methods.
+
+#### Resources
+- Fixed bug introduced recently of an undeclared variable when loading audio.
+
+#### SpritesheetAnimation
+- Parameter `forced` added to `play` method.
+- Fixed frame index overflow bug.
+
+#### Spritesheet
+- Added support for configuration option `coords` containing the rectangle coords of each frame (x, y, w, h). When specified, overrides the automatic frame calculation.
+
+#### fxl.res
+- Added support for latest Spritesheet feature (coordinate based frames), method `frame` of object returned by `spritesheet` can be used to define frame coordinates.
+
+<br/>
+
 # v2.2.10 - Jun 20 2022
 
 #### SpritesheetAnimation
