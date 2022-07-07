@@ -1,4 +1,4 @@
-# v2.2.11 - Jul 07 2022
+# v2.2.12 - Jul 07 2022
 
 #### Element
 - Method `draw` now immediately returns if alpha is less than or equal to zer0.
