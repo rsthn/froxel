@@ -12,7 +12,7 @@
     },
     "scripts": {
         "test": "echo Ok",
-        "deploy": "pnpm build && pnpm tsdoc && node ./scripts/deploy.js",
+        "deploy": "shx rm -rf bin/template/node_modules && pnpm build && pnpm tsdoc && node ./scripts/deploy.js",
         "commit": "pnpm build && node ./scripts/commit.js",
         "tsdoc": "node ./scripts/tsdoc.js ./src/main.js ./dist/froxel.d.ts",
         "changes": "rose ./scripts/changes",
@@ -45,11 +45,12 @@
     "devDependencies": {
         "filereader": "^0.10.3",
         "image-size": "^1.0.1",
-        "parcel": "^2.6.2"
+        "parcel": "^2.6.2",
+        "shx": "^0.3.4"
     },
     "dependencies": {
         "fs-extra": "^10.1.0",
-        "rinn": "^2.0.45"
+        "rinn": "^2.0.47"
     },
     "files": [
         "dist/",
