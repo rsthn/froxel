@@ -364,7 +364,7 @@ export default Group.extend
 	 */
 	containsPoint: function(x, y)
 	{
-		if (!this.visible())
+		if (!this.visible() || this.alpha() <= 0)
 			return false;
 
 		return this.hitbox.bounds.containsPoint(x, y);

@@ -2,6 +2,7 @@
 import { Class } from 'rinn';
 import Stick from '../flow/stick.js';
 import Button from '../flow/button.js';
+import Group from '../flow/group.js';
 
 //![import '../flow/stick.js']
 //![import '../flow/button.js']
@@ -42,6 +43,12 @@ const Gamepad = Class.extend
 	_visible: true,
 
 	/**
+	 * Group containing all elements (buttons, sticks or user-added elements) that belong to the gamepad.
+	 * !readonly group: Group;
+	 */
+	group: null,
+
+	/**
 	 * Constructs a new gamepad object.
 	 * !constructor (scene: Scene, containerIndex: number);
 	 */
@@ -52,6 +59,8 @@ const Gamepad = Class.extend
 
 		this.scene = scene;
 		this.layer = scene.getContainer(containerIndex);
+
+		this.group = Group.Pool.alloc();
 	},
 
 	/**
@@ -68,6 +77,7 @@ const Gamepad = Class.extend
 		this.sticks[id] = stick;
 		this[id] = stick;
 
+		this.group.addChild(stick);
 		return stick;
 	},
 
@@ -82,6 +92,7 @@ const Gamepad = Class.extend
 		this.buttons[id] = button;
 		this[id] = button;
 
+		this.group.addChild(button);
 		return button;
 	},
 
