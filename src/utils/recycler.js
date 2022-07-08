@@ -42,6 +42,7 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 	targetClass.recyclerPoolMax = maxPoolSize;
 
 	targetClass.prototype.objectId = 0;
+	targetClass.prototype.objectRefs = 0;
 
 	targetClass.recyclerNextObjectId = 0;
 	targetClass.recyclerCreated = 0;
@@ -94,8 +95,9 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 		targetClass.recyclerActive++;
 
 		item.objectId = ++this.recyclerNextObjectId;
-		this.recyclerNextObjectId &= 0x7FFFFFFF;
+		item.objectRefs = 1;
 
+		this.recyclerNextObjectId &= 0x7FFFFFFF;
 		return item;
 	};
 
@@ -124,6 +126,9 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 			return this;
 		}
 
+		if (--this.objectRefs > 0)
+			return this;
+
 		this.__dtor();
 
 		this.objectId = 0;
@@ -146,6 +151,17 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 	{
 		this.objectId = Math.abs(this.objectId);
 		if (value) this.objectId = -this.objectId;
+		return this;
+	};
+
+	/**
+	 * Increases the internal reference counter by the specified value and returns the instance. If parameter is provided the default is 1.
+	 * @param {number} [count]
+	 * @returns {object}
+	 */
+	targetClass.prototype.instanceRef = function (count=1)
+	{
+		this.objectRefs += count;
 		return this;
 	};
 };
