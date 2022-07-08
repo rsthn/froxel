@@ -4776,7 +4776,7 @@ export class Scene
 	constructor (index: number, name?: string);
 
 	/**
-	 * Clears the scene leaving only viewports.
+	 * Clears the scene by removing all groups and clearing the containers, leaving only viewports alive.
 	 */
 	clear() : void;
 
@@ -6219,6 +6219,11 @@ export class res
 	 * Contains the buttons of the gamepad.
 	 */
 	readonly buttons: { [key:string]: Button };
+
+	/**
+	 * Group containing all elements (buttons, sticks or user-added elements) that belong to the gamepad.
+	 */
+	readonly group: Group;
 
 	/**
 	 * Constructs a new gamepad object.

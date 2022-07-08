@@ -1,3 +1,27 @@
+# v2.2.13 - Jul 08 2022
+
+#### Recycler
+- Added property `objectRefs` to recycler items to count the number of references to the instance.
+- Method `free` updated to destroy instance only when the `objectRefs` counter reaches zero.
+- 🌿 Added method `instanceRef` to increase the reference counter of an instance.
+
+#### SpritesheetAnimation
+- Fixed bug in Animation class causing `repeated` and other drawable wrappers not to work properly.
+
+#### Random
+- 🌿 Added property `count` indicating the number of times the generator was called.
+
+#### anim.Block
+- The `stamp` property is now set using a global counter instead of using a random value.
+
+#### Stick
+- Updated method `containsPoint` to return `false` if alpha is 0.
+
+#### Button
+- Updated method `containsPoint` to return `false` if alpha is 0.
+
+<br/>
+
 # v2.2.12 - Jul 07 2022
 
 #### Element
