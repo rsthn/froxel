@@ -223,7 +223,7 @@ const Scene = Class.extend
 	},
 
 	/**
-	 * Clears the scene leaving only viewports.
+	 * Clears the scene by removing all groups and clearing the containers, leaving only viewports alive.
 	 * !clear() : void;
 	 */
 	clear: function()

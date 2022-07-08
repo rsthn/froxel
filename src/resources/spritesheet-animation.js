@@ -163,7 +163,11 @@ export const Animation = Drawable.extend
 		return this.seq.group.length;
 	},
 
-	draw: function (g, x=0, y=0, width=null, height=null)
+	/**
+	 * Draws a section of the drawable on the canvas using full parameters.
+	 * !drawf (g: Canvas, sx:number, sy:number, swidth:number, sheight:number, tx:number, ty:number, twidth:number, theight:number, fwidth?:number|null, fheight?:number|null) : void;
+	 */
+	drawf: function (g, sx, sy, swidth, sheight, tx, ty, twidth, theight, fwidth=null, fheight=null)
 	{
 		// Update animation time only if not paused and system frame number has changed.
 		if (!this._paused)
@@ -231,7 +235,10 @@ export const Animation = Drawable.extend
 
 		// TODO optimize this to ensure t is always just a single image
 		for (let i = 0; i < t.length; i++)
-			this.anim.getFrame(t[i]).draw(g, x, y, width, height);
+		{
+			let frame = this.anim.getFrame(t[i]);
+			frame.drawf(g, frame.sx, frame.sy, frame.swidth, frame.sheight, tx, ty, twidth, theight, fwidth, fheight);
+		}
 
 		// Record system frame number to prevent double frame updates.
 		this.frameNumber = System.frameNumber;

@@ -138,10 +138,11 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 	};
 
 	/**
-	 * 	Sets a flag used to prevent the instance from being destroyed.
-	 * 	@returns {object}
+	 * Sets a flag used to prevent the instance from being destroyed.
+	 * @param {boolean} value
+	 * @returns {object}
 	 */
-	targetClass.prototype.lockInstance = function(value)
+	targetClass.prototype.lockInstance = function (value)
 	{
 		this.objectId = Math.abs(this.objectId);
 		if (value) this.objectId = -this.objectId;
