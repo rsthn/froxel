@@ -30,6 +30,11 @@ const Random = Class.extend
 	seed: 0,
 
 	/**
+	 * Number of times the generator has been called.
+	 */
+	count: 0,
+
+	/**
 	 * 	Initializes the instance of the pseudo-random number generator.
 	 * 	@param seed - Value to seed the random number generator. If none provided, default one (0xDAE7A5D3) will be used.
 	 *
@@ -37,7 +42,6 @@ const Random = Class.extend
 	 */
 	__ctor: function(seed=0xDAE7A5D3)
 	{
-		this.index = 0;
 		this.setSeed(seed);
 	},
 
@@ -50,6 +54,9 @@ const Random = Class.extend
 	setSeed: function(value)
 	{
 		this.seed = value;
+
+		this.index = 0;
+		this.count = 0;
 
 		this.state = [
 			0xA5F7310C, 0xEF731CF3, 0xFA784322, 0x7834FC31,
@@ -71,6 +78,8 @@ const Random = Class.extend
 	nextInt32: function ()
 	{
 		let a, b, c, d;
+
+		this.count = (this.count + 1) & 0x7FFFFFFF;
 
 		a = this.state[this.index];
 		c = this.state[(this.index + 13) & 15];

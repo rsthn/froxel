@@ -3,6 +3,13 @@ import { Class } from 'rinn';
 import List from '../utils/list.js';
 import Recycler from '../utils/recycler.js';
 
+let _stamp = 0;
+function getStamp()
+{
+	_stamp = (_stamp + 1) & 0x7FFFFFFF;
+	return _stamp;
+}
+
 //!class Block
 
 const Block = Class.extend
@@ -53,7 +60,7 @@ const Block = Class.extend
 		if (this.isFirst === false && this.current === null)
 		{
 			this.current = this.commands.bottom;
-			this.stamp = rand();
+			this.stamp = getStamp();
 		}
 
 		return cmd;
@@ -94,7 +101,7 @@ const Block = Class.extend
 		this.isFirst = true;
 		this.current = null;
 		this.time = time;
-		this.stamp = rand();
+		this.stamp = getStamp();
 
 		return this;
 	},
@@ -106,7 +113,7 @@ const Block = Class.extend
 	restart: function()
 	{
 		this.isFirst = true;
-		this.stamp = rand();
+		this.stamp = getStamp();
 
 		return this;
 	},

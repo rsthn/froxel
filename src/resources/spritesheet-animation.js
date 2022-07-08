@@ -110,6 +110,9 @@ export const Animation = Drawable.extend
 		return this;
 	},
 
+	/**
+	 * Adds a callback to be called when the animation finishes. Use `false` to clear all callbacks.
+	 */
 	then: function (callback, context=null)
 	{
 		if (callback === false && this.finishedCallback === this.thenCallback)
