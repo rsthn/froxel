@@ -116,7 +116,7 @@ const Canvas = function (options=null)
 
 	if (opts.gl === true && !headless)
 	{
-		this.gl = this.elem.getContext('webgl2', { desynchronized: false, alpha: false, stencil: true });
+		this.gl = this.elem.getContext('webgl2', { desynchronized: false, preserveDrawingBuffer: false, alpha: false, stencil: true });
 
 		globals.gl = this.gl
 		globals.shaderProgram = null;
@@ -300,8 +300,7 @@ Canvas.prototype.initGl = function ()
 
 		//@use location2d, frameTexCoords
 
-		void main ()
-		{
+		void main () {
 			gl_Position = location2d (location, f_depth);
 			texcoords = frameTexCoords(location);
 		}
@@ -318,12 +317,8 @@ Canvas.prototype.initGl = function ()
 
 		//@use frameTex
 
-		void main ()
-		{
-			color = frameTex(texcoords);
-
-			color.a *= f_alpha;
-			if (color.a <= 0.0) discard;
+		void main () {
+			color = frameTex(texcoords) * f_alpha;
 		}
 	`);
 
@@ -360,12 +355,8 @@ Canvas.prototype.initGl = function ()
 		in vec2 texcoords;
 		out vec4 color;
 
-		void main()
-		{
-			color = texture(texture0, texcoords);
-
-			color.a *= f_alpha;
-			if (color.a <= 0.0) discard;
+		void main() {
+			color = texture(texture0, texcoords) * f_alpha;
 		}
 	`);
 
@@ -395,7 +386,6 @@ Canvas.prototype.initGl = function ()
 	`
 		uniform sampler2D texture0;
 		in vec2 texcoords;
-
 		out vec4 color;
 
 		void main() {
@@ -448,8 +438,13 @@ Canvas.prototype.initGl = function ()
 	gl.clearDepth (0.0);
 	gl.depthFunc (gl.GEQUAL);
 
+	gl.disable(gl.DITHER);
+
+	// pre-multiplied blending
 	gl.enable (gl.BLEND);
-	gl.blendFunc (gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	gl.pixelStorei (gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+	gl.blendEquationSeparate (gl.FUNC_ADD, gl.FUNC_ADD);
+	gl.blendFunc (gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
 	/**
 	 * 	Setup frame buffer.
@@ -1314,7 +1309,8 @@ Canvas.prototype.clear = function (backgroundColor=null)
 {
 	if (this.gl != null)
 	{
-		this.gl.clear(this.gl.STENCIL_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
+		//this.gl.clear(this.gl.STENCIL_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
+		this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
 		this.activeTextureId = null;
 
 		return this;
@@ -1357,11 +1353,11 @@ Canvas.prototype.flush = function ()
 	let gl = this.gl;
 	if (gl === null) return;
 
-	gl.colorMask (false, false, false, true);
-	gl.clear (gl.COLOR_BUFFER_BIT);
-	gl.colorMask (true, true, true, true);
+	//gl.colorMask (false, false, false, true);
+	//gl.clear (gl.COLOR_BUFFER_BIT);
+	//gl.colorMask (true, true, true, true);
 
-	// VIOLET: Add gl.flush() if not using RAF.
+	// NOTE Add gl.flush() if not using RAF.
 };
 
 /**

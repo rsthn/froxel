@@ -191,3 +191,19 @@ glsl.set('align', `
 		return floor(value/step)*step;
 	}
 `);
+
+glsl.set('sqwave', `
+	float sqwave (float time, float period, float dcycle) {
+		return step(mod(time, period) - dcycle*period, 0.0);
+	}
+`);
+
+glsl.set('mask', `
+	float mask (float alpha) {
+		return 1.0 - step(alpha, 0.0);
+	}
+
+	float mask (vec4 color) {
+		return 1.0 - step(color.a, 0.0);
+	}
+`);
