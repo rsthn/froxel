@@ -319,6 +319,7 @@ Canvas.prototype.initGl = function ()
 
 		void main () {
 			color = frameTex(texcoords) * f_alpha;
+			if (color.a == 0.0) discard;
 		}
 	`);
 
@@ -357,6 +358,7 @@ Canvas.prototype.initGl = function ()
 
 		void main() {
 			color = texture(texture0, texcoords) * f_alpha;
+			if (color.a == 0.0) discard;
 		}
 	`);
 
@@ -514,6 +516,7 @@ Canvas.prototype.initGl = function ()
 		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 	};
 
+	// TODO test if this still works
 	// drawRect (float x, float y, float w, float h, Image img=null);
 	this.drawRect = function (x, y, w, h, img=null)
 	{
@@ -1309,8 +1312,7 @@ Canvas.prototype.clear = function (backgroundColor=null)
 {
 	if (this.gl != null)
 	{
-		//this.gl.clear(this.gl.STENCIL_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
-		this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
+		this.gl.clear(this.gl.STENCIL_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
 		this.activeTextureId = null;
 
 		return this;

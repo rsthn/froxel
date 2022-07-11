@@ -133,7 +133,12 @@ glsl.set('invertY', `
 	}
 `);
 
+// Returns the normalized (0 to 1) value for the given signed-normalized (-1 to 1) value.
 glsl.set('norm', `
+	float norm (float value) {
+		return (value + 1.0) * 0.5;
+	}
+
 	vec2 norm (vec2 value) {
 		return (value + 1.0) * 0.5;
 	}
@@ -143,7 +148,12 @@ glsl.set('norm', `
 	}
 `);
 
+// Returns the signed-normalized (-1 to 1) value for the given normalized (0 to 1) value.
 glsl.set('snorm', `
+	float snorm (float value) {
+		return value * 2.0 - 1.0;
+	}
+
 	vec2 snorm (vec2 value) {
 		return value * 2.0 - 1.0;
 	}
