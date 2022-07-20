@@ -1,3 +1,15 @@
+# v2.2.14 - Jul 20 2022
+
+#### glsl
+- Added function `mask` taking a float or a vec4 as argument and returns 0.0 when the alpha is 0.0 or 1.0 otherwise.
+- Added function `sqwave` that returns a square wave value (1.0 or 0.0) for the given time, period and duty cycle parameters.
+
+#### Canvas
+- Updated `initGl` to set UNPACK_PREMULTIPLY_ALPHA_WEBGL to ensure all textures are treated as premultiplied-alpha textures.
+- Updated default fragment shaders since textures values are now premultiplied alpha.
+
+<br/>
+
 # v2.2.13 - Jul 08 2022
 
 #### Recycler
