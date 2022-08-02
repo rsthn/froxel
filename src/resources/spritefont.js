@@ -156,33 +156,3 @@ export default Class.extend
 		return this.charHeight - 2*this.paddingY + this.spacingY;
 	}
 });
-
-
-Canvas.prototype.drawText = function (r, x, y, text)
-{
-	r.drawText (this, x, y, text);
-};
-
-Canvas.prototype.drawTextAligned = function (r, x, y, w, h, ax, ay, text)
-{
-	if (ax == 0) // Align-Center
-		x = x + ((w - r.measureWidth(text)) >> 1);
-	else if (ax < 0) // Align-Left
-		x = x - ax - 1;
-	else if (ax > 0) // Align-Right
-		x = x + w - ax + 1 - r.measureWidth(text);
-
-	if (ay == 0) // Align-Center
-		y = y + ((h - r.measureHeight(text)) >> 1);
-	else if (ay < 0) // Align-Top
-		y = y - ay - 1;
-	else if (ay > 0) // Align-Bottom
-		y = y + h - ay + 1 - r.measureHeight(text);
-
-	r.drawText (this, x, y, text);
-};
-
-Canvas.prototype.drawTextAligned2 = function (r, bounds, ax, ay, text)
-{
-	this.drawTextAligned (r, bounds.x1, bounds.y1, bounds.width(), bounds.height(), ax, ay, text);
-};

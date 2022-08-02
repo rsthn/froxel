@@ -24,12 +24,6 @@ const globals =
 	gl: null,
 
 	/**
-	 * Currently active shader program.
-	 * !let shaderProgram: ShaderProgram;
-	 */
-	shaderProgram: null,
-
-	/**
 	 * Global system time, updated once per frame. Mirrors the `System.frameTime` property.
 	 * !let time: number;
 	 */

@@ -151,4 +151,30 @@ export default
 	//!Y
 	Z: 90,
 	//!Z
+
+	BACKQUOTE: 192,
+	//!BACKQUOTE
+	MINUS: 173,
+	//!MINUS
+	EQUAL: 61,
+	//!EQUAL
+
+	LBRACKET: 219,
+	//!LBRACKET
+	RBRACKET: 221,
+	//!RBRACKET
+	BACKSLASH: 220,
+	//!BACKSLASH
+
+	SEMICOLON: 59,
+	//!SEMICOLON
+	QUOTE: 222,
+	//!QUOTE
+
+	COMMA: 188,
+	//!COMMA
+	DOT: 190,
+	//!DOT
+	SLASH: 191,
+	//!SLASH
 };

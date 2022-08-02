@@ -1,5 +1,6 @@
 
 import { Class } from 'rinn';
+import Canvas from './canvas';
 import glx from './glx';
 
 //!namespace Texture
@@ -79,6 +80,11 @@ export default Class.extend
 	allocated: false,
 
 	/**
+	 * Canvas currently attached to the texture.
+	 */
+	canvas: null,
+
+	/**
 	 * Creates an empty texture of the specified size.
 	 * !constructor (width: number, height: number, targetWidth?: number, targetHeight?: number);
 	 */
@@ -128,15 +134,19 @@ export default Class.extend
 		if (this.allocated === true)
 			return this;
 
+		this.allocated = true;
+
 		const gl = this.bind();
+
+		this.applyFilter(gl);
+		this.applyWrap(gl);
 
 		if (this.mipmap > 0)
 			gl.texStorage2D(gl.TEXTURE_2D, this.mipmap, gl.RGBA8, this.width, this.height);
 		else
 			gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, this.width, this.height);
 
-		this.allocated = true;
-		return gl;
+		return this;
 	},
 
 	/**
@@ -256,9 +266,94 @@ export default Class.extend
 		if (this.mipmap > 0)
 			gl.generateMipmap(gl.TEXTURE_2D);
 
-		this.applyFilter(gl);
-		this.applyWrap(gl);
+		return this;
+	},
 
+	/**
+	 * Creates a canvas and attaches it to the texture. The contents of the attached canvas can be uploaded to the texture by calling the `uploadCanvas` method.
+	 * !getCanvas (options?: Canvas.Options) : Texture;
+	 */
+	createCanvas: function (options=null)
+	{
+		if (this.canvas === null)
+			this.canvas = new Canvas ({ gl: false, hidden: true, width: this.width, height: this.height, antialias: this.filter === 'LINEAR', ...options });
+
+		return this;
+	},
+
+	/**
+	 * Returns the canvas attached to the texture or `null` if no canvas has been created yet (use `createCanvas` first).
+	 * !getCanvas() : Canvas;
+	 */
+	getCanvas: function ()
+	{
+		return this.canvas;
+	},
+
+	/**
+	 * Uploads the bitmap data from the attached canvas to the texture. The callback is called when the upload is completed.
+	 * @returns {Texture}
+	 * !uploadCanvas (callback?: () => void) : Texture;
+	 */
+	uploadCanvas: function (callback=null)
+	{
+		if (this.canvas === null)
+		{
+			if (callback !== null) callback();
+			return this;
+		}
+
+		let img = new Image();
+		img.onload = () =>
+		{
+			this.upload(img);
+			img = null;
+
+			if (callback !== null) callback();
+		};
+
+		img.src = this.canvas.toDataUrl();
+		return this;
+	},
+
+	/**
+	 * Disposes the attached canvas.
+	 * @returns {Texture}
+	 */
+	disposeCanvas: function ()
+	{
+		if (this.canvas !== null)
+		{
+			this.canvas.dispose();
+			this.canvas = null;
+		}
+
+		return this;
+	},
+
+	/**
+	 * Allocates a canvas, executes the given render function, uploads the result to the texture and disposes the canvas.
+	 * @param {Canvas.Options} options
+	 * @param {(g: Canvas) => void} render
+	 * !uploadRender (options: Canvas.Options, render: (g: Canvas) => void) : Texture;
+	 */
+	/**
+	 * Allocates a canvas, executes the given render function, uploads the result to the texture and disposes the canvas.
+	 * @param {(g: Canvas) => void} render
+	 * !uploadRender (render: (g: Canvas) => void) : Texture;
+	 */
+	uploadRender: function (options, render=null)
+	{
+		if (typeof(options) === 'function')
+		{
+			render = options;
+			options = null;
+		}
+
+		render(this.createCanvas(options));
+
+		this.uploadCanvas();
+		this.disposeCanvas();
 		return this;
 	}
 });

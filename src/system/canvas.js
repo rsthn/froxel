@@ -118,11 +118,10 @@ const Canvas = function (options=null)
 	{
 		this.gl = this.elem.getContext('webgl2', { desynchronized: false, preserveDrawingBuffer: false, alpha: false, stencil: true });
 
-		globals.gl = this.gl
-		globals.shaderProgram = null;
+		if (globals.gl === null)
+			glx.setContext(globals.gl = this.gl);
 
-		glx.setContext(this.gl);
-
+		this.shaderProgram = null;
 		this.context = null;
 
 		Log.write(glx.getParameter('VERSION') + ', ' + glx.getParameter('SHADING_LANGUAGE_VERSION'));
@@ -428,8 +427,8 @@ Canvas.prototype.initGl = function ()
 
 	glx.createBufferFrom([ 0.0, 0.0, 1.0,  0.0, 1.0, 1.0,  1.0, 0.0, 1.0,  1.0, 1.0, 1.0 ], glx.BufferTarget.ARRAY_BUFFER, glx.BufferUsage.STATIC_DRAW);
 
-	gl.vertexAttribPointer(globals.shaderProgram.getAttribLocation('location'), 3, gl.FLOAT, gl.FALSE, 3*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
-	gl.enableVertexAttribArray(globals.shaderProgram.getAttribLocation('location'));
+	gl.vertexAttribPointer(this.shaderProgram.getAttribLocation('location'), 3, gl.FLOAT, gl.FALSE, 3*Float32Array.BYTES_PER_ELEMENT, 0*Float32Array.BYTES_PER_ELEMENT);
+	gl.enableVertexAttribArray(this.shaderProgram.getAttribLocation('location'));
 
 	/**
 	 * 	Setup initial GL configuration.
@@ -468,7 +467,7 @@ Canvas.prototype.initGl = function ()
 			return;
 
 		let gl = this.gl;
-		let program = globals.shaderProgram;
+		let program = this.shaderProgram;
 
 		if (textureWidth === null)
 		{
@@ -521,7 +520,7 @@ Canvas.prototype.initGl = function ()
 	this.drawRect = function (x, y, w, h, img=null)
 	{
 		let gl = this.gl;
-		let program = globals.shaderProgram;
+		let program = this.shaderProgram;
 
 		program.uniform4fv ('v_resolution', this.v_resolution);
 		program.uniform1f ('f_time', globals.time);
@@ -565,7 +564,6 @@ Canvas.prototype.prepareImage = function (image)
  */
 Canvas.prototype.createTexture = function (width, height, filter='NEAREST', mipmap=0)
 {
-	console.log('createTexture');
 	return new Texture (width, height).setFilter(filter).setMipmap(mipmap).allocate();
 };
 
@@ -1543,8 +1541,8 @@ Canvas.prototype.setShaderProgram = function (program)
 	let gl = this.gl;
 	if (gl === null) return;
 
-	globals.shaderProgram = program;
-	globals.shaderProgram.activate();
+	this.shaderProgram = program;
+	this.shaderProgram.activate();
 };
 
 /*
@@ -1552,7 +1550,7 @@ Canvas.prototype.setShaderProgram = function (program)
 */
 Canvas.prototype.getShaderProgram = function ()
 {
-	return globals.shaderProgram;
+	return this.shaderProgram;
 };
 
 /*
@@ -1563,16 +1561,16 @@ Canvas.prototype.pushShaderProgram = function (program=null)
 {
 	if (program !== null)
 	{
-		if (program === globals.shaderProgram)
+		if (program === this.shaderProgram)
 			return false;
 
-		this.shaderProgramStack.push(globals.shaderProgram);
+		this.shaderProgramStack.push(this.shaderProgram);
 		this.setShaderProgram(program);
 
 		return true;
 	}
 
-	this.shaderProgramStack.push(globals.shaderProgram);
+	this.shaderProgramStack.push(this.shaderProgram);
 };
 
 /*
@@ -1906,7 +1904,7 @@ Canvas.prototype.removePointerHandler = function (id)
  */
 Canvas.renderImage = function (width, height, draw, completed)
 {
-	let g = new Canvas({ hidden: true, width: width, height: height, antialias: System.options.antialias });
+	let g = new Canvas ({ hidden: true, width: width, height: height, antialias: System.options.antialias });
 
 	draw(g);
 	let url = g.toDataUrl();
@@ -1934,7 +1932,7 @@ Canvas.renderImage = function (width, height, draw, completed)
  */
 Canvas.renderImageMipmap = function (levels, width, height, draw, completed)
 {
-	let g = new Canvas({ hidden: true, width: width, height: height, antialias: System.options.antialias });
+	let g = new Canvas ({ hidden: true, width: width, height: height, antialias: System.options.antialias });
 
 	draw(g);
 	let url = g.toDataUrl();

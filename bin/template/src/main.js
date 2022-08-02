@@ -2,7 +2,7 @@
 import fxl, { Bounds2 } from 'froxel';
 
 /**
- *	Entry point.
+ * Entry point.
  */
 async function main()
 {
@@ -74,6 +74,6 @@ async function main()
 }
 
 /**
- * 	Execute entry point.
+ * Execute entry point.
  */
 main();

@@ -112,6 +112,17 @@ export enum KeyCode
 	X,
 	Y,
 	Z,
+	BACKQUOTE,
+	MINUS,
+	EQUAL,
+	LBRACKET,
+	RBRACKET,
+	BACKSLASH,
+	SEMICOLON,
+	QUOTE,
+	COMMA,
+	DOT,
+	SLASH,
 }
 /**
  * 	Provides functions to attach recycling functionality to any class for object pooling.
@@ -5636,140 +5647,144 @@ export class Button extends Group
 export class Stick extends Group
 {
 	/**
-	 * 	Indicates if once focus is obtained it is locked until the user releases it.
-	 * 	@default true
+	 * Indicates if once focus is obtained it is locked until the user releases it.
+	 * @default true
 	 */
 	focusLock: boolean;
 
 	/**
-	 * 	Indicates if keyboard events are enabled on this object.
-	 * 	@default true
+	 * Current pressed status of the stick.
 	 */
-	keyboardEvents: boolean;
+	readonly isPressed: boolean;
 
 	/**
-	 * 	Current pressed status of the stick.
+	 * Previous pressed status of the stick.
 	 */
-	isPressed: boolean;
+	readonly wasPressed: boolean;
 
 	/**
-	 * 	Previous pressed status of the stick.
+	 * Image to draw when the stick is unpressed (outer circle).
 	 */
-	wasPressed: boolean;
+	readonly unpressedImg: Drawable;
 
 	/**
-	 * 	Image to draw when the stick is unpressed (outer circle).
+	 * Image to draw when the stick is pressed (outer circle).
 	 */
-	unpressedImg: Drawable;
+	readonly pressedImg: Drawable;
 
 	/**
-	 * 	Image to draw when the stick is pressed (outer circle).
+	 * Image to draw when the stick is unpressed (inner circle).
 	 */
-	pressedImg: Drawable;
+	readonly unpressedImgInner: Drawable;
 
 	/**
-	 * 	Image to draw when the stick is unpressed (inner circle).
+	 * Image to draw when the stick is pressed (inner circle).
 	 */
-	unpressedImgInner: Drawable;
+	readonly pressedImgInner: Drawable;
 
 	/**
-	 * 	Image to draw when the stick is pressed (inner circle).
+	 * Number of steps for the angle. Used to snap the stick movement to discrete steps.
 	 */
-	pressedImgInner: Drawable;
+	readonly angleSteps: number;
 
 	/**
-	 * 	Number of steps for the angle. Used to snap the stick movement to discrete steps.
+	 * Number of steps for the radius of the stick. Used to snap the stick movement to discrete steps.
 	 */
-	angleSteps: number;
+	readonly radiusSteps: number;
 
 	/**
-	 * 	Number of steps for the radius of the stick. Used to snap the stick movement to discrete steps.
+	 * Raw direction in the X-axis.
 	 */
-	radiusSteps: number;
+	readonly rdirx: number;
 
 	/**
-	 * 	Creates the stick with the specified parameters. Automatically adds it to the screen controls.
+	 * Raw direction in the Y-axis.
+	 */
+	readonly rdiry: number;
+
+	/**
+	 * Normalized direction in the Y-axis.
+	 */
+	readonly diry: number;
+
+	/**
+	 * Magnitude of the direction vector.
+	 */
+	readonly magnitude: number;
+
+	/**
+	 * Angle of the direction vector.
+	 */
+	readonly angle: number;
+
+	/**
+	 * Creates the stick with the specified parameters. Automatically adds it to the screen controls.
 	 */
 	constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: Drawable, unpressedImgInner: Drawable, pressedImg?: Drawable, pressedImgInner?: Drawable);
 
 	/**
-	 * 	Changes the pressed/unpressed images of the outer stick.
+	 * Binds the stick to the specified keycodes and enables keyboard events.
+	 */
+	bindKeys (up?: number, down?: number, left?: number, right?: number) : Stick;
+
+	/**
+	 * Returns the state of the keyboard events enable flag.
+	 */
+	keysEnabled () : Stick;
+
+	/**
+	 * Enables or disables keyboard interaction with the stick.
+	 */
+	keysEnabled (value: boolean) : Stick;
+
+	/**
+	 * Changes the pressed/unpressed images of the outer stick.
 	 */
 	setImage (unpressedImg: Drawable, pressedImg?: Drawable) : Stick;
 
 	/**
-	 * 	Changes the pressed/unpressed images of the inner stick.
+	 * Changes the pressed/unpressed images of the inner stick.
 	 */
 	setImageInner (unpressedImg: Drawable, pressedImg?: Drawable) : Stick;
 
 	/**
-	 * 	Sets the number of angle-steps for the stick.
+	 * Sets the number of angle-steps for the stick.
 	 */
 	setAngleSteps (n: number) : Stick;
 
 	/**
-	 * 	Sets the number of radius-steps for the stick.
+	 * Sets the number of radius-steps for the stick.
 	 */
 	setRadiusSteps (n: number) : Stick;
 
 	/**
-	 * 	Sets the dead zone values (normalized).
+	 * Sets the dead zone values (normalized).
 	 */
 	setDeadZone (deadZoneX: number, deadZoneY: number) : Stick;
 
 	/**
-	 * 	Resets the button to its initial state.
+	 * Resets the button to its initial state.
 	 */
 	reset() : Stick;
 
 	/**
-	 * 	Renders the stick in the canvas.
-	 */
-	renderStick (g: Canvas) : void;
-
-	/**
-	 * 	Button pointer update event. Not required for the button control.
-	 */
-	pointerUpdate (pointerX: number, pointerY: number, pointer: object) : void;
-
-	/**
-	 * 	Called when the PointerEventType.POINTER_DOWN event starts within the bounding box of the stick.
-	 */
-	pointerActivate (pointer: object) : void;
-
-	/**
-	 * 	Called when the PointerEventType.POINTER_UP event is fired with the "_ref" attribute pointing to this object.
-	 */
-	pointerDeactivate (pointer: object) : void;
-
-	/**
-	 * 	Returns `true` if the stick contains the specified point.
+	 * Returns `true` if the stick contains the specified point.
 	 */
 	containsPoint (x: number, y: number) : boolean;
 
 	/**
-	 * 	Sets the direction of the stick, the provided deltas should be normalized in the [-1, 1] range.
+	 * Sets the direction of the stick, the provided deltas should be normalized in the [-1, 1] range.
 	 */
 	setDirection (dx: number, dy: number, deadZoneX?: number, deadZoneY?: number) : boolean;
 
 	/**
-	 * 	Saves the current state of the stick in the f* variables (fdirx, fdiry, etc). When the `lastValid` parameter is true, the values will
-	 * 	be saved on each field only if the current value is not zero.
+	 * Saves the current state of the stick in the froxen state variables (fdirx, fdiry, etc). When the `lastValid` parameter is `true`, the values
+	 * will be saved only if the current value of each field is not zero.
 	 */
 	freezeState (lastValid?: boolean) : Stick;
 
 	/**
-	 * 	Key down event, handles the keys that control the direction of the stick.
-	 */
-	keyDown (keyCode: KeyCode, keyArgs: object) : boolean|null;
-
-	/**
-	 * 	Key up event, handles the keys that control the direction of the stick.
-	 */
-	keyUp (keyCode: KeyCode, keyArgs: object) : boolean|null;
-
-	/**
-	 * 	Sets the handler for the on-change event. Executed after any change in the direction of the stick.
+	 * Sets the handler for the on-change event. Executed after any change in the direction of the stick.
 	 */
 	onChange (callback: (dirx: number, diry: number, magnitude: number, angle: number, stick: Stick) => void) : Stick;
 

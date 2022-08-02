@@ -33,13 +33,13 @@ const system =
 
 	/**
 	 * Logical system time (mirrors the value of System.frameTime).
-	 * !static readonly time: Number;
+	 * !static readonly time: number;
 	 */
 	time: 0,
 
 	/**
 	 * Logical system delta time (mirrors the value of System.frameDelta).
-	 * !static readonly dt: Number;
+	 * !static readonly dt: number;
 	 */
 	dt: 0,
 
