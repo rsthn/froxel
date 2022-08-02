@@ -1187,6 +1187,35 @@ export class Texture
 	 */
 	upload (image: object, targetX?: number, targetY?: number) : Texture;
 
+	/**
+	 * Creates a canvas and attaches it to the texture. The contents of the attached canvas can be uploaded to the texture by calling the `uploadCanvas` method.
+	 */
+	getCanvas (options?: Canvas.Options) : Texture;
+
+	/**
+	 * Returns the canvas attached to the texture or `null` if no canvas has been created yet (use `createCanvas` first).
+	 */
+	getCanvas() : Canvas;
+
+	/**
+	 * Uploads the bitmap data from the attached canvas to the texture. The callback is called when the upload is completed.
+	 * @returns {Texture}
+	 */
+	uploadCanvas (callback?: () => void) : Texture;
+
+	/**
+	 * Allocates a canvas, executes the given render function, uploads the result to the texture and disposes the canvas.
+	 * @param {Canvas.Options} options
+	 * @param {(g: Canvas) => void} render
+	 */
+	uploadRender (options: Canvas.Options, render: (g: Canvas) => void) : Texture;
+
+	/**
+	 * Allocates a canvas, executes the given render function, uploads the result to the texture and disposes the canvas.
+	 * @param {(g: Canvas) => void} render
+	 */
+	uploadRender (render: (g: Canvas) => void) : Texture;
+
 }
 export namespace Canvas
 {
@@ -2599,11 +2628,6 @@ export namespace globals
 	 * Renderer's GL context.
 	 */
 	let gl: WebGL2RenderingContext;
-
-	/**
-	 * Currently active shader program.
-	 */
-	let shaderProgram: ShaderProgram;
 
 	/**
 	 * Global system time, updated once per frame. Mirrors the `System.frameTime` property.
@@ -5811,12 +5835,12 @@ export namespace fxl
 	/**
 	 * Logical system time (mirrors the value of System.frameTime).
 	 */
-	static readonly time: Number;
+	static readonly time: number;
 
 	/**
 	 * Logical system delta time (mirrors the value of System.frameDelta).
 	 */
-	static readonly dt: Number;
+	static readonly dt: number;
 
 	/**
 	 * Update handler executed on every frame start.

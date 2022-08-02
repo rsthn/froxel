@@ -1,3 +1,33 @@
+# v2.2.15 - Aug 02 2022
+
+#### Stick
+- Fixed bug calculating wrong direction when using the stick with the arrow keys.
+- ⚠ Keyboard events are no longer enabled by default, use new methods `bindKeys` and `keysEnabled` to properly activate it.
+- New method `bindKeys` allows the key codes for the `UP`, `DOWN`, `LEFT` and `RIGHT` keys to be specified if desired.
+- Method `keysEnabled` returns or sets the keyboard interaction enabled state.
+
+#### KeyCode
+- Added constants for BACKQUOTE, MINUS, EQUAL, LBRACKET, RBRACKET, BACKSLASH, SEMICOLON, QUOTE, COMMA, DOT and SLASH.
+
+#### Texture
+- Fixed bug in `allocate` method not returning the texture itself.
+- 🌿 Added `createCanvas` method to create a canvas and attach it to the texture to draw easily. Only 2D canvases supported at the moment.
+- 🌿 Method `getCanvas` has been added, returns the currently attached canvas.
+- 🌿 Added method `uploadCanvas` to upload the attached canvas bitmap data to the texture.
+- 🌿 Added method `disposeCanvas` to dispose a previously attached canvas.
+- 🌿 Added method `uploadRender` as a shorthand method for allocating a canvas, drawing on it, uploading it to the texture and disposing the canvas.
+
+#### globals
+- 🔻 Removed `shaderProgram` from globals because it is not used anywhere now.
+
+#### Canvas
+- Added property `shaderProgram` indicating which program the canvas is currently using.
+
+#### Spritefont
+- 🔻 Removed methods `drawText`, `drawTextAligned` and `drawTextAligned2` that were attached to the Canvas prototype.
+
+<br/>
+
 # v2.2.14 - Jul 20 2022
 
 #### glsl
