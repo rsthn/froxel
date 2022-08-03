@@ -156,6 +156,8 @@ const Label = Element.extend
 			this.textHeight = this.font.measureHeight(this.text);
 
 			this._dirty = false;
+
+			this.bounds.resize(this.textWidth, this.textHeight, true);
 		}
 
 		if (this.textOffsetX === null)
@@ -165,7 +167,6 @@ const Label = Element.extend
 			else this.textOffsetX = -this.textWidth;
 
 			this.bounds.translate(-this.bounds.x1 + this.sx + this.textOffsetX, 0);
-			this.bounds.resize(this.textWidth, null, true);
 		}
 
 		if (this.textOffsetY === null)
@@ -175,7 +176,6 @@ const Label = Element.extend
 			else this.textOffsetY = -this.textHeight;
 
 			this.bounds.translate(0, -this.bounds.y1 + this.sy + this.textOffsetY);
-			this.bounds.resize(null, this.textHeight, true);
 		}
 
 		return this;
@@ -188,9 +188,15 @@ const Label = Element.extend
 	 */
 	translate: function (dx, dy, upscaled=false)
 	{
-		this.sx += upscaled === true ? downscale(dx) : dx;
-		this.sy += upscaled === true ? downscale(dy) : dy;
-		return this._super.Element.translate(dx, dy, upscaled);
+		this._super.Element.translate(dx, dy, upscaled);
+
+		this.sx = this.bounds.x1;
+		this.sy = this.bounds.y1;
+
+		this.textOffsetX = null;
+		this.textOffsetY = null;
+
+		return this.update();
 	},
 
 	/**
