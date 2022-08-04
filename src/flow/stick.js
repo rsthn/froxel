@@ -158,6 +158,12 @@ export default Group.extend
 	RIGHT: null,
  
 	/**
+	 * Maximum limits for the stick dragging.
+	 */
+	limitX1: null, limitY1: null,
+	limitX2: null, limitY2: null,
+
+	/**
 	 * Creates the stick with the specified parameters. Automatically adds it to the screen controls.
 	 * !constructor (container: Container, x: number, y: number, maxRadius: number, unpressedImg: Drawable, unpressedImgInner: Drawable, pressedImg?: Drawable, pressedImgInner?: Drawable);
 	 */
@@ -173,8 +179,13 @@ export default Group.extend
 
 		this.maxRadius = maxRadius;
 
-		this.deadZoneX = 0;
-		this.deadZoneY = 0;
+		this.deadZoneX = 0.0;
+		this.deadZoneY = 0.0;
+
+		this.limitX1 = false;
+		this.limitY1 = false;
+		this.limitX2 = false;
+		this.limitY2 = false;
 
 		this.hitbox = Mask.Pool.alloc (0, x, y, (this.unpressedImg ?? this.unpressedImgInner).width, (this.unpressedImg ?? this.unpressedImgInner).height).visible(false).visibleLock(true).debug(2);
 		this.addChild(this.hitbox);
@@ -230,6 +241,19 @@ export default Group.extend
 	},
 
 	/**
+	 * Sets the maximum dragging limits for the stick. Values of `false` will disable dragging in the respective axis. And `null` will cause the axis to be unlimited.
+	 * !setLimits (x1: number|boolean|null, y1: number|boolean|null, x2: number|null, y2: number|null) : Stick;
+	 */
+	setLimits: function (x1, y1, x2, y2)
+	{
+		this.limitX1 = x1;
+		this.limitY1 = y1;
+		this.limitX2 = x2;
+		this.limitY2 = y2;
+		return this;
+	},
+
+	/**
 	 * Changes the pressed/unpressed images of the outer stick.
 	 * !setImage (unpressedImg: Drawable, pressedImg?: Drawable) : Stick;
 	 */
@@ -275,10 +299,14 @@ export default Group.extend
 	 * Sets the dead zone values (normalized).
 	 * !setDeadZone (deadZoneX: number, deadZoneY: number) : Stick;
 	 */
-	setDeadZone: function (deadZoneX, deadZoneY)
+	/**
+	 * Sets the dead zone values (normalized).
+	 * !setDeadZone (deadZone: number) : Stick;
+	 */
+	setDeadZone: function (deadZoneX, deadZoneY=null)
 	{
 		this.deadZoneX = deadZoneX;
-		this.deadZoneY = deadZoneY;
+		this.deadZoneY = deadZoneY ?? deadZoneX;
 
 		return this;
 	},
@@ -313,18 +341,18 @@ export default Group.extend
 		if (elem.isPressed)
 		{
 			if (elem.pressedImg)
-				elem.pressedImg.draw (g, elem.bounds.x1, elem.bounds.y1);
+				elem.pressedImg.draw (g, elem.bounds.x1 + elem.refX, elem.bounds.y1 + elem.refY);
 
 			if (elem.pressedImgInner)
-				elem.pressedImgInner.draw (g, elem.bounds.x1 + elem.dispx, elem.bounds.y1 + elem.dispy);
+				elem.pressedImgInner.draw (g, elem.bounds.x1 + elem.refX + elem.dispx, elem.bounds.y1 + elem.refY + elem.dispy);
 		}
 		else
 		{
 			if (elem.unpressedImg)
-				elem.unpressedImg.draw (g, elem.bounds.x1, elem.bounds.y1);
+				elem.unpressedImg.draw (g, elem.bounds.x1 + elem.refX, elem.bounds.y1 + elem.refY);
 
 			if (elem.unpressedImgInner)
-				elem.unpressedImgInner.draw (g, elem.bounds.x1, elem.bounds.y1);
+				elem.unpressedImgInner.draw (g, elem.bounds.x1 + elem.refX, elem.bounds.y1 + elem.refY);
 		}
 	},
 
@@ -335,14 +363,29 @@ export default Group.extend
 	{
 		let dx, dy;
 
-		dx = pointerX - this.refX;
-		dy = pointerY - this.refY;
+		dx = pointerX - (this.bounds.cx + this.refX);
+		dy = pointerY - (this.bounds.cy + this.refY);
 
 		this.angle = Math.atan2(-dy, dx);
 		this.radius = Math.sqrt(dx*dx + dy*dy);
 
 		if (this.radius > this.maxRadius)
+		{
+console.log(this.limitX1, this.limitY1, this.limitX2, this.limitY2);
+			if (this.limitX1 !== false) {
+				this.refX += Math.cos(this.angle)*(this.radius - this.maxRadius);
+				if (this.limitX1 !== null && (this.bounds.cx+this.refX) < this.limitX1) this.refX = this.limitX1 - this.bounds.cx;
+				if (this.limitX2 !== null && (this.bounds.cx+this.refX) > this.limitX2) this.refX = this.limitX2 - this.bounds.cx;
+			}
+
+			if (this.limitY1 !== false) {
+				this.refY += -Math.sin(this.angle)*(this.radius - this.maxRadius);
+				if (this.limitY1 !== null && (this.bounds.cy+this.refY) < this.limitY1) this.refY = this.limitY1 - this.bounds.cy;
+				if (this.limitY2 !== null && (this.bounds.cy+this.refY) > this.limitY2) this.refY = this.limitY2 - this.bounds.cy;
+			}
+
 			this.radius = this.maxRadius;
+		}
 
 		if (this.angleSteps)
 		{
@@ -399,8 +442,8 @@ export default Group.extend
 		this.wasPressed = this.isPressed;
 		this.isPressed = 1;
 
-		this.refX = pointer.x;
-		this.refY = pointer.y;
+		this.refX = 0;
+		this.refY = 0;
 
 		this.pointerUpdate(pointer.x, pointer.y);
 	},
@@ -412,6 +455,9 @@ export default Group.extend
 	{
 		this.wasPressed = this.isPressed;
 		this.isPressed = 0;
+
+		this.refX = 0;
+		this.refY = 0;
 
 		this.reset();
 	},
@@ -470,8 +516,8 @@ export default Group.extend
 		let dx = 0;
 		let dy = 0;
 
-		this.refX = this.bounds.cx;
-		this.refY = this.bounds.cy;
+		this.refX = 0;
+		this.refY = 0;
 
 		if (keyArgs[this.UP] === true) dy = -this.maxRadius;
 		if (keyArgs[this.LEFT] === true) dx = -this.maxRadius;
@@ -483,7 +529,13 @@ export default Group.extend
 			this.wasPressed = this.isPressed;
 			this.isPressed = 1;
 
-			this.pointerUpdate (this.refX + dx, this.refY + dy);
+			if (dx != 0 && dy != 0)
+			{
+				dx *= 0.7071;
+				dy *= 0.7071;
+			}
+
+			this.pointerUpdate (this.bounds.cx + dx, this.bounds.cy + dy);
 			return false;
 		}
 	},
@@ -496,8 +548,8 @@ export default Group.extend
 		let dx = 0;
 		let dy = 0;
 
-		this.refX = this.bounds.cx;
-		this.refY = this.bounds.cy;
+		this.refX = 0;
+		this.refY = 0;
 
 		if (keyArgs[this.UP] === true) dy = -this.maxRadius;
 		if (keyArgs[this.LEFT] === true) dx = -this.maxRadius;
@@ -506,7 +558,13 @@ export default Group.extend
 
 		if (keyCode === this.UP || keyCode === this.LEFT || keyCode === this.DOWN || keyCode === this.RIGHT)
 		{
-			this.pointerUpdate (this.refX + dx, this.refY + dy);
+			if (dx != 0 && dy != 0)
+			{
+				dx *= 0.7071;
+				dy *= 0.7071;
+			}
+
+			this.pointerUpdate (this.bounds.cx + dx, this.bounds.cy + dy);
 
 			if (dx === 0 && dy === 0)
 			{

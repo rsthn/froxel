@@ -5762,6 +5762,11 @@ export class Stick extends Group
 	keysEnabled (value: boolean) : Stick;
 
 	/**
+	 * Sets the maximum dragging limits for the stick. Values of `false` will disable dragging in the respective axis. And `null` will cause the axis to be unlimited.
+	 */
+	setLimits (x1: number|boolean|null, y1: number|boolean|null, x2: number|null, y2: number|null) : Stick;
+
+	/**
 	 * Changes the pressed/unpressed images of the outer stick.
 	 */
 	setImage (unpressedImg: Drawable, pressedImg?: Drawable) : Stick;
@@ -5785,6 +5790,11 @@ export class Stick extends Group
 	 * Sets the dead zone values (normalized).
 	 */
 	setDeadZone (deadZoneX: number, deadZoneY: number) : Stick;
+
+	/**
+	 * Sets the dead zone values (normalized).
+	 */
+	setDeadZone (deadZone: number) : Stick;
 
 	/**
 	 * Resets the button to its initial state.
