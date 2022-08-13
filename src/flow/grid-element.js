@@ -195,7 +195,7 @@ const GridElement = Class.extend
 	 */
 	exec: function(name, arg0=null, arg1=null, arg2=null, arg3=null, arg4=null, arg5=null, arg6=null, arg7=null, arg8=null, arg9=null)
 	{
-		if (this.ext === null || !this.ext.hasOwnProperty(name))
+		if (this.ext === null || this.ext.hasOwnProperty(name) === false)
 			return false;
 
 		return this.ext[name] (this, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
@@ -216,11 +216,11 @@ const GridElement = Class.extend
 		if (value === null)
 			return !!(this.flags & GridElement.VISIBLE);
 
-		if (!forced && this.flags & GridElement.VISIBLE_LOCK)
+		if (forced === false && (this.flags & GridElement.VISIBLE_LOCK) !== 0)
 			return this;
 
 		this.flags &= ~GridElement.VISIBLE;
-		if (value) this.flags |= GridElement.VISIBLE;
+		if (value === true) this.flags |= GridElement.VISIBLE;
 
 		return this;
 	},
@@ -239,7 +239,7 @@ const GridElement = Class.extend
 			return !!(this.flags & GridElement.VISIBLE_LOCK);
 
 		this.flags &= ~GridElement.VISIBLE_LOCK;
-		if (value) this.flags |= GridElement.VISIBLE_LOCK;
+		if (value === true) this.flags |= GridElement.VISIBLE_LOCK;
 
 		return this;
 	},
@@ -258,7 +258,7 @@ const GridElement = Class.extend
 			return !!(this.flags & GridElement.ALIVE);
 
 		this.flags &= ~GridElement.ALIVE;
-		if (value) this.flags |= GridElement.ALIVE;
+		if (value === true) this.flags |= GridElement.ALIVE;
 
 		return this;
 	},
@@ -277,7 +277,7 @@ const GridElement = Class.extend
 			return !!(this.flags & GridElement.DIRTY);
 
 		this.flags &= ~GridElement.DIRTY;
-		if (value) this.flags |= GridElement.DIRTY;
+		if (value === true) this.flags |= GridElement.DIRTY;
 
 		return this;
 	},
@@ -296,7 +296,7 @@ const GridElement = Class.extend
 			return !!(this.flags & GridElement.DEPTH_FLAG_ENABLED);
 
 		this.flags &= ~GridElement.DEPTH_FLAG_ENABLED;
-		if (value) this.flags |= GridElement.DEPTH_FLAG_ENABLED;
+		if (value === true) this.flags |= GridElement.DEPTH_FLAG_ENABLED;
 
 		return this;
 	},
@@ -315,7 +315,7 @@ const GridElement = Class.extend
 			return !!(this.flags & GridElement.DEPTH_FLAG);
 
 		this.flags &= ~GridElement.DEPTH_FLAG;
-		if (value) this.flags |= GridElement.DEPTH_FLAG;
+		if (value === true) this.flags |= GridElement.DEPTH_FLAG;
 
 		return this;
 	},
@@ -336,7 +336,7 @@ const GridElement = Class.extend
 	 */
 	sync: function()
 	{
-		if (this.container === null || !this.getFlags(GridElement.ALIVE | GridElement.DIRTY))
+		if (this.container === null || this.getFlags(GridElement.ALIVE | GridElement.DIRTY) === false)
 			return this;
 
 		this.container.sync(this);

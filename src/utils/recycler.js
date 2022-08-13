@@ -38,7 +38,7 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 
 	recyclingFacilities[targetClass.prototype.className] = targetClass;
 
-	targetClass.recyclerPool = [ ];
+	targetClass.recyclerPool = new Array(maxPoolSize).fill(null);
 	targetClass.recyclerPoolMax = maxPoolSize;
 
 	targetClass.prototype.objectId = 0;
@@ -47,7 +47,7 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 	targetClass.recyclerNextObjectId = 0;
 	targetClass.recyclerCreated = 0;
 	targetClass.recyclerRecycled = 0;
-	targetClass.recyclerMissed = 0;
+	targetClass.recyclerDropped = 0;
 	targetClass.recyclerLength = 0;
 	targetClass.recyclerActive = 0;
 
@@ -65,8 +65,7 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 
 		for (let i = 0; i < n; i++)
 		{
-			targetClass.recyclerPool.push(new targetClass ());
-			targetClass.recyclerLength++;
+			targetClass.recyclerPool[targetClass.recyclerLength++] = new targetClass();
 			totalPreallocated++;
 		}
 
@@ -81,9 +80,9 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 	{
 		let item;
 
-		if (!this.recyclerLength)
+		if (this.recyclerLength === 0)
 		{
-			item = new targetClass ();
+			item = new targetClass();
 			targetClass.recyclerCreated++;
 		}
 		else
@@ -120,7 +119,7 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 		if (this.objectId < 0)
 			return this;
 
-		if (this.objectId == 0)
+		if (this.objectId === 0)
 		{
 			console.error ('ERROR: Already released instance of ' + targetClass.prototype.className);
 			return this;
@@ -130,11 +129,10 @@ Recycler.attachTo = function (targetClass, maxPoolSize=8192, minPoolSize=null)
 			return this;
 
 		this.__dtor();
-
 		this.objectId = 0;
 
 		if (targetClass.recyclerLength >= maxPoolSize)
-			targetClass.recyclerMissed++;
+			targetClass.recyclerDropped++;
 		else
 			targetClass.recyclerPool[targetClass.recyclerLength++] = this;
 
@@ -186,7 +184,7 @@ Recycler.showStats = function (name=null)
 			let c = list[i];
 			if (!c.recyclerCreated) continue;
 
-			console.debug (i + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', array=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
+			console.debug (i + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', array=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', dropped=' + c.recyclerDropped + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
 		}
 	
 		console.groupEnd();
@@ -198,7 +196,7 @@ Recycler.showStats = function (name=null)
 		if (typeof(name) === 'string')
 		{
 			let c = recyclingFacilities[name];
-			console.debug (name + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', array=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
+			console.debug (name + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', array=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', dropped=' + c.recyclerDropped + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
 			return;
 		}
 
@@ -210,7 +208,9 @@ Recycler.showStats = function (name=null)
 	for (let i in list)
 	{
 		let c = list[i];
-		console.debug (i + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', array=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', missed=' + c.recyclerMissed + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
+		if (!c.recyclerCreated) continue;
+
+		console.debug (i + ': '+(100*(c.recyclerCreated/c.recyclerPoolMax)).toFixed(1)+'%  =>  overhead=' + c.recyclerCreated + ', active='+c.recyclerActive+', array=' + c.recyclerPool.length + ', recycled=' + c.recyclerRecycled + ', in-recycler=' + c.recyclerLength + ', dropped=' + c.recyclerDropped + ', space=' + (c.recyclerPoolMax - c.recyclerLength));
 	}
 
 	console.groupEnd();

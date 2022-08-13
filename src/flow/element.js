@@ -129,7 +129,7 @@ const Element = GridElement.extend
 	 */
 	destroyLater: function()
 	{
-		if (!this.alive()) return;
+		if (this.alive() === false) return;
 
 		if (this.container !== null)
 			this.container.scene.disposeLater(this);
@@ -255,8 +255,15 @@ const Element = GridElement.extend
 		if (this._alpha <= 0.0)
 			return;
 
+		// TODO: Figure if there's a way to reduce the number of conditions here.
 		if (this.img !== null || this.render !== null)
 		{
+			if (this._alpha !== 1.0)
+			{
+				g.pushAlpha();
+				g.alpha(this._alpha);
+			}
+
 			let shaderChanged = this._shaderProgram !== null ? g.pushShaderProgram(this._shaderProgram) : false;
 			let depthFlagChanged = this.depthFlagEnabled() ? g.pushDepthFlag(this.depthFlag()) : false;
 
@@ -265,26 +272,21 @@ const Element = GridElement.extend
 
 			g.zvalue = this.__zvalue;
 
-			if (this._alpha != 1.0)
-			{
-				g.pushAlpha();
-				g.alpha(this._alpha);
-			}
-
 			if (this.render !== null)
 				this.render(g, this, this.img);
 			else
 				this.img.render(g, this);
 
-			if (depthFlagChanged) g.popDepthFlag();
-			if (shaderChanged) g.popShaderProgram();
+			if (depthFlagChanged === true) g.popDepthFlag();
+			if (shaderChanged === true) g.popShaderProgram();
 
-			if (this._alpha != 1.0)
+			if (this._alpha !== 1.0)
 				g.popAlpha();
 		}
 
+		// TODO: See if this code can be removed or improved because it takes quite a bit to check the condition.
 		/* *********** */
-		if (G.debugBounds || this.debugBounds)
+		if (G.debugBounds === true || (this.debugBounds === true || this.debugBounds > 0))
 		{
 			let m = g.getMatrix();
 			g = System.displayBuffer2;

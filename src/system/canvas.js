@@ -485,6 +485,7 @@ Canvas.prototype.initGl = function ()
 		program.uniform1f ('f_time', globals.time);
 		program.uniform1f ('f_scale', this._globalScale);
 		program.uniform1f ('f_alpha', this._alpha);
+		program.uniform1f ('f_depth', this.zvalue);
 
 		if (this.activeTextureId !== img.textureId || this.activeShader !== program)
 		{
@@ -511,7 +512,7 @@ Canvas.prototype.initGl = function ()
 		gl.uniformMatrix3fv (program.getUniformLocation('m_transform'), false, this.transform.data);
 		gl.uniformMatrix3fv (program.getUniformLocation('m_quad'), false, this.m_quad);
 		gl.uniformMatrix3fv (program.getUniformLocation('m_texture'), false, this.m_texture);
-		gl.uniform1f (program.getUniformLocation('f_depth'), this.zvalue);
+
 		gl.drawArrays (gl.TRIANGLE_STRIP, 0, 4);
 	};
 
@@ -1312,7 +1313,6 @@ Canvas.prototype.clear = function (backgroundColor=null)
 	{
 		this.gl.clear(this.gl.STENCIL_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.COLOR_BUFFER_BIT);
 		this.activeTextureId = null;
-
 		return this;
 	}
 
@@ -1350,8 +1350,8 @@ Canvas.prototype.end = function ()
 */
 Canvas.prototype.flush = function ()
 {
-	let gl = this.gl;
-	if (gl === null) return;
+	//let gl = this.gl;
+	//if (gl === null) return;
 
 	//gl.colorMask (false, false, false, true);
 	//gl.clear (gl.COLOR_BUFFER_BIT);

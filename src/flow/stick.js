@@ -78,10 +78,16 @@ export default Group.extend
 	radiusSteps: 0,
 
 	/**
-	 * Center reference coordinates. Set when the pointer is activated.
+	 * Current center offset X.
+	 * !readonly offsX: number;
 	 */
-	refX: null,
-	refY: null,
+	offsX: 0,
+
+	/**
+	 * Current center offset Y.
+	 * !readonly offsY: number;
+	 */
+	offsY: 0,
 
 	/**
 	 * Raw direction in the X-axis.
@@ -181,6 +187,9 @@ export default Group.extend
 
 		this.deadZoneX = 0.0;
 		this.deadZoneY = 0.0;
+
+		this.offsX = 0;
+		this.offsY = 0;
 
 		this.limitX1 = false;
 		this.limitY1 = false;
@@ -341,18 +350,18 @@ export default Group.extend
 		if (elem.isPressed)
 		{
 			if (elem.pressedImg)
-				elem.pressedImg.draw (g, elem.bounds.x1 + elem.refX, elem.bounds.y1 + elem.refY);
+				elem.pressedImg.draw (g, elem.bounds.x1 + elem.offsX, elem.bounds.y1 + elem.offsY);
 
 			if (elem.pressedImgInner)
-				elem.pressedImgInner.draw (g, elem.bounds.x1 + elem.refX + elem.dispx, elem.bounds.y1 + elem.refY + elem.dispy);
+				elem.pressedImgInner.draw (g, elem.bounds.x1 + elem.offsX + elem.dispx, elem.bounds.y1 + elem.offsY + elem.dispy);
 		}
 		else
 		{
 			if (elem.unpressedImg)
-				elem.unpressedImg.draw (g, elem.bounds.x1 + elem.refX, elem.bounds.y1 + elem.refY);
+				elem.unpressedImg.draw (g, elem.bounds.x1 + elem.offsX, elem.bounds.y1 + elem.offsY);
 
 			if (elem.unpressedImgInner)
-				elem.unpressedImgInner.draw (g, elem.bounds.x1 + elem.refX, elem.bounds.y1 + elem.refY);
+				elem.unpressedImgInner.draw (g, elem.bounds.x1 + elem.offsX, elem.bounds.y1 + elem.offsY);
 		}
 	},
 
@@ -363,25 +372,24 @@ export default Group.extend
 	{
 		let dx, dy;
 
-		dx = pointerX - (this.bounds.cx + this.refX);
-		dy = pointerY - (this.bounds.cy + this.refY);
+		dx = pointerX - (this.bounds.cx + this.offsX);
+		dy = pointerY - (this.bounds.cy + this.offsY);
 
 		this.angle = Math.atan2(-dy, dx);
 		this.radius = Math.sqrt(dx*dx + dy*dy);
 
 		if (this.radius > this.maxRadius)
 		{
-console.log(this.limitX1, this.limitY1, this.limitX2, this.limitY2);
 			if (this.limitX1 !== false) {
-				this.refX += Math.cos(this.angle)*(this.radius - this.maxRadius);
-				if (this.limitX1 !== null && (this.bounds.cx+this.refX) < this.limitX1) this.refX = this.limitX1 - this.bounds.cx;
-				if (this.limitX2 !== null && (this.bounds.cx+this.refX) > this.limitX2) this.refX = this.limitX2 - this.bounds.cx;
+				this.offsX += Math.cos(this.angle)*(this.radius - this.maxRadius);
+				if (this.limitX1 !== null && (this.bounds.cx+this.offsX) < this.limitX1) this.offsX = this.limitX1 - this.bounds.cx;
+				if (this.limitX2 !== null && (this.bounds.cx+this.offsX) > this.limitX2) this.offsX = this.limitX2 - this.bounds.cx;
 			}
 
 			if (this.limitY1 !== false) {
-				this.refY += -Math.sin(this.angle)*(this.radius - this.maxRadius);
-				if (this.limitY1 !== null && (this.bounds.cy+this.refY) < this.limitY1) this.refY = this.limitY1 - this.bounds.cy;
-				if (this.limitY2 !== null && (this.bounds.cy+this.refY) > this.limitY2) this.refY = this.limitY2 - this.bounds.cy;
+				this.offsY += -Math.sin(this.angle)*(this.radius - this.maxRadius);
+				if (this.limitY1 !== null && (this.bounds.cy+this.offsY) < this.limitY1) this.offsY = this.limitY1 - this.bounds.cy;
+				if (this.limitY2 !== null && (this.bounds.cy+this.offsY) > this.limitY2) this.offsY = this.limitY2 - this.bounds.cy;
 			}
 
 			this.radius = this.maxRadius;
@@ -442,8 +450,8 @@ console.log(this.limitX1, this.limitY1, this.limitX2, this.limitY2);
 		this.wasPressed = this.isPressed;
 		this.isPressed = 1;
 
-		this.refX = 0;
-		this.refY = 0;
+		this.offsX = 0;
+		this.offsY = 0;
 
 		this.pointerUpdate(pointer.x, pointer.y);
 	},
@@ -456,8 +464,8 @@ console.log(this.limitX1, this.limitY1, this.limitX2, this.limitY2);
 		this.wasPressed = this.isPressed;
 		this.isPressed = 0;
 
-		this.refX = 0;
-		this.refY = 0;
+		this.offsX = 0;
+		this.offsY = 0;
 
 		this.reset();
 	},
@@ -516,8 +524,8 @@ console.log(this.limitX1, this.limitY1, this.limitX2, this.limitY2);
 		let dx = 0;
 		let dy = 0;
 
-		this.refX = 0;
-		this.refY = 0;
+		this.offsX = 0;
+		this.offsY = 0;
 
 		if (keyArgs[this.UP] === true) dy = -this.maxRadius;
 		if (keyArgs[this.LEFT] === true) dx = -this.maxRadius;
@@ -548,8 +556,8 @@ console.log(this.limitX1, this.limitY1, this.limitX2, this.limitY2);
 		let dx = 0;
 		let dy = 0;
 
-		this.refX = 0;
-		this.refY = 0;
+		this.offsX = 0;
+		this.offsY = 0;
 
 		if (keyArgs[this.UP] === true) dy = -this.maxRadius;
 		if (keyArgs[this.LEFT] === true) dx = -this.maxRadius;

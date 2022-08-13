@@ -453,24 +453,15 @@ const Scene = Class.extend
 	 */
 	drawContainers: function (g, viewportBounds)
 	{
-		try
+		for (let i = 0; i < this.containers.length; i++)
 		{
-			for (let i = 0; i < this.containers.length; i++)
-			{
-				if (!this.containers[i])
-					continue;
+			if (!this.containers[i])
+				continue;
 
-				this.containers[i].setViewportBounds(viewportBounds);
-				this.containers[i].draw(g);
+			this.containers[i].setViewportBounds(viewportBounds);
+			this.containers[i].draw(g);
 
-				this.drawCount += this.containers[i].drawCount;
-			}
-		}
-		catch (e)
-		{
-			if (e.message !== 'FRAME_END') {
-				throw e;
-			}
+			this.drawCount += this.containers[i].drawCount;
 		}
 	},
 

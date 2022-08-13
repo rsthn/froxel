@@ -67,7 +67,7 @@ const Group = Element.extend
 	 */
 	destroyLater: function()
 	{
-		if (!this.alive()) return;
+		if (this.alive() === false) return;
 
 		let i;
 
@@ -133,7 +133,7 @@ const Group = Element.extend
 			return !!(this.flags & GridElement.WRAP_EXTENTS);
 
 		this.flags &= ~GridElement.WRAP_EXTENTS;
-		if (value) this.flags |= GridElement.WRAP_EXTENTS;
+		if (value === true) this.flags |= GridElement.WRAP_EXTENTS;
 
 		return this;
 	},
@@ -145,16 +145,16 @@ const Group = Element.extend
 	 */
 	addChild: function (elem, relative=false)
 	{
-		if (!elem) return elem;
+		if (elem === null) return null;
 
 		let initial = this.bounds.x1 === null;
 
-		if (initial || (this.flags & GridElement.WRAP_EXTENTS))
+		if (initial === true || (this.flags & GridElement.WRAP_EXTENTS) !== 0)
 		{
-			if (initial || elem.bounds.x1 < this.bounds.x1) this.ltranslate(elem.bounds.x1 - this.bounds.x1, 0);
-			if (initial || elem.bounds.y1 < this.bounds.y1) this.ltranslate(0, elem.bounds.y1 - this.bounds.y1);
-			if (initial || elem.bounds.x2 > this.bounds.x2) this.resizeBy(elem.bounds.x2 - this.bounds.x2, 0);
-			if (initial || elem.bounds.y2 > this.bounds.y2) this.resizeBy(0, elem.bounds.y2 - this.bounds.y2);
+			if (initial === true || elem.bounds.x1 < this.bounds.x1) this.ltranslate(elem.bounds.x1 - this.bounds.x1, 0);
+			if (initial === true || elem.bounds.y1 < this.bounds.y1) this.ltranslate(0, elem.bounds.y1 - this.bounds.y1);
+			if (initial === true || elem.bounds.x2 > this.bounds.x2) this.resizeBy(elem.bounds.x2 - this.bounds.x2, 0);
+			if (initial === true || elem.bounds.y2 > this.bounds.y2) this.resizeBy(0, elem.bounds.y2 - this.bounds.y2);
 		}
 
 		this.children.push(elem);
@@ -200,7 +200,7 @@ const Group = Element.extend
 	 */
 	removeChild: function (elem)
 	{
-		if (!elem || elem.group !== this)
+		if (elem === null || elem.group !== this)
 			return elem;
 
 		elem.remover.execf(this._remove, this);

@@ -148,7 +148,7 @@ export default Container.extend
 
 		for (let i = this.list.top; i; i = i.next)
 		{
-			if (!i.value.getFlags(flags))
+			if (i.value.getFlags(flags) === false)
 				continue;
 
 			if (this.drawElement(i.value, this) === false)

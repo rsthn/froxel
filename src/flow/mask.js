@@ -41,7 +41,7 @@ const Mask = Element.extend
 	 */
 	draw: function(g)
 	{
-		if (!globals.debugMasks && !this.debugBounds)
+		if (globals.debugMasks === false && (this.debugBounds === false || this.debugBounds === 0))
 			return;
 
 		let m = g.getMatrix();

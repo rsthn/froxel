@@ -429,6 +429,7 @@ Object.assign(System,
 		updateTimeTotal: 0,
 		drawTimeTotal: 0,
 		extraTimeTotal: 0,
+		frameTimeTotal: 0,
 
 		/**
 		 * Calculated values for the last time range. The updateTime and drawTime are in microseconds.
@@ -437,7 +438,8 @@ Object.assign(System,
 		averageFps: 0,
 		averageUpdateTime: 0,
 		averageDrawTime: 0,
-		averageExtraTime: 0
+		averageExtraTime: 0,
+		averageFrameTime: 0,
 	},
 
 	/**
@@ -919,6 +921,8 @@ Object.assign(System,
 		this.perf.lastTime = now;
 		this.perf.numFrames++;
 
+		this.perf.frameTimeTotal += hrnow() - now;
+
 		delta = this.perf.lastTime - this.perf.startTime;
 		if (delta > 1000)
 		{
@@ -930,6 +934,7 @@ Object.assign(System,
 			this.perf.averageUpdateTime = int(((this.perf.averageUpdateTime*this.perf.numSamples) + (this.perf.updateTimeTotal*1000 / this.perf.numFrames)) / (this.perf.numSamples + 1));
 			this.perf.averageDrawTime = int(((this.perf.averageDrawTime*this.perf.numSamples) + (this.perf.drawTimeTotal*1000 / this.perf.numFrames)) / (this.perf.numSamples + 1));
 			this.perf.averageExtraTime = int(((this.perf.averageExtraTime*this.perf.numSamples) + (this.perf.extraTimeTotal*1000 / this.perf.numFrames)) / (this.perf.numSamples + 1));
+			this.perf.averageFrameTime = int(((this.perf.averageFrameTime*this.perf.numSamples) + (this.perf.frameTimeTotal*1000 / this.perf.numFrames)) / (this.perf.numSamples + 1));
 			this.perf.numSamples++;
 
 			this.perf.startTime = now;
@@ -938,6 +943,7 @@ Object.assign(System,
 			this.perf.updateTimeTotal = 0;
 			this.perf.drawTimeTotal = 0;
 			this.perf.extraTimeTotal = 0;
+			this.perf.frameTimeTotal = 0;
 		}
 	},
 
@@ -1169,6 +1175,7 @@ Object.assign(System,
 
 	/**
 	 * Resets the performance data.
+	 * !static resetPerf () : void;
 	 */
 	resetPerf: function()
 	{
@@ -1179,6 +1186,7 @@ Object.assign(System,
 		this.perf.updateTimeTotal = 0;
 		this.perf.drawTimeTotal = 0;
 		this.perf.extraTimeTotal = 0;
+		this.perf.frameTimeTotal = 0;
 
 		this.perf.numSamples = 0;
 		this.perf.fps = 0;
@@ -1186,6 +1194,7 @@ Object.assign(System,
 		this.perf.averageUpdateTime = 0;
 		this.perf.averageDrawTime = 0;
 		this.perf.averageExtraTime = 0;
+		this.perf.averageFrameTime = 0;
 	},
 
 	/**

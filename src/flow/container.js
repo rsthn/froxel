@@ -67,6 +67,7 @@ const Container = Class.extend
 	 */
 	drawCount: 0,
 
+	// TODO This might be useless when we move to variable container/scenes mode. So, ensure you destroy this ldraw crap.
 	/**
 	 * Draw handler executed after the scene is drawn.
 	 * !readonly ldraw: Handler;
@@ -112,7 +113,7 @@ const Container = Class.extend
 			return !!(this.flags & Container.VISIBLE);
 
 		this.flags &= ~Container.VISIBLE;
-		if (value) this.flags |= Container.VISIBLE;
+		if (value === true) this.flags |= Container.VISIBLE;
 
 		return this;
 	},
@@ -131,7 +132,7 @@ const Container = Class.extend
 			return !!(this.flags & Container.DEPTH_FLAG);
 
 		this.flags &= ~Container.DEPTH_FLAG;
-		if (value) this.flags |= Container.DEPTH_FLAG;
+		if (value === true) this.flags |= Container.DEPTH_FLAG;
 
 		return this;
 	},
@@ -217,7 +218,7 @@ const Container = Class.extend
 	 */
 	draw: function(g)
 	{
-		if (!this.visible()) return;
+		if (this.visible() === false) return;
 
 		let depthFlagChanged = g.pushDepthFlag(this.flags & Container.DEPTH_FLAG);
 
@@ -229,7 +230,7 @@ const Container = Class.extend
 		this.render();
 		this.ldraw.exec(g);
 
-		if (depthFlagChanged) g.popDepthFlag();
+		if (depthFlagChanged === true) g.popDepthFlag();
 	},
 
 	/**

@@ -80,11 +80,13 @@ const Matrix = Class.extend
 	{
 		if (Matrix.isInstance(value))
 		{
-			for (let i = 0; i < 9; i++) this.data[i] = value.data[i];
+			//for (let i = 0; i < 9; i++) this.data[i] = value.data[i];
+			this.data.set(value.data);
 		}
 		else
 		{
-			for (let i = 0; i < 9; i++) this.data[i] = value[i];
+			//for (let i = 0; i < 9; i++) this.data[i] = value[i];
+			this.data.set(value);
 		}
 
 		return this;
@@ -133,7 +135,8 @@ const Matrix = Class.extend
 		if (matr instanceof Matrix)
 			matr = matr.data;
 
-		for (let i = 0; i < 9; i++) temp[i] = this.data[i];
+		//for (let i = 0; i < 9; i++) temp[i] = this.data[i];
+		temp.set(this.data);
 
 		this.data[0] = matr[0]*temp[0] + matr[1]*temp[3] + matr[2]*temp[6];
 		this.data[1] = matr[0]*temp[1] + matr[1]*temp[4] + matr[2]*temp[7];
@@ -157,7 +160,8 @@ const Matrix = Class.extend
 		if (x == 0 && y == 0)
 			return this;
 
-		for (let i = 0; i < 9; i++) temp[i] = this.data[i];
+		//for (let i = 0; i < 9; i++) temp[i] = this.data[i];
+		temp.set(this.data);
 
 		this.data[6] = x*temp[0] + y*temp[3] + temp[6];
 		this.data[7] = x*temp[1] + y*temp[4] + temp[7];
@@ -240,7 +244,8 @@ const Matrix = Class.extend
 		for (let i = 0; i < 3; i++)
 			temp[j*3+i] = this.data[i*3+j];
 
-		for (let i = 0; i < 9; i++) this.data[i] = temp[i];
+		//for (let i = 0; i < 9; i++) this.data[i] = temp[i];
+		this.data.set(temp);
 
 		return this;
 	},

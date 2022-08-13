@@ -124,7 +124,7 @@ export default Container.extend
 	{
 		this.grid.forEachInRegion(this.viewportBounds, GridElement.ALIVE | GridElement.VISIBLE, GridElement.ALIVE | GridElement.VISIBLE, this.drawElement, this);
 
-		if (!this.debugBounds || this.viewportBounds === null)
+		if (this.debugBounds === false || this.viewportBounds === null)
 			return;
 
 		let g = System.displayBuffer2;

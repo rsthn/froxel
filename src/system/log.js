@@ -120,7 +120,8 @@ const Log =
 
 			if (showFps !== false && System.perf.fps != 0)
 			{
-				s = 'fps: ' + System.perf.fps + '/' + System.perf.averageFps + ', update: ' + System.perf.averageUpdateTime + ', draw: ' + System.perf.averageDrawTime + ', extra: ' + System.perf.averageExtraTime;
+				//s = 'fps: ' + System.perf.fps + '/' + System.perf.averageFps + ', update: ' + System.perf.averageUpdateTime + ', draw: ' + System.perf.averageDrawTime /*+ ', extra: ' + System.perf.averageExtraTime*/ + ', frame: ' + System.perf.averageFrameTime;
+				s = 'fps: ' + System.perf.fps + '/' + System.perf.averageFps + ', update:' + System.perf.averageUpdateTime + ', draw:' + System.perf.averageDrawTime + ', frame:' + System.perf.averageFrameTime;
 
 				if (Log.background) {
 					g.fillStyle(Log.background);

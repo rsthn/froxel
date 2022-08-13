@@ -15,52 +15,52 @@ import List from '../utils/list.js';
 const Grid = Class.extend
 ({
 	/**
-	 * 	Name of the class (for inheritance purposes).
+	 * Name of the class (for inheritance purposes).
 	 */
 	className: 'Grid',
 
 	/**
-	 * 	Actual grid of data, stored linearly. Contains several entries each of which can be either null or a List containing grid elements.
+	 * Actual grid of data, stored linearly. Contains several entries each of which can be either null or a List containing grid elements.
 	 */
 	grid: null,
 
 	/**
-	 * 	Number of elements active in the grid.
-	 * 	!readonly count: number;
+	 * Number of elements active in the grid.
+	 * !readonly count: number;
 	 */
 	count: 0,
 
 	/**
-	 * 	The X and Y offsets to be added to all input coordinates. Used to ensure that a negative coordinate always ends up positive, calculated
-	 * 	using the width and height of the grid.
+	 * The X and Y offsets to be added to all input coordinates. Used to ensure that a negative coordinate always ends up positive, calculated
+	 * using the width and height of the grid.
 	 */
 	offsx: 0, offsy: 0,
 
 	/**
-	 * 	Divisors for the X and Y coordinates respectively. All input coordinates (after offseting) will be divided by these values to map them
-	 * 	to a grid entry (list) where the element can be added.
+	 * Divisors for the X and Y coordinates respectively. All input coordinates (after offseting) will be divided by these values to map them
+	 * to a grid entry (list) where the element can be added.
 	 */
 	kx: 0, ky: 0,
 
 	/**
-	 * 	Stride to calculate an index with a Y-coordinate.
+	 * Stride to calculate an index with a Y-coordinate.
 	 */
 	stride: 0,
 
 	/**
-	 * 	Indicates if the grid should match regions with exact precision by comparing region to element bounds intersection.
-	 * 	!verifyIntersection: boolean;
+	 * Indicates if the grid should match regions with exact precision by comparing region to element bounds intersection.
+	 * !verifyIntersection: boolean;
 	 */
 	verifyIntersection: true,
 
 	/**
-	 * 	Constructs a grid with the specified maximum width and height. The final effective coordinate range will be -(width/2) to (width/2)for X,
-	 * 	and -(height/2) to (height/2) for Y.
+	 * Constructs a grid with the specified maximum width and height. The final effective coordinate range will be -(width/2) to (width/2)for X,
+	 * and -(height/2) to (height/2) for Y.
 	 * 
-	 * 	Note that the width, height and divisors kx and ky will be converted to their closest base-2 value. This is done to ensure shifts can be used
-	 * 	to quickly divide the input coordinates.
+	 * Note that the width, height and divisors kx and ky will be converted to their closest base-2 value. This is done to ensure shifts can be used
+	 * to quickly divide the input coordinates.
 	 * 
-	 * 	!constructor (width: number, height: number, kx: number, ky?: number);
+	 * !constructor (width: number, height: number, kx: number, ky?: number);
 	 */
 	__ctor: function (width, height, kx, ky=null)
 	{
@@ -97,12 +97,29 @@ const Grid = Class.extend
 	},
 
 	/**
-	 * 	Destroys all lists and elements in the grid.
+	 * Destroys all lists and elements in the grid.
 	 */
 	__dtor: function()
 	{
 		this.clear();
 		this.grid = null;
+	},
+
+	/**
+	 * Returns the value of the `strict` intersection flag.
+	 * !strict() : boolean;
+	 */
+	/**
+	 * Sets the `strict` intersection flag, when set, only elements that intersect with the region when using forEachInRegion and similar methods will be used.
+	 * !strict (value: boolean) : Grid;
+	 */
+	strict: function (value=null)
+	{
+		if (value === null)
+			return this.verifyIntersection;
+
+		this.verifyIntersection = value;
+		return this;
 	},
 
 	/**
@@ -165,7 +182,7 @@ const Grid = Class.extend
 	 */
 	add: function (elem)
 	{
-		if (!GridElement.isInstance(elem))
+		if (GridElement.isInstance(elem) === false)
 			throw new Error ('argument must be a GridElement');
 
 		let i = int((elem.bounds.y1+this.offsy) >> this.ky) * this.stride + int((elem.bounds.x1+this.offsx) >> this.kx);
@@ -267,14 +284,19 @@ const Grid = Class.extend
 
 				for (let e = this.grid[k].top; e; e = e.next)
 				{
+					const v = e.value;
+
 					// First check the element flags.
-					if (!e.value.getFlags(flagsAndMask, flagsValue)) continue;
+					if (v.getFlags(flagsAndMask, flagsValue) === false) continue;
 
 					// Verify exact intersection only on elements located on the edges of the indexed-based approximated rectangle.
-					if (this.verifyIntersection && (j <= j0+1 || i <= i0+1 || j >= j1-1 || i >= i1-1) && !e.value.bounds.intersects(bounds))
-						continue;
+					if (this.verifyIntersection === true && (j <= j0+1 || i <= i0+1 || j >= j1-1 || i >= i1-1))
+					{
+						if (v.bounds.x2 < bounds.x1 || v.bounds.y2 < bounds.y1 || v.bounds.x1 > bounds.x2 || v.bounds.y1 > bounds.y2)
+							continue;
+					}
 
-					if (callback(e.value, context) === false)
+					if (callback(v, context) === false)
 						return;
 				}
 			}
@@ -310,14 +332,19 @@ const Grid = Class.extend
 
 				for (let e = this.grid[k].top; e; e = e.next)
 				{
+					const v = e.value;
+
 					// First check the element flags.
-					if (!e.value.getFlags(flagsAndMask, flagsValue)) continue;
+					if (v.getFlags(flagsAndMask, flagsValue) === false) continue;
 
 					// Verify exact intersection only on elements located on the edges of the indexed-based approximated rectangle.
-					if (this.verifyIntersection && (j <= j0+1 || i <= i0+1 || j >= j1-1 || i >= i1-1) && !e.value.bounds.intersects(bounds))
-						continue;
+					if (this.verifyIntersection === true && (j <= j0+1 || i <= i0+1 || j >= j1-1 || i >= i1-1))
+					{
+						if (v.bounds.x2 < bounds.x1 || v.bounds.y2 < bounds.y1 || v.bounds.x1 > bounds.x2 || v.bounds.y1 > bounds.y2)
+							continue;
+					}
 
-					list.push(e.value);
+					list.push(v);
 				}
 			}
 		}
@@ -354,12 +381,17 @@ const Grid = Class.extend
 
 				for (let e = this.grid[k].top; e; e = e.next)
 				{
+					const v = e.value;
+
 					// First check the element flags.
-					if (!e.value.getFlags(flagsAndMask, flagsValue)) continue;
+					if (v.getFlags(flagsAndMask, flagsValue) === false) continue;
 
 					// Verify exact intersection only on elements located on the edges of the indexed-based approximated rectangle.
-					if (this.verifyIntersection && (j <= j0+1 || i <= i0+1 || j >= j1-1 || i >= i1-1) && !e.value.bounds.intersects(bounds))
-						continue;
+					if (this.verifyIntersection === true && (j <= j0+1 || i <= i0+1 || j >= j1-1 || i >= i1-1))
+					{
+						if (v.bounds.x2 < bounds.x1 || v.bounds.y2 < bounds.y1 || v.bounds.x1 > bounds.x2 || v.bounds.y1 > bounds.y2)
+							continue;
+					}
 
 					m++;
 				}
@@ -396,14 +428,19 @@ const Grid = Class.extend
 
 				for (let e = this.grid[k].top; e; e = e.next)
 				{
+					const v = e.value;
+
 					// First check the element flags.
-					if (!e.value.getFlags(flagsAndMask, flagsValue)) continue;
+					if (v.getFlags(flagsAndMask, flagsValue) === false) continue;
 
 					// Verify exact intersection only on elements located on the edges of the indexed-based approximated rectangle.
-					if (this.verifyIntersection && (j <= j0+1 || i <= i0+1 || j >= j1-1 || i >= i1-1) && !e.value.bounds.intersects(bounds))
-						continue;
+					if (this.verifyIntersection === true && (j <= j0+1 || i <= i0+1 || j >= j1-1 || i >= i1-1))
+					{
+						if (v.bounds.x2 < bounds.x1 || v.bounds.y2 < bounds.y1 || v.bounds.x1 > bounds.x2 || v.bounds.y1 > bounds.y2)
+							continue;
+					}
 
-					return e.value;
+					return v;
 				}
 			}
 		}
