@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+		"target": "ES2017",
+        "allowJs": true,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "outDir": ".",
+        "declarationMap": true
+    }
+}

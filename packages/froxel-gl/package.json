@@ -1,0 +1,25 @@
+{
+  "name": "froxel-gl",
+  "version": "0.0.1",
+  "description": "Froxel WebGL Library",
+  "type": "module",
+  "main": "src/main.js",
+  "types": "types/froxel-gl.d.ts",
+  "scripts": {
+    "test": "echo Ok",
+	"tsdoc": "dts-bundle-generator --export-referenced-types -o types/froxel-gl.d.ts src/main.js"
+  },
+  "repository": {
+	"type": "git",
+	"url": "git+https://github.com/rsthn/froxel.git",
+	"directory": "packages/froxel-gl"
+  },
+  "author": "RedStar Technologies",
+  "license": "MIT",
+  "files": [
+	  "LICENSE",
+	  "README.md",
+	  "src/",
+	  "types/"
+  ]
+}
