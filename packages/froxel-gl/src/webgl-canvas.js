@@ -1,9 +1,10 @@
 
 import ShaderProgram from './shader-program.js';
-import VertexArray from './vertex-array.js';
+import VertexBuffer from './vertex-buffer.js';
+import ElementBuffer from './element-buffer.js';
+import VertexArrayObject from './vertex-array-object.js';
 
 export default WebGLCanvas;
-
 
 /**
  * @typedef {Object} WebGLCanvasOptions
@@ -21,16 +22,15 @@ const defaultOptions = {
 	height: 540
 };
 
-
 /**
  * High performance WebGL2 Canvas.
+ * @extends {WebGL2RenderingContext}
  * @param {WebGLCanvasOptions} [options]
  */
 function WebGLCanvas (options=null)
 {
 	this.init({ ...defaultOptions, ...options });
 };
-
 
 /**
  * WebGL2 Context.
@@ -39,14 +39,12 @@ function WebGLCanvas (options=null)
  */
 WebGLCanvas.prototype.gl = null;
 
-
 /**
  * Underlying HTML5 canvas element.
  * @type {HTMLCanvasElement}
  * @readonly
  */
 WebGLCanvas.prototype.canvas = null;
-
 
 /**
  * Initializes the instance.
@@ -79,9 +77,24 @@ WebGLCanvas.prototype.init = function (options)
 	}
 
 	this.gl = this.canvas.getContext('webgl2', { desynchronized: false, preserveDrawingBuffer: false, alpha: false, stencil: options.stencil });
-	console.log(this.gl.getParameter(this.gl.VERSION) + ', ' + this.gl.getParameter(this.gl.SHADING_LANGUAGE_VERSION));
-};
 
+	for (let prop in this.gl)
+	{
+		let val = this.gl[prop];
+		switch (typeof(val))
+		{
+			case 'function':
+				this[prop] = val.bind(this.gl);
+				break;
+
+			case 'number':
+				this[prop] = val;
+				break;
+		}
+	}
+
+	console.log(this.getParameter(this.VERSION) + ', ' + this.getParameter(this.SHADING_LANGUAGE_VERSION));
+};
 
 /**
  * Creates a shader program with the specified vertex and fragment shader source codes.
@@ -94,12 +107,31 @@ WebGLCanvas.prototype.createShaderProgram = function (vertexShaderSource, fragme
 	return new ShaderProgram (this, vertexShaderSource, fragmentShaderSource);
 };
 
-
 /**
  * Creates a new vertex array object.
- * @returns {VertexArray}
+ * @returns {VertexArrayObject}
  */
-WebGLCanvas.prototype.createVertexArray = function ()
+WebGLCanvas.prototype.createVertexArrayObject = function ()
 {
-	return new VertexArray(this);
+	return new VertexArrayObject (this);
+};
+
+/**
+ * Creates a new vertex buffer.
+ * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+ * @returns {VertexBuffer}
+ */
+WebGLCanvas.prototype.createVertexBuffer = function (usage)
+{
+	return new VertexBuffer(this, usage);
+};
+
+/**
+ * Creates a new element buffer.
+ * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+ * @returns {ElementBuffer}
+ */
+WebGLCanvas.prototype.createElementBuffer = function (usage)
+{
+	return new ElementBuffer(this, usage);
 };

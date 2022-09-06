@@ -2,24 +2,24 @@
 
 /**
  * Creates a WebGL GLSL Shader Program.
- * @param {WebGLCanvas} wgl
+ * @param {WebGLCanvas} gl
  * @param {string} vertexShaderSource
  * @param {string} fragmentShaderSource
  */
-export declare function ShaderProgram(wgl: WebGLCanvas, vertexShaderSource: string, fragmentShaderSource: string): void;
+export declare function ShaderProgram(gl: WebGLCanvas, vertexShaderSource: string, fragmentShaderSource: string): void;
 export declare class ShaderProgram {
 	/**
 	 * Creates a WebGL GLSL Shader Program.
-	 * @param {WebGLCanvas} wgl
+	 * @param {WebGLCanvas} gl
 	 * @param {string} vertexShaderSource
 	 * @param {string} fragmentShaderSource
 	 */
-	constructor(wgl: WebGLCanvas, vertexShaderSource: string, fragmentShaderSource: string);
+	constructor(gl: WebGLCanvas, vertexShaderSource: string, fragmentShaderSource: string);
 	/**
 	 * Reference to the WebGLCanvas.
 	 * @readonly @type {WebGLCanvas}
 	 */
-	readonly wgl: WebGLCanvas;
+	readonly gl: WebGLCanvas;
 	/**
 	 * Vertex shader resource object.
 	 * @readonly @type {WebGLShader}
@@ -79,20 +79,20 @@ export declare namespace ShaderProgram {
 }
 /**
  * Creates a Vertex Array Object (VAO).
- * @param {WebGLCanvas} wgl
+ * @param {WebGLCanvas} gl
  */
-export declare function VertexArray(wgl?: WebGLCanvas): void;
-export declare class VertexArray {
+export declare function VertexArrayObject(gl: WebGLCanvas): void;
+export declare class VertexArrayObject {
 	/**
 	 * Creates a Vertex Array Object (VAO).
-	 * @param {WebGLCanvas} wgl
+	 * @param {WebGLCanvas} gl
 	 */
-	constructor(wgl?: WebGLCanvas);
+	constructor(gl: WebGLCanvas);
 	/**
 	 * Reference to the WebGLCanvas.
 	 * @readonly @type {WebGLCanvas}
 	 */
-	readonly wgl: WebGLCanvas;
+	readonly gl: WebGLCanvas;
 	/**
 	 * Vertex array object resource.
 	 * @type {WebGLVertexArrayObject}
@@ -106,6 +106,70 @@ export declare class VertexArray {
 	 * Unbinds the vertex array object from the GPU.
 	 */
 	unbindVertexArray(): void;
+}
+/**
+ * Represents a WebGL buffer.
+ */
+export declare class Buffer {
+	/**
+	 * Creates a WebGL buffer.
+	 * @param {WebGLCanvas} gl
+	 * @param {number} target
+	 * @param {number} usage
+	 */
+	constructor(gl: WebGLCanvas, target: number, usage: number);
+	/**
+	 * Reference to the WebGLCanvas.
+	 * @readonly @type {WebGLCanvas}
+	 */
+	readonly gl: WebGLCanvas;
+	/**
+	 * Buffer target.
+	 * @type {number}
+	 */
+	target: number;
+	/**
+	 * Buffer usage mode.
+	 * @type {number}
+	 */
+	usage: number;
+	/**
+	 * Buffer object resource.
+	 * @type {WebGLBuffer}
+	 */
+	buffer: WebGLBuffer;
+	/**
+	 * Binds the buffer to its WebGL target.
+	 * @returns {Buffer}
+	 */
+	bindBuffer(): Buffer;
+	/**
+	 * Initializes and creates the buffer object's data store.
+	 * @param {ArrayBufferView} srcData
+	 * @param {number} srcOffset?
+	 * @returns {Buffer}
+	 */
+	bufferData(srcData: ArrayBufferView, srcOffset?: number): Buffer;
+	/**
+	 * Deletes the buffer.
+	 */
+	deleteBuffer(): void;
+}
+export declare class VertexBuffer extends Buffer {
+	/**
+	 * Creates a VertexBuffer linked to the ARRAY_BUFFER target.
+	 * @param {WebGLCanvas} gl
+	 * @param {number} usage
+	 */
+	constructor(gl: WebGLCanvas, usage: number);
+}
+export declare class ElementBuffer extends Buffer {
+	/**
+	 * Creates a ElementBuffer linked to the ELEMENT_ARRAY_BUFFER target.
+	 * @param {WebGLCanvas} gl
+	 * @param {number} usage
+	 */
+	constructor(gl: WebGLCanvas, usage: number);
 }
 export type WebGLCanvasOptions = {
 	/**
@@ -131,12 +195,14 @@ export type WebGLCanvasOptions = {
 };
 /**
  * High performance WebGL2 Canvas.
+ * @extends {WebGL2RenderingContext}
  * @param {WebGLCanvasOptions} [options]
  */
 export declare function WebGLCanvas(options?: WebGLCanvasOptions): void;
 export declare class WebGLCanvas {
 	/**
 	 * High performance WebGL2 Canvas.
+	 * @extends {WebGL2RenderingContext}
 	 * @param {WebGLCanvasOptions} [options]
 	 */
 	constructor(options?: WebGLCanvasOptions);
@@ -162,9 +228,21 @@ export declare class WebGLCanvas {
 	createShaderProgram(vertexShaderSource: string, fragmentShaderSource: string): ShaderProgram;
 	/**
 	 * Creates a new vertex array object.
-	 * @returns {VertexArray}
+	 * @returns {VertexArrayObject}
 	 */
-	createVertexArray(): VertexArray;
+	createVertexArrayObject(): VertexArrayObject;
+	/**
+	 * Creates a new vertex buffer.
+	 * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+	 * @returns {VertexBuffer}
+	 */
+	createVertexBuffer(usage: number): VertexBuffer;
+	/**
+	 * Creates a new element buffer.
+	 * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+	 * @returns {ElementBuffer}
+	 */
+	createElementBuffer(usage: number): ElementBuffer;
 }
 
 export {};
