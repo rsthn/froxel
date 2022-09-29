@@ -186,6 +186,133 @@ export declare class ElementBuffer extends Buffer {
 	 */
 	constructor(gl: WebGLCanvas, usage: number);
 }
+/**
+ * @typedef {'NEAREST' | 'LINEAR'} TextureFilterType
+ */
+/**
+ * @typedef {'REPEAT' | 'CLAMP_TO_EDGE' | 'MIRRORED_REPEAT'} TextureWrapMode
+ */
+/**
+ * WebGLCanvas Texture Object.
+ */
+export declare class TextureObject {
+	/**
+	 * Creates an empty texture object of the specified size.
+	 * @param {WebGLCanvas} gl
+	 * @param {number} width - Physical texture width.
+	 * @param {number} height - Physical texture height.
+	 * @param {number} [targetWidth] - Logical texture width.
+	 * @param {number} [targetHeight] - Logical texture height.
+	 */
+	constructor(gl: WebGLCanvas, width: number, height: number, targetWidth?: number, targetHeight?: number);
+	/**
+	 * Reference to the WebGLCanvas.
+	 * @readonly @type {WebGLCanvas}
+	 */
+	readonly gl: WebGLCanvas;
+	/**
+	 * Texture object resource.
+	 * @readonly @type {WebGLTexture}
+	 */
+	readonly texture: WebGLTexture;
+	/**
+	 * Texture width (physical width).
+	 * @readonly @type {number}
+	 */
+	readonly width: number;
+	/**
+	 * Texture height (physical height).
+	 * @readonly @type {number}
+	 */
+	readonly height: number;
+	/**
+	 * Target width originally requested (logical width).
+	 * @readonly @type {number}
+	 */
+	readonly targetWidth: number;
+	/**
+	 * Target height originally requested (logical height).
+	 * @readonly @type {number}
+	 */
+	readonly targetHeight: number;
+	/**
+	 * Scale of the texture (physical width / logical width).
+	 * @readonly @type {number}
+	 */
+	readonly scale: number;
+	/**
+	 * Texture filter type. Defaults to `LINEAR`.
+	 * @readonly @type {TextureFilterType}
+	 */
+	readonly filterType: TextureFilterType;
+	/**
+	 * Texture wrap mode. Defaults to `CLAMP_TO_EDGE`.
+	 * @readonly @type {TextureWrapMode}
+	 */
+	readonly wrapMode: TextureWrapMode;
+	/**
+	 * Number of mipmap levels (use 0 to disable). Default is `0`.
+	 * @readonly @type {number}
+	 */
+	readonly mipmapLevels: number;
+	/**
+	 * Indicates if the texture storage has already been allocated.
+	 * @readonly @private @type {boolean}
+	 */
+	private readonly allocated;
+	/**
+	 * Binds the texture to the `TEXTURE_2D` target and allocates the texture storage if not allocated yet.
+	 * @returns {TextureObject}
+	 */
+	bind(): TextureObject;
+	/**
+	 * Allocates the texture storage.
+	 * @returns {TextureObject}
+	 */
+	allocate(): TextureObject;
+	/**
+	 * Applies the texture filter.
+	 * @private
+	 * @param {boolean} [bindTexture]
+	 * @returns {TextureObject}
+	 */
+	private applyFilter;
+	/**
+	 * Applies the texture wrap mode.
+	 * @private
+	 * @param {boolean} [bindTexture]
+	 * @returns {TextureObject}
+	 */
+	private applyWrap;
+	/**
+	 * Sets the texture filter type.
+	 * @param {TextureFilterType} filterType
+	 * @returns {TextureObject}
+	 */
+	setFilter(filterType: TextureFilterType): TextureObject;
+	/**
+	 * Sets the texture wrap mode.
+	 * @param {TextureWrapMode} wrapMode
+	 * @returns {TextureObject}
+	 */
+	setWrapMode(wrapMode: TextureWrapMode): TextureObject;
+	/**
+	 * Sets the number of mipmap levels. Valid only if texture data has not been allocated yet.
+	 * @param {number} numLevels
+	 * @returns {TextureObject}
+	 */
+	setMipmapLevels(numLevels: number): TextureObject;
+	/**
+	 * Uploads data to the GPU from the specified image.
+	 * @param {HTMLImageElement} image
+	 * @param {number} [offsX] - Target X offset.
+	 * @param {number} [offsY] - Target Y offset;
+	 * @returns {TextureObject}
+	 */
+	upload(image: HTMLImageElement, offsX?: number, offsY?: number): TextureObject;
+}
+export type TextureFilterType = "NEAREST" | "LINEAR";
+export type TextureWrapMode = "REPEAT" | "CLAMP_TO_EDGE" | "MIRRORED_REPEAT";
 export type WebGLCanvasOrientation = "default" | "landscape" | "portrait" | "automatic" | "strict";
 export type WebGLCanvasOptions = {
 	/**
@@ -356,6 +483,30 @@ export declare class WebGLCanvas {
 	 * @returns {ElementBuffer}
 	 */
 	createElementBuffer(usage: number): ElementBuffer;
+	/**
+	 * Creates a new texture object of the specified size.
+	 * @param {number} width - Physical texture width.
+	 * @param {number} height - Physical texture height.
+	 * @param {number} [targetWidth] - Logical texture width.
+	 * @param {number} [targetHeight] - Logical texture height.
+	 * @returns {TextureObject}
+	 */
+	createTextureObject(width: number, height: number, targetWidth?: number, targetHeight?: number): TextureObject;
+	/**
+	 * Loads an image from the specified URL and creates a texture.
+	 * @param {string} url
+	 * @param {number} [mipmapLevels] - Number of levels for mipmapping. Defaults to `0`.
+	 * @returns {Promise<TextureObject>}
+	 */
+	loadTextureFromUrl(url: string, mipmapLevels?: number): Promise<TextureObject>;
+}
+export declare namespace WebGLCanvas {
+	/**
+	 * Loads an image from the specified URL.
+	 * @param {string} url
+	 * @returns {Promise<HTMLImageElement>}
+	 */
+	function loadImage(url: string): Promise<HTMLImageElement>;
 }
 
 export {};
