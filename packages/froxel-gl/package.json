@@ -1,25 +1,41 @@
 {
-  "name": "froxel-gl",
-  "version": "0.0.1",
-  "description": "Froxel WebGL Library",
-  "type": "module",
-  "main": "src/main.js",
-  "types": "types/froxel-gl.d.ts",
-  "scripts": {
-    "test": "echo Ok",
-	"tsdoc": "dts-bundle-generator --export-referenced-types -o types/froxel-gl.d.ts src/main.js"
-  },
-  "repository": {
-	"type": "git",
-	"url": "git+https://github.com/rsthn/froxel.git",
-	"directory": "packages/froxel-gl"
-  },
-  "author": "RedStar Technologies",
-  "license": "MIT",
-  "files": [
-	  "LICENSE",
-	  "README.md",
-	  "src/",
-	  "types/"
-  ]
+    "name": "froxel-gl",
+    "version": "0.0.2",
+    "description": "Froxel WebGL Library",
+    "type": "module",
+    "main": "dist/froxel-gl.m.js",
+    "types": "dist/froxel-gl.d.ts",
+    "scripts": {
+        "test": "echo Ok",
+        "commit": "node ./scripts/commit.js",
+        "deploy": "pnpm build && pnpm tsdoc && node ./scripts/deploy.js",
+        "tsdoc": "tsc -p . && dts-bundle-generator --no-banner --disable-symlinks-following -o dist/froxel-gl.d.ts src/main.js && shx rm src/*.d.ts",
+        "build": "parcel build --no-cache --target main",
+        "changes": "rose ./scripts/changes",
+        "all": "pnpm build && pnpm tsdoc"
+    },
+    "targets": {
+        "main": {
+            "source": "./src/main.js",
+            "optimize": true
+        }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rsthn/froxel.git",
+        "directory": "packages/froxel-gl"
+    },
+    "author": "RedStar Technologies",
+    "license": "MIT",
+    "files": [
+        "LICENSE",
+        "README.md",
+        "dist/"
+    ],
+    "dependencies": {
+        "froxel-math": "^0.0.2"
+    },
+    "devDependencies": {
+        "asyl": "^1.0.1"
+    }
 }

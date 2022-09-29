@@ -45,11 +45,12 @@ function ShaderProgram (gl, vertexShaderSource, fragmentShaderSource)
 /**
  * Links the program and throws an error if there was any problem.
  * @throws {Error}
+ * @returns {ShaderProgram}
  */
 ShaderProgram.prototype.linkProgram = function()
 {
-	for (let attribLocation in ShaderProgram.attribLocations) {
-		this.gl.bindAttribLocation(this.program, attribLocation, ShaderProgram.attribLocations[attribLocation]);
+	for (let attribName in ShaderProgram.attribLocations) {
+		this.gl.bindAttribLocation(this.program, ShaderProgram.attribLocations[attribName], attribName);
 	}
 
 	this.gl.linkProgram (this.program);
@@ -57,7 +58,7 @@ ShaderProgram.prototype.linkProgram = function()
 	{
 		this.gl.deleteShader(this.vertexShader)
 		this.gl.deleteShader(this.fragmentShader)
-		return;
+		return this;
 	}
 
 	let vertexError = this.gl.getShaderInfoLog(this.vertexShader);
@@ -73,10 +74,12 @@ ShaderProgram.prototype.linkProgram = function()
  * Binds an attribute location to the shader program.
  * @param {number} attribLocation
  * @param {string} attribName
+ * @returns {ShaderProgram}
  */
 ShaderProgram.prototype.bindAttribLocation = function (attribLocation, attribName)
 {
 	this.gl.bindAttribLocation(this.program, attribLocation, attribName);
+	return this;
 };
 
 /**
@@ -90,21 +93,26 @@ ShaderProgram.attribLocations = new Map();
  * Binds a global attribute location to be applied to any newly created shader program.
  * @param {number} attribLocation
  * @param {string} attribName
+ * @returns {ShaderProgram}
  */
 ShaderProgram.bindAttribLocation = function (attribLocation, attribName)
 {
 	this.attribLocations[attribName] = attribLocation;
+	return this;
 };
 
 /**
  * Binds several global attribute locations to be applied to any newly created shader program.
  * @param {Map<string, number>} attribs
+ * @returns {ShaderProgram}
  */
 ShaderProgram.bindAttribLocations = function (attribs)
 {
 	for (let attribName in attribs) {
 		this.attribLocations[attribName] = attribs[attribName];
 	}
+
+	return this;
 };
 
 /**
