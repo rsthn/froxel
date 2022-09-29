@@ -1,0 +1,49 @@
+{
+    "name": "froxel-math",
+    "version": "0.0.1",
+    "description": "Froxel Math Library",
+    "type": "module",
+    "module": "dist/froxel-math.m.js",
+    "types": "dist/froxel-math.d.ts",
+    "scripts": {
+        "test": "mocha",
+        "commit": "node ./scripts/commit.js",
+        "deploy": "pnpm all && node ./scripts/deploy.js",
+        "tsdoc": "dts-bundle-generator --no-banner -o dist/froxel-math.d.ts src/main.ts",
+        "changes": "rose ./scripts/changes",
+        "build-core": "wasm++ src/main.cpp -o src/froxel-math.wasm",
+        "build": "parcel build --target module --no-cache",
+        "all": "pnpm build-core && pnpm build && pnpm tsdoc"
+    },
+    "targets": {
+        "module": {
+            "source": "./src/main.ts",
+            "optimize": false
+        }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rsthn/froxel.git",
+        "directory": "packages/froxel-math"
+    },
+    "author": "RedStar Technologies",
+    "license": "MIT",
+    "files": [
+        "LICENSE",
+        "README.md",
+        "dist/"
+    ],
+    "devDependencies": {
+        "@parcel/core": "^2.7.0",
+        "@parcel/optimizer-data-url": "^2.7.0",
+        "@parcel/transformer-inline-string": "^2.7.0",
+        "chai": "^4.3.6",
+        "chai-almost": "^1.0.1"
+    },
+    "dependencies": {
+        "asyl": "^1.0.1",
+        "atob": "^2.1.2",
+        "base64-js": "^1.5.1",
+        "node-fetch": "^3.2.10"
+    }
+}
