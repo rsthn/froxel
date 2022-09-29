@@ -1,6 +1,6 @@
 {
     "name": "froxel-math",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Froxel Math Library",
     "type": "module",
     "module": "dist/froxel-math.m.js",
@@ -8,17 +8,17 @@
     "scripts": {
         "test": "mocha",
         "commit": "node ./scripts/commit.js",
-        "deploy": "pnpm all && node ./scripts/deploy.js",
-        "tsdoc": "dts-bundle-generator --no-banner -o dist/froxel-math.d.ts src/main.ts",
+        "deploy": "pnpm all && pnpm test && node ./scripts/deploy.js",
+        "tsdoc": "dts-bundle-generator --no-banner --disable-symlinks-following -o dist/froxel-math.d.ts src/main.ts",
         "changes": "rose ./scripts/changes",
         "build-core": "wasm++ src/main.cpp -o src/froxel-math.wasm",
-        "build": "parcel build --target module --no-cache",
+        "build": "parcel build --no-cache --target module",
         "all": "pnpm build-core && pnpm build && pnpm tsdoc"
     },
     "targets": {
         "module": {
             "source": "./src/main.ts",
-            "optimize": false
+            "optimize": true
         }
     },
     "repository": {

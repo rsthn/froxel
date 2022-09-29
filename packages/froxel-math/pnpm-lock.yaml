@@ -175,18 +175,18 @@ packages:
       '@parcel/logger': 2.7.0
       '@parcel/package-manager': 2.7.0_@parcel+core@2.7.0
       '@parcel/plugin': 2.7.0_@parcel+core@2.7.0
-      '@parcel/source-map': 2.1.1
+      '@parcel/source-map': 2.1.0
       '@parcel/types': 2.7.0_@parcel+core@2.7.0
       '@parcel/utils': 2.7.0
       '@parcel/workers': 2.7.0_@parcel+core@2.7.0
       abortcontroller-polyfill: 1.7.3
       base-x: 3.0.9
-      browserslist: 4.21.4
+      browserslist: 4.21.3
       clone: 2.1.2
       dotenv: 7.0.0
       dotenv-expand: 5.1.0
       json5: 2.2.1
-      msgpackr: 1.6.3
+      msgpackr: 1.6.2
       nullthrows: 1.1.1
       semver: 5.7.1
     dev: true
@@ -293,8 +293,8 @@ packages:
       - '@parcel/core'
     dev: true
 
-  /@parcel/source-map/2.1.1:
-    resolution: {integrity: sha512-Ejx1P/mj+kMjQb8/y5XxDUn4reGdr+WyKYloBljpppUy8gs42T+BNoEOuRYqDVdgPc6NxduzIDoJS9pOFfV5Ew==}
+  /@parcel/source-map/2.1.0:
+    resolution: {integrity: sha512-E7UOEIof2o89LrKk1agSLmwakjigmEdDp1ZaEdsLVEvq63R/bul4Ij5CT+0ZDcijGpl5tnTbQADY9EyYGtjYgQ==}
     engines: {node: ^12.18.3 || >=14}
     dependencies:
       detect-libc: 1.0.3
@@ -316,7 +316,7 @@ packages:
       '@parcel/diagnostic': 2.7.0
       '@parcel/fs': 2.7.0_@parcel+core@2.7.0
       '@parcel/package-manager': 2.7.0_@parcel+core@2.7.0
-      '@parcel/source-map': 2.1.1
+      '@parcel/source-map': 2.1.0
       '@parcel/workers': 2.7.0_@parcel+core@2.7.0
       utility-types: 3.10.0
     transitivePeerDependencies:
@@ -332,7 +332,7 @@ packages:
       '@parcel/hash': 2.7.0
       '@parcel/logger': 2.7.0
       '@parcel/markdown-ansi': 2.7.0
-      '@parcel/source-map': 2.1.1
+      '@parcel/source-map': 2.1.0
       chalk: 4.1.2
     dev: true
 
@@ -398,15 +398,15 @@ packages:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
     dev: false
 
-  /browserslist/4.21.4:
-    resolution: {integrity: sha512-CBHJJdDmgjl3daYjN5Cp5kbTf1mUhZoS+beLklHIvkOWscs83YAhLlF3Wsh/lciQYAcbBJgTOD44VtG31ZM4Hw==}
+  /browserslist/4.21.3:
+    resolution: {integrity: sha512-898rgRXLAyRkM1GryrrBHGkqA5hlpkV5MhtZwg9QXeiyLUYs2k00Un05aX5l2/yJIOObYKOpS2JNo8nJDE7fWQ==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001402
-      electron-to-chromium: 1.4.254
+      caniuse-lite: 1.0.30001392
+      electron-to-chromium: 1.4.244
       node-releases: 2.0.6
-      update-browserslist-db: 1.0.9_browserslist@4.21.4
+      update-browserslist-db: 1.0.7_browserslist@4.21.3
     dev: true
 
   /buffer/6.0.3:
@@ -416,8 +416,8 @@ packages:
       ieee754: 1.2.1
     dev: false
 
-  /caniuse-lite/1.0.30001402:
-    resolution: {integrity: sha512-Mx4MlhXO5NwuvXGgVb+hg65HZ+bhUYsz8QtDGDo2QmaJS2GBX47Xfi2koL86lc8K+l+htXeTEB/Aeqvezoo6Ew==}
+  /caniuse-lite/1.0.30001392:
+    resolution: {integrity: sha512-17kzHgeLmROc2n7Cev9XRrAe3Zx4qGwn3eHEhsYCxoYQIrVVa9tbGu0LEUflG2mUsBGtWcv8iNilmxhvRyv3hg==}
     dev: true
 
   /chai-almost/1.0.1:
@@ -507,8 +507,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /electron-to-chromium/1.4.254:
-    resolution: {integrity: sha512-Sh/7YsHqQYkA6ZHuHMy24e6TE4eX6KZVsZb9E/DvU1nQRIrH4BflO/4k+83tfdYvDl+MObvlqHPRICzEdC9c6Q==}
+  /electron-to-chromium/1.4.244:
+    resolution: {integrity: sha512-E21saXLt2eTDaTxgUtiJtBUqanF9A32wZasAwDZ8gvrqXoxrBrbwtDCx7c/PQTLp81wj4X0OLDeoGQg7eMo3+w==}
     dev: true
 
   /escalade/3.1.1:
@@ -559,7 +559,7 @@ packages:
     resolution: {integrity: sha512-V5V5Xa2Hp9i2XsbDALkBTeHXnBXh/lEmk9p22zdr7jtuOIY9TGhjK6vAvTpOOx9IKU4hJkRWZxn/HsvR1ELLtA==}
     requiresBuild: true
     dependencies:
-      msgpackr: 1.6.3
+      msgpackr: 1.6.2
       node-addon-api: 4.3.0
       node-gyp-build-optional-packages: 5.0.3
       ordered-binary: 1.3.0
@@ -601,8 +601,8 @@ packages:
     dev: true
     optional: true
 
-  /msgpackr/1.6.3:
-    resolution: {integrity: sha512-Wtwnt2W06wNOLzV3N0XLLAJCxpwlCfFpvSZAXsu+xf71X7KuqBEDhDSjAy9nwNhQ2aK74Rd1RiRln+62tffoXw==}
+  /msgpackr/1.6.2:
+    resolution: {integrity: sha512-bqSQ0DYJbXbrJcrZFmMygUZmqQiDfI2ewFVWcrZY12w5XHWtPuW4WppDT/e63Uu311ajwkRRXSoF0uILroBeTA==}
     optionalDependencies:
       msgpackr-extract: 2.1.2
     dev: true
@@ -684,13 +684,13 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /update-browserslist-db/1.0.9_browserslist@4.21.4:
-    resolution: {integrity: sha512-/xsqn21EGVdXI3EXSum1Yckj3ZVZugqyOZQ/CxYPBD/R+ko9NSUScf8tFF4dOKY+2pvSSJA/S+5B8s4Zr4kyvg==}
+  /update-browserslist-db/1.0.7_browserslist@4.21.3:
+    resolution: {integrity: sha512-iN/XYesmZ2RmmWAiI4Z5rq0YqSiv0brj9Ce9CfhNE4xIW2h+MFxcgkxIzZ+ShkFPUkjU3gQ+3oypadD3RAMtrg==}
     hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
     dependencies:
-      browserslist: 4.21.4
+      browserslist: 4.21.3
       escalade: 3.1.1
       picocolors: 1.0.0
     dev: true
