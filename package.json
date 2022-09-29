@@ -13,7 +13,7 @@
     "scripts": {
         "test": "echo Ok",
         "deploy": "shx rm -rf bin/template/node_modules && pnpm build && pnpm tsdoc && node ./scripts/deploy.js",
-        "commit": "pnpm build && node ./scripts/commit.js",
+        "commit": "node ./scripts/commit.js",
         "tsdoc": "node ./scripts/tsdoc.js ./src/main.js ./dist/froxel.d.ts",
         "changes": "rose ./scripts/changes",
         "build:global": "parcel build --no-cache --target global",
