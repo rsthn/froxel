@@ -9,8 +9,8 @@ export default class VertexBuffer extends Buffer
 	 * @param {WebGLCanvas} gl
 	 * @param {number} usage
 	 */
-	 constructor (gl, usage)
-	 {
-		 super (gl, gl.ARRAY_BUFFER, usage);
-	 }
+	constructor (gl, usage)
+	{
+		super (gl, gl.ARRAY_BUFFER, usage);
+	}
 };

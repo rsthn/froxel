@@ -116,6 +116,14 @@ ShaderProgram.bindAttribLocations = function (attribs)
 };
 
 /**
+ * Activates the shader program for subsequent drawing operations.
+ */
+ShaderProgram.prototype.useProgram = function ()
+{
+	this.gl.useProgram(this.program);
+};
+
+/**
  * Returns the location of a uniform variable.
  * @param {string} uniformName
  * @returns {WebGLUniformLocation}
@@ -143,9 +151,61 @@ ShaderProgram.prototype.getUniformLocations = function (uniformNames)
 };
 
 /**
- * Activates the shader program for subsequent drawing operations.
+ * Returns the index and offset of one or more uniform variables. Useful when using uniform block objects (UBO).
+ * @param {Array<string>} uniformNames
+ * @returns { [key: string]: { index: number, offset: number } }
  */
-ShaderProgram.prototype.useProgram = function ()
+ShaderProgram.prototype.getUniformOffsets = function (uniformNames)
 {
-	this.gl.useProgram(this.program);
+	let uniforms = { };
+
+	let indices = this.gl.getUniformIndices(this.program, uniformNames);
+	let offsets = this.gl.getActiveUniforms(this.program, indices, this.gl.UNIFORM_OFFSET);
+
+	for (let i in uniformNames) {
+		uniforms[uniformNames[i]] = { index: indices[i], offset: offsets[i] };
+	}
+
+	return uniforms;
+};
+
+/**
+ * Returns the index of a uniform block.
+ * @param {string} blockName
+ * @returns {number}
+ */
+ShaderProgram.prototype.getUniformBlockIndex = function (blockName)
+{
+	// TODO Add cache here?
+	return this.gl.getUniformBlockIndex(this.program, blockName);
+};
+
+/**
+ * Returns the indices of one or more uniform blocks.
+ * @param {Array<string>} blockNames
+ * @returns { [key: string]: number }
+ */
+ShaderProgram.prototype.getUniformBlockIndices = function (blockNames)
+{
+	let indices = { };
+
+	for (let blockName of blockNames) {
+		indices[blockName] = this.getUniformBlockIndex(blockName);
+	}
+
+	return indices;
+};
+
+/**
+ * Assigns a binding point for a uniform block given its name or index.
+ * @param {number|string} blockIdentifier
+ * @param {number} bindingIndex
+ * @returns {ShaderProgram}
+ */
+ShaderProgram.prototype.uniformBlockBinding = function (blockIdentifier, bindingIndex)
+{
+	if (typeof(blockIdentifier) === 'string')
+		blockIdentifier = this.getUniformBlockIndex(blockIdentifier);
+
+	return this.gl.uniformBlockBinding (this.program, blockIdentifier, bindingIndex);
 };

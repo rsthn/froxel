@@ -4,6 +4,7 @@ import VertexBuffer from './vertex-buffer.js';
 import ElementBuffer from './element-buffer.js';
 import VertexArrayObject from './vertex-array-object.js';
 import { Mat3, Vec4 } from 'froxel-math';
+import TextureObject from './texture-object.js';
 
 export default WebGLCanvas;
 
@@ -330,6 +331,7 @@ WebGLCanvas.prototype.init = function (options)
 	};
 
 	this.clearColor (parseInt(options.background.substring(0,2), 16)/255.0, parseInt(options.background.substring(2,4), 16)/255.0, parseInt(options.background.substring(4,6), 16)/255.0, 1.0);
+	this.colorMask (true, true, true, true);
 
 	this.enable (this.DEPTH_TEST);
 	this.clearDepth (0.0);
@@ -407,4 +409,47 @@ WebGLCanvas.prototype.createVertexBuffer = function (usage) {
  */
 WebGLCanvas.prototype.createElementBuffer = function (usage) {
 	return new ElementBuffer(this, usage);
+};
+
+/**
+ * Creates a new texture object of the specified size.
+ * @param {number} width - Physical texture width.
+ * @param {number} height - Physical texture height.
+ * @param {number} [targetWidth] - Logical texture width.
+ * @param {number} [targetHeight] - Logical texture height.
+ * @returns {TextureObject}
+ */
+WebGLCanvas.prototype.createTextureObject = function (width, height, targetWidth=null, targetHeight=null) {
+	return new TextureObject (this, width, height, targetWidth, targetHeight);
+};
+
+/**
+ * Loads an image from the specified URL.
+ * @param {string} url
+ * @returns {Promise<HTMLImageElement>}
+ */
+WebGLCanvas.loadImage = function (url)
+{
+	return new Promise((resolve, reject) =>
+	{
+		let img = new Image();
+		img.onload = () => resolve(img);
+		img.onerror = () => reject('Unable to load image: ' + url);
+		img.src = url;
+	});
+};
+
+/**
+ * Loads an image from the specified URL and creates a texture.
+ * @param {string} url
+ * @param {number} [mipmapLevels] - Number of levels for mipmapping. Defaults to `0`.
+ * @returns {Promise<TextureObject>}
+ */
+WebGLCanvas.prototype.loadTextureFromUrl = async function (url, mipmapLevels=0)
+{
+	let image = await WebGLCanvas.loadImage(url);
+	let texture = this.createTextureObject(image.width, image.height);
+	texture.setMipmapLevels(mipmapLevels);
+	texture.upload(image);
+	return texture;
 };

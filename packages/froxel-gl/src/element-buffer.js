@@ -9,8 +9,8 @@ export default class ElementBuffer extends Buffer
 	 * @param {WebGLCanvas} gl
 	 * @param {number} usage
 	 */
-	 constructor (gl, usage)
-	 {
-		 super (gl, gl.ELEMENT_ARRAY_BUFFER, usage);
-	 }
+	constructor (gl, usage)
+	{
+		super (gl, gl.ELEMENT_ARRAY_BUFFER, usage);
+	}
 };

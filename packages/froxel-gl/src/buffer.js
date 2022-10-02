@@ -55,6 +55,16 @@ export default class Buffer
 	}
 
 	/**
+	 * Unbinds the buffer from its GPU buffer target.
+	 * @returns {Buffer}
+	 */
+	unbindBuffer()
+	{
+		this.gl.bindBuffer(this.target, null);
+		return this;
+	}
+
+	/**
 	 * Initializes and creates the buffer object's data store.
 	 * @param {ArrayBufferView} srcData
 	 * @param {number} srcOffset?
@@ -62,7 +72,7 @@ export default class Buffer
 	 */
 	bufferData (srcData, srcOffset=0)
 	{
-		this.gl.bindBuffer(this.target, this.buffer);
+		this.bindBuffer();
 		this.gl.bufferData(this.target, srcData, this.usage, srcOffset);
 		return this;
 	}
@@ -77,7 +87,7 @@ export default class Buffer
 	 */
 	bufferSubData (dstByteOffset, srcData, srcOffset=0, length=0)
 	{
-		this.gl.bindBuffer(this.target, this.buffer);
+		this.bindBuffer();
 		this.gl.bufferSubData(this.target, dstByteOffset, srcData, srcOffset, length ? length : srcData.length);
 		return this;
 	}
