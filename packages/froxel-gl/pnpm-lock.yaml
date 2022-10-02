@@ -2,10 +2,10 @@ lockfileVersion: 5.4
 
 specifiers:
   asyl: ^1.0.1
-  froxel-math: ^0.0.1
+  froxel-math: ^0.0.2
 
 dependencies:
-  froxel-math: 0.0.1
+  froxel-math: 0.0.2
 
 devDependencies:
   asyl: 1.0.1
@@ -52,8 +52,8 @@ packages:
       fetch-blob: 3.2.0
     dev: false
 
-  /froxel-math/0.0.1:
-    resolution: {integrity: sha512-LGQa9vyPOGUrz+6Ya7LmHEqp/Mdjjo4713LPZzpV9c0yu/Zay3gcEQt0y4BD6WD4A8u0ckEJgzevI2zRBZZF7A==}
+  /froxel-math/0.0.2:
+    resolution: {integrity: sha512-Z3VjpWSSeq49QfqjcYmxFv3ugfY3t1u9Roiq5zmdS8+EOqk4Rez3g2ijK7ZK/r3UpcyEsVEp8iAXDG9EF+CxKg==}
     dependencies:
       asyl: 1.0.1
       atob: 2.1.2

@@ -264,7 +264,11 @@ export declare class TextureObject {
 	 * Binds the texture to the `TEXTURE_2D` target and allocates the texture storage if not allocated yet.
 	 * @returns {TextureObject}
 	 */
+<<<<<<< HEAD
 	bindTexture(): TextureObject;
+=======
+	bind(): TextureObject;
+>>>>>>> 1f6d8c940ce5bcc1edfcd3d2d5b183e18dfc36ff
 	/**
 	 * Allocates the texture storage.
 	 * @returns {TextureObject}
