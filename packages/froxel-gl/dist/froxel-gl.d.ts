@@ -49,6 +49,10 @@ export declare class ShaderProgram {
 	 */
 	bindAttribLocation(attribLocation: number, attribName: string): ShaderProgram;
 	/**
+	 * Activates the shader program for subsequent drawing operations.
+	 */
+	useProgram(): void;
+	/**
 	 * Returns the location of a uniform variable.
 	 * @param {string} uniformName
 	 * @returns {WebGLUniformLocation}
@@ -63,9 +67,34 @@ export declare class ShaderProgram {
 		key: string
 	];
 	/**
-	 * Activates the shader program for subsequent drawing operations.
+	 * Returns the index and offset of one or more uniform variables. Useful when using uniform block objects (UBO).
+	 * @param {Array<string>} uniformNames
+	 * @returns { [key: string]: { index: number, offset: number } }
 	 */
-	useProgram(): void;
+	getUniformOffsets(uniformNames: Array<string>): [
+		key: string
+	];
+	/**
+	 * Returns the index of a uniform block.
+	 * @param {string} blockName
+	 * @returns {number}
+	 */
+	getUniformBlockIndex(blockName: string): number;
+	/**
+	 * Returns the indices of one or more uniform blocks.
+	 * @param {Array<string>} blockNames
+	 * @returns { [key: string]: number }
+	 */
+	getUniformBlockIndices(blockNames: Array<string>): [
+		key: string
+	];
+	/**
+	 * Assigns a binding point for a uniform block given its name or index.
+	 * @param {number|string} blockIdentifier
+	 * @param {number} bindingIndex
+	 * @returns {ShaderProgram}
+	 */
+	uniformBlockBinding(blockIdentifier: number | string, bindingIndex: number): ShaderProgram;
 }
 export declare namespace ShaderProgram {
 	const attribLocations: Map<string, number>;
@@ -149,6 +178,11 @@ export declare class Buffer {
 	 * @returns {Buffer}
 	 */
 	bindBuffer(): Buffer;
+	/**
+	 * Unbinds the buffer from its GPU buffer target.
+	 * @returns {Buffer}
+	 */
+	unbindBuffer(): Buffer;
 	/**
 	 * Initializes and creates the buffer object's data store.
 	 * @param {ArrayBufferView} srcData
@@ -264,11 +298,7 @@ export declare class TextureObject {
 	 * Binds the texture to the `TEXTURE_2D` target and allocates the texture storage if not allocated yet.
 	 * @returns {TextureObject}
 	 */
-<<<<<<< HEAD
 	bindTexture(): TextureObject;
-=======
-	bind(): TextureObject;
->>>>>>> 1f6d8c940ce5bcc1edfcd3d2d5b183e18dfc36ff
 	/**
 	 * Allocates the texture storage.
 	 * @returns {TextureObject}
@@ -511,6 +541,25 @@ export declare namespace WebGLCanvas {
 	 * @returns {Promise<HTMLImageElement>}
 	 */
 	function loadImage(url: string): Promise<HTMLImageElement>;
+}
+export declare class UniformBuffer extends Buffer {
+	/**
+	 * Creates a buffer linked to the UNIFORM_BUFFER target.
+	 * @param {WebGLCanvas} gl
+	 * @param {number} usage
+	 */
+	constructor(gl: WebGLCanvas, usage: number);
+	/**
+	 * Uniforn block binding index. Set using `bindBufferBase`.
+	 * @readonly @type {number}
+	 */
+	readonly bindingIndex: number;
+	/**
+	 * Binds the buffer to the UNIFORM_BUFFER binding point at a given index.
+	 * @param {number} index
+	 * @returns {UniformBuffer}
+	 */
+	bindBufferBase(index: number): UniformBuffer;
 }
 
 export {};
