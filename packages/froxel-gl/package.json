@@ -18,7 +18,7 @@
         "main": {
             "source": "./src/main.js",
             "optimize": true,
-			"isLibrary": true
+            "isLibrary": true
         }
     },
     "repository": {
@@ -33,10 +33,14 @@
         "README.md",
         "dist/"
     ],
-    "dependencies": {
-        "froxel-math": "^0.0.2"
-    },
     "devDependencies": {
-        "asyl": "^1.0.1"
+        "asyl": "^1.0.1",
+        "dts-bundle-generator": "^8.0.1",
+        "parcel": "^2.9.1",
+        "shx": "^0.3.4",
+        "typescript": "^5.0.4"
+    },
+    "dependencies": {
+        "froxel-math": "link:..\\froxel-math"
     }
 }

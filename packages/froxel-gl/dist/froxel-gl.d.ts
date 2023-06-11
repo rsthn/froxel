@@ -191,6 +191,12 @@ export declare class Buffer {
 	 */
 	bufferData(srcData: ArrayBufferView, srcOffset?: number): Buffer;
 	/**
+	 * Allocates the specified number of bytes for the buffer.
+	 * @param {number} numBytes
+	 * @returns {Buffer}
+	 */
+	allocate(numBytes: number): Buffer;
+	/**
 	 * Updates a subset of the buffer object's data store.
 	 * @param {number} dstByteOffset
 	 * @param {ArrayBufferView} srcData
@@ -392,9 +398,13 @@ export type WebGLCanvasUniforms = {
 	 */
 	changed: boolean;
 	/**
-	 * Initial transformation matrix.
+	 * Initial transformation matrix, takes care of the scale and rotation to achieve correct orientation.
 	 */
 	transform: Mat3;
+	/**
+	 * Projection matrix.
+	 */
+	projection: Mat3;
 	/**
 	 * Canvas resolution.
 	 */
@@ -441,7 +451,8 @@ export declare class WebGLCanvas {
 	/**
 	 * @typedef {Object} WebGLCanvasUniforms
 	 * @prop {boolean} changed Indicates if the uniforms have changed.
-	 * @prop {Mat3} transform Initial transformation matrix.
+	 * @prop {Mat3} transform Initial transformation matrix, takes care of the scale and rotation to achieve correct orientation.
+	 * @prop {Mat3} projection Projection matrix.
 	 * @prop {Vec4} resolution Canvas resolution.
 	 */
 	/**

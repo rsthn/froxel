@@ -78,6 +78,18 @@ export default class Buffer
 	}
 
 	/**
+	 * Allocates the specified number of bytes for the buffer.
+	 * @param {number} numBytes
+	 * @returns {Buffer}
+	 */
+	allocate (numBytes)
+	{
+		this.bindBuffer();
+		this.gl.bufferData(this.target, numBytes, this.usage);
+		return this;
+	}
+
+	/**
 	 * Updates a subset of the buffer object's data store. 
 	 * @param {number} dstByteOffset
 	 * @param {ArrayBufferView} srcData

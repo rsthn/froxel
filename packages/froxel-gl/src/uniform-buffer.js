@@ -5,7 +5,7 @@ import Buffer from './buffer.js';
 export default class UniformBuffer extends Buffer
 {
 	/**
-	 * Uniforn block binding index. Set using `bindBufferBase`.
+	 * Uniform block binding index. Set using `bindBufferBase`.
 	 * @readonly @type {number}
 	 */
 	bindingIndex;

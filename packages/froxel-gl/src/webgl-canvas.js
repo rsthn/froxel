@@ -3,7 +3,7 @@ import ShaderProgram from './shader-program.js';
 import VertexBuffer from './vertex-buffer.js';
 import ElementBuffer from './element-buffer.js';
 import VertexArrayObject from './vertex-array-object.js';
-import { Mat3, Vec4 } from 'froxel-math';
+import { Mat4, Vec4 } from 'froxel-math';
 import TextureObject from './texture-object.js';
 
 export default WebGLCanvas;
@@ -157,11 +157,11 @@ function autoResizeCanvas (wgl)
 	wgl.isFlipped = flipped;
 
 	wgl.u.transform.identity();
-	wgl.u.transform.scale(scaleFactor, scaleFactor);
+	wgl.u.transform.scale(scaleFactor, scaleFactor, scaleFactor);
 
 	if (flipped) {
-		wgl.u.transform.rotate(Math.PI/2);
-		wgl.u.transform.translate(-currentWidth, 0);
+		wgl.u.transform.rotateZ(Math.PI/2);
+		wgl.u.transform.translate(-currentWidth, 0, 0);
 	}
 
 	wgl.updateViewport();
@@ -225,13 +225,16 @@ WebGLCanvas.prototype.gl = null;
 
 /**
  * @typedef {Object} WebGLCanvasUniforms
- * @prop {boolean} changed Indicates if the uniforms have changed.
- * @prop {Mat3} transform Initial transformation matrix.
- * @prop {Vec4} resolution Canvas resolution.
+ * @prop {boolean} changed Indicates if the uniforms have changed and should be reloaded in the WebGL program.
+ * @prop {Vec4} resolution Canvas resolution (automatically set by WebGLCanvas).
+ * @prop {Mat4} initial Transformation to achieve correct target resolution and orientation (automatically set by WebGLCanvas).
+ * @prop {Mat4} view Transforms coordinates to view space.
+ * @prop {Mat4} projection Transforms coordinates to NDC space.
+ * @prop {Mat4} mvp Model-view-projection (MVP) matrix contains all transformations in a single matrix.
  */
 
 /**
- * Canvas uniforms.
+ * Canvas common uniforms.
  * @readonly @type {WebGLCanvasUniforms}
  */
 WebGLCanvas.prototype.u = null;
@@ -303,7 +306,7 @@ WebGLCanvas.prototype.init = function (options)
 		this.canvas.style.top = '0px';
 	}
 
-	// Get WebGL context and re-bind to the WebGLCanvas object.
+	// Get WebGL context and re-bind functions and values to the WebGLCanvas object.
 	this.gl = this.canvas.getContext('webgl2', { desynchronized: false, preserveDrawingBuffer: false, alpha: false, stencil: options.stencil });
 
 	for (let prop in this.gl)
@@ -323,13 +326,17 @@ WebGLCanvas.prototype.init = function (options)
 
 	console.log(this.getParameter(this.VERSION) + ', ' + this.getParameter(this.SHADING_LANGUAGE_VERSION));
 
-	// Initialize default configuration.
+	// Allocate uniforms.
 	this.u = {
 		changed: true,
-		transform: Mat3.alloc(),
-		resolution: Vec4.alloc()
+		resolution: Vec4.alloc(),
+		initial: Mat4.alloc(),
+		view: Mat4.alloc(),
+		projection: Mat4.alloc(),
+		mvp: Mat4.alloc(),
 	};
 
+	// Initialize default configuration.
 	this.clearColor (parseInt(options.background.substring(0,2), 16)/255.0, parseInt(options.background.substring(2,4), 16)/255.0, parseInt(options.background.substring(4,6), 16)/255.0, 1.0);
 	this.colorMask (true, true, true, true);
 
@@ -368,7 +375,7 @@ WebGLCanvas.prototype.updateViewport = function ()
 	this.scissor (0, 0, this.physWidth, this.physHeight);
 	this.viewport (0, 0, this.physWidth, this.physHeight);
 
-	//violet:hardware scaling
+	//violet:hardware scaling? currently we're using canvas browser-level scaling.
 	//this.v_resolution[0] = this._width;
 	//this.v_resolution[1] = this._height;
 	this.u.resolution.set(this.physWidth, this.physHeight, this.isFlipped ? this.physHeight : this.physWidth, this.isFlipped ? this.physWidth : this.physHeight);
@@ -430,8 +437,7 @@ WebGLCanvas.prototype.createTextureObject = function (width, height, targetWidth
  */
 WebGLCanvas.loadImage = function (url)
 {
-	return new Promise((resolve, reject) =>
-	{
+	return new Promise((resolve, reject) => {
 		let img = new Image();
 		img.onload = () => resolve(img);
 		img.onerror = () => reject('Unable to load image: ' + url);
