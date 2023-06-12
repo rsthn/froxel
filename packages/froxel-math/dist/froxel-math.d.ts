@@ -101,7 +101,7 @@ export declare class Vec2 {
 	 */
 	translate(dx: number, dy: number): Vec2;
 	/**
-	 * Rotates the vector by the specified angle using the specified (optional) origin point.
+	 * Rotates the vector by the specified angle (in radians) using the specified (optional) origin point.
 	 */
 	rotate(angle: number, cx?: number, cy?: number): Vec2;
 	/**
@@ -694,9 +694,110 @@ export declare class Mat3 {
 	 */
 	translate(dx: number, dy: number): Mat3;
 	/**
-	 * Appends a rotation matrix constructed for the specified angle.
+	 * Appends a rotation matrix constructed for the specified angle (in radians).
 	 */
 	rotate(angle: number): Mat3;
+	/**
+	 * Returns the string representation of the matrix.
+	 */
+	toString(): string;
+}
+/**
+ * 4x4 Matrix.
+ */
+export declare class Mat4 {
+	/**
+	 * Address of underlying mat4 object.
+	 */
+	addr: number;
+	/**
+	 * Underlying vector data.
+	 */
+	data: Float32Array;
+	/**
+	 * Binds the specified Asyl module to the class.
+	 */
+	static bind(module: Module): void;
+	/**
+	 * Allocates a new matrix.
+	 */
+	static alloc(): Mat4;
+	/**
+	 * Constructs the matrix object.
+	 */
+	private constructor();
+	/**
+	 * Destroys the instance.
+	 */
+	dtor(): void;
+	/**
+	 * Returns a clone of the matrix.
+	 */
+	clone(): Mat4;
+	/**
+	 * Sets all components of the matrix to the given value.
+	 */
+	fill(value: number): Mat4;
+	/**
+	 * Sets the diagonal of the matrix to the specified value.
+	 */
+	set(value: number): Mat4;
+	/**
+	 * Copies all the components from the specified matrix.
+	 */
+	set(matrix: Mat4): Mat4;
+	/**
+	 * Sets a column of the matrix.
+	 */
+	set(col: number, a0: number, a1: number, a2: number, a3: number): Mat4;
+	/**
+	 * Sets a column of the matrix.
+	 */
+	col(col: number, a0: number, a1: number, a2: number, a3: number): Mat4;
+	/**
+	 * Sets a row of the matrix.
+	 */
+	row(row: number, a0: number, a1: number, a2: number, a3: number): Mat4;
+	/**
+	 * Sets all components of the matrix to zero, and the diagonal to ones.
+	 */
+	identity(): Mat4;
+	/**
+	 * Scales all the components of the matrix by the specified factor.
+	 */
+	scale(f: number): Mat4;
+	/**
+	 * Appends a `scale` matrix constructed with the specified factors.
+	 */
+	scale(sx: number, sy: number, sz: number): Mat4;
+	/**
+	 * Transposes the matrix.
+	 */
+	transpose(): Mat4;
+	/**
+	 * Returns the determinant of the matrix.
+	 */
+	det(): number;
+	/**
+	 * Appends the given matrix by using matrix multiplication.
+	 */
+	append(matrix: Mat4): Mat4;
+	/**
+	 * Appends a translation matrix constructed with the specified deltas.
+	 */
+	translate(dx: number, dy: number, dz: number): Mat4;
+	/**
+	 * Appends a rotation matrix constructed for the specified angle (radians) along the X-axis.
+	 */
+	rotateX(angle: number): Mat4;
+	/**
+	 * Appends a rotation matrix constructed for the specified angle (radians) along the Y-axis.
+	 */
+	rotateY(angle: number): Mat4;
+	/**
+	 * Appends a rotation matrix constructed for the specified angle (radians) along the Z-axis.
+	 */
+	rotateZ(angle: number): Mat4;
 	/**
 	 * Returns the string representation of the matrix.
 	 */

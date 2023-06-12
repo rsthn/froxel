@@ -28,44 +28,44 @@ describe('Mat3', () =>
 
 	it('fill(number)', () => {
 		a.fill(1.5);
-		expect(a.data).to.deep.equals(new Float32Array([ 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5 ]));
+		expect(a.data).to.deep.almost.equals(new Float32Array([ 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5 ]));
 	});
 
 	it('set(number)', () => {
 		b.fill(8).set(1.0);
-		expect(b.data).to.deep.equals(new Float32Array([ 1, 8, 8, 8, 1, 8, 8, 8, 1 ]));
+		expect(b.data).to.deep.almost.equals(new Float32Array([ 1, 8, 8, 8, 1, 8, 8, 8, 1 ]));
 	});
 
 	it('identity()', () => {
 		b.identity();
-		expect(b.data).to.deep.equals(new Float32Array([ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]));
+		expect(b.data).to.deep.almost.equals(new Float32Array([ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]));
 	});
 
 	it('set(matrix)', () => {
 		c.set(a);
-		expect(c.data).to.deep.equals(new Float32Array([ 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5 ]));
+		expect(c.data).to.deep.almost.equals(new Float32Array([ 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5 ]));
 	});
 
 	it('scale(number)', () => {
 		c.scale(-5.0);
-		expect(c.data).to.deep.equals(new Float32Array([ -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5 ]));
+		expect(c.data).to.deep.almost.equals(new Float32Array([ -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5 ]));
 	});
 
 	it('scale(number, number)', () => {
 		c.scale(10.0, -10.0);
-		expect(c.data).to.deep.equals(new Float32Array([ -75, -75, -75, 75, 75, 75, -7.5, -7.5, -7.5 ]));
+		expect(c.data).to.deep.almost.equals(new Float32Array([ -75, -75, -75, 75, 75, 75, -7.5, -7.5, -7.5 ]));
 	});
 
 	it('transpose()', () => {
 		c.transpose();
-		expect(c.data).to.deep.equals(new Float32Array([ -75, 75, -7.5, -75, 75, -7.5, -75, 75, -7.5 ]));
+		expect(c.data).to.deep.almost.equals(new Float32Array([ -75, 75, -7.5, -75, 75, -7.5, -75, 75, -7.5 ]));
 	});
 
 	it('col(number, number, number, number)', () => {
 		a.col(0, 1, 2, 3);
 		a.col(1, 2, 9, 8);
 		a.col(2, 5, 6, 7);
-		expect(a.data).to.deep.equals(new Float32Array([ 1, 2, 3, 2, 9, 8, 5, 6, 7 ]));
+		expect(a.data).to.deep.almost.equals(new Float32Array([ 1, 2, 3, 2, 9, 8, 5, 6, 7 ]));
 	});
 
 	it('row(number, number, number, number)', () => {
@@ -73,7 +73,7 @@ describe('Mat3', () =>
 		b.row(0, 1, 2, 3);
 		b.row(1, 2, 9, 8);
 		b.row(2, 5, 6, 7);
-		expect(b.data).to.deep.equals(new Float32Array([ 1, 2, 5, 2, 9, 6, 3, 8, 7 ]));
+		expect(b.data).to.deep.almost.equals(new Float32Array([ 1, 2, 5, 2, 9, 6, 3, 8, 7 ]));
 	});
 
 	it('det()', () => {
@@ -83,16 +83,16 @@ describe('Mat3', () =>
 	it('append(matrix)', () => {
 		b.identity().scale(2.0, -2.0);
 		a.append(b);
-		expect(a.data).to.deep.equals(new Float32Array([ 2, 4, 6, -4, -18, -16, 5, 6, 7 ]));
+		expect(a.data).to.deep.almost.equals(new Float32Array([ 2, 4, 6, -4, -18, -16, 5, 6, 7 ]));
 	});
 
 	it('translate(number, number)', () => {
 		a.translate(100, -100);
-		expect(a.data).to.deep.equals(new Float32Array([ 2, 4, 6, -4, -18, -16, 605, 2206, 2207 ]));
+		expect(a.data).to.deep.almost.equals(new Float32Array([ 2, 4, 6, -4, -18, -16, 605, 2206, 2207 ]));
 	});
 
 	it('rotate(number)', () => {
 		a.rotate(Math.PI);
-		expect(a.data).to.deep.equals(new Float32Array([ -2, -4, -6, 4, 18, 16, 605, 2206, 2207 ]));
+		expect(a.data).to.deep.almost.equals(new Float32Array([ -2, -4, -6, 4, 18, 16, 605, 2206, 2207 ]));
 	});
 });

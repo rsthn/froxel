@@ -37,3 +37,6 @@ You can also use `pnpm watch` to start in watcher mode and have your modificatio
 <br/>
 
 ##### <sup>1</sup> Due to restrictions of access to the `file://` URI in browsers, it is recommended to use an HTTP server to host your project in a localhost environment. You can use a server such as the `http-server` package for Node (which is included in the froxel project), `nginx`, `Apache`, etc. If you're using Firefox, you can alternatively open `about:config` and set `security.fileuri.strict_origin_policy` to `false` and open the `index.html` directly.
+
+
+media.autoplay.default

@@ -560,7 +560,8 @@ Object.assign(Resources,
 
 				fetchd (r.src + "?r=" + Math.random()).then(function(arrayBuffer)
 				{
-					r.data = String.fromCharCode.apply(null, new Uint8Array(arrayBuffer));
+					let enc = new TextDecoder('utf-8');
+					r.data = enc.decode(arrayBuffer);
 
 					Resources.onLoaded (list, keyList[index], () => {
 						Resources.load (list, progressCallback, completeCallback, keyList, index + 1);

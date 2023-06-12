@@ -1,6 +1,8 @@
 #ifndef __rect_h
 #define __rect_h
 
+#include "vec2.h"
+
 struct rect {
 	float x1, y1;
 	float x2, y2;

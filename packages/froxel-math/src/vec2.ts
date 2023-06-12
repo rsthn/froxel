@@ -196,7 +196,7 @@ export default class Vec2
 	}
 
 	/**
-	 * Rotates the vector by the specified angle using the specified (optional) origin point.
+	 * Rotates the vector by the specified angle (in radians) using the specified (optional) origin point.
 	 */
 	rotate (angle: number, cx: number=0, cy: number=0) : Vec2
 	{

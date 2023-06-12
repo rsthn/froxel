@@ -44,8 +44,8 @@
     "homepage": "https://github.com/rsthn/froxel#readme",
     "devDependencies": {
         "filereader": "^0.10.3",
-        "image-size": "^1.0.1",
-        "parcel": "^2.6.2",
+        "image-size": "^1.0.2",
+        "parcel": "^2.9.1",
         "shx": "^0.3.4"
     },
     "dependencies": {

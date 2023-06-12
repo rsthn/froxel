@@ -174,7 +174,7 @@ export default class Mat3
 	}
 
 	/**
-	 * Appends a rotation matrix constructed for the specified angle.
+	 * Appends a rotation matrix constructed for the specified angle (in radians).
 	 */
 	rotate (angle: number) : Mat3
 	{
