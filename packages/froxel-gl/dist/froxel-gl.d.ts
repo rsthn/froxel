@@ -1,4 +1,4 @@
-import { Mat3, Vec4 } from 'froxel-math';
+import { Mat4, Vec4 } from 'froxel-math';
 
 /**
  * Creates a WebGL GLSL Shader Program.
@@ -394,21 +394,29 @@ export type WebGLCanvasOptions = {
 };
 export type WebGLCanvasUniforms = {
 	/**
-	 * Indicates if the uniforms have changed.
+	 * Indicates if the uniforms have changed and should be reloaded in the WebGL program.
 	 */
 	changed: boolean;
 	/**
-	 * Initial transformation matrix, takes care of the scale and rotation to achieve correct orientation.
-	 */
-	transform: Mat3;
-	/**
-	 * Projection matrix.
-	 */
-	projection: Mat3;
-	/**
-	 * Canvas resolution.
+	 * Canvas resolution (automatically set by WebGLCanvas).
 	 */
 	resolution: Vec4;
+	/**
+	 * Transformation to achieve correct target resolution and orientation (automatically set by WebGLCanvas).
+	 */
+	initial: Mat4;
+	/**
+	 * Transforms coordinates to view space.
+	 */
+	view: Mat4;
+	/**
+	 * Transforms coordinates to NDC space. Use the `setOrtho2D`, `setOrtho3D` or `setFrustrum` methods of Utils to configure its value.
+	 */
+	projection: Mat4;
+	/**
+	 * Model-view-projection (MVP) matrix contains all transformations in a single matrix.
+	 */
+	mvp: Mat4;
 };
 /**
  * High performance WebGL2 Canvas.
@@ -450,13 +458,16 @@ export declare class WebGLCanvas {
 	private readonly gl;
 	/**
 	 * @typedef {Object} WebGLCanvasUniforms
-	 * @prop {boolean} changed Indicates if the uniforms have changed.
-	 * @prop {Mat3} transform Initial transformation matrix, takes care of the scale and rotation to achieve correct orientation.
-	 * @prop {Mat3} projection Projection matrix.
-	 * @prop {Vec4} resolution Canvas resolution.
+	 * @prop {boolean} changed Indicates if the uniforms have changed and should be reloaded in the WebGL program.
+	 * @prop {Vec4} resolution Canvas resolution (automatically set by WebGLCanvas).
+	 * @prop {Mat4} initial Transformation to achieve correct target resolution and orientation (automatically set by WebGLCanvas).
+	 * @prop {Mat4} view Transforms coordinates to view space.
+	 * @prop {Mat4} projection Transforms coordinates to NDC space. Use the `setOrtho2D`, `setOrtho3D` or `setFrustrum` methods of Utils to configure its value.
+	 * @prop {Mat4} mvp Model-view-projection (MVP) matrix contains all transformations in a single matrix.
 	 */
 	/**
-	 * Canvas uniforms.
+	 * Common uniforms for WebGL. Note that it is the responsibility of the developer to set, configure and use these uniforms (except the ones marked
+	 * as "automatically set by WebGLCanvas"). Thse are provided solely as placeholders for easy access from a known interface.
 	 * @readonly @type {WebGLCanvasUniforms}
 	 */
 	readonly u: WebGLCanvasUniforms;
@@ -561,7 +572,7 @@ export declare class UniformBuffer extends Buffer {
 	 */
 	constructor(gl: WebGLCanvas, usage: number);
 	/**
-	 * Uniforn block binding index. Set using `bindBufferBase`.
+	 * Uniform block binding index. Set using `bindBufferBase`.
 	 * @readonly @type {number}
 	 */
 	readonly bindingIndex: number;
@@ -572,5 +583,42 @@ export declare class UniformBuffer extends Buffer {
 	 */
 	bindBufferBase(index: number): UniformBuffer;
 }
+declare namespace _default {
+	/**
+	 * Sets up an orthographic 2D projection matrix.
+	 * @param {Mat4} outputMatrix - The output matrix to store the projection matrix.
+	 * @param {number} left - The left coordinate of the view volume.
+	 * @param {number} right - The right coordinate of the view volume.
+	 * @param {number} top - The top coordinate of the view volume.
+	 * @param {number} bottom - The bottom coordinate of the view volume.
+	 */
+	function setOrtho2D(outputMatrix: Mat4, left: number, right: number, top: number, bottom: number): void;
+	/**
+	 * Sets up an orthographic 3D projection matrix.
+	 * @param {Mat4} outputMatrix - The output matrix to store the projection matrix.
+	 * @param {number} left - The left coordinate of the view volume.
+	 * @param {number} right - The right coordinate of the view volume.
+	 * @param {number} top - The top coordinate of the view volume.
+	 * @param {number} bottom - The bottom coordinate of the view volume.
+	 * @param {number} near - The near clipping plane distance.
+	 * @param {number} far - The far clipping plane distance.
+	 */
+	function setOrtho3D(outputMatrix: Mat4, left: number, right: number, top: number, bottom: number, near: number, far: number): void;
+	/**
+	 * Sets up a perspective projection matrix.
+	 * @param {Mat4} outputMatrix - The output matrix to store the projection matrix.
+	 * @param {number} left - The left coordinate of the frustum at the near clipping plane.
+	 * @param {number} right - The right coordinate of the frustum at the near clipping plane.
+	 * @param {number} bottom - The bottom coordinate of the frustum at the near clipping plane.
+	 * @param {number} top - The top coordinate of the frustum at the near clipping plane.
+	 * @param {number} near - The distance to the near clipping plane.
+	 * @param {number} far - The distance to the far clipping plane.
+	 */
+	function setPerspective(outputMatrix: Mat4, left: number, right: number, bottom: number, top: number, near: number, far: number): void;
+}
+
+export {
+	_default as Utils,
+};
 
 export {};

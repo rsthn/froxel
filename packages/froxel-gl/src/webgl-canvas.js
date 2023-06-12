@@ -156,12 +156,12 @@ function autoResizeCanvas (wgl)
 	wgl.globalScale = scaleFactor;
 	wgl.isFlipped = flipped;
 
-	wgl.u.transform.identity();
-	wgl.u.transform.scale(scaleFactor, scaleFactor, scaleFactor);
+	wgl.u.initial.identity();
+	wgl.u.initial.scale(scaleFactor, scaleFactor, scaleFactor);
 
 	if (flipped) {
-		wgl.u.transform.rotateZ(Math.PI/2);
-		wgl.u.transform.translate(-currentWidth, 0, 0);
+		wgl.u.initial.rotateZ(Math.PI/2);
+		wgl.u.initial.translate(-currentWidth, 0, 0);
 	}
 
 	wgl.updateViewport();
@@ -229,12 +229,13 @@ WebGLCanvas.prototype.gl = null;
  * @prop {Vec4} resolution Canvas resolution (automatically set by WebGLCanvas).
  * @prop {Mat4} initial Transformation to achieve correct target resolution and orientation (automatically set by WebGLCanvas).
  * @prop {Mat4} view Transforms coordinates to view space.
- * @prop {Mat4} projection Transforms coordinates to NDC space.
+ * @prop {Mat4} projection Transforms coordinates to NDC space. Use the `setOrtho2D`, `setOrtho3D` or `setFrustrum` methods of Utils to configure its value.
  * @prop {Mat4} mvp Model-view-projection (MVP) matrix contains all transformations in a single matrix.
  */
 
 /**
- * Canvas common uniforms.
+ * Common uniforms for WebGL. Note that it is the responsibility of the developer to set, configure and use these uniforms (except the ones marked
+ * as "automatically set by WebGLCanvas"). Thse are provided solely as placeholders for easy access from a known interface.
  * @readonly @type {WebGLCanvasUniforms}
  */
 WebGLCanvas.prototype.u = null;
@@ -326,7 +327,7 @@ WebGLCanvas.prototype.init = function (options)
 
 	console.log(this.getParameter(this.VERSION) + ', ' + this.getParameter(this.SHADING_LANGUAGE_VERSION));
 
-	// Allocate uniforms.
+	// Allocate placeholder for uniforms.
 	this.u = {
 		changed: true,
 		resolution: Vec4.alloc(),
