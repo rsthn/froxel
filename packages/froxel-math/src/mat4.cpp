@@ -1,5 +1,6 @@
 
 #include <cstring>
+#include <cstdlib>
 #include <cmath>
 #include <wasm>
 
@@ -9,7 +10,11 @@ static mat4 tmp { 0 };
 static mat4 tmp2 { 0 };
 
 export mat4 *mat4_alloc () {
-	return new mat4();
+	return (mat4*)malloc(sizeof(mat4));
+}
+
+export mat4 *mat4_materialize (void *addr) {
+	return (mat4*)addr;
 }
 
 export void mat4_dtor (mat4 *self) {

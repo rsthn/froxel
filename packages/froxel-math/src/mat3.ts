@@ -34,6 +34,14 @@ export default class Mat3
 	}
 
 	/**
+	 * Materializes a matrix at the specified memory location.
+	 */
+	static materialize(addr: number) : Mat3
+	{
+		return new Mat3(m.mat3_materialize(addr));
+	}
+
+	/**
 	 * Constructs the matrix object.
 	 */
 	private constructor (addr: number) {

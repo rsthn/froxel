@@ -1,6 +1,7 @@
 
 import { Mat4 } from '../dist/froxel-math.m.js';
 import { default as chai, expect } from 'chai';
+import { asyl } from 'asyl';
 import almost from 'chai-almost';
 
 const epsilon = 0.0001;
@@ -20,6 +21,30 @@ describe('Mat4', () =>
 		expect(b.addr).to.not.equals(0);
 		expect(c.addr).to.not.equals(0);
 		expect(t.addr).to.not.equals(0);
+	});
+
+	it('materialize()', () => {
+		let ptr = asyl.alloc(2*16*Float32Array.BYTES_PER_ELEMENT);
+		let m1 = Mat4.materialize(ptr);
+		let m2 = Mat4.materialize(ptr+16*Float32Array.BYTES_PER_ELEMENT);
+
+		m1.col(0, 1, 2, 3, 4);
+		m1.col(1, 5, 16, 7, 8);
+		m1.col(2, 9, 10, 7, 12);
+		m1.col(3, 13, 14, 15, 16);
+
+		m2.row(0, 1, 2, 3, 4);
+		m2.row(1, 5, 6, 7, 8);
+		m2.row(2, 9, 10, 11, 12);
+		m2.row(3, 13, 14, 15, 16);
+
+		expect(m1.data).to.deep.almost.equals(new Float32Array([ 1, 2, 3, 4, 5, 16, 7, 8, 9, 10, 7, 12, 13, 14, 15, 16 ]));
+		expect(m2.data).to.deep.almost.equals(new Float32Array([ 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16 ]));
+
+		let t1 = asyl.mapFloat32Array(ptr, 16);
+		let t2 = asyl.mapFloat32Array(ptr+16*Float32Array.BYTES_PER_ELEMENT, 16);
+		expect(t1).to.deep.almost.equals(new Float32Array([ 1, 2, 3, 4, 5, 16, 7, 8, 9, 10, 7, 12, 13, 14, 15, 16 ]));
+		expect(t2).to.deep.almost.equals(new Float32Array([ 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16 ]));
 	});
 
 	it('float[16]', () => {

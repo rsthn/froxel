@@ -33,6 +33,14 @@ export default class Vec2
 	}
 
 	/**
+	 * Materializes a vector at the specified memory location.
+	 */
+	static materialize(addr: number) : Vec2
+	{
+		return new Vec2(m.vec2_materialize(addr));
+	}
+
+	/**
 	 * Constructs the vector with the specified coordinates.
 	 */
 	private constructor (addr: number) {

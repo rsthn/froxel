@@ -51,6 +51,14 @@ export default class Rect
 	}
 
 	/**
+	 * Materializes a rectangle at the specified memory location.
+	 */
+	static materialize(addr: number) : Rect
+	{
+		return new Rect(m.rect_materialize(addr));
+	}
+
+	/**
 	 * Constructs the rectangle object.
 	 */
 	private constructor (addr: number) {

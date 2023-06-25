@@ -1,5 +1,6 @@
 
 #include <cstring>
+#include <cstdlib>
 #include <cmath>
 #include <wasm>
 
@@ -7,7 +8,14 @@
 
 
 export vec2 *vec2_alloc2f (double x, double y) {
-	return new vec2 { (float)x, (float)y };
+	vec2 *t = (vec2*)malloc(sizeof(vec2));
+	t->x = x;
+	t->y = y;
+	return t;
+}
+
+export vec2 *vec2_materialize (void *addr) {
+	return (vec2*)addr;
 }
 
 export void vec2_dtor (vec2 *self) {

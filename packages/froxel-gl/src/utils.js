@@ -2,7 +2,7 @@
 import { Mat4 } from 'froxel-math';
 
 /**
- * Sets up an orthographic 2D projection matrix.
+ * Sets up an orthographic 2D projection matrix (similar to calling setOrtho2D with near=1.0 and far=-1.0).
  * @param {Mat4} outputMatrix - Output to store the projection matrix.
  * @param {number} left - The left coordinate of the view volume.
  * @param {number} right - The right coordinate of the view volume.
@@ -23,7 +23,7 @@ export function setOrtho2D (outputMatrix, left, right, top, bottom)
 
 	outputMatrix.data[8] = 0.0;
 	outputMatrix.data[9] = 0.0;
-	outputMatrix.data[10] = -1.0;
+	outputMatrix.data[10] = 1.0;
 	outputMatrix.data[11] = 0.0;
 
 	outputMatrix.data[12] = -(right + left) / (right - left);
@@ -56,12 +56,12 @@ export function setOrtho3D (outputMatrix, left, right, top, bottom, near, far)
 
 	outputMatrix.data[8] = 0.0;
 	outputMatrix.data[9] = 0.0;
-	outputMatrix.data[10] = -2.0 / (far - near);
+	outputMatrix.data[10] = 2.0 / (near - far);
 	outputMatrix.data[11] = 0.0;
 
 	outputMatrix.data[12] = -(right + left) / (right - left);
 	outputMatrix.data[13] = -(top + bottom) / (top - bottom);
-	outputMatrix.data[14] = -(far + near) / (far - near);
+	outputMatrix.data[14] = -(near + far) / (near - far);
 	outputMatrix.data[15] = 1.0;
 }
 

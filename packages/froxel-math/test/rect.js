@@ -1,8 +1,12 @@
 
 import assert from 'assert';
 import { Rect } from '../dist/froxel-math.m.js';
+import { asyl } from 'asyl';
+import { default as chai, expect } from 'chai';
+import almost from 'chai-almost';
 
 const epsilon = 0.0001;
+chai.use(almost(epsilon));
 
 describe('Rect', () =>
 {
@@ -26,6 +30,35 @@ describe('Rect', () =>
 	it('alloc(x1, y1, x2, y2)', () => {
 		d = Rect.alloc(10, -10, 120, 150);
 		assert(d.x1() == 10 && d.y1() == -10 && d.x2() == 120 && d.y2() == 150);
+	});
+
+	it('materialize()', () => {
+		let ptr = asyl.alloc(2*6*Float32Array.BYTES_PER_ELEMENT);
+		let m1 = Rect.materialize(ptr);
+		let m2 = Rect.materialize(ptr+6*Float32Array.BYTES_PER_ELEMENT);
+
+		m1.set(-78.25, 2.5768, -23.4, 12.55);
+		m2.set(3.14, -6.28, 56.23, -9.78);
+		expect(m1.x1()).to.almost.equals(-78.25);
+		expect(m1.y1()).to.almost.equals(2.5768);
+		expect(m1.x2()).to.almost.equals(-23.4);
+		expect(m1.y2()).to.almost.equals(12.55);
+
+		expect(m2.x1()).to.almost.equals(3.14);
+		expect(m2.y1()).to.almost.equals(-6.28);
+		expect(m2.x2()).to.almost.equals(56.23);
+		expect(m2.y2()).to.almost.equals(-9.78);
+
+		let t = asyl.mapFloat32Array(ptr, 2*6);
+		expect(t[0]).to.almost.equals(-78.25);
+		expect(t[1]).to.almost.equals(2.5768);
+		expect(t[2]).to.almost.equals(-23.4);
+		expect(t[3]).to.almost.equals(12.55);
+
+		expect(t[6]).to.almost.equals(3.14);
+		expect(t[7]).to.almost.equals(-6.28);
+		expect(t[8]).to.almost.equals(56.23);
+		expect(t[9]).to.almost.equals(-9.78);
 	});
 
  	it('clone()', () => {

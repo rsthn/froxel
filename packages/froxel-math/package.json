@@ -11,7 +11,8 @@
         "deploy": "pnpm all && pnpm test && node ./scripts/deploy.js",
         "tsdoc": "dts-bundle-generator --no-banner --disable-symlinks-following -o dist/froxel-math.d.ts src/main.ts",
         "changes": "rose ./scripts/changes",
-        "build-core": "wasm++ src/vec2.cpp src/vec4.cpp src/mat3.cpp src/mat4.cpp src/rect.cpp -o src/froxel-math.wasm",
+        "build-core": "wasm++ -nostdlib src/vec2.cpp src/vec4.cpp src/mat3.cpp src/mat4.cpp src/rect.cpp -o src/froxel-math.wasm",
+        "wat": "wasm2wat --enable-thread src/froxel-math.wasm -o src/froxel-math.wat",
         "build": "parcel build --no-cache --target module",
         "all": "pnpm build-core && pnpm build && pnpm tsdoc"
     },
@@ -34,17 +35,17 @@
         "dist/"
     ],
     "devDependencies": {
-        "@parcel/core": "^2.9.1",
-        "@parcel/optimizer-data-url": "^2.9.1",
-        "@parcel/transformer-inline-string": "^2.9.1",
+        "@parcel/core": "^2.9.2",
+        "@parcel/optimizer-data-url": "^2.9.2",
+        "@parcel/transformer-inline-string": "^2.9.2",
         "chai": "^4.3.7",
         "chai-almost": "^1.0.1",
         "dts-bundle-generator": "^8.0.1",
         "mocha": "^10.2.0",
-        "parcel": "^2.9.1"
+        "parcel": "^2.9.2"
     },
     "dependencies": {
-        "asyl": "^1.0.1",
+        "asyl": "^1.0.3",
         "atob": "^2.1.2",
         "base64-js": "^1.5.1",
         "node-fetch": "^3.3.1"

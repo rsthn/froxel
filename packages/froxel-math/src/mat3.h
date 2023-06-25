@@ -6,6 +6,7 @@ struct mat3 {
 };
 
 export mat3 *mat3_alloc ();
+export mat3 *mat3_materialize (void *addr);
 export void mat3_dtor (mat3 *self);
 export mat3 *mat3_clone (mat3 *self);
 export void mat3_fill1f (mat3 *self, double value);

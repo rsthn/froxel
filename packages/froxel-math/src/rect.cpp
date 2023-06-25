@@ -1,5 +1,6 @@
 
 #include <cstring>
+#include <cstdlib>
 #include <cmath>
 #include <limits>
 #include <wasm>
@@ -11,7 +12,7 @@
 const double DBL_NULL = std::numeric_limits<double>::max();
 
 export rect *rect_alloc4f (double x1, double y1, double x2, double y2) {
-	rect *r = new rect ();
+	rect *r = (rect*)malloc(sizeof(rect));
 	rect_set4f(r, x1, y1, x2, y2);
 	return r;
 }
@@ -20,6 +21,10 @@ export rect *rect_alloc2f (double width, double height, bool topleft) {
 	rect *r = rect_alloc4f(0.0, 0.0, 0.0, 0.0);
 	rect_resize(r, width, height, topleft, false);
 	return r;
+}
+
+export rect *rect_materialize (void *addr) {
+	return (rect*)addr;
 }
 
 export void rect_dtor (rect *self) {

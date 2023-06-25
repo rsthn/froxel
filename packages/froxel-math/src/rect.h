@@ -11,6 +11,7 @@ struct rect {
 
 export rect *rect_alloc4f (double x1, double y1, double x2, double y2);
 export rect *rect_alloc2f (double width, double height, bool topLeft);
+export rect *rect_materialize (void *addr);
 export void rect_dtor (rect *self);
 export rect *rect_clone (rect *r);
 export void rect_zero (rect *self);

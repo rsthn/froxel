@@ -1,5 +1,8 @@
 # v0.0.1 - Sep 28 2022
 
+#### Mat4
+- Added Mat4 class, C++ bindings and unit tests.
+
 #### Mat3
 - Added Mat3 class, C++ bindings and unit tests.
 - Added `col` and `row` methods to Mat3, to manipulate columns and rows respectively.

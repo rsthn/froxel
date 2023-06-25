@@ -186,7 +186,7 @@ function autoResizeCanvas (wgl)
  *
  * Default WebGL configuration is set as follows:
  *
- * - `DEPTH_TEST`: enabled, `clearDepth`: 0.0, `depthFunc`: GEQUAL
+ * - `DEPTH_TEST`: enabled, `clearDepth`: -1.0, `depthFunc`: GEQUAL
  * - `BLEND`: enabled, `blendEquationSeparate`: FUNC_ADD, FUNC_ADD, `blendFunc`: ONE, ONE_MINUS_SRC_ALPHA
  * - `UNPACK_PREMULTIPLY_ALPHA_WEBGL`: enabled
  * - `SCISSOR_TEST`: enabled
@@ -342,7 +342,7 @@ WebGLCanvas.prototype.init = function (options)
 	this.colorMask (true, true, true, true);
 
 	this.enable (this.DEPTH_TEST);
-	this.clearDepth (0.0);
+	this.clearDepth (-1.0);
 	this.depthFunc (this.GEQUAL);
 
 	this.enable (this.BLEND);

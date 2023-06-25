@@ -1,6 +1,7 @@
 
 import assert from 'assert';
 import { Vec4 } from '../dist/froxel-math.m.js';
+import { asyl } from 'asyl';
 import { default as chai, expect } from 'chai';
 import almost from 'chai-almost';
 
@@ -25,6 +26,35 @@ describe('Vec4', () =>
 	it('alloc(x, y, z, w)', () => {
 		b = Vec4.alloc(-10, 15, 31, -27.5);
 		assert(b.x() == -10 && b.y() == 15 && b.z() == 31 && b.w() == -27.5);
+	});
+
+	it('materialize()', () => {
+		let ptr = asyl.alloc(2*4*Float32Array.BYTES_PER_ELEMENT);
+		let m1 = Vec4.materialize(ptr);
+		let m2 = Vec4.materialize(ptr+4*Float32Array.BYTES_PER_ELEMENT);
+
+		m1.set(3.14, -6.28, 56.23, -9.78);
+		m2.set(-78.25, 2.5768, -23.4, 12.55);
+		expect(m1.x()).to.almost.equals(3.14);
+		expect(m1.y()).to.almost.equals(-6.28);
+		expect(m1.z()).to.almost.equals(56.23);
+		expect(m1.w()).to.almost.equals(-9.78);
+
+		expect(m2.x()).to.almost.equals(-78.25);
+		expect(m2.y()).to.almost.equals(2.5768);
+		expect(m2.z()).to.almost.equals(-23.4);
+		expect(m2.w()).to.almost.equals(12.55);
+
+		let t = asyl.mapFloat32Array(ptr, 8);
+		expect(t[0]).to.almost.equals(3.14);
+		expect(t[1]).to.almost.equals(-6.28);
+		expect(t[2]).to.almost.equals(56.23);
+		expect(t[3]).to.almost.equals(-9.78);
+
+		expect(t[4]).to.almost.equals(-78.25);
+		expect(t[5]).to.almost.equals(2.5768);
+		expect(t[6]).to.almost.equals(-23.4);
+		expect(t[7]).to.almost.equals(12.55);
 	});
 
 	it('clone()', () => {

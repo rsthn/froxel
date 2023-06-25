@@ -1,5 +1,6 @@
 
 #include <cstring>
+#include <cstdlib>
 #include <cmath>
 #include <wasm>
 
@@ -7,7 +8,16 @@
 
 
 export vec4 *vec4_alloc4f (double x, double y, double z, double w) {
-	return new vec4 { (float)x, (float)y, (float)z, (float)w };
+	vec4 *t = (vec4*)malloc(sizeof(vec4));
+	t->x = x;
+	t->y = y;
+	t->z = z;
+	t->w = w;
+	return t;
+}
+
+export vec4 *vec4_materialize (void *addr) {
+	return (vec4*)addr;
 }
 
 export void vec4_dtor (vec4 *self) {

@@ -21,6 +21,10 @@ export declare class Vec2 {
 	 */
 	static alloc(x?: number, y?: number): Vec2;
 	/**
+	 * Materializes a vector at the specified memory location.
+	 */
+	static materialize(addr: number): Vec2;
+	/**
 	 * Constructs the vector with the specified coordinates.
 	 */
 	private constructor();
@@ -205,6 +209,10 @@ export declare class Vec4 {
 	 * Allocates a new vector with the specified coordinates.
 	 */
 	static alloc(x?: number, y?: number, z?: number, w?: number): Vec4;
+	/**
+	 * Materializes a vector at the specified memory location.
+	 */
+	static materialize(addr: number): Vec4;
 	/**
 	 * Constructs the vector with the specified coordinates.
 	 */
@@ -439,6 +447,10 @@ export declare class Rect {
 	 */
 	static alloc(x1: number, y1: number, x2: number, y2: number): Rect;
 	/**
+	 * Materializes a rectangle at the specified memory location.
+	 */
+	static materialize(addr: number): Rect;
+	/**
 	 * Constructs the rectangle object.
 	 */
 	private constructor();
@@ -630,6 +642,10 @@ export declare class Mat3 {
 	 */
 	static alloc(): Mat3;
 	/**
+	 * Materializes a matrix at the specified memory location.
+	 */
+	static materialize(addr: number): Mat3;
+	/**
 	 * Constructs the matrix object.
 	 */
 	private constructor();
@@ -722,6 +738,10 @@ export declare class Mat4 {
 	 * Allocates a new matrix.
 	 */
 	static alloc(): Mat4;
+	/**
+	 * Materializes a matrix at the specified memory location.
+	 */
+	static materialize(addr: number): Mat4;
 	/**
 	 * Constructs the matrix object.
 	 */
