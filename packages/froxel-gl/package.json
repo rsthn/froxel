@@ -1,6 +1,6 @@
 {
     "name": "froxel-gl",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Froxel WebGL Library",
     "type": "module",
     "main": "dist/froxel-gl.m.js",

@@ -5,7 +5,7 @@ import Buffer from './buffer.js';
 export default class ElementBuffer extends Buffer
 {
 	/**
-	 * Creates a ElementBuffer linked to the ELEMENT_ARRAY_BUFFER target.
+	 * Creates a buffer for the ELEMENT_ARRAY_BUFFER target.
 	 * @param {WebGLCanvas} gl
 	 * @param {number} usage
 	 */

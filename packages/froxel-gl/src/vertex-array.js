@@ -1,13 +1,13 @@
 
 import WebGLCanvas from './webgl-canvas.js';
 
-export default VertexArrayObject;
+export default VertexArray;
 
 /**
  * Creates a Vertex Array Object (VAO).
  * @param {WebGLCanvas} gl
  */
-function VertexArrayObject (gl)
+function VertexArray (gl)
 {
 	/**
 	 * Reference to the WebGLCanvas.
@@ -19,13 +19,13 @@ function VertexArrayObject (gl)
 	 * Vertex array object resource.
 	 * @type {WebGLVertexArrayObject}
 	 */
-	this.vertexArray = gl.createVertexArray();
+	this.vertexArray = gl.genVertexArray();
 };
 
 /**
  * Binds the vertex array object to the GPU.
  */
-VertexArrayObject.prototype.bindVertexArray = function()
+VertexArray.prototype.bindVertexArray = function()
 {
 	this.gl.bindVertexArray(this.vertexArray);
 };
@@ -33,7 +33,7 @@ VertexArrayObject.prototype.bindVertexArray = function()
 /**
  * Unbinds the vertex array object from the GPU.
  */
-VertexArrayObject.prototype.unbindVertexArray = function()
+VertexArray.prototype.unbindVertexArray = function()
 {
 	this.gl.bindVertexArray(null);
 };

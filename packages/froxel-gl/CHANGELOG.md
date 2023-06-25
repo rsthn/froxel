@@ -1,3 +1,30 @@
+# v0.0.4 - Jun 25 2023
+
+#### WebGLCanvas
+- Added `view`, `projection`, and `mvp` to WebGL uniforms.
+- All transformation matrices are now of type Mat4.
+- Renamed property 'canvas' to 'element' to be more accurate.
+- Added method `createUniformBlockBuffer`.
+- Added support to rename functions from original WebGL2RenderingContext.
+- Added method `createBuffer`.
+
+#### Utils
+- Added utils file with methods `setOrtho2D`, `setOrtho3D` and `setPerspective`.
+
+#### Texture
+- Renamed class `TextureObject` to just `Texture`.
+- Added method `activeTexture` to activate the texture on a texture unit of the current shader program.
+- Using now renamed method `genTexture` to create the texture identifier.
+
+#### Buffer
+- Using now renamed method `genBuffer` to create the buffer identifier.
+
+#### VertexArray
+- Renamed VertexArrayObject to just VertexArray.
+- Using now renamed method `genVertexArray` to create the identifier.
+
+<br/>
+
 # v0.0.3 - Jun 6 2023
 
 #### WebGLCanvas

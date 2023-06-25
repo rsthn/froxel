@@ -1,5 +1,6 @@
 
 import WebGLCanvas from './webgl-canvas.js';
+import UniformBlockBuffer from './uniform-block-buffer.js';
 
 export default ShaderProgram;
 
@@ -197,15 +198,18 @@ ShaderProgram.prototype.getUniformBlockIndices = function (blockNames)
 };
 
 /**
- * Assigns a binding point for a uniform block given its name or index.
+ * Assigns the binding index of a uniform block buffer to a block identifier in the program.
  * @param {number|string} blockIdentifier
- * @param {number} bindingIndex
+ * @param {number|UniformBlockBuffer} bindingIndex
  * @returns {ShaderProgram}
  */
 ShaderProgram.prototype.uniformBlockBinding = function (blockIdentifier, bindingIndex)
 {
 	if (typeof(blockIdentifier) === 'string')
 		blockIdentifier = this.getUniformBlockIndex(blockIdentifier);
+
+	if (bindingIndex instanceof UniformBlockBuffer)
+		bindingIndex = bindingIndex.bindingIndex;
 
 	return this.gl.uniformBlockBinding (this.program, blockIdentifier, bindingIndex);
 };

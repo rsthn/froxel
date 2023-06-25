@@ -2,9 +2,12 @@
 import ShaderProgram from './shader-program.js';
 import VertexBuffer from './vertex-buffer.js';
 import ElementBuffer from './element-buffer.js';
-import VertexArrayObject from './vertex-array-object.js';
+import VertexArray from './vertex-array.js';
+import UniformBlockBuffer from './uniform-block-buffer.js';
+import Texture from './texture.js';
+import Buffer from './buffer.js';
+
 import { Mat4, Vec4 } from 'froxel-math';
-import TextureObject from './texture-object.js';
 
 export default WebGLCanvas;
 
@@ -137,21 +140,21 @@ function autoResizeCanvas (wgl)
 		scaleFactor = wgl.options.scaleFactorMax;
 
 	if (wgl.options.fullscreen && ('document' in global))
-		global.document.body.style.backgroundColor = wgl.canvas.style.backgroundColor;
+		global.document.body.style.backgroundColor = wgl.element.style.backgroundColor;
 
 	wgl.resize(currentWidth, currentHeight, false);
 
 	if (!flipped) {
-		wgl.canvas.style.width = Math.floor(currentWidth*canvasScaleFactor+0.5) + 'px';
-		wgl.canvas.style.height = Math.floor(currentHeight*canvasScaleFactor+0.5) + 'px';
+		wgl.element.style.width = Math.floor(currentWidth*canvasScaleFactor+0.5) + 'px';
+		wgl.element.style.height = Math.floor(currentHeight*canvasScaleFactor+0.5) + 'px';
 	}
 	else {
-		wgl.canvas.style.width = Math.floor(currentHeight*canvasScaleFactor+0.5) + 'px';
-		wgl.canvas.style.height = Math.floor(currentWidth*canvasScaleFactor+0.5) + 'px';
+		wgl.element.style.width = Math.floor(currentHeight*canvasScaleFactor+0.5) + 'px';
+		wgl.element.style.height = Math.floor(currentWidth*canvasScaleFactor+0.5) + 'px';
 	}
 
-	wgl.canvas.style.marginLeft = offsX + 'px';
-	wgl.canvas.style.marginTop = offsY + 'px';
+	wgl.element.style.marginLeft = offsX + 'px';
+	wgl.element.style.marginTop = offsY + 'px';
 
 	wgl.globalScale = scaleFactor;
 	wgl.isFlipped = flipped;
@@ -167,8 +170,8 @@ function autoResizeCanvas (wgl)
 	wgl.updateViewport();
 
 	//console.log('logical', wgl.width, wgl.height);	
-	//console.log('canvas-logical', wgl.canvas.width, wgl.canvas.height);
-	//console.log('canvas-css', wgl.canvas.style.width, wgl.canvas.style.height);
+	//console.log('canvas-logical', wgl.element.width, wgl.element.height);
+	//console.log('canvas-css', wgl.element.style.width, wgl.element.style.height);
 	//console.log('phys', wgl.physWidth, wgl.physHeight);
 	//console.log('webGl', wgl.gl.drawingBufferWidth, wgl.gl.drawingBufferHeight);
 	//console.log('globalScale', wgl.globalScale);
@@ -181,8 +184,9 @@ function autoResizeCanvas (wgl)
 	//_this.integerScaleFactor = Math.floor(scaleFactor + 0.5); //0.9
 };
 
+
 /**
- * High performance WebGL2 Canvas.
+ * WebGL2 Canvas.
  *
  * Default WebGL configuration is set as follows:
  *
@@ -217,11 +221,13 @@ WebGLCanvas.prototype.dispose = function()
 	activeCanvases.splice(activeCanvases.indexOf(this), 1);
 };
 
+
 /**
  * WebGL2 Context.
  * @private @readonly @type {WebGL2RenderingContext}
  */
 WebGLCanvas.prototype.gl = null;
+
 
 /**
  * @typedef {Object} WebGLCanvasUniforms
@@ -244,7 +250,7 @@ WebGLCanvas.prototype.u = null;
  * Underlying HTML5 canvas element.
  * @readonly @type {HTMLCanvasElement}
  */
-WebGLCanvas.prototype.canvas = null;
+WebGLCanvas.prototype.element = null;
 
 /**
  * Logical width of the canvas.
@@ -282,6 +288,14 @@ WebGLCanvas.prototype.isFlipped = false;
  */
 WebGLCanvas.prototype.globalScale = 1.0;
 
+/**
+ * Functions that are under a different name in WebGLCanvas from the original WebGL2RenderingContext.
+ */
+const renamedFunctions = {
+	createTexture: 'genTexture',
+	createBuffer: 'genBuffer',
+	createVertexArray: 'genVertexArray',
+};
 
 /**
  * Initializes the instance.
@@ -289,7 +303,7 @@ WebGLCanvas.prototype.globalScale = 1.0;
  */
 WebGLCanvas.prototype.init = function (options)
 {
-	this.canvas = document.createElement('canvas');
+	this.element = document.createElement('canvas');
 	this.options = options;
 
 	if (!options.fullscreen && (!options.width || !options.height))
@@ -298,17 +312,17 @@ WebGLCanvas.prototype.init = function (options)
 	if (options.background.length != 6)
 		throw new Error ('Option `background` should be a 6-digit hex RGB (i.e. 000000).');
 
-	this.canvas.style.imageRendering = options.antialias ? 'auto' : 'crisp-edges';
-	this.canvas.style.backgroundColor = '#' + options.background;
+	this.element.style.imageRendering = options.antialias ? 'auto' : 'crisp-edges';
+	this.element.style.backgroundColor = '#' + options.background;
 
 	if (options.fullscreen) {
-		this.canvas.style.position = 'absolute';
-		this.canvas.style.left = '0px';
-		this.canvas.style.top = '0px';
+		this.element.style.position = 'absolute';
+		this.element.style.left = '0px';
+		this.element.style.top = '0px';
 	}
 
 	// Get WebGL context and re-bind functions and values to the WebGLCanvas object.
-	this.gl = this.canvas.getContext('webgl2', { desynchronized: false, preserveDrawingBuffer: false, alpha: false, stencil: options.stencil });
+	this.gl = this.element.getContext('webgl2', { desynchronized: false, preserveDrawingBuffer: false, alpha: false, stencil: options.stencil });
 
 	for (let prop in this.gl)
 	{
@@ -316,6 +330,9 @@ WebGLCanvas.prototype.init = function (options)
 		switch (typeof(val))
 		{
 			case 'function':
+				if (prop in renamedFunctions)
+					prop = renamedFunctions[prop];
+
 				this[prop] = val.bind(this.gl);
 				break;
 
@@ -354,6 +371,7 @@ WebGLCanvas.prototype.init = function (options)
 	autoResizeCanvas(this);
 };
 
+
 /**
  * Resizes the canvas to the specified logical size.
  * @param {number} width
@@ -370,8 +388,8 @@ WebGLCanvas.prototype.resize = function (width, height, updateViewport=true)
 
 WebGLCanvas.prototype.updateViewport = function ()
 {
-	this.physWidth = this.canvas.width = Math.floor((this.isFlipped ? this.height : this.width) * this.globalScale);
-	this.physHeight = this.canvas.height = Math.floor((this.isFlipped ? this.width : this.height) * this.globalScale);
+	this.physWidth = this.element.width = Math.floor((this.isFlipped ? this.height : this.width) * this.globalScale);
+	this.physHeight = this.element.height = Math.floor((this.isFlipped ? this.width : this.height) * this.globalScale);
 
 	this.scissor (0, 0, this.physWidth, this.physHeight);
 	this.viewport (0, 0, this.physWidth, this.physHeight);
@@ -383,6 +401,7 @@ WebGLCanvas.prototype.updateViewport = function ()
 	this.u.changed = true;
 };
 
+
 /**
  * Creates a shader program with the specified vertex and fragment shader source codes.
  * @param {string} vertexShaderSource
@@ -390,16 +409,29 @@ WebGLCanvas.prototype.updateViewport = function ()
  * @returns {ShaderProgram}
  */
 WebGLCanvas.prototype.createShaderProgram = function (vertexShaderSource, fragmentShaderSource) {
-	return new ShaderProgram (this, vertexShaderSource, fragmentShaderSource);
+	return new ShaderProgram(this, vertexShaderSource, fragmentShaderSource);
 };
+
 
 /**
  * Creates a new vertex array object.
- * @returns {VertexArrayObject}
+ * @returns {VertexArray}
  */
-WebGLCanvas.prototype.createVertexArrayObject = function () {
-	return new VertexArrayObject (this);
+WebGLCanvas.prototype.createVertexArray = function () {
+	return new VertexArray(this);
 };
+
+
+/**
+ * Creates a new buffer.
+ * @param {number} target Possible values are: `ARRAY_BUFFER`, `ELEMENT_ARRAY_BUFFER`, `COPY_READ_BUFFER`, `COPY_WRITE_BUFFER`, `TRANSFORM_FEEDBACK_BUFFER`, `UNIFORM_BUFFER`, `PIXEL_PACK_BUFFER`, or `PIXEL_UNPACK_BUFFER`.
+ * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+ * @returns {VertexBuffer}
+ */
+WebGLCanvas.prototype.createBuffer = function (target, usage) {
+	return new Buffer(this, target, usage);
+};
+
 
 /**
  * Creates a new vertex buffer.
@@ -410,6 +442,7 @@ WebGLCanvas.prototype.createVertexBuffer = function (usage) {
 	return new VertexBuffer(this, usage);
 };
 
+
 /**
  * Creates a new element buffer.
  * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
@@ -419,17 +452,29 @@ WebGLCanvas.prototype.createElementBuffer = function (usage) {
 	return new ElementBuffer(this, usage);
 };
 
+
+/**
+ * Creates a new uniform block buffer.
+ * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+ * @returns {UniformBlockBuffer}
+ */
+WebGLCanvas.prototype.createUniformBlockBuffer = function (usage) {
+	return new UniformBlockBuffer(this, usage);
+};
+
+
 /**
  * Creates a new texture object of the specified size.
  * @param {number} width - Physical texture width.
  * @param {number} height - Physical texture height.
  * @param {number} [targetWidth] - Logical texture width.
  * @param {number} [targetHeight] - Logical texture height.
- * @returns {TextureObject}
+ * @returns {Texture}
  */
-WebGLCanvas.prototype.createTextureObject = function (width, height, targetWidth=null, targetHeight=null) {
-	return new TextureObject (this, width, height, targetWidth, targetHeight);
+WebGLCanvas.prototype.createTexture = function (width, height, targetWidth=null, targetHeight=null) {
+	return new Texture (this, width, height, targetWidth, targetHeight);
 };
+
 
 /**
  * Loads an image from the specified URL.
@@ -446,16 +491,18 @@ WebGLCanvas.loadImage = function (url)
 	});
 };
 
+
 /**
  * Loads an image from the specified URL and creates a texture.
  * @param {string} url
  * @param {number} [mipmapLevels] - Number of levels for mipmapping. Defaults to `0`.
- * @returns {Promise<TextureObject>}
+ * @returns {Promise<Texture>}
  */
 WebGLCanvas.prototype.loadTextureFromUrl = async function (url, mipmapLevels=0)
 {
 	let image = await WebGLCanvas.loadImage(url);
-	let texture = this.createTextureObject(image.width, image.height);
+	let texture = this.createTexture(image.width, image.height);
+	console.log(texture);
 	texture.setMipmapLevels(mipmapLevels);
 	texture.upload(image);
 	return texture;

@@ -1,6 +1,93 @@
 import { Mat4, Vec4 } from 'froxel-math';
 
 /**
+ * Represents a WebGL buffer.
+ */
+export declare class Buffer {
+	/**
+	 * Creates a WebGL buffer.
+	 * @param {WebGLCanvas} gl
+	 * @param {number} target
+	 * @param {number} usage
+	 */
+	constructor(gl: WebGLCanvas, target: number, usage: number);
+	/**
+	 * Reference to the WebGLCanvas.
+	 * @readonly @type {WebGLCanvas}
+	 */
+	readonly gl: WebGLCanvas;
+	/**
+	 * Buffer target.
+	 * @type {number}
+	 */
+	target: number;
+	/**
+	 * Buffer usage mode.
+	 * @type {number}
+	 */
+	usage: number;
+	/**
+	 * Buffer object resource.
+	 * @type {WebGLBuffer}
+	 */
+	buffer: WebGLBuffer;
+	/**
+	 * Binds the buffer to its WebGL target.
+	 * @returns {Buffer}
+	 */
+	bindBuffer(): Buffer;
+	/**
+	 * Unbinds the buffer from its GPU buffer target.
+	 * @returns {Buffer}
+	 */
+	unbindBuffer(): Buffer;
+	/**
+	 * Initializes and creates the buffer object's data store.
+	 * @param {ArrayBufferView} srcData
+	 * @param {number} srcOffset?
+	 * @returns {Buffer}
+	 */
+	bufferData(srcData: ArrayBufferView, srcOffset?: number): Buffer;
+	/**
+	 * Allocates the specified number of bytes for the buffer.
+	 * @param {number} numBytes
+	 * @returns {Buffer}
+	 */
+	allocate(numBytes: number): Buffer;
+	/**
+	 * Updates a subset of the buffer object's data store.
+	 * @param {number} dstByteOffset
+	 * @param {ArrayBufferView} srcData
+	 * @param {number} srcOffset?
+	 * @param {number} length?
+	 * @returns {Buffer}
+	 */
+	bufferSubData(dstByteOffset: number, srcData: ArrayBufferView, srcOffset?: number, length?: number): Buffer;
+	/**
+	 * Deletes the buffer.
+	 */
+	deleteBuffer(): void;
+}
+export declare class UniformBlockBuffer extends Buffer {
+	/**
+	 * Creates a buffer for the UNIFORM_BUFFER target.
+	 * @param {WebGLCanvas} gl
+	 * @param {number} usage
+	 */
+	constructor(gl: WebGLCanvas, usage: number);
+	/**
+	 * Uniform block binding index. Set using `bindBufferBase`.
+	 * @readonly @type {number}
+	 */
+	readonly bindingIndex: number;
+	/**
+	 * Binds the buffer to the UNIFORM_BUFFER binding point at a given index.
+	 * @param {number} index
+	 * @returns {UniformBlockBuffer}
+	 */
+	bindBufferBase(index: number): UniformBlockBuffer;
+}
+/**
  * Creates a WebGL GLSL Shader Program.
  * @param {WebGLCanvas} gl
  * @param {string} vertexShaderSource
@@ -89,12 +176,12 @@ export declare class ShaderProgram {
 		key: string
 	];
 	/**
-	 * Assigns a binding point for a uniform block given its name or index.
+	 * Assigns the binding index of a uniform block buffer to a block identifier in the program.
 	 * @param {number|string} blockIdentifier
-	 * @param {number} bindingIndex
+	 * @param {number|UniformBlockBuffer} bindingIndex
 	 * @returns {ShaderProgram}
 	 */
-	uniformBlockBinding(blockIdentifier: number | string, bindingIndex: number): ShaderProgram;
+	uniformBlockBinding(blockIdentifier: number | string, bindingIndex: number | UniformBlockBuffer): ShaderProgram;
 }
 export declare namespace ShaderProgram {
 	const attribLocations: Map<string, number>;
@@ -116,8 +203,8 @@ export declare namespace ShaderProgram {
  * Creates a Vertex Array Object (VAO).
  * @param {WebGLCanvas} gl
  */
-export declare function VertexArrayObject(gl: WebGLCanvas): void;
-export declare class VertexArrayObject {
+export declare function VertexArray(gl: WebGLCanvas): void;
+export declare class VertexArray {
 	/**
 	 * Creates a Vertex Array Object (VAO).
 	 * @param {WebGLCanvas} gl
@@ -142,77 +229,9 @@ export declare class VertexArrayObject {
 	 */
 	unbindVertexArray(): void;
 }
-/**
- * Represents a WebGL buffer.
- */
-export declare class Buffer {
-	/**
-	 * Creates a WebGL buffer.
-	 * @param {WebGLCanvas} gl
-	 * @param {number} target
-	 * @param {number} usage
-	 */
-	constructor(gl: WebGLCanvas, target: number, usage: number);
-	/**
-	 * Reference to the WebGLCanvas.
-	 * @readonly @type {WebGLCanvas}
-	 */
-	readonly gl: WebGLCanvas;
-	/**
-	 * Buffer target.
-	 * @type {number}
-	 */
-	target: number;
-	/**
-	 * Buffer usage mode.
-	 * @type {number}
-	 */
-	usage: number;
-	/**
-	 * Buffer object resource.
-	 * @type {WebGLBuffer}
-	 */
-	buffer: WebGLBuffer;
-	/**
-	 * Binds the buffer to its WebGL target.
-	 * @returns {Buffer}
-	 */
-	bindBuffer(): Buffer;
-	/**
-	 * Unbinds the buffer from its GPU buffer target.
-	 * @returns {Buffer}
-	 */
-	unbindBuffer(): Buffer;
-	/**
-	 * Initializes and creates the buffer object's data store.
-	 * @param {ArrayBufferView} srcData
-	 * @param {number} srcOffset?
-	 * @returns {Buffer}
-	 */
-	bufferData(srcData: ArrayBufferView, srcOffset?: number): Buffer;
-	/**
-	 * Allocates the specified number of bytes for the buffer.
-	 * @param {number} numBytes
-	 * @returns {Buffer}
-	 */
-	allocate(numBytes: number): Buffer;
-	/**
-	 * Updates a subset of the buffer object's data store.
-	 * @param {number} dstByteOffset
-	 * @param {ArrayBufferView} srcData
-	 * @param {number} srcOffset?
-	 * @param {number} length?
-	 * @returns {Buffer}
-	 */
-	bufferSubData(dstByteOffset: number, srcData: ArrayBufferView, srcOffset?: number, length?: number): Buffer;
-	/**
-	 * Deletes the buffer.
-	 */
-	deleteBuffer(): void;
-}
 export declare class VertexBuffer extends Buffer {
 	/**
-	 * Creates a VertexBuffer linked to the ARRAY_BUFFER target.
+	 * Creates a buffer for the ARRAY_BUFFER target.
 	 * @param {WebGLCanvas} gl
 	 * @param {number} usage
 	 */
@@ -220,7 +239,7 @@ export declare class VertexBuffer extends Buffer {
 }
 export declare class ElementBuffer extends Buffer {
 	/**
-	 * Creates a ElementBuffer linked to the ELEMENT_ARRAY_BUFFER target.
+	 * Creates a buffer for the ELEMENT_ARRAY_BUFFER target.
 	 * @param {WebGLCanvas} gl
 	 * @param {number} usage
 	 */
@@ -235,7 +254,7 @@ export declare class ElementBuffer extends Buffer {
 /**
  * WebGLCanvas Texture Object.
  */
-export declare class TextureObject {
+export declare class Texture {
 	/**
 	 * Creates an empty texture object of the specified size.
 	 * @param {WebGLCanvas} gl
@@ -302,54 +321,60 @@ export declare class TextureObject {
 	private readonly allocated;
 	/**
 	 * Binds the texture to the `TEXTURE_2D` target and allocates the texture storage if not allocated yet.
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
-	bindTexture(): TextureObject;
+	bindTexture(): Texture;
 	/**
 	 * Allocates the texture storage.
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
-	allocate(): TextureObject;
+	allocate(): Texture;
 	/**
 	 * Applies the texture filter.
 	 * @private
 	 * @param {boolean} [bindTexture]
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
 	private applyFilter;
 	/**
 	 * Applies the texture wrap mode.
 	 * @private
 	 * @param {boolean} [bindTexture]
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
 	private applyWrap;
 	/**
 	 * Sets the texture filter type.
 	 * @param {TextureFilterType} filterType
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
-	setFilter(filterType: TextureFilterType): TextureObject;
+	setFilter(filterType: TextureFilterType): Texture;
 	/**
 	 * Sets the texture wrap mode.
 	 * @param {TextureWrapMode} wrapMode
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
-	setWrapMode(wrapMode: TextureWrapMode): TextureObject;
+	setWrapMode(wrapMode: TextureWrapMode): Texture;
 	/**
 	 * Sets the number of mipmap levels. Valid only if texture data has not been allocated yet.
 	 * @param {number} numLevels
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
-	setMipmapLevels(numLevels: number): TextureObject;
+	setMipmapLevels(numLevels: number): Texture;
 	/**
 	 * Uploads data to the GPU from the specified image.
 	 * @param {HTMLImageElement} image
 	 * @param {number} [offsX] - Target X offset.
 	 * @param {number} [offsY] - Target Y offset;
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
-	upload(image: HTMLImageElement, offsX?: number, offsY?: number): TextureObject;
+	upload(image: HTMLImageElement, offsX?: number, offsY?: number): Texture;
+	/**
+	 * Makes the texture active on the specified texture unit.
+	 * @param {number} unit - Texture unit index (0 to 15).
+	 * @returns {Texture}
+	 */
+	activeTexture(unit: number): Texture;
 }
 export type TextureFilterType = "NEAREST" | "LINEAR";
 export type TextureWrapMode = "REPEAT" | "CLAMP_TO_EDGE" | "MIRRORED_REPEAT";
@@ -419,11 +444,11 @@ export type WebGLCanvasUniforms = {
 	mvp: Mat4;
 };
 /**
- * High performance WebGL2 Canvas.
+ * WebGL2 Canvas.
  *
  * Default WebGL configuration is set as follows:
  *
- * - `DEPTH_TEST`: enabled, `clearDepth`: 0.0, `depthFunc`: GEQUAL
+ * - `DEPTH_TEST`: enabled, `clearDepth`: -1.0, `depthFunc`: GEQUAL
  * - `BLEND`: enabled, `blendEquationSeparate`: FUNC_ADD, FUNC_ADD, `blendFunc`: ONE, ONE_MINUS_SRC_ALPHA
  * - `UNPACK_PREMULTIPLY_ALPHA_WEBGL`: enabled
  * - `SCISSOR_TEST`: enabled
@@ -434,11 +459,11 @@ export type WebGLCanvasUniforms = {
 export declare function WebGLCanvas(options?: WebGLCanvasOptions): void;
 export declare class WebGLCanvas {
 	/**
-	 * High performance WebGL2 Canvas.
+	 * WebGL2 Canvas.
 	 *
 	 * Default WebGL configuration is set as follows:
 	 *
-	 * - `DEPTH_TEST`: enabled, `clearDepth`: 0.0, `depthFunc`: GEQUAL
+	 * - `DEPTH_TEST`: enabled, `clearDepth`: -1.0, `depthFunc`: GEQUAL
 	 * - `BLEND`: enabled, `blendEquationSeparate`: FUNC_ADD, FUNC_ADD, `blendFunc`: ONE, ONE_MINUS_SRC_ALPHA
 	 * - `UNPACK_PREMULTIPLY_ALPHA_WEBGL`: enabled
 	 * - `SCISSOR_TEST`: enabled
@@ -475,7 +500,7 @@ export declare class WebGLCanvas {
 	 * Underlying HTML5 canvas element.
 	 * @readonly @type {HTMLCanvasElement}
 	 */
-	readonly canvas: HTMLCanvasElement;
+	readonly element: HTMLCanvasElement;
 	/**
 	 * Logical width of the canvas.
 	 * @readonly @type {number}
@@ -524,9 +549,16 @@ export declare class WebGLCanvas {
 	createShaderProgram(vertexShaderSource: string, fragmentShaderSource: string): ShaderProgram;
 	/**
 	 * Creates a new vertex array object.
-	 * @returns {VertexArrayObject}
+	 * @returns {VertexArray}
 	 */
-	createVertexArrayObject(): VertexArrayObject;
+	createVertexArray(): VertexArray;
+	/**
+	 * Creates a new buffer.
+	 * @param {number} target Possible values are: `ARRAY_BUFFER`, `ELEMENT_ARRAY_BUFFER`, `COPY_READ_BUFFER`, `COPY_WRITE_BUFFER`, `TRANSFORM_FEEDBACK_BUFFER`, `UNIFORM_BUFFER`, `PIXEL_PACK_BUFFER`, or `PIXEL_UNPACK_BUFFER`.
+	 * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+	 * @returns {VertexBuffer}
+	 */
+	createBuffer(target: number, usage: number): VertexBuffer;
 	/**
 	 * Creates a new vertex buffer.
 	 * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
@@ -540,21 +572,27 @@ export declare class WebGLCanvas {
 	 */
 	createElementBuffer(usage: number): ElementBuffer;
 	/**
+	 * Creates a new uniform block buffer.
+	 * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+	 * @returns {UniformBlockBuffer}
+	 */
+	createUniformBlockBuffer(usage: number): UniformBlockBuffer;
+	/**
 	 * Creates a new texture object of the specified size.
 	 * @param {number} width - Physical texture width.
 	 * @param {number} height - Physical texture height.
 	 * @param {number} [targetWidth] - Logical texture width.
 	 * @param {number} [targetHeight] - Logical texture height.
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
-	createTextureObject(width: number, height: number, targetWidth?: number, targetHeight?: number): TextureObject;
+	createTexture(width: number, height: number, targetWidth?: number, targetHeight?: number): Texture;
 	/**
 	 * Loads an image from the specified URL and creates a texture.
 	 * @param {string} url
 	 * @param {number} [mipmapLevels] - Number of levels for mipmapping. Defaults to `0`.
-	 * @returns {Promise<TextureObject>}
+	 * @returns {Promise<Texture>}
 	 */
-	loadTextureFromUrl(url: string, mipmapLevels?: number): Promise<TextureObject>;
+	loadTextureFromUrl(url: string, mipmapLevels?: number): Promise<Texture>;
 }
 export declare namespace WebGLCanvas {
 	/**
@@ -564,61 +602,5 @@ export declare namespace WebGLCanvas {
 	 */
 	function loadImage(url: string): Promise<HTMLImageElement>;
 }
-export declare class UniformBuffer extends Buffer {
-	/**
-	 * Creates a buffer linked to the UNIFORM_BUFFER target.
-	 * @param {WebGLCanvas} gl
-	 * @param {number} usage
-	 */
-	constructor(gl: WebGLCanvas, usage: number);
-	/**
-	 * Uniform block binding index. Set using `bindBufferBase`.
-	 * @readonly @type {number}
-	 */
-	readonly bindingIndex: number;
-	/**
-	 * Binds the buffer to the UNIFORM_BUFFER binding point at a given index.
-	 * @param {number} index
-	 * @returns {UniformBuffer}
-	 */
-	bindBufferBase(index: number): UniformBuffer;
-}
-declare namespace _default {
-	/**
-	 * Sets up an orthographic 2D projection matrix.
-	 * @param {Mat4} outputMatrix - The output matrix to store the projection matrix.
-	 * @param {number} left - The left coordinate of the view volume.
-	 * @param {number} right - The right coordinate of the view volume.
-	 * @param {number} top - The top coordinate of the view volume.
-	 * @param {number} bottom - The bottom coordinate of the view volume.
-	 */
-	function setOrtho2D(outputMatrix: Mat4, left: number, right: number, top: number, bottom: number): void;
-	/**
-	 * Sets up an orthographic 3D projection matrix.
-	 * @param {Mat4} outputMatrix - The output matrix to store the projection matrix.
-	 * @param {number} left - The left coordinate of the view volume.
-	 * @param {number} right - The right coordinate of the view volume.
-	 * @param {number} top - The top coordinate of the view volume.
-	 * @param {number} bottom - The bottom coordinate of the view volume.
-	 * @param {number} near - The near clipping plane distance.
-	 * @param {number} far - The far clipping plane distance.
-	 */
-	function setOrtho3D(outputMatrix: Mat4, left: number, right: number, top: number, bottom: number, near: number, far: number): void;
-	/**
-	 * Sets up a perspective projection matrix.
-	 * @param {Mat4} outputMatrix - The output matrix to store the projection matrix.
-	 * @param {number} left - The left coordinate of the frustum at the near clipping plane.
-	 * @param {number} right - The right coordinate of the frustum at the near clipping plane.
-	 * @param {number} bottom - The bottom coordinate of the frustum at the near clipping plane.
-	 * @param {number} top - The top coordinate of the frustum at the near clipping plane.
-	 * @param {number} near - The distance to the near clipping plane.
-	 * @param {number} far - The distance to the far clipping plane.
-	 */
-	function setPerspective(outputMatrix: Mat4, left: number, right: number, bottom: number, top: number, near: number, far: number): void;
-}
-
-export {
-	_default as Utils,
-};
 
 export {};

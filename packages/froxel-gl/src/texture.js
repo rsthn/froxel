@@ -11,7 +11,7 @@ import WebGLCanvas from './webgl-canvas.js';
 /**
  * WebGLCanvas Texture Object.
  */
-export default class TextureObject
+export default class Texture
 {
 	/**
 	 * Reference to the WebGLCanvas.
@@ -90,7 +90,7 @@ export default class TextureObject
 	constructor (gl, width, height, targetWidth=null, targetHeight=null)
 	{
 		this.gl = gl;
-		this.texture = gl.createTexture();
+		this.texture = gl.genTexture();
 
 		this.width = width;
 		this.height = height;
@@ -106,7 +106,7 @@ export default class TextureObject
 
 	/**
 	 * Binds the texture to the `TEXTURE_2D` target and allocates the texture storage if not allocated yet.
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
 	bindTexture()
 	{
@@ -120,7 +120,7 @@ export default class TextureObject
 
 	/**
 	 * Allocates the texture storage.
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
 	allocate()
 	{
@@ -142,7 +142,7 @@ export default class TextureObject
 	 * Applies the texture filter.
 	 * @private
 	 * @param {boolean} [bindTexture]
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
 	applyFilter (bindTexture=false)
 	{
@@ -171,7 +171,7 @@ export default class TextureObject
 	 * Applies the texture wrap mode.
 	 * @private
 	 * @param {boolean} [bindTexture]
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
 	applyWrap (bindTexture=false)
 	{
@@ -192,7 +192,7 @@ export default class TextureObject
 	/**
 	 * Sets the texture filter type.
 	 * @param {TextureFilterType} filterType
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
 	setFilter (filterType)
 	{
@@ -203,7 +203,7 @@ export default class TextureObject
 	/**
 	 * Sets the texture wrap mode.
 	 * @param {TextureWrapMode} wrapMode
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
 	setWrapMode (wrapMode)
 	{
@@ -214,7 +214,7 @@ export default class TextureObject
 	/**
 	 * Sets the number of mipmap levels. Valid only if texture data has not been allocated yet.
 	 * @param {number} numLevels
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
 	setMipmapLevels (numLevels)
 	{
@@ -230,7 +230,7 @@ export default class TextureObject
 	 * @param {HTMLImageElement} image
 	 * @param {number} [offsX] - Target X offset.
 	 * @param {number} [offsY] - Target Y offset;
-	 * @returns {TextureObject}
+	 * @returns {Texture}
 	 */
 	upload (image, offsX=0, offsY=0)
 	{
@@ -240,6 +240,18 @@ export default class TextureObject
 		if (this.mipmapLevels > 0)
 			this.gl.generateMipmap(this.gl.TEXTURE_2D);
 
+		return this;
+	}
+
+	/**
+	 * Makes the texture active on the specified texture unit.
+	 * @param {number} unit - Texture unit index (0 to 15).
+	 * @returns {Texture}
+	 */
+	activeTexture (unit)
+	{
+		this.gl.activeTexture(this.gl.TEXTURE0+(unit&15));
+		this.bindTexture();
 		return this;
 	}
 };

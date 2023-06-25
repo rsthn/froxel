@@ -41,7 +41,7 @@ export default class Buffer
 		this.gl = gl;
 		this.target = target;
 		this.usage = usage;
-		this.buffer = gl.createBuffer();
+		this.buffer = gl.genBuffer();
 	}
 
 	/**
