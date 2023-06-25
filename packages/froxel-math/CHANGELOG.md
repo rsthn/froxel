@@ -1,3 +1,12 @@
+# v0.0.3 - Jun 25 2023
+
+#### Global
+- Updated all source files to include `materialize`, a special function that creates an object at a specified memory location.
+- Updated unit tests to ensure materialization works as expected.
+- Now compiling with option `-nostdlib` to be compatible with asyl.
+
+<br/>
+
 # v0.0.1 - Sep 28 2022
 
 #### Mat4
