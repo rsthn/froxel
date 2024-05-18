@@ -9,6 +9,11 @@ let m: Module = null;
 export default class Vec2
 {
 	/**
+	 * Number of bytes per object.
+	 */
+	static BYTES: number = 2*Float32Array.BYTES_PER_ELEMENT;
+
+	/**
 	 * Address of underlying vec2.
 	 */
 	addr: number;
@@ -51,8 +56,8 @@ export default class Vec2
 	/**
 	 * Destroys the instance.
 	 */
-	dtor() {
-		m.vec2_dtor(this.addr);
+	free() {
+		m.vec2_free(this.addr);
 	}
 
 	/**

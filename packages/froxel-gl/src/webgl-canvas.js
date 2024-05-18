@@ -3,7 +3,7 @@ import ShaderProgram from './shader-program.js';
 import VertexBuffer from './vertex-buffer.js';
 import ElementBuffer from './element-buffer.js';
 import VertexArray from './vertex-array.js';
-import UniformBlockBuffer from './uniform-block-buffer.js';
+import UniformBuffer from './uniform-buffer.js';
 import Texture from './texture.js';
 import Buffer from './buffer.js';
 
@@ -13,6 +13,14 @@ export default WebGLCanvas;
 
 /**
  * @typedef {'default'|'landscape'|'portrait'|'automatic'|'strict'} WebGLCanvasOrientation
+ */
+
+/**
+ * @typedef {'ARRAY_BUFFER'|'ELEMENT_ARRAY_BUFFER'|'COPY_READ_BUFFER'|'COPY_WRITE_BUFFER'|'TRANSFORM_FEEDBACK_BUFFER'|'UNIFORM_BUFFER'|'PIXEL_PACK_BUFFER'|'PIXEL_UNPACK_BUFFER'} WebGLBufferTarget
+ */
+
+/**
+ * @typedef {'STATIC_DRAW'|'DYNAMIC_DRAW'|'STREAM_DRAW'|'STATIC_READ'|'DYNAMIC_READ'|'STREAM_READ'|'STATIC_COPY'|'DYNAMIC_COPY'|'STREAM_COPY'} WebGLBufferUsage
  */
 
 /**
@@ -190,7 +198,7 @@ function autoResizeCanvas (wgl)
  *
  * Default WebGL configuration is set as follows:
  *
- * - `DEPTH_TEST`: enabled, `clearDepth`: -1.0, `depthFunc`: GEQUAL
+ * - `DEPTH_TEST`: enabled, `clearDepth`: 1.0, `depthFunc`: LEQUAL
  * - `BLEND`: enabled, `blendEquationSeparate`: FUNC_ADD, FUNC_ADD, `blendFunc`: ONE, ONE_MINUS_SRC_ALPHA
  * - `UNPACK_PREMULTIPLY_ALPHA_WEBGL`: enabled
  * - `SCISSOR_TEST`: enabled
@@ -223,20 +231,26 @@ WebGLCanvas.prototype.dispose = function()
 
 
 /**
- * WebGL2 Context.
+ * WebGL2 rendering context.
  * @private @readonly @type {WebGL2RenderingContext}
  */
 WebGLCanvas.prototype.gl = null;
+
+/**
+ * Contains the state of several WebGL elements (shader program, bound buffer, texture, etc). This is a general object, and each class or interested party
+ * is responsible for accesing and maintaining values in this object.
+ * @private @type {object}
+ */
+WebGLCanvas.prototype.state = null;
 
 
 /**
  * @typedef {Object} WebGLCanvasUniforms
  * @prop {boolean} changed Indicates if the uniforms have changed and should be reloaded in the WebGL program.
- * @prop {Vec4} resolution Canvas resolution (automatically set by WebGLCanvas).
  * @prop {Mat4} initial Transformation to achieve correct target resolution and orientation (automatically set by WebGLCanvas).
  * @prop {Mat4} view Transforms coordinates to view space.
  * @prop {Mat4} projection Transforms coordinates to NDC space. Use the `setOrtho2D`, `setOrtho3D` or `setFrustrum` methods of Utils to configure its value.
- * @prop {Mat4} mvp Model-view-projection (MVP) matrix contains all transformations in a single matrix.
+ * @prop {Vec4} resolution Canvas resolution (automatically set by WebGLCanvas).
  */
 
 /**
@@ -344,14 +358,22 @@ WebGLCanvas.prototype.init = function (options)
 
 	console.log(this.getParameter(this.VERSION) + ', ' + this.getParameter(this.SHADING_LANGUAGE_VERSION));
 
+	// Global state object.
+	this.state =
+	{
+		program: null,
+		buffer: { },
+		vertexArray:  null
+	};
+
 	// Allocate placeholder for uniforms.
 	this.u = {
 		changed: true,
-		resolution: Vec4.alloc(),
+
 		initial: Mat4.alloc(),
 		view: Mat4.alloc(),
 		projection: Mat4.alloc(),
-		mvp: Mat4.alloc(),
+		resolution: Vec4.alloc(),
 	};
 
 	// Initialize default configuration.
@@ -359,8 +381,8 @@ WebGLCanvas.prototype.init = function (options)
 	this.colorMask (true, true, true, true);
 
 	this.enable (this.DEPTH_TEST);
-	this.clearDepth (-1.0);
-	this.depthFunc (this.GEQUAL);
+	this.clearDepth (1.0);
+	this.depthFunc (this.LEQUAL);
 
 	this.enable (this.BLEND);
 	this.pixelStorei (this.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
@@ -386,6 +408,7 @@ WebGLCanvas.prototype.resize = function (width, height, updateViewport=true)
 		this.updateViewport();
 };
 
+// VIOLET: Possibly create a viewport object like the olden days.
 WebGLCanvas.prototype.updateViewport = function ()
 {
 	this.physWidth = this.element.width = Math.floor((this.isFlipped ? this.height : this.width) * this.globalScale);
@@ -406,10 +429,11 @@ WebGLCanvas.prototype.updateViewport = function ()
  * Creates a shader program with the specified vertex and fragment shader source codes.
  * @param {string} vertexShaderSource
  * @param {string} fragmentShaderSource
+ * @param {string} geometryShaderSource?
  * @returns {ShaderProgram}
  */
-WebGLCanvas.prototype.createShaderProgram = function (vertexShaderSource, fragmentShaderSource) {
-	return new ShaderProgram(this, vertexShaderSource, fragmentShaderSource);
+WebGLCanvas.prototype.createShaderProgram = function (vertexShaderSource, fragmentShaderSource, geometryShaderSource=null) {
+	return new ShaderProgram(this, vertexShaderSource, fragmentShaderSource, geometryShaderSource);
 };
 
 
@@ -424,42 +448,42 @@ WebGLCanvas.prototype.createVertexArray = function () {
 
 /**
  * Creates a new buffer.
- * @param {number} target Possible values are: `ARRAY_BUFFER`, `ELEMENT_ARRAY_BUFFER`, `COPY_READ_BUFFER`, `COPY_WRITE_BUFFER`, `TRANSFORM_FEEDBACK_BUFFER`, `UNIFORM_BUFFER`, `PIXEL_PACK_BUFFER`, or `PIXEL_UNPACK_BUFFER`.
- * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+ * @param {WebGLBufferTarget} target
+ * @param {WebGLBufferUsage} usage
  * @returns {VertexBuffer}
  */
 WebGLCanvas.prototype.createBuffer = function (target, usage) {
-	return new Buffer(this, target, usage);
+	return new Buffer(this, this[target], this[usage]);
 };
 
 
 /**
  * Creates a new vertex buffer.
- * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+ * @param {WebGLBufferUsage} usage
  * @returns {VertexBuffer}
  */
 WebGLCanvas.prototype.createVertexBuffer = function (usage) {
-	return new VertexBuffer(this, usage);
+	return new VertexBuffer(this, this[usage]);
 };
 
 
 /**
  * Creates a new element buffer.
- * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+ * @param {WebGLBufferUsage} usage
  * @returns {ElementBuffer}
  */
 WebGLCanvas.prototype.createElementBuffer = function (usage) {
-	return new ElementBuffer(this, usage);
+	return new ElementBuffer(this, this[usage]);
 };
 
 
 /**
- * Creates a new uniform block buffer.
- * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
- * @returns {UniformBlockBuffer}
+ * Creates a new uniform buffer object.
+ * @param {WebGLBufferUsage} usage
+ * @returns {UniformBuffer}
  */
-WebGLCanvas.prototype.createUniformBlockBuffer = function (usage) {
-	return new UniformBlockBuffer(this, usage);
+WebGLCanvas.prototype.createUniformBuffer = function (usage) {
+	return new UniformBuffer(this, this[usage]);
 };
 
 
@@ -502,7 +526,6 @@ WebGLCanvas.prototype.loadTextureFromUrl = async function (url, mipmapLevels=0)
 {
 	let image = await WebGLCanvas.loadImage(url);
 	let texture = this.createTexture(image.width, image.height);
-	console.log(texture);
 	texture.setMipmapLevels(mipmapLevels);
 	texture.upload(image);
 	return texture;

@@ -5,6 +5,10 @@ import { Module } from 'asyl';
  */
 export declare class Vec2 {
 	/**
+	 * Number of bytes per object.
+	 */
+	static BYTES: number;
+	/**
 	 * Address of underlying vec2.
 	 */
 	addr: number;
@@ -31,7 +35,7 @@ export declare class Vec2 {
 	/**
 	 * Destroys the instance.
 	 */
-	dtor(): void;
+	free(): void;
 	/**
 	 * Returns a new vector with the same coordinates.
 	 */
@@ -194,6 +198,10 @@ export declare class Vec2 {
  */
 export declare class Vec4 {
 	/**
+	 * Number of bytes per object.
+	 */
+	static BYTES: number;
+	/**
 	 * Address of underlying vec4.
 	 */
 	addr: number;
@@ -220,7 +228,7 @@ export declare class Vec4 {
 	/**
 	 * Destroys the instance.
 	 */
-	dtor(): void;
+	free(): void;
 	/**
 	 * Returns a new vector with the same coordinates.
 	 */
@@ -423,6 +431,10 @@ export declare class Vec4 {
  */
 export declare class Rect {
 	/**
+	 * Number of bytes per object.
+	 */
+	static BYTES: number;
+	/**
 	 * Address of underlying Rect.
 	 */
 	addr: number;
@@ -457,7 +469,7 @@ export declare class Rect {
 	/**
 	 * Destroys the instance.
 	 */
-	dtor(): void;
+	free(): void;
 	/**
 	 * Returns a clone of the rectangle.
 	 */
@@ -626,6 +638,10 @@ export declare class Rect {
  */
 export declare class Mat3 {
 	/**
+	 * Number of bytes per object.
+	 */
+	static BYTES: number;
+	/**
 	 * Address of underlying mat3 object.
 	 */
 	addr: number;
@@ -652,7 +668,7 @@ export declare class Mat3 {
 	/**
 	 * Destroys the instance.
 	 */
-	dtor(): void;
+	free(): void;
 	/**
 	 * Returns a clone of the matrix.
 	 */
@@ -723,6 +739,10 @@ export declare class Mat3 {
  */
 export declare class Mat4 {
 	/**
+	 * Number of bytes per object.
+	 */
+	static BYTES: number;
+	/**
 	 * Address of underlying mat4 object.
 	 */
 	addr: number;
@@ -749,7 +769,7 @@ export declare class Mat4 {
 	/**
 	 * Destroys the instance.
 	 */
-	dtor(): void;
+	free(): void;
 	/**
 	 * Returns a clone of the matrix.
 	 */

@@ -7,7 +7,7 @@ struct vec2 {
 
 export vec2 *vec2_alloc2f (double x, double y);
 export vec2 *vec2_materialize (void *addr);
-export void vec2_dtor (vec2 *self);
+export void vec2_free (vec2 *self);
 export vec2 *vec2_clone (vec2 *self);
 export void vec2_set2f (vec2 *self, double x, double y);
 export void vec2_set1v (vec2 *self, vec2 *v);

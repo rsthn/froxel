@@ -17,7 +17,7 @@ export mat3 *mat3_materialize (void *addr) {
 	return (mat3*)addr;
 }
 
-export void mat3_dtor (mat3 *self) {
+export void mat3_free (mat3 *self) {
 	free (self);
 }
 

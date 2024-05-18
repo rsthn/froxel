@@ -10,6 +10,11 @@ let m: Module = null;
 export default class Rect
 {
 	/**
+	 * Number of bytes per object.
+	 */
+	static BYTES: number = 6*Float32Array.BYTES_PER_ELEMENT;
+
+	/**
 	 * Address of underlying Rect.
 	 */
 	addr: number;
@@ -69,8 +74,8 @@ export default class Rect
 	/**
 	 * Destroys the instance.
 	 */
-	dtor() : void {
-		m.rect_dtor(this.addr);
+	free() : void {
+		m.rect_free(this.addr);
 	}
 
 	/**

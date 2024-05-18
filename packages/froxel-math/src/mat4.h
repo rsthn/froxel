@@ -7,7 +7,7 @@ struct mat4 {
 
 export mat4 *mat4_alloc ();
 export mat4 *mat4_materialize (void *addr);
-export void mat4_dtor (mat4 *self);
+export void mat4_free (mat4 *self);
 export mat4 *mat4_clone (mat4 *self);
 export void mat4_fill1f (mat4 *self, double value);
 export void mat4_set1f (mat4 *self, double value);

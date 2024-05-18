@@ -2,10 +2,10 @@
 import WebGLCanvas from './webgl-canvas.js';
 
 /**
- * @typedef {'NEAREST' | 'LINEAR'} TextureFilterType
+ * @typedef {'NEAREST'|'LINEAR'} TextureFilterType
  */
 /**
- * @typedef {'REPEAT' | 'CLAMP_TO_EDGE' | 'MIRRORED_REPEAT'} TextureWrapMode
+ * @typedef {'REPEAT'|'CLAMP_TO_EDGE'|'MIRRORED_REPEAT'} TextureWrapMode
  */
 
 /**

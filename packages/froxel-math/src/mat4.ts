@@ -9,6 +9,11 @@ let m: Module = null;
 export default class Mat4
 {
 	/**
+	 * Number of bytes per object.
+	 */
+	static BYTES: number = 16*Float32Array.BYTES_PER_ELEMENT;
+
+	/**
 	 * Address of underlying mat4 object.
 	 */
 	addr: number;
@@ -52,8 +57,8 @@ export default class Mat4
 	/**
 	 * Destroys the instance.
 	 */
-	dtor() : void {
-		m.mat4_dtor(this.addr);
+	free() : void {
+		m.mat4_free(this.addr);
 	}
 
 	/**

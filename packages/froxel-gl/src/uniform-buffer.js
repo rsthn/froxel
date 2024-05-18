@@ -2,7 +2,7 @@
 import WebGLCanvas from './webgl-canvas.js';
 import Buffer from './buffer.js';
 
-export default class UniformBlockBuffer extends Buffer
+export default class UniformBuffer extends Buffer
 {
 	/**
 	 * Uniform block binding index. Set using `bindBufferBase`.
@@ -21,13 +21,13 @@ export default class UniformBlockBuffer extends Buffer
 	}
 
 	/**
-	 * Binds the buffer to the UNIFORM_BUFFER binding point at a given index. 
+	 * Binds the buffer to given index of the UNIFORM_BUFFER binding point.
 	 * @param {number} index
-	 * @returns {UniformBlockBuffer}
+	 * @returns {UniformBuffer}
 	 */
-	bindBufferBase (index)
+	bufferIndex (index)
 	{
-		 this.gl.bindBufferBase(this.target, this.bindingIndex = index, this.buffer);
+		 this.gl.bindBufferBase(this.target, this.bindingIndex=index, this.buffer);
 		 return this;
 	}
 };

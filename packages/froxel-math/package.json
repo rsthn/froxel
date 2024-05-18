@@ -35,17 +35,17 @@
         "dist/"
     ],
     "devDependencies": {
-        "@parcel/core": "^2.9.2",
-        "@parcel/optimizer-data-url": "^2.9.2",
-        "@parcel/transformer-inline-string": "^2.9.2",
+        "@parcel/core": "^2.9.3",
+        "@parcel/optimizer-data-url": "^2.9.3",
+        "@parcel/transformer-inline-string": "^2.9.3",
         "chai": "^4.3.7",
         "chai-almost": "^1.0.1",
         "dts-bundle-generator": "^8.0.1",
         "mocha": "^10.2.0",
-        "parcel": "^2.9.2"
+        "parcel": "^2.9.3"
     },
     "dependencies": {
-        "asyl": "^1.0.3",
+        "asyl": "link:C:/lib/js/asyl",
         "atob": "^2.1.2",
         "base64-js": "^1.5.1",
         "node-fetch": "^3.3.1"

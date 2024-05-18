@@ -20,7 +20,7 @@ export vec4 *vec4_materialize (void *addr) {
 	return (vec4*)addr;
 }
 
-export void vec4_dtor (vec4 *self) {
+export void vec4_free (vec4 *self) {
 	free (self);
 }
 

@@ -7,7 +7,7 @@ struct vec4 {
 
 export vec4 *vec4_alloc4f (double x, double y, double z, double w);
 export vec4 *vec4_materialize (void *addr);
-export void vec4_dtor (vec4 *self);
+export void vec4_free (vec4 *self);
 export vec4 *vec4_clone (vec4 *self);
 export void vec4_set4f (vec4 *self, double x, double y, double z, double w);
 export void vec4_set1v (vec4 *self, vec4 *v);

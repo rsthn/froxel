@@ -18,7 +18,7 @@ export vec2 *vec2_materialize (void *addr) {
 	return (vec2*)addr;
 }
 
-export void vec2_dtor (vec2 *self) {
+export void vec2_free (vec2 *self) {
 	free (self);
 }
 

@@ -34,13 +34,13 @@
         "dist/"
     ],
     "devDependencies": {
-        "asyl": "^1.0.1",
         "dts-bundle-generator": "^8.0.1",
-        "parcel": "^2.9.1",
+        "parcel": "^2.9.3",
         "shx": "^0.3.4",
-        "typescript": "^5.0.4"
+        "typescript": "^5.1.6"
     },
     "dependencies": {
+        "asyl": "link:c:/lib/js/asyl",
         "froxel-math": "link:..\\froxel-math"
     }
 }

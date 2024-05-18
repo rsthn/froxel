@@ -18,21 +18,31 @@ export declare class Buffer {
 	readonly gl: WebGLCanvas;
 	/**
 	 * Buffer target.
-	 * @type {number}
+	 * @readonly @type {number}
 	 */
-	target: number;
+	readonly target: number;
 	/**
 	 * Buffer usage mode.
-	 * @type {number}
+	 * @readonly @type {number}
 	 */
-	usage: number;
+	readonly usage: number;
 	/**
 	 * Buffer object resource.
-	 * @type {WebGLBuffer}
+	 * @readonly @type {WebGLBuffer}
 	 */
-	buffer: WebGLBuffer;
+	readonly buffer: WebGLBuffer;
 	/**
-	 * Binds the buffer to its WebGL target.
+	 * Buffer size in bytes.
+	 * @readonly @type {number}
+	 */
+	readonly byteLength: number;
+	/**
+	 * Source buffer, used for automatic upload of data to the GPU memory when `update` is called.
+	 * @readonly @type {Uint8Array}
+	 */
+	readonly source: Uint8Array;
+	/**
+	 * Binds the buffer to its respective WebGL target.
 	 * @returns {Buffer}
 	 */
 	bindBuffer(): Buffer;
@@ -42,18 +52,18 @@ export declare class Buffer {
 	 */
 	unbindBuffer(): Buffer;
 	/**
+	 * Allocates the specified number of bytes for the buffer.
+	 * @param {number} numBytes
+	 * @returns {Buffer}
+	 */
+	allocate(numBytes: number): Buffer;
+	/**
 	 * Initializes and creates the buffer object's data store.
 	 * @param {ArrayBufferView} srcData
 	 * @param {number} srcOffset?
 	 * @returns {Buffer}
 	 */
 	bufferData(srcData: ArrayBufferView, srcOffset?: number): Buffer;
-	/**
-	 * Allocates the specified number of bytes for the buffer.
-	 * @param {number} numBytes
-	 * @returns {Buffer}
-	 */
-	allocate(numBytes: number): Buffer;
 	/**
 	 * Updates a subset of the buffer object's data store.
 	 * @param {number} dstByteOffset
@@ -67,8 +77,21 @@ export declare class Buffer {
 	 * Deletes the buffer.
 	 */
 	deleteBuffer(): void;
+	/**
+	 * Sets the buffer source. When not `null`, calling `update` will automatically upload the source buffer's data to the GPU.
+	 * @param {Uint8Array} buffer
+	 * @returns {Buffer}
+	 */
+	bufferSource(buffer: Uint8Array): Buffer;
+	/**
+	 * Updates the buffer in the GPU with data from the source buffer (only when not `null`).
+	 * @param {number} byteOffset
+	 * @param {number} byteLength
+	 * @returns {Buffer}
+	 */
+	update(byteOffset?: number, byteLength?: number): Buffer;
 }
-export declare class UniformBlockBuffer extends Buffer {
+export declare class UniformBuffer extends Buffer {
 	/**
 	 * Creates a buffer for the UNIFORM_BUFFER target.
 	 * @param {WebGLCanvas} gl
@@ -81,27 +104,41 @@ export declare class UniformBlockBuffer extends Buffer {
 	 */
 	readonly bindingIndex: number;
 	/**
-	 * Binds the buffer to the UNIFORM_BUFFER binding point at a given index.
+	 * Binds the buffer to given index of the UNIFORM_BUFFER binding point.
 	 * @param {number} index
-	 * @returns {UniformBlockBuffer}
+	 * @returns {UniformBuffer}
 	 */
-	bindBufferBase(index: number): UniformBlockBuffer;
+	bufferIndex(index: number): UniformBuffer;
 }
 /**
- * Creates a WebGL GLSL Shader Program.
- * @param {WebGLCanvas} gl
- * @param {string} vertexShaderSource
- * @param {string} fragmentShaderSource
+ * Describes a WebGL shader program.
  */
-export declare function ShaderProgram(gl: WebGLCanvas, vertexShaderSource: string, fragmentShaderSource: string): void;
 export declare class ShaderProgram {
+	/**
+	 * Map of global attribute locations.
+	 * @readonly @private
+	 * @type {Map<string, number>}
+	 */
+	private static readonly attribLocations;
+	/**
+	 * Binds a global attribute location to be applied to any newly created shader program.
+	 * @param {number} attribLocation
+	 * @param {string} attribName
+	 */
+	static bindAttribLocation(attribLocation: number, attribName: string): void;
+	/**
+	 * Binds several global attribute locations to be applied to any newly created shader program.
+	 * @param {Map<string, number>} attribs
+	 */
+	static bindAttribLocations(attribs: Map<string, number>): void;
 	/**
 	 * Creates a WebGL GLSL Shader Program.
 	 * @param {WebGLCanvas} gl
 	 * @param {string} vertexShaderSource
 	 * @param {string} fragmentShaderSource
+	 * @param {string} geometryShaderSource?
 	 */
-	constructor(gl: WebGLCanvas, vertexShaderSource: string, fragmentShaderSource: string);
+	constructor(gl: WebGLCanvas, vertexShaderSource: string, fragmentShaderSource: string, geometryShaderSource?: string);
 	/**
 	 * Reference to the WebGLCanvas.
 	 * @readonly @type {WebGLCanvas}
@@ -109,25 +146,36 @@ export declare class ShaderProgram {
 	readonly gl: WebGLCanvas;
 	/**
 	 * Vertex shader resource object.
-	 * @readonly @type {WebGLShader}
+	 * @private @type {WebGLShader}
 	 */
-	readonly vertexShader: WebGLShader;
+	private vertexShader;
 	/**
 	 * Fragment shader resource object.
-	 * @readonly @type {WebGLShader}
+	 * @private @type {WebGLShader}
 	 */
-	readonly fragmentShader: WebGLShader;
+	private fragmentShader;
+	/**
+	 * Fragment shader resource object.
+	 * @private @type {WebGLShader}
+	 */
+	private geometryShader;
 	/**
 	 * Shader program resource object.
 	 * @readonly @type {WebGLProgram}
 	 */
 	readonly program: WebGLProgram;
 	/**
+	 * Uniform and uniform block cache.
+	 * @private @type {object}
+	 */
+	private cache;
+	/**
 	 * Links the program and throws an error if there was any problem.
+	 * @private
 	 * @throws {Error}
 	 * @returns {ShaderProgram}
 	 */
-	linkProgram(): ShaderProgram;
+	private linkProgram;
 	/**
 	 * Binds an attribute location to the shader program.
 	 * @param {number} attribLocation
@@ -136,9 +184,24 @@ export declare class ShaderProgram {
 	 */
 	bindAttribLocation(attribLocation: number, attribName: string): ShaderProgram;
 	/**
-	 * Activates the shader program for subsequent drawing operations.
+	 * Returns the location of an attribute.
+	 * @param {string} attribName
+	 * @returns {WebGLUniformLocation}
 	 */
-	useProgram(): void;
+	getAttribLocation(attribName: string): WebGLUniformLocation;
+	/**
+	 * Returns the location of one or more attributes.
+	 * @param {Array<string>} attribNames
+	 * @returns { [key: string]: WebGLUniformLocation }
+	 */
+	getAttribLocations(attribNames: Array<string>): [
+		key: string
+	];
+	/**
+	 * Activates the shader program for subsequent drawing operations.
+	 * @returns {ShaderProgram}
+	 */
+	useProgram(): ShaderProgram;
 	/**
 	 * Returns the location of a uniform variable.
 	 * @param {string} uniformName
@@ -154,7 +217,8 @@ export declare class ShaderProgram {
 		key: string
 	];
 	/**
-	 * Returns the index and offset of one or more uniform variables. Useful when using uniform block objects (UBO).
+	 * Returns the index and offset of one or more uniform variables. Highly useful to build an appropriate uniform buffer object (UBO) when
+	 * the exact layout of the data is not known beforehand (but the uniform names are).
 	 * @param {Array<string>} uniformNames
 	 * @returns { [key: string]: { index: number, offset: number } }
 	 */
@@ -176,37 +240,23 @@ export declare class ShaderProgram {
 		key: string
 	];
 	/**
-	 * Assigns the binding index of a uniform block buffer to a block identifier in the program.
+	 * Binds a uniform buffer to a uniform block in the program.
 	 * @param {number|string} blockIdentifier
-	 * @param {number|UniformBlockBuffer} bindingIndex
+	 * @param {number|UniformBuffer} bindingIndex
 	 * @returns {ShaderProgram}
 	 */
-	uniformBlockBinding(blockIdentifier: number | string, bindingIndex: number | UniformBlockBuffer): ShaderProgram;
-}
-export declare namespace ShaderProgram {
-	const attribLocations: Map<string, number>;
-	/**
-	 * Binds a global attribute location to be applied to any newly created shader program.
-	 * @param {number} attribLocation
-	 * @param {string} attribName
-	 * @returns {ShaderProgram}
-	 */
-	function bindAttribLocation(attribLocation: number, attribName: string): ShaderProgram;
-	/**
-	 * Binds several global attribute locations to be applied to any newly created shader program.
-	 * @param {Map<string, number>} attribs
-	 * @returns {ShaderProgram}
-	 */
-	function bindAttribLocations(attribs: Map<string, number>): ShaderProgram;
+	bindUniformBlock(blockIdentifier: number | string, bindingIndex: number | UniformBuffer): ShaderProgram;
 }
 /**
- * Creates a Vertex Array Object (VAO).
+ * Vertex Array Object (VAO) is a data structure that stores information about an associated element buffer, one or more vertex attribute
+ * pointers, and also one or more vertex buffers.
  * @param {WebGLCanvas} gl
  */
 export declare function VertexArray(gl: WebGLCanvas): void;
 export declare class VertexArray {
 	/**
-	 * Creates a Vertex Array Object (VAO).
+	 * Vertex Array Object (VAO) is a data structure that stores information about an associated element buffer, one or more vertex attribute
+	 * pointers, and also one or more vertex buffers.
 	 * @param {WebGLCanvas} gl
 	 */
 	constructor(gl: WebGLCanvas);
@@ -222,13 +272,18 @@ export declare class VertexArray {
 	vertexArray: WebGLVertexArrayObject;
 	/**
 	 * Binds the vertex array object to the GPU.
+	 * @returns {VertexArray}
 	 */
-	bindVertexArray(): void;
+	bindVertexArray(): VertexArray;
 	/**
 	 * Unbinds the vertex array object from the GPU.
+	 * @returns {VertexArray}
 	 */
-	unbindVertexArray(): void;
+	unbindVertexArray(): VertexArray;
 }
+/**
+ * @typedef {'BYTE'|'UNSIGNED_BYTE'|'SHORT'|'UNSIGNED_SHORT'|'FLOAT'} WebGLAttribType
+ */
 export declare class VertexBuffer extends Buffer {
 	/**
 	 * Creates a buffer for the ARRAY_BUFFER target.
@@ -236,7 +291,40 @@ export declare class VertexBuffer extends Buffer {
 	 * @param {number} usage
 	 */
 	constructor(gl: WebGLCanvas, usage: number);
+	/**
+	 * Stride of the buffer.
+	 * @readonly @type {number}
+	 */
+	readonly stride: number;
+	/**
+	 * Sets the stride of the vertex buffer.
+	 * @param {number} stride
+	 * @returns {VertexBuffer}
+	 */
+	bufferStride(stride: number): VertexBuffer;
+	/**
+	 * Configures a vertex attribute pointer.
+	 * @param {number} attribLocation - Location of the attribute within the shader program.
+	 * @param {number} dataSize - Number of bytes for this attribute.
+	 * @param {WebGLAttribType} dataType - Type of the attribute.
+	 * @param {number} byteOffset - Offset within the buffer to the first value.
+	 * @returns {VertexBuffer}
+	 */
+	attribPointer(attribLocation: number, dataSize: number, dataType: WebGLAttribType, byteOffset?: number): VertexBuffer;
+	/**
+	 * Enables the attribute vertex array at the specified location.
+	 * @param {number} attribLocation
+	 * @returns {VertexBuffer}
+	 */
+	enableAttrib(attribLocation: number): VertexBuffer;
+	/**
+	 * Disables the attribute vertex array at the specified location.
+	 * @param {number} attribLocation
+	 * @returns {VertexBuffer}
+	 */
+	disableAttrib(attribLocation: number): VertexBuffer;
 }
+export type WebGLAttribType = "BYTE" | "UNSIGNED_BYTE" | "SHORT" | "UNSIGNED_SHORT" | "FLOAT";
 export declare class ElementBuffer extends Buffer {
 	/**
 	 * Creates a buffer for the ELEMENT_ARRAY_BUFFER target.
@@ -246,10 +334,10 @@ export declare class ElementBuffer extends Buffer {
 	constructor(gl: WebGLCanvas, usage: number);
 }
 /**
- * @typedef {'NEAREST' | 'LINEAR'} TextureFilterType
+ * @typedef {'NEAREST'|'LINEAR'} TextureFilterType
  */
 /**
- * @typedef {'REPEAT' | 'CLAMP_TO_EDGE' | 'MIRRORED_REPEAT'} TextureWrapMode
+ * @typedef {'REPEAT'|'CLAMP_TO_EDGE'|'MIRRORED_REPEAT'} TextureWrapMode
  */
 /**
  * WebGLCanvas Texture Object.
@@ -379,6 +467,8 @@ export declare class Texture {
 export type TextureFilterType = "NEAREST" | "LINEAR";
 export type TextureWrapMode = "REPEAT" | "CLAMP_TO_EDGE" | "MIRRORED_REPEAT";
 export type WebGLCanvasOrientation = "default" | "landscape" | "portrait" | "automatic" | "strict";
+export type WebGLBufferTarget = "ARRAY_BUFFER" | "ELEMENT_ARRAY_BUFFER" | "COPY_READ_BUFFER" | "COPY_WRITE_BUFFER" | "TRANSFORM_FEEDBACK_BUFFER" | "UNIFORM_BUFFER" | "PIXEL_PACK_BUFFER" | "PIXEL_UNPACK_BUFFER";
+export type WebGLBufferUsage = "STATIC_DRAW" | "DYNAMIC_DRAW" | "STREAM_DRAW" | "STATIC_READ" | "DYNAMIC_READ" | "STREAM_READ" | "STATIC_COPY" | "DYNAMIC_COPY" | "STREAM_COPY";
 export type WebGLCanvasOptions = {
 	/**
 	 * Positions the canvas to cover the entire screen. default `true`
@@ -423,10 +513,6 @@ export type WebGLCanvasUniforms = {
 	 */
 	changed: boolean;
 	/**
-	 * Canvas resolution (automatically set by WebGLCanvas).
-	 */
-	resolution: Vec4;
-	/**
 	 * Transformation to achieve correct target resolution and orientation (automatically set by WebGLCanvas).
 	 */
 	initial: Mat4;
@@ -439,16 +525,16 @@ export type WebGLCanvasUniforms = {
 	 */
 	projection: Mat4;
 	/**
-	 * Model-view-projection (MVP) matrix contains all transformations in a single matrix.
+	 * Canvas resolution (automatically set by WebGLCanvas).
 	 */
-	mvp: Mat4;
+	resolution: Vec4;
 };
 /**
  * WebGL2 Canvas.
  *
  * Default WebGL configuration is set as follows:
  *
- * - `DEPTH_TEST`: enabled, `clearDepth`: -1.0, `depthFunc`: GEQUAL
+ * - `DEPTH_TEST`: enabled, `clearDepth`: 1.0, `depthFunc`: LEQUAL
  * - `BLEND`: enabled, `blendEquationSeparate`: FUNC_ADD, FUNC_ADD, `blendFunc`: ONE, ONE_MINUS_SRC_ALPHA
  * - `UNPACK_PREMULTIPLY_ALPHA_WEBGL`: enabled
  * - `SCISSOR_TEST`: enabled
@@ -463,7 +549,7 @@ export declare class WebGLCanvas {
 	 *
 	 * Default WebGL configuration is set as follows:
 	 *
-	 * - `DEPTH_TEST`: enabled, `clearDepth`: -1.0, `depthFunc`: GEQUAL
+	 * - `DEPTH_TEST`: enabled, `clearDepth`: 1.0, `depthFunc`: LEQUAL
 	 * - `BLEND`: enabled, `blendEquationSeparate`: FUNC_ADD, FUNC_ADD, `blendFunc`: ONE, ONE_MINUS_SRC_ALPHA
 	 * - `UNPACK_PREMULTIPLY_ALPHA_WEBGL`: enabled
 	 * - `SCISSOR_TEST`: enabled
@@ -477,18 +563,23 @@ export declare class WebGLCanvas {
 	 */
 	dispose(): void;
 	/**
-	 * WebGL2 Context.
+	 * WebGL2 rendering context.
 	 * @private @readonly @type {WebGL2RenderingContext}
 	 */
 	private readonly gl;
 	/**
+	 * Contains the state of several WebGL elements (shader program, bound buffer, texture, etc). This is a general object, and each class or interested party
+	 * is responsible for accesing and maintaining values in this object.
+	 * @private @type {object}
+	 */
+	private state;
+	/**
 	 * @typedef {Object} WebGLCanvasUniforms
 	 * @prop {boolean} changed Indicates if the uniforms have changed and should be reloaded in the WebGL program.
-	 * @prop {Vec4} resolution Canvas resolution (automatically set by WebGLCanvas).
 	 * @prop {Mat4} initial Transformation to achieve correct target resolution and orientation (automatically set by WebGLCanvas).
 	 * @prop {Mat4} view Transforms coordinates to view space.
 	 * @prop {Mat4} projection Transforms coordinates to NDC space. Use the `setOrtho2D`, `setOrtho3D` or `setFrustrum` methods of Utils to configure its value.
-	 * @prop {Mat4} mvp Model-view-projection (MVP) matrix contains all transformations in a single matrix.
+	 * @prop {Vec4} resolution Canvas resolution (automatically set by WebGLCanvas).
 	 */
 	/**
 	 * Common uniforms for WebGL. Note that it is the responsibility of the developer to set, configure and use these uniforms (except the ones marked
@@ -544,9 +635,10 @@ export declare class WebGLCanvas {
 	 * Creates a shader program with the specified vertex and fragment shader source codes.
 	 * @param {string} vertexShaderSource
 	 * @param {string} fragmentShaderSource
+	 * @param {string} geometryShaderSource?
 	 * @returns {ShaderProgram}
 	 */
-	createShaderProgram(vertexShaderSource: string, fragmentShaderSource: string): ShaderProgram;
+	createShaderProgram(vertexShaderSource: string, fragmentShaderSource: string, geometryShaderSource?: string): ShaderProgram;
 	/**
 	 * Creates a new vertex array object.
 	 * @returns {VertexArray}
@@ -554,29 +646,29 @@ export declare class WebGLCanvas {
 	createVertexArray(): VertexArray;
 	/**
 	 * Creates a new buffer.
-	 * @param {number} target Possible values are: `ARRAY_BUFFER`, `ELEMENT_ARRAY_BUFFER`, `COPY_READ_BUFFER`, `COPY_WRITE_BUFFER`, `TRANSFORM_FEEDBACK_BUFFER`, `UNIFORM_BUFFER`, `PIXEL_PACK_BUFFER`, or `PIXEL_UNPACK_BUFFER`.
-	 * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+	 * @param {WebGLBufferTarget} target
+	 * @param {WebGLBufferUsage} usage
 	 * @returns {VertexBuffer}
 	 */
-	createBuffer(target: number, usage: number): VertexBuffer;
+	createBuffer(target: WebGLBufferTarget, usage: WebGLBufferUsage): VertexBuffer;
 	/**
 	 * Creates a new vertex buffer.
-	 * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+	 * @param {WebGLBufferUsage} usage
 	 * @returns {VertexBuffer}
 	 */
-	createVertexBuffer(usage: number): VertexBuffer;
+	createVertexBuffer(usage: WebGLBufferUsage): VertexBuffer;
 	/**
 	 * Creates a new element buffer.
-	 * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
+	 * @param {WebGLBufferUsage} usage
 	 * @returns {ElementBuffer}
 	 */
-	createElementBuffer(usage: number): ElementBuffer;
+	createElementBuffer(usage: WebGLBufferUsage): ElementBuffer;
 	/**
-	 * Creates a new uniform block buffer.
-	 * @param {number} usage Possible values are: `STATIC_DRAW`, `DYNAMIC_DRAW`, `STREAM_DRAW`, `STATIC_READ`, `DYNAMIC_READ`, `STREAM_READ`, `STATIC_COPY`, `DYNAMIC_COPY`, or `STREAM_COPY`.
-	 * @returns {UniformBlockBuffer}
+	 * Creates a new uniform buffer object.
+	 * @param {WebGLBufferUsage} usage
+	 * @returns {UniformBuffer}
 	 */
-	createUniformBlockBuffer(usage: number): UniformBlockBuffer;
+	createUniformBuffer(usage: WebGLBufferUsage): UniformBuffer;
 	/**
 	 * Creates a new texture object of the specified size.
 	 * @param {number} width - Physical texture width.

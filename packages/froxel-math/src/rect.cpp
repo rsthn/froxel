@@ -27,7 +27,7 @@ export rect *rect_materialize (void *addr) {
 	return (rect*)addr;
 }
 
-export void rect_dtor (rect *self) {
+export void rect_free (rect *self) {
 	free(self);
 }
 
