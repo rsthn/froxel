@@ -11,7 +11,7 @@
         "deploy": "pnpm all && pnpm test && node ./scripts/deploy.js",
         "tsdoc": "dts-bundle-generator --no-banner --disable-symlinks-following -o dist/froxel-math.d.ts src/main.ts",
         "changes": "rose ./scripts/changes",
-        "build-core": "wasm++ -nostdlib src/vec2.cpp src/vec4.cpp src/mat3.cpp src/mat4.cpp src/rect.cpp -o src/froxel-math.wasm",
+        "build-core": "/dev/opt/wasi-sdk/bin/clang++ -I/dev/usr-include -nostdlib -nostartfiles -Wl,--no-entry -Wl,--allow-undefined -Wl,--export-dynamic -Wl,--no-check-features src/vec2.cpp src/vec4.cpp src/mat3.cpp src/mat4.cpp src/rect.cpp -o src/froxel-math.wasm",
         "wat": "wasm2wat --enable-thread src/froxel-math.wasm -o src/froxel-math.wat",
         "build": "parcel build --no-cache --target module",
         "all": "pnpm build-core && pnpm build && pnpm tsdoc"

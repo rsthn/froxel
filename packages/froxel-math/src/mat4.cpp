@@ -169,7 +169,7 @@ export void mat4_rotateX (mat4 *self, double angle)
     mat4_identity(&tmp2);
 
     float cost = std::cos(angle);
-    float sint = -std::sin(angle);
+    float sint = std::sin(angle);
 
     tmp2.data[5] = cost;
     tmp2.data[6] = sint;
@@ -186,7 +186,7 @@ export void mat4_rotateY (mat4 *self, double angle)
     mat4_identity(&tmp2);
 
     float cost = std::cos(angle);
-    float sint = -std::sin(angle);
+    float sint = std::sin(angle);
 
     tmp2.data[0] = cost;
     tmp2.data[2] = -sint;
@@ -203,7 +203,7 @@ export void mat4_rotateZ (mat4 *self, double angle)
     mat4_identity(&tmp2);
 
     float cost = std::cos(angle);
-    float sint = -std::sin(angle);
+    float sint = std::sin(angle);
 
     tmp2.data[0] = cost;
     tmp2.data[1] = sint;
