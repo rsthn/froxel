@@ -37,15 +37,15 @@ export default WebGLCanvas;
  */
 
 const defaultOptions = {
-	fullscreen: true,
-	stencil: false,
-	background: '000000',
-	width: 960,
-	height: 540,
-	orientation: 'automatic',
-	antialias: true,
-	scaleFactorMax: 0,
-	scaleFactorOffs: 0.7,
+    fullscreen: true,
+    stencil: false,
+    background: '000000',
+    width: 960,
+    height: 540,
+    orientation: 'automatic',
+    antialias: true,
+    scaleFactorMax: 0,
+    scaleFactorOffs: 0.7,
 };
 
 /**
@@ -64,132 +64,132 @@ let autoResizerAttached = false;
  */
 function autoResizeCanvas (wgl)
 {
-	let fullWidth = wgl.options.width;
-	let fullHeight = wgl.options.height;
+    let fullWidth = wgl.options.width;
+    let fullHeight = wgl.options.height;
 
-	if (wgl.options.fullscreen && ('document' in global)) {
-		fullWidth = Math.floor(global.innerWidth);
-		fullHeight = Math.floor(global.innerHeight);
-	}
-	else {
-		if (wgl.options.width === null && wgl.options.height === null)
-			throw new Error ('At least one screen dimension must be specified in headless mode.');
-	}
+    if (wgl.options.fullscreen && ('document' in global)) {
+        fullWidth = Math.floor(global.innerWidth);
+        fullHeight = Math.floor(global.innerHeight);
+    }
+    else {
+        if (wgl.options.width === null && wgl.options.height === null)
+            throw new Error ('At least one screen dimension must be specified in headless mode.');
+    }
 
-	// Flip dimensions to ensure the desired orientation.
-	let currentWidth = fullWidth;
-	let currentHeight = fullHeight;
-	let flipped = false;
+    // Flip dimensions to ensure the desired orientation.
+    let currentWidth = fullWidth;
+    let currentHeight = fullHeight;
+    let flipped = false;
 
-	if ((fullWidth < fullHeight && wgl.options.orientation === 'landscape') || (fullWidth > fullHeight && wgl.options.orientation === 'portrait')) {
-		currentWidth = fullHeight;
-		currentHeight = fullWidth;
-		flipped = true;
-	}
+    if ((fullWidth < fullHeight && wgl.options.orientation === 'landscape') || (fullWidth > fullHeight && wgl.options.orientation === 'portrait')) {
+        currentWidth = fullHeight;
+        currentHeight = fullWidth;
+        flipped = true;
+    }
 
-	// Get target screen dimensions.
-	let targetWidth = wgl.options.width;
-	let targetHeight = wgl.options.height;
+    // Get target screen dimensions.
+    let targetWidth = wgl.options.width;
+    let targetHeight = wgl.options.height;
 
-	if (targetWidth === null || targetHeight === null)
-	{
-		if (targetWidth === null && targetHeight === null) {
-			targetWidth = currentWidth;
-			targetHeight = currentHeight;
-		}
-		else if (targetWidth === null)
-			targetWidth = Math.floor(0.5 + currentWidth * (wgl.options.height / currentHeight));
-		else
-			targetHeight = Math.floor(0.5 + currentHeight * (wgl.options.width / currentWidth));
-	}
+    if (targetWidth === null || targetHeight === null)
+    {
+        if (targetWidth === null && targetHeight === null) {
+            targetWidth = currentWidth;
+            targetHeight = currentHeight;
+        }
+        else if (targetWidth === null)
+            targetWidth = Math.floor(0.5 + currentWidth * (wgl.options.height / currentHeight));
+        else
+            targetHeight = Math.floor(0.5 + currentHeight * (wgl.options.width / currentWidth));
+    }
 
-	// Handle `automatic` canvas orientation.
-	let screenWidth = targetWidth;
-	let screenHeight = targetHeight;
+    // Handle `automatic` canvas orientation.
+    let screenWidth = targetWidth;
+    let screenHeight = targetHeight;
 
-	if (wgl.options.orientation === 'automatic' && screenWidth && screenHeight)
-	{
-		if ((screenWidth > screenHeight && currentWidth < currentHeight) || (screenWidth < screenHeight && currentWidth > currentHeight)) {
-			screenWidth = targetHeight;
-			screenHeight = targetWidth;
-		}
-	}
+    if (wgl.options.orientation === 'automatic' && screenWidth && screenHeight)
+    {
+        if ((screenWidth > screenHeight && currentWidth < currentHeight) || (screenWidth < screenHeight && currentWidth > currentHeight)) {
+            screenWidth = targetHeight;
+            screenHeight = targetWidth;
+        }
+    }
 
-	// Compute canvas scale factor.
-	let canvasScaleFactor = 1;
+    // Compute canvas scale factor.
+    let canvasScaleFactor = 1;
 
-	if (screenWidth && screenHeight)
-		canvasScaleFactor = Math.min(currentWidth / screenWidth, currentHeight / screenHeight);
-	else if (screenWidth)
-		canvasScaleFactor = currentWidth / screenWidth;
-	else if (screenHeight)
-		canvasScaleFactor = currentHeight / screenHeight;
+    if (screenWidth && screenHeight)
+        canvasScaleFactor = Math.min(currentWidth / screenWidth, currentHeight / screenHeight);
+    else if (screenWidth)
+        canvasScaleFactor = currentWidth / screenWidth;
+    else if (screenHeight)
+        canvasScaleFactor = currentHeight / screenHeight;
 
-	// ***
-	let tmpWidth = currentWidth;
-	let tmpHeight = currentHeight;
+    // ***
+    let tmpWidth = currentWidth;
+    let tmpHeight = currentHeight;
 
-	if (screenWidth) currentWidth = screenWidth;
-	if (screenHeight) currentHeight = screenHeight;
+    if (screenWidth) currentWidth = screenWidth;
+    if (screenHeight) currentHeight = screenHeight;
 
-	let offsX = Math.floor((tmpWidth - currentWidth*canvasScaleFactor)*0.5);
-	let offsY = Math.floor((tmpHeight - currentHeight*canvasScaleFactor)*0.5);
+    let offsX = Math.floor((tmpWidth - currentWidth*canvasScaleFactor)*0.5);
+    let offsY = Math.floor((tmpHeight - currentHeight*canvasScaleFactor)*0.5);
 
-	if (flipped) {
-		let tmp = offsX;
-		offsX = offsY;
-		offsY = tmp;
-	}
+    if (flipped) {
+        let tmp = offsX;
+        offsX = offsY;
+        offsY = tmp;
+    }
 
-	let scaleFactor = canvasScaleFactor * global.devicePixelRatio;
-	scaleFactor = Math.floor(wgl.options.scaleFactorOffs + scaleFactor);
+    let scaleFactor = canvasScaleFactor * global.devicePixelRatio;
+    scaleFactor = Math.floor(wgl.options.scaleFactorOffs + scaleFactor);
 
-	if (wgl.options.scaleFactorMax > 0 && scaleFactor > wgl.options.scaleFactorMax)
-		scaleFactor = wgl.options.scaleFactorMax;
+    if (wgl.options.scaleFactorMax > 0 && scaleFactor > wgl.options.scaleFactorMax)
+        scaleFactor = wgl.options.scaleFactorMax;
 
-	if (wgl.options.fullscreen && ('document' in global))
-		global.document.body.style.backgroundColor = wgl.element.style.backgroundColor;
+    if (wgl.options.fullscreen && ('document' in global))
+        global.document.body.style.backgroundColor = wgl.element.style.backgroundColor;
 
-	wgl.resize(currentWidth, currentHeight, false);
+    wgl.resize(currentWidth, currentHeight, false);
 
-	if (!flipped) {
-		wgl.element.style.width = Math.floor(currentWidth*canvasScaleFactor+0.5) + 'px';
-		wgl.element.style.height = Math.floor(currentHeight*canvasScaleFactor+0.5) + 'px';
-	}
-	else {
-		wgl.element.style.width = Math.floor(currentHeight*canvasScaleFactor+0.5) + 'px';
-		wgl.element.style.height = Math.floor(currentWidth*canvasScaleFactor+0.5) + 'px';
-	}
+    if (!flipped) {
+        wgl.element.style.width = Math.floor(currentWidth*canvasScaleFactor+0.5) + 'px';
+        wgl.element.style.height = Math.floor(currentHeight*canvasScaleFactor+0.5) + 'px';
+    }
+    else {
+        wgl.element.style.width = Math.floor(currentHeight*canvasScaleFactor+0.5) + 'px';
+        wgl.element.style.height = Math.floor(currentWidth*canvasScaleFactor+0.5) + 'px';
+    }
 
-	wgl.element.style.marginLeft = offsX + 'px';
-	wgl.element.style.marginTop = offsY + 'px';
+    wgl.element.style.marginLeft = offsX + 'px';
+    wgl.element.style.marginTop = offsY + 'px';
 
-	wgl.globalScale = scaleFactor;
-	wgl.isFlipped = flipped;
+    wgl.globalScale = scaleFactor;
+    wgl.isFlipped = flipped;
 
-	wgl.u.initial.identity();
-	wgl.u.initial.scale(scaleFactor, scaleFactor, scaleFactor);
+    wgl.u.initial.identity();
+    wgl.u.initial.scale(scaleFactor, scaleFactor, scaleFactor);
 
-	if (flipped) {
-		wgl.u.initial.rotateZ(Math.PI/2);
-		wgl.u.initial.translate(-currentWidth, 0, 0);
-	}
+    if (flipped) {
+        wgl.u.initial.rotateZ(Math.PI/2);
+        wgl.u.initial.translate(-currentWidth, 0, 0);
+    }
 
-	wgl.updateViewport();
+    wgl.updateViewport();
 
-	//console.log('logical', wgl.width, wgl.height);	
-	//console.log('canvas-logical', wgl.element.width, wgl.element.height);
-	//console.log('canvas-css', wgl.element.style.width, wgl.element.style.height);
-	//console.log('phys', wgl.physWidth, wgl.physHeight);
-	//console.log('webGl', wgl.gl.drawingBufferWidth, wgl.gl.drawingBufferHeight);
-	//console.log('globalScale', wgl.globalScale);
-	//console.log('canvasScaleFactor', canvasScaleFactor);
+    //console.log('logical', wgl.width, wgl.height);	
+    //console.log('canvas-logical', wgl.element.width, wgl.element.height);
+    //console.log('canvas-css', wgl.element.style.width, wgl.element.style.height);
+    //console.log('phys', wgl.physWidth, wgl.physHeight);
+    //console.log('webGl', wgl.gl.drawingBufferWidth, wgl.gl.drawingBufferHeight);
+    //console.log('globalScale', wgl.globalScale);
+    //console.log('canvasScaleFactor', canvasScaleFactor);
 
-	/* *** */
-	//if (options.maxScaleFactor > 0 && scaleFactor > options.maxScaleFactor)
-	//	scaleFactor = options.maxScaleFactor;
+    /* *** */
+    //if (options.maxScaleFactor > 0 && scaleFactor > options.maxScaleFactor)
+    //	scaleFactor = options.maxScaleFactor;
 
-	//_this.integerScaleFactor = Math.floor(scaleFactor + 0.5); //0.9
+    //_this.integerScaleFactor = Math.floor(scaleFactor + 0.5); //0.9
 };
 
 
@@ -208,17 +208,17 @@ function autoResizeCanvas (wgl)
  */
 function WebGLCanvas (options=null)
 {
-	if (!autoResizerAttached)
-	{
-		global.onresize = function() {
-			for (let wgl of activeCanvases) autoResizeCanvas(wgl);
-		};
+    if (!autoResizerAttached)
+    {
+        global.onresize = function() {
+            for (let wgl of activeCanvases) autoResizeCanvas(wgl);
+        };
 
-		autoResizerAttached = true;
-	}
+        autoResizerAttached = true;
+    }
 
-	this.init({ ...defaultOptions, ...options });
-	activeCanvases.push(this);
+    this.init({ ...defaultOptions, ...options });
+    activeCanvases.push(this);
 }
 
 /**
@@ -226,7 +226,7 @@ function WebGLCanvas (options=null)
  */
 WebGLCanvas.prototype.dispose = function()
 {
-	activeCanvases.splice(activeCanvases.indexOf(this), 1);
+    activeCanvases.splice(activeCanvases.indexOf(this), 1);
 };
 
 
@@ -306,9 +306,9 @@ WebGLCanvas.prototype.globalScale = 1.0;
  * Functions that are under a different name in WebGLCanvas from the original WebGL2RenderingContext.
  */
 const renamedFunctions = {
-	createTexture: 'genTexture',
-	createBuffer: 'genBuffer',
-	createVertexArray: 'genVertexArray',
+    createTexture: 'genTexture',
+    createBuffer: 'genBuffer',
+    createVertexArray: 'genVertexArray',
 };
 
 /**
@@ -317,80 +317,78 @@ const renamedFunctions = {
  */
 WebGLCanvas.prototype.init = function (options)
 {
-	this.element = document.createElement('canvas');
-	this.options = options;
+    this.element = document.createElement('canvas');
+    this.options = options;
 
-	if (!options.fullscreen && (!options.width || !options.height))
-		throw new Error ('Option `width` or `height` is missing while `fullscreen` is `false`.');
+    if (!options.fullscreen && (!options.width || !options.height))
+        throw new Error ('Option `width` or `height` is missing while `fullscreen` is `false`.');
 
-	if (options.background.length != 6)
-		throw new Error ('Option `background` should be a 6-digit hex RGB (i.e. 000000).');
+    if (options.background.length != 6)
+        throw new Error ('Option `background` should be a 6-digit hex RGB (i.e. 000000).');
 
-	this.element.style.imageRendering = options.antialias ? 'auto' : 'crisp-edges';
-	this.element.style.backgroundColor = '#' + options.background;
+    this.element.style.imageRendering = options.antialias ? 'auto' : 'crisp-edges';
+    this.element.style.backgroundColor = '#' + options.background;
 
-	if (options.fullscreen) {
-		this.element.style.position = 'absolute';
-		this.element.style.left = '0px';
-		this.element.style.top = '0px';
-	}
+    if (options.fullscreen) {
+        this.element.style.position = 'absolute';
+        this.element.style.left = '0px';
+        this.element.style.top = '0px';
+    }
 
-	// Get WebGL context and re-bind functions and values to the WebGLCanvas object.
-	this.gl = this.element.getContext('webgl2', { desynchronized: false, preserveDrawingBuffer: false, alpha: false, stencil: options.stencil });
+    // Get WebGL context and re-bind functions and values to the WebGLCanvas object.
+    this.gl = this.element.getContext('webgl2', { desynchronized: false, preserveDrawingBuffer: false, alpha: false, stencil: options.stencil });
+    for (let prop in this.gl)
+    {
+        let val = this.gl[prop];
+        switch (typeof(val))
+        {
+            case 'function':
+                if (prop in renamedFunctions)
+                    prop = renamedFunctions[prop];
 
-	for (let prop in this.gl)
-	{
-		let val = this.gl[prop];
-		switch (typeof(val))
-		{
-			case 'function':
-				if (prop in renamedFunctions)
-					prop = renamedFunctions[prop];
+                this[prop] = val.bind(this.gl);
+                break;
 
-				this[prop] = val.bind(this.gl);
-				break;
+            case 'number':
+                this[prop] = val;
+                break;
+        }
+    }
 
-			case 'number':
-				this[prop] = val;
-				break;
-		}
-	}
+    console.log(this.getParameter(this.VERSION) + ', ' + this.getParameter(this.SHADING_LANGUAGE_VERSION));
 
-	console.log(this.getParameter(this.VERSION) + ', ' + this.getParameter(this.SHADING_LANGUAGE_VERSION));
+    // Global state object.
+    this.state = {
+        program: null,
+        buffer: { },
+        vertexArray:  null
+    };
 
-	// Global state object.
-	this.state =
-	{
-		program: null,
-		buffer: { },
-		vertexArray:  null
-	};
+    // Allocate placeholder for uniforms.
+    this.u = {
+        changed: true,
 
-	// Allocate placeholder for uniforms.
-	this.u = {
-		changed: true,
+        initial: Mat4.alloc(),
+        view: Mat4.alloc(),
+        projection: Mat4.alloc(),
+        resolution: Vec4.alloc(),
+    };
 
-		initial: Mat4.alloc(),
-		view: Mat4.alloc(),
-		projection: Mat4.alloc(),
-		resolution: Vec4.alloc(),
-	};
+    // Initialize default configuration.
+    this.clearColor(parseInt(options.background.substring(0,2), 16)/255.0, parseInt(options.background.substring(2,4), 16)/255.0, parseInt(options.background.substring(4,6), 16)/255.0, 1.0);
+    this.colorMask(true, true, true, true);
 
-	// Initialize default configuration.
-	this.clearColor (parseInt(options.background.substring(0,2), 16)/255.0, parseInt(options.background.substring(2,4), 16)/255.0, parseInt(options.background.substring(4,6), 16)/255.0, 1.0);
-	this.colorMask (true, true, true, true);
+    this.enable(this.DEPTH_TEST);
+    this.clearDepth(1.0);
+    this.depthFunc(this.LEQUAL);
 
-	this.enable (this.DEPTH_TEST);
-	this.clearDepth (1.0);
-	this.depthFunc (this.LEQUAL);
+    this.enable(this.BLEND);
+    this.pixelStorei(this.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    this.blendEquationSeparate(this.FUNC_ADD, this.FUNC_ADD);
+    this.blendFunc(this.ONE, this.ONE_MINUS_SRC_ALPHA);
 
-	this.enable (this.BLEND);
-	this.pixelStorei (this.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-	this.blendEquationSeparate (this.FUNC_ADD, this.FUNC_ADD);
-	this.blendFunc (this.ONE, this.ONE_MINUS_SRC_ALPHA);
-
-	this.enable (this.SCISSOR_TEST);
-	autoResizeCanvas(this);
+    this.enable(this.SCISSOR_TEST);
+    autoResizeCanvas(this);
 };
 
 
@@ -401,27 +399,27 @@ WebGLCanvas.prototype.init = function (options)
  */
 WebGLCanvas.prototype.resize = function (width, height, updateViewport=true)
 {
-	this.width = width;
-	this.height = height;
+    this.width = width;
+    this.height = height;
 
-	if (updateViewport)
-		this.updateViewport();
+    if (updateViewport)
+        this.updateViewport();
 };
 
 // VIOLET: Possibly create a viewport object like the olden days.
 WebGLCanvas.prototype.updateViewport = function ()
 {
-	this.physWidth = this.element.width = Math.floor((this.isFlipped ? this.height : this.width) * this.globalScale);
-	this.physHeight = this.element.height = Math.floor((this.isFlipped ? this.width : this.height) * this.globalScale);
+    this.physWidth = this.element.width = Math.floor((this.isFlipped ? this.height : this.width) * this.globalScale);
+    this.physHeight = this.element.height = Math.floor((this.isFlipped ? this.width : this.height) * this.globalScale);
 
-	this.scissor (0, 0, this.physWidth, this.physHeight);
-	this.viewport (0, 0, this.physWidth, this.physHeight);
+    this.scissor (0, 0, this.physWidth, this.physHeight);
+    this.viewport (0, 0, this.physWidth, this.physHeight);
 
-	//violet:hardware scaling? currently we're using canvas browser-level scaling.
-	//this.v_resolution[0] = this._width;
-	//this.v_resolution[1] = this._height;
-	this.u.resolution.set(this.physWidth, this.physHeight, this.isFlipped ? this.physHeight : this.physWidth, this.isFlipped ? this.physWidth : this.physHeight);
-	this.u.changed = true;
+    //violet:hardware scaling? currently we're using canvas browser-level scaling.
+    //this.v_resolution[0] = this._width;
+    //this.v_resolution[1] = this._height;
+    this.u.resolution.set(this.physWidth, this.physHeight, this.isFlipped ? this.physHeight : this.physWidth, this.isFlipped ? this.physWidth : this.physHeight);
+    this.u.changed = true;
 };
 
 
@@ -433,7 +431,7 @@ WebGLCanvas.prototype.updateViewport = function ()
  * @returns {ShaderProgram}
  */
 WebGLCanvas.prototype.createShaderProgram = function (vertexShaderSource, fragmentShaderSource, geometryShaderSource=null) {
-	return new ShaderProgram(this, vertexShaderSource, fragmentShaderSource, geometryShaderSource);
+    return new ShaderProgram(this, vertexShaderSource, fragmentShaderSource, geometryShaderSource);
 };
 
 
@@ -442,7 +440,7 @@ WebGLCanvas.prototype.createShaderProgram = function (vertexShaderSource, fragme
  * @returns {VertexArray}
  */
 WebGLCanvas.prototype.createVertexArray = function () {
-	return new VertexArray(this);
+    return new VertexArray(this);
 };
 
 
@@ -453,7 +451,7 @@ WebGLCanvas.prototype.createVertexArray = function () {
  * @returns {VertexBuffer}
  */
 WebGLCanvas.prototype.createBuffer = function (target, usage) {
-	return new Buffer(this, this[target], this[usage]);
+    return new Buffer(this, this[target], this[usage]);
 };
 
 
@@ -463,7 +461,7 @@ WebGLCanvas.prototype.createBuffer = function (target, usage) {
  * @returns {VertexBuffer}
  */
 WebGLCanvas.prototype.createVertexBuffer = function (usage) {
-	return new VertexBuffer(this, this[usage]);
+    return new VertexBuffer(this, this[usage]);
 };
 
 
@@ -473,7 +471,7 @@ WebGLCanvas.prototype.createVertexBuffer = function (usage) {
  * @returns {ElementBuffer}
  */
 WebGLCanvas.prototype.createElementBuffer = function (usage) {
-	return new ElementBuffer(this, this[usage]);
+    return new ElementBuffer(this, this[usage]);
 };
 
 
@@ -483,7 +481,7 @@ WebGLCanvas.prototype.createElementBuffer = function (usage) {
  * @returns {UniformBuffer}
  */
 WebGLCanvas.prototype.createUniformBuffer = function (usage) {
-	return new UniformBuffer(this, this[usage]);
+    return new UniformBuffer(this, this[usage]);
 };
 
 
@@ -496,7 +494,7 @@ WebGLCanvas.prototype.createUniformBuffer = function (usage) {
  * @returns {Texture}
  */
 WebGLCanvas.prototype.createTexture = function (width, height, targetWidth=null, targetHeight=null) {
-	return new Texture (this, width, height, targetWidth, targetHeight);
+    return new Texture (this, width, height, targetWidth, targetHeight);
 };
 
 
@@ -507,12 +505,12 @@ WebGLCanvas.prototype.createTexture = function (width, height, targetWidth=null,
  */
 WebGLCanvas.loadImage = function (url)
 {
-	return new Promise((resolve, reject) => {
-		let img = new Image();
-		img.onload = () => resolve(img);
-		img.onerror = () => reject('Unable to load image: ' + url);
-		img.src = url;
-	});
+    return new Promise((resolve, reject) => {
+        let img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject('Unable to load image: ' + url);
+        img.src = url;
+    });
 };
 
 
@@ -524,9 +522,9 @@ WebGLCanvas.loadImage = function (url)
  */
 WebGLCanvas.prototype.loadTextureFromUrl = async function (url, mipmapLevels=0)
 {
-	let image = await WebGLCanvas.loadImage(url);
-	let texture = this.createTexture(image.width, image.height);
-	texture.setMipmapLevels(mipmapLevels);
-	texture.upload(image);
-	return texture;
+    let image = await WebGLCanvas.loadImage(url);
+    let texture = this.createTexture(image.width, image.height);
+    texture.setMipmapLevels(mipmapLevels);
+    texture.upload(image);
+    return texture;
 };

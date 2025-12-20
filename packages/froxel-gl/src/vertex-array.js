@@ -10,17 +10,17 @@ export default VertexArray;
  */
 function VertexArray (gl)
 {
-	/**
-	 * Reference to the WebGLCanvas.
-	 * @readonly @type {WebGLCanvas}
-	 */
-	this.gl = gl;
+    /**
+     * Reference to the WebGLCanvas.
+     * @readonly @type {WebGLCanvas}
+     */
+    this.gl = gl;
 
-	/**
-	 * Vertex array object resource.
-	 * @type {WebGLVertexArrayObject}
-	 */
-	this.vertexArray = gl.genVertexArray();
+    /**
+     * Vertex array object resource.
+     * @type {WebGLVertexArrayObject}
+     */
+    this.vertexArray = gl.genVertexArray();
 };
 
 /**
@@ -29,12 +29,12 @@ function VertexArray (gl)
  */
 VertexArray.prototype.bindVertexArray = function()
 {
-	if (this.gl.state.vertexArray === this)
-		return this;
+    if (this.gl.state.vertexArray === this)
+        return this;
 
-	this.gl.bindVertexArray(this.vertexArray);
-	this.gl.state.vertexArray = this;
-	return this;
+    this.gl.bindVertexArray(this.vertexArray);
+    this.gl.state.vertexArray = this;
+    return this;
 };
 
 /**
@@ -43,7 +43,7 @@ VertexArray.prototype.bindVertexArray = function()
  */
 VertexArray.prototype.unbindVertexArray = function()
 {
-	this.gl.bindVertexArray(null);
-	this.gl.state.vertexArray = null;
-	return this;
+    this.gl.bindVertexArray(null);
+    this.gl.state.vertexArray = null;
+    return this;
 };
