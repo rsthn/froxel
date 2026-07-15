@@ -1,6 +1,6 @@
 {
     "name": "froxel-math",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "Froxel Math Library",
     "type": "module",
     "module": "dist/froxel-math.m.js",
@@ -43,9 +43,11 @@
         "typescript": "^5.9.3"
     },
     "dependencies": {
-        "asyl": "^1.0.4",
         "atob": "^2.1.2",
         "base64-js": "^1.5.1",
         "node-fetch": "^3.3.2"
+    },
+    "peerDependencies": {
+        "asyl": "^1.0.5"
     }
 }

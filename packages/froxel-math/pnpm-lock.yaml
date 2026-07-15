@@ -12,8 +12,8 @@ importers:
   .:
     dependencies:
       asyl:
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.5
+        version: 1.0.6
       atob:
         specifier: ^2.1.2
         version: 2.1.2
@@ -632,8 +632,8 @@ packages:
   assertion-error@1.1.0:
     resolution: {integrity: sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==}
 
-  asyl@1.0.4:
-    resolution: {integrity: sha512-MgSiZUbeRry8XfCJhrId3UFBfzuC3+6KnxhkLFCCxQc64BiH7Tvhu9YGEUOz3TmhL0k4HTG0gVdTcvLhG1tX6A==}
+  asyl@1.0.6:
+    resolution: {integrity: sha512-pZ7f3m5lahBoOdWR6YghkHq+F6WLcGRXiXZX4Z129CF+v5yP6zUYIpCKcqaBH1KzNCf681KBAmHYp/+xxOsGEA==}
 
   atob@2.1.2:
     resolution: {integrity: sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==}
@@ -2018,7 +2018,7 @@ snapshots:
 
   assertion-error@1.1.0: {}
 
-  asyl@1.0.4:
+  asyl@1.0.6:
     dependencies:
       atob: 2.1.2
       buffer: 6.0.3

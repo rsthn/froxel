@@ -1,9 +1,9 @@
-# v0.0.4 - Jul 14 2026
+# v0.0.6 - Jul 14 2026
 
 #### QoL
 - Added support for Vec3 class.
-- Updated all unit tests to full coverage.
-- Fixed minor bugs.
+- Updated all unit tests to complete full coverage.
+- Fixed minor bugs with asyl interoperability.
 
 <br/>
 

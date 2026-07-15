@@ -4,7 +4,7 @@ allowBuilds:
   lmdb: true
   msgpackr-extract: true
 minimumReleaseAgeExclude:
-  - asyl@1.0.4
+  - asyl@1.0.5 || 1.0.6
 overrides:
   dts-bundle-generator>typescript: ^5.9.3
 onlyBuiltDependencies:
