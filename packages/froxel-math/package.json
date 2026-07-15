@@ -1,6 +1,6 @@
 {
     "name": "froxel-math",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "Froxel Math Library",
     "type": "module",
     "module": "dist/froxel-math.m.js",
