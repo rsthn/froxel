@@ -194,6 +194,239 @@ export declare class Vec2 {
 	toString(): string;
 }
 /**
+ * 3D Vector.
+ */
+export declare class Vec3 {
+	/**
+	 * Number of bytes per object.
+	 */
+	static BYTES: number;
+	/**
+	 * Address of underlying vec3.
+	 */
+	addr: number;
+	/**
+	 * Underlying vector data.
+	 */
+	data: Float32Array;
+	/**
+	 * Binds the specified Asyl module to the class.
+	 */
+	static bind(module: Module): void;
+	/**
+	 * Allocates a new vector with the specified coordinates.
+	 */
+	static alloc(x?: number, y?: number, z?: number): Vec3;
+	/**
+	 * Materializes a vector at the specified memory location.
+	 */
+	static materialize(addr: number): Vec3;
+	/**
+	 * Constructs the vector with the specified coordinates.
+	 */
+	private constructor();
+	/**
+	 * Destroys the instance.
+	 */
+	free(): void;
+	/**
+	 * Returns a new vector with the same coordinates.
+	 */
+	clone(): Vec3;
+	/**
+	 * Sets the coordinates of the vector from a Vec3 object.
+	 */
+	set(v: Vec3): Vec3;
+	/**
+	 * Sets the coordinates of the vector.
+	 */
+	set(x: number, y: number, z: number): Vec3;
+	/**
+	 * Sets the X-coordinate of the vector.
+	 */
+	setX(x: number): Vec3;
+	/**
+	 * Sets the Y-coordinate of the vector.
+	 */
+	setY(y: number): Vec3;
+	/**
+	 * Sets the Z-coordinate of the vector.
+	 */
+	setZ(z: number): Vec3;
+	/**
+	 * Returns the value of the X-coordinate.
+	 */
+	x(): number;
+	/**
+	 * Returns the value of the Y-coordinate.
+	 */
+	y(): number;
+	/**
+	 * Returns the value of the Z-coordinate.
+	 */
+	z(): number;
+	/**
+	 * Sets the coordinates of the vector to zero.
+	 */
+	zero(): Vec3;
+	/**
+	 * Returns true if the vector coordinates are zero.
+	 */
+	iszero(): boolean;
+	/**
+	 * Returns true if the coordinates of the vector have the same values as the given Vec3.
+	 */
+	equals(v: Vec3): boolean;
+	/**
+	 * Returns true if the coordinates of the vector have the same values as the given ones.
+	 */
+	equals(x: number, y: number): boolean;
+	/**
+	 * Returns true if the coordinates of the vector have the same values as the given ones.
+	 */
+	equals(x: number, y: number, z: number): boolean;
+	/**
+	 * Returns true if the difference between the coordinates is less than the specified epsilon.
+	 */
+	almost(v: Vec3, epsilon: number): boolean;
+	/**
+	 * Returns true if the difference between the coordinates is less than the specified epsilon.
+	 */
+	almost(x: number, y: number, epsilon: number): boolean;
+	/**
+	 * Returns true if the difference between the coordinates is less than the specified epsilon.
+	 */
+	almost(x: number, y: number, z: number, epsilon: number): boolean;
+	/**
+	 * Negates the vector, that is changing the sign of each component in the vector.
+	 */
+	neg(): Vec3;
+	/**
+	 * Inverts the vector by changing each component to its reciprocal.
+	 */
+	inv(): Vec3;
+	/**
+	 * Changes the components of the vector to their absolute value.
+	 */
+	abs(): Vec3;
+	/**
+	 * Adds the coordinates of the given Vec3 to the vector.
+	 */
+	translate(v: Vec3): Vec3;
+	/**
+	 * Adds the given delta values to the vector.
+	 */
+	translate(dx: number, dy: number): Vec3;
+	/**
+	 * Adds the given delta values to the vector.
+	 */
+	translate(dx: number, dy: number, dz: number): Vec3;
+	/**
+	 * Adds the coordinates of the given Vec3 to the vector.
+	 */
+	add(v: Vec3): Vec3;
+	/**
+	 * Adds the given delta values to the vector.
+	 */
+	add(dx: number, dy: number): Vec3;
+	/**
+	 * Adds the given delta values to the vector.
+	 */
+	add(dx: number, dy: number, dz: number): Vec3;
+	/**
+	 * Subtracts the coordinates of the given Vec3 from the vector.
+	 */
+	sub(v: Vec3): Vec3;
+	/**
+	 * Subtracts the given delta values from the vector.
+	 */
+	sub(dx: number, dy: number): Vec3;
+	/**
+	 * Subtracts the given delta values from the vector.
+	 */
+	sub(dx: number, dy: number, dz: number): Vec3;
+	/**
+	 * Scales each components of the vector by the respective component of the given one.
+	 */
+	scale(v: Vec3): Vec3;
+	/**
+	 * Scales both components of the vector by the given factor.
+	 */
+	scale(factor: number): Vec3;
+	/**
+	 * Scales each components of the vector by the given factors.
+	 */
+	scale(fx: number, fy: number): Vec3;
+	/**
+	 * Scales each components of the vector by the given factors.
+	 */
+	scale(fx: number, fy: number, fz: number): Vec3;
+	/**
+	 * Performs `floor` on the components of the vector.
+	 */
+	floor(): Vec3;
+	/**
+	 * Performs `ceil` on the components of the vector.
+	 */
+	ceil(): Vec3;
+	/**
+	 * Truncates the vector components to their integer parts.
+	 */
+	trunc(): Vec3;
+	/**
+	 * Truncates the vector components to their fractional parts.
+	 */
+	fract(): Vec3;
+	/**
+	 * Returns the dot product of the vectors.
+	 */
+	dot(v: Vec3): number;
+	/**
+	 * Returns the dot product of the vector and the given values.
+	 */
+	dot(x: number, y: number): number;
+	/**
+	 * Returns the dot product of the vector and the given values.
+	 */
+	dot(x: number, y: number, z: number): number;
+	/**
+	 * Sets the vector to the cross product of it and the given one.
+	 */
+	cross(v: Vec3): Vec3;
+	/**
+	 * Sets the vector to the cross product of it and the given values.
+	 */
+	cross(x: number, y: number, z: number): Vec3;
+	/**
+	 * Returns the squared magnitude of the vector.
+	 */
+	mag2(): number;
+	/**
+	 * Returns the magnitude of the vector.
+	 */
+	mag(): number;
+	/**
+	 * Normalizes the vector by dividing each component by the vector magnitude to obtain a unit vector.
+	 */
+	unit(): Vec3;
+	/**
+	 * Sets the vector to its major-axis, that is the component with the maximum absolute value.
+	 */
+	major(): Vec3;
+	/**
+	 * Sets the vector to its minor-axis, that is the component with the minimum absolute value.
+	 */
+	minor(): Vec3;
+	/**
+	 * Sets the vector to its sign-vector representation.
+	 */
+	sign(): Vec3;
+	/**
+	 * Returns the string representation of the coordinates of the vector.
+	 */
+	toString(): string;
+}
+/**
  * 4D Vector.
  */
 export declare class Vec4 {
@@ -688,10 +921,6 @@ export declare class Mat3 {
 	/**
 	 * Sets a column of the matrix.
 	 */
-	set(col: number, a0: number, a1: number, a2: number): Mat3;
-	/**
-	 * Sets a column of the matrix.
-	 */
 	col(col: number, a0: number, a1: number, a2: number): Mat3;
 	/**
 	 * Sets a row of the matrix.
@@ -786,10 +1015,6 @@ export declare class Mat4 {
 	 * Copies all the components from the specified matrix.
 	 */
 	set(matrix: Mat4): Mat4;
-	/**
-	 * Sets a column of the matrix.
-	 */
-	set(col: number, a0: number, a1: number, a2: number, a3: number): Mat4;
 	/**
 	 * Sets a column of the matrix.
 	 */

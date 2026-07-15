@@ -1,3 +1,12 @@
+# v0.0.4 - Jul 14 2026
+
+#### QoL
+- Added support for Vec3 class.
+- Updated all unit tests to full coverage.
+- Fixed minor bugs.
+
+<br/>
+
 # v0.0.3 - Jun 25 2023
 
 #### Global

@@ -1,17 +1,14 @@
 {
     "name": "froxel-math",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Froxel Math Library",
     "type": "module",
     "module": "dist/froxel-math.m.js",
     "types": "dist/froxel-math.d.ts",
     "scripts": {
         "test": "mocha",
-        "commit": "node ./scripts/commit.js",
-        "deploy": "pnpm all && pnpm test && node ./scripts/deploy.js",
         "tsdoc": "dts-bundle-generator --no-banner --disable-symlinks-following -o dist/froxel-math.d.ts src/main.ts",
-        "changes": "rose ./scripts/changes",
-        "build-core": "/dev/opt/wasi-sdk/bin/clang++ -I/dev/usr-include -nostdlib -nostartfiles -flto -Wl,--lto-O3 -Wl,--shared-memory -Wl,--import-memory -Wl,--initial-memory=1048576 -Wl,--max-memory=2147483648 -Wl,--allow-undefined -Wl,--export-dynamic -Wl,--no-check-features -Wl,--no-entry   src/vec2.cpp src/vec4.cpp src/mat3.cpp src/mat4.cpp src/rect.cpp -o src/froxel-math.wasm",
+        "build-core": "/dev/opt/wasi-sdk/bin/clang++ -I/dev/usr-include -nostdlib -nostartfiles -flto -Wl,--lto-O3 -Wl,--shared-memory -Wl,--import-memory -Wl,--initial-memory=1048576 -Wl,--max-memory=2147483648 -Wl,--allow-undefined -Wl,--export-dynamic -Wl,--no-check-features -Wl,--no-entry   src/vec2.cpp src/vec3.cpp src/vec4.cpp src/mat3.cpp src/mat4.cpp src/rect.cpp -o src/froxel-math.wasm",
         "wat": "wasm2wat --enable-thread src/froxel-math.wasm -o src/froxel-math.wat",
         "build": "parcel build --no-cache --target module",
         "all": "pnpm build-core && pnpm build && pnpm tsdoc"
@@ -35,19 +32,20 @@
         "dist/"
     ],
     "devDependencies": {
-        "@parcel/core": "^2.9.3",
-        "@parcel/optimizer-data-url": "^2.9.3",
-        "@parcel/transformer-inline-string": "^2.9.3",
-        "chai": "^4.3.7",
+        "@parcel/core": "^2.16.4",
+        "@parcel/optimizer-data-url": "^2.16.4",
+        "@parcel/transformer-inline-string": "^2.16.4",
+        "chai": "^4.5.0",
         "chai-almost": "^1.0.1",
-        "dts-bundle-generator": "^8.0.1",
-        "mocha": "^10.2.0",
-        "parcel": "^2.9.3"
+        "dts-bundle-generator": "^9.5.1",
+        "mocha": "^10.8.2",
+        "parcel": "^2.16.4",
+        "typescript": "^5.9.3"
     },
     "dependencies": {
-        "asyl": "link:C:/lib/js/asyl",
+        "asyl": "^1.0.4",
         "atob": "^2.1.2",
         "base64-js": "^1.5.1",
-        "node-fetch": "^3.3.1"
+        "node-fetch": "^3.3.2"
     }
 }

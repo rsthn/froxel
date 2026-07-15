@@ -1,6 +1,6 @@
 
 import assert from 'assert';
-import { Rect } from '../dist/froxel-math.m.js';
+import { init, Rect, Vec2, module } from '../dist/froxel-math.m.js';
 import { asyl } from 'asyl';
 import { default as chai, expect } from 'chai';
 import almost from 'chai-almost';
@@ -10,232 +10,303 @@ chai.use(almost(epsilon));
 
 describe('Rect', () =>
 {
-	let a, b, c, d, t;
+    before(() => init());
 
-	it('alloc()', () => {
-		a = Rect.alloc();
-		assert(a.x1() == 0 && a.y1() == 0 && a.x2() == 0 && a.y2() == 0);
-	});
+    let a, b, c, d, t;
 
-	it('alloc(width, height, false)', () => {
-		b = Rect.alloc(100, 100);
-		assert(b.x1() == -50 && b.y1() == -50 && b.x2() == 50 && b.y2() == 50);
-	});
+    it('alloc()', () => {
+        a = Rect.alloc();
+        assert(a.x1() == 0 && a.y1() == 0 && a.x2() == 0 && a.y2() == 0);
+    });
 
-	it('alloc(width, height, true)', () => {
-		c = Rect.alloc(100, 100, true);
-		assert(c.x1() == 0 && c.y1() == 0 && c.x2() == 100 && c.y2() == 100);
-	});
+    it('alloc(width, height, false)', () => {
+        b = Rect.alloc(100, 100);
+        assert(b.x1() == -50 && b.y1() == -50 && b.x2() == 50 && b.y2() == 50);
+    });
 
-	it('alloc(x1, y1, x2, y2)', () => {
-		d = Rect.alloc(10, -10, 120, 150);
-		assert(d.x1() == 10 && d.y1() == -10 && d.x2() == 120 && d.y2() == 150);
-	});
+    it('alloc(width, height, true)', () => {
+        c = Rect.alloc(100, 100, true);
+        assert(c.x1() == 0 && c.y1() == 0 && c.x2() == 100 && c.y2() == 100);
+    });
 
-	it('materialize()', () => {
-		let ptr = asyl.alloc(2*6*Float32Array.BYTES_PER_ELEMENT);
-		let m1 = Rect.materialize(ptr);
-		let m2 = Rect.materialize(ptr+6*Float32Array.BYTES_PER_ELEMENT);
+    it('alloc(x1, y1, x2, y2)', () => {
+        d = Rect.alloc(10, -10, 120, 150);
+        assert(d.x1() == 10 && d.y1() == -10 && d.x2() == 120 && d.y2() == 150);
+    });
 
-		m1.set(-78.25, 2.5768, -23.4, 12.55);
-		m2.set(3.14, -6.28, 56.23, -9.78);
-		expect(m1.x1()).to.almost.equals(-78.25);
-		expect(m1.y1()).to.almost.equals(2.5768);
-		expect(m1.x2()).to.almost.equals(-23.4);
-		expect(m1.y2()).to.almost.equals(12.55);
+    it('materialize()', () => {
+        let ptr = asyl.alloc(2*6*Float32Array.BYTES_PER_ELEMENT);
+        let m1 = Rect.materialize(ptr);
+        let m2 = Rect.materialize(ptr+6*Float32Array.BYTES_PER_ELEMENT);
 
-		expect(m2.x1()).to.almost.equals(3.14);
-		expect(m2.y1()).to.almost.equals(-6.28);
-		expect(m2.x2()).to.almost.equals(56.23);
-		expect(m2.y2()).to.almost.equals(-9.78);
+        m1.set(-78.25, 2.5768, -23.4, 12.55);
+        m2.set(3.14, -6.28, 56.23, -9.78);
+        expect(m1.x1()).to.almost.equals(-78.25);
+        expect(m1.y1()).to.almost.equals(2.5768);
+        expect(m1.x2()).to.almost.equals(-23.4);
+        expect(m1.y2()).to.almost.equals(12.55);
 
-		let t = asyl.mapFloat32Array(ptr, 2*6);
-		expect(t[0]).to.almost.equals(-78.25);
-		expect(t[1]).to.almost.equals(2.5768);
-		expect(t[2]).to.almost.equals(-23.4);
-		expect(t[3]).to.almost.equals(12.55);
+        expect(m2.x1()).to.almost.equals(3.14);
+        expect(m2.y1()).to.almost.equals(-6.28);
+        expect(m2.x2()).to.almost.equals(56.23);
+        expect(m2.y2()).to.almost.equals(-9.78);
 
-		expect(t[6]).to.almost.equals(3.14);
-		expect(t[7]).to.almost.equals(-6.28);
-		expect(t[8]).to.almost.equals(56.23);
-		expect(t[9]).to.almost.equals(-9.78);
-	});
+        let t = asyl.mapFloat32Array(ptr, 2*6);
+        expect(t[0]).to.almost.equals(-78.25);
+        expect(t[1]).to.almost.equals(2.5768);
+        expect(t[2]).to.almost.equals(-23.4);
+        expect(t[3]).to.almost.equals(12.55);
 
- 	it('clone()', () => {
-		t = d.clone();
-		assert(t.x1() == 10 && t.y1() == -10 && t.x2() == 120 && t.y2() == 150);
-	});
+        expect(t[6]).to.almost.equals(3.14);
+        expect(t[7]).to.almost.equals(-6.28);
+        expect(t[8]).to.almost.equals(56.23);
+        expect(t[9]).to.almost.equals(-9.78);
+    });
 
- 	it('cx() and cy()', () => {
-		assert(t.cx() == 65 && t.cy() == 70);
-	});
+     it('clone()', () => {
+        t = d.clone();
+        assert(t.x1() == 10 && t.y1() == -10 && t.x2() == 120 && t.y2() == 150);
+    });
 
-	it('set(x1, y1, x2, y2)', () => {
-		a.set(16, -32, 78, 99);
-		assert(a.x1() == 16 && a.y1() == -32 && a.x2() == 78 && a.y2() == 99 && a.cx() == 47 && a.cy() == 33.5);
-	});
+     it('cx() and cy()', () => {
+        assert(t.cx() == 65 && t.cy() == 70);
+    });
 
-	it('set(vec)', () => {
-		t.set(a);
-		assert(t.x1() == 16 && t.y1() == -32 && t.x2() == 78 && t.y2() == 99 && t.cx() == 47 && t.cy() == 33.5);
-	});
+    it('set(x1, y1, x2, y2)', () => {
+        a.set(16, -32, 78, 99);
+        assert(a.x1() == 16 && a.y1() == -32 && a.x2() == 78 && a.y2() == 99 && a.cx() == 47 && a.cy() == 33.5);
+    });
 
-	it('zero()', () => {
-		t.zero();
-		assert(t.x1() == 0 && t.y1() == 0 && t.x2() == 0 && t.y2() == 0);
-	});
+    it('set(vec)', () => {
+        t.set(a);
+        assert(t.x1() == 16 && t.y1() == -32 && t.x2() == 78 && t.y2() == 99 && t.cx() == 47 && t.cy() == 33.5);
+    });
 
-	it('reset()', () => {
-		t.reset();
-		assert(t.x1() == t.y1() && t.x2() == t.y2());
-	});
+    it('zero()', () => {
+        t.zero();
+        assert(t.x1() == 0 && t.y1() == 0 && t.x2() == 0 && t.y2() == 0);
+    });
 
-/**
-	it('equals(x, y)', () => {
-		assert(t.equals(63, -127));
-	});
+    it('reset()', () => {
+        t.reset();
+        assert(t.x1() == t.y1() && t.x2() == t.y2());
+    });
 
-	it('equals(vec)', () => {
-		assert(t.equals(a));
-	});
+    it('extend(x, y)', () => {
+        t.set(0, 0, 10, 10).extend(20, 5);
+        assert(t.equals(0, 0, 20, 10));
+        t.extend(-5, -8);
+        assert(t.equals(-5, -8, 20, 10));
+        assert(t.cx() == 7.5 && t.cy() == 1);
+    });
 
-	it('neg()', () => {
-		t.neg();
-		assert(t.equals(-63, 127));
-	});
+    it('extend(vec)', () => {
+        let v = Vec2.alloc(200, -50);
+        t.extend(v);
+        assert(t.equals(-5, -50, 200, 10));
+        v.free();
+    });
 
-	it('inv()', () => {
-		t.inv();
-		assert(t.equals(-1.0/63, 1.0/127));
-	});
+    it('extend(x, y) after reset()', () => {
+        t.reset().extend(10, 20).extend(-5, 8);
+        assert(t.equals(-5, 8, 10, 20));
+    });
 
-	it('abs()', () => {
-		t.abs();
-		assert(t.equals(1.0/63, 1.0/127));
-	});
+    it('translate(dx, dy)', () => {
+        t.set(0, 0, 10, 10).translate(5, -5);
+        assert(t.equals(5, -5, 15, 5));
+        assert(t.cx() == 10 && t.cy() == 0);
+    });
 
-	it('translate(vec)', () => {
-		t.translate(a);
-		assert(t.equals((1.0/63)+63, (1.0/127)-127));
-	});
+    it('translate(vec)', () => {
+        let v = Vec2.alloc(-5, 5);
+        t.translate(v);
+        assert(t.equals(0, 0, 10, 10));
+        v.free();
+    });
 
-	it('translate(dx, dy)', () => {
-		t.translate(-1.0/63, -1.0/127);
-		assert(t.equals(63, -127));
-	});
+    it('center(x, y)', () => {
+        t.set(0, 0, 10, 10).center(100, 50);
+        assert(t.equals(95, 45, 105, 55));
+        assert(t.cx() == 100 && t.cy() == 50);
+    });
 
-	it('rotate(angle)', () => {
-		t.rotate(Math.PI*0.5);
-		assert(Math.abs(t.x() - (-127)) < epsilon && Math.abs(t.y() - (-63)) < epsilon);
-	});
+    it('center(x, y, normalized)', () => {
+        t.set(0, 0, 10, 10).center(1, 1, true);
+        assert(t.equals(5, 5, 15, 15));
+        assert(t.cx() == 10 && t.cy() == 10);
+    });
 
-	it('rotate(angle, cx, cy)', () => {
-		t.rotate(-Math.PI*0.5, 0, t.y());
-		assert(Math.abs(t.x() - (0)) < epsilon && Math.abs(t.y() - (-190)) < epsilon);
-	});
+    it('equals(x1, y1, x2, y2)', () => {
+        t.set(1, 2, 3, 4);
+        assert(t.equals(1, 2, 3, 4));
+        assert(!t.equals(1, 2, 3, 5));
+    });
 
-	it('near(vec, epsilon)', () => {
-		b.set(0, -190);
-		assert(t.near(b, 0.00001));
-	});
+    it('equals(rect)', () => {
+        b.set(1, 2, 3, 4);
+        assert(t.equals(b));
+        b.set(0, 2, 3, 4);
+        assert(!t.equals(b));
+    });
 
-	it('near(x, y, epsilon)', () => {
-		assert(t.near(0, -190, 0.00001));
-	});
+    it('contains(x1, y1, x2, y2)', () => {
+        t.set(0, 0, 100, 100);
+        assert(t.contains(10, 10, 20, 20));
+        assert(t.contains(0, 0, 100, 100));
+        assert(!t.contains(90, 90, 110, 110));
+    });
 
-	it('add(vec)', () => {
-		t.add(a);
-		assert(t.near(63, -317, 0.0001));
-	});
+    it('contains(rect)', () => {
+        b.set(25, 25, 75, 75);
+        assert(t.contains(b));
+        b.set(-1, 25, 75, 75);
+        assert(!t.contains(b));
+    });
 
-	it('add(dx, dy)', () => {
-		t.add(7, 17);
-		assert(t.near(70, -300, 0.0001));
-	});
+    it('contains(vec)', () => {
+        let v = Vec2.alloc(50, 50);
+        assert(t.contains(v));
+        v.set(150, 50);
+        assert(!t.contains(v));
+        v.free();
+    });
 
-	it('sub(vec)', () => {
-		b.sub(a);
-		assert(b.near(-63, -63, 0.0001));
-	});
+    it('contains(vec, epsilon)', () => {
+        let v = Vec2.alloc(100.5, 100);
+        assert(t.contains(v, 1.0));
+        v.free();
+    });
 
-	it('sub(dx, dy)', () => {
-		b.sub(-103, 7);
-		assert(b.near(40, -70, 0.0001));
-	});
+    it('contains(x, y)', () => {
+        assert(t.contains(50, 50));
+        assert(t.contains(100, 100));
+        assert(!t.contains(100.5, 100));
+    });
 
-	it('scale(factor)', () => {
-		b.scale(-2, 3);
-		assert(b.near(-80, -210, 0.0001));
-	});
+    it('contains(x, y, epsilon)', () => {
+        assert(t.contains(100.5, 100, 1.0));
+        assert(!t.contains(102, 100, 1.0));
+    });
 
-	it('scale(vec)', () => {
-		b.scale(a);
-		assert(b.near(-5040, 26670, 0.0001));
-	});
+    it('union(x1, y1, x2, y2)', () => {
+        t.set(0, 0, 10, 10).union(5, 5, 20, 20);
+        assert(t.equals(0, 0, 20, 20));
+    });
 
-	it('scale(fx, fy)', () => {
-		b.scale(1.0/200, 1.0/350);
-		assert(b.near(-25.2, 76.2, 0.00001));
-	});
+    it('union(rect)', () => {
+        b.set(-10, -10, 5, 5);
+        t.union(b);
+        assert(t.equals(-10, -10, 20, 20));
+    });
 
-	it('trunc()', () => {
-		c.set(b).trunc();
-		assert(c.equals(-25, 76));
-	});
+    it('intersects(x1, y1, x2, y2)', () => {
+        t.set(0, 0, 10, 10);
+        assert(t.intersects(5, 5, 15, 15));
+        assert(!t.intersects(20, 20, 30, 30));
+    });
 
-	it('floor()', () => {
-		c.set(b).floor();
-		assert(c.equals(-26, 76));
-	});
+    it('intersects(rect)', () => {
+        b.set(9, 9, 30, 30);
+        assert(t.intersects(b));
+        b.set(10, 10, 30, 30);
+        assert(!t.intersects(b));
+    });
 
-	it('ceil()', () => {
-		c.set(b).ceil();
-		assert(c.equals(-25, 77));
-	});
+    it('intersection(x1, y1, x2, y2)', () => {
+        t.set(0, 0, 10, 10);
+        assert(t.intersection(5, 5, 20, 20));
+        assert(t.equals(5, 5, 10, 10));
+    });
 
-	it('fract()', () => {
-		c.set(b).fract();
-		assert(c.near(-0.2, 0.2, 0.00001));
-	});
+    it('intersection(rect)', () => {
+        b.set(0, 0, 7, 7);
+        assert(t.intersection(b));
+        assert(t.equals(5, 5, 7, 7));
+    });
 
-	it('dot(vect)', () => {
-		assert(c.dot(c) - 0.08 < epsilon);
-	});
+    it('intersection() with disjoint rect', () => {
+        t.set(0, 0, 10, 10);
+        assert(!t.intersection(20, 20, 30, 30));
+    });
 
-	it('dot(x, y)', () => {
-		assert(b.dot(c) - 20.28 < epsilon);
-	});
+    it('resize(width, height)', () => {
+        t.set(0, 0, 10, 10).resize(20, 30);
+        assert(t.equals(-5, -10, 15, 20));
+        assert(t.cx() == 5 && t.cy() == 5);
+    });
 
-	it('mag2()', () => {
-		assert(a.mag2() == 20098.0);
-	});
+    it('resize(width, height, topLeft)', () => {
+        t.set(2, 3, 10, 10).resize(4, 6, true);
+        assert(t.equals(2, 3, 6, 9));
+    });
 
-	it('mag()', () => {
-		assert(a.mag() - 141.7674 < epsilon*100);
-	});
+    it('resize(width, height, topLeft, normalized)', () => {
+        t.set(0, 0, 10, 20).resize(0.5, 0.5, true, true);
+        assert(t.equals(0, 0, 5, 10));
+    });
 
-	it('unit()', () => {
-		c.unit();
-		assert(c.near(-0.7071, 0.7071, epsilon*100));
-	});
+    it('resizeBy(dWidth, dHeight)', () => {
+        t.set(0, 0, 10, 10).resizeBy(2, 4);
+        assert(t.equals(-1, -2, 11, 12));
+    });
 
-	it('major()', () => {
-		c.set(a).major();
-		assert(c.equals(0, -127));
-	});
+    it('resizeBy(dWidth, dHeight, topLeft)', () => {
+        t.set(0, 0, 10, 10).resizeBy(2, 4, true);
+        assert(t.equals(0, 0, 12, 14));
+    });
 
-	it('minor()', () => {
-		c.set(a).minor();
-		assert(c.equals(63, 0));
-	});
+    it('width() and height()', () => {
+        t.set(3, 4, 10, 20);
+        expect(t.width()).to.equals(7);
+        expect(t.height()).to.equals(16);
+    });
 
-	it('sign()', () => {
-		c.set(a).sign();
-		assert(c.equals(1, -1));
-	});
+    it('isRight()', () => {
+        t.set(0, 0, 10, 10);
+        assert(t.isRight());
+        t.set(10, 0, 0, 10);
+        assert(!t.isRight());
+    });
 
-	it('sign() when all zeroes', () => {
-		c.zero().sign();
-		assert(c.equals(0, 0));
-	}); */
+    it('area()', () => {
+        t.set(0, 0, 10, 20);
+        expect(t.area()).to.equals(200);
+    });
+
+    it('area(strict)', () => {
+        t.set(10, 0, 0, 20);
+        expect(t.area()).to.equals(-200);
+        expect(t.area(true)).to.equals(0);
+    });
+
+    it('floor()', () => {
+        t.set(1.7, -1.7, 3.2, -3.2).floor();
+        expect(t.data).to.deep.almost.equals(new Float32Array([ 1, -2, 3, -4, 2, -3 ]));
+    });
+
+    it('ceil()', () => {
+        t.set(1.7, -1.7, 3.2, -3.2).ceil();
+        expect(t.data).to.deep.almost.equals(new Float32Array([ 2, -1, 4, -3, 3, -2 ]));
+    });
+
+    it('trunc()', () => {
+        t.set(1.7, -1.7, 3.2, -3.2).trunc();
+        expect(t.data).to.deep.almost.equals(new Float32Array([ 1, -1, 3, -3, 2, -2 ]));
+    });
+
+    it('fract()', () => {
+        t.set(1.7, -1.7, 3.2, -3.2).fract();
+        expect(t.data).to.deep.almost.equals(new Float32Array([ 0.7, -0.7, 0.2, -0.2, 0.45, -0.45 ]));
+    });
+
+    it('toString()', () => {
+        t.set(1, 2, 3, 4);
+        expect(t+'').to.equals('(1, 2, 3, 4)');
+    });
+
+    it('free()', () => {
+        let r = Rect.alloc(0, 0, 5, 5);
+        r.free();
+    });
 });

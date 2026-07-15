@@ -2,7 +2,7 @@
 #define __mat4_h
 
 struct mat4 {
-	float data[16];
+    float data[16];
 };
 
 export mat4 *mat4_alloc ();

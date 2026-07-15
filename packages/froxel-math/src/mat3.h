@@ -2,7 +2,7 @@
 #define __mat3_h
 
 struct mat3 {
-	float data[9];
+    float data[9];
 };
 
 export mat3 *mat3_alloc ();

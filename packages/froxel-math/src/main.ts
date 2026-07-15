@@ -3,6 +3,8 @@ import { loadFromDataUri } from 'asyl';
 
 import Vec2 from './vec2';
 export { default as Vec2 } from './vec2';
+import Vec3 from './vec3';
+export { default as Vec3 } from './vec3';
 import Vec4 from './vec4';
 export { default as Vec4 } from './vec4';
 
@@ -22,25 +24,25 @@ import froxel_math from 'data-url:./froxel-math.wasm';
 /**
  * Initializes the WebAssembly module for the froxel-math package.
  */
-export function init () : Promise<void>
+export function init() : Promise<void>
 {
-	return new Promise<void> (async (resolve, reject) =>
-	{
-		loadFromDataUri(froxel_math, { })
-		.then(asylModule =>
-		{
-			module = asylModule;
+    if (module !== null)
+        return Promise.resolve();
 
-			Vec2.bind(module);
-			Vec4.bind(module);
+    return new Promise<void> (async (resolve, reject) => {
+        loadFromDataUri(froxel_math, {})
+        .then(asylModule => {
+            module = asylModule;
 
-			Rect.bind(module);
+            Vec2.bind(module);
+            Vec3.bind(module);
+            Vec4.bind(module);
+            Rect.bind(module);
+            Mat3.bind(module);
+            Mat4.bind(module);
 
-			Mat3.bind(module);
-			Mat4.bind(module);
-
-			resolve();
-		})
-		.catch(reject);
-	});
+            resolve();
+        })
+        .catch(reject);
+    });
 }

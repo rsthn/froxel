@@ -2,7 +2,7 @@
 #define __vec4_h
 
 struct vec4 {
-	float x, y, z, w;
+    float x, y, z, w;
 };
 
 export vec4 *vec4_alloc4f (double x, double y, double z, double w);

@@ -4,9 +4,9 @@
 #include "vec2.h"
 
 struct rect {
-	float x1, y1;
-	float x2, y2;
-	float cx, cy;
+    float x1, y1;
+    float x2, y2;
+    float cx, cy;
 };
 
 export rect *rect_alloc4f (double x1, double y1, double x2, double y2);

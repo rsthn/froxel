@@ -2,7 +2,7 @@
 #define __vec2_h
 
 struct vec2 {
-	float x, y;
+    float x, y;
 };
 
 export vec2 *vec2_alloc2f (double x, double y);
