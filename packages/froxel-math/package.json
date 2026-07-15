@@ -25,7 +25,7 @@
         "directory": "packages/froxel-math"
     },
     "author": "RedStar Technologies",
-    "license": "MIT",
+    "license": "Apache-2.0",
     "files": [
         "LICENSE",
         "README.md",
